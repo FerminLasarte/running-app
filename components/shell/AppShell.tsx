@@ -242,7 +242,7 @@ export default function AppShell() {
     setPlay(true);
     const v = viewRef.current;
     if (v)
-      v.querySelectorAll<HTMLElement>('.hero,.hero2,.raceband,.card,.kpi,.day,.item').forEach((el, i) => {
+      v.querySelectorAll<HTMLElement>('.hero,.hero2,.card,.kpi,.day,.item').forEach((el, i) => {
         el.classList.add('rise');
         el.style.setProperty('--i', String(Math.min(i, 12)));
       });
