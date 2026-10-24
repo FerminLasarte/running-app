@@ -15,7 +15,7 @@ import { planSummary, sdate } from '@/lib/domain/stats';
 import { announceProgress, gotIds } from '@/lib/domain/trophies';
 import type { Decoupling } from '@/lib/domain/types';
 import { dateLabel, todayS, WEATHER } from '@/lib/domain/util';
-import { SV_DAYS, type SvItem } from '@/lib/domain/week';
+import { SV_DAYS, svActs, type SvItem } from '@/lib/domain/week';
 import { xpState } from '@/lib/domain/xp';
 import { aiErr, sampleRun } from '@/lib/domain/planForm';
 import {
@@ -28,7 +28,6 @@ import {
   resultInit,
   rfPick,
   setFlat,
-  svActs,
   svFill,
   type ResF,
   type ResultProps,
@@ -173,7 +172,7 @@ export default function ResultSheet(props: ResultProps) {
     }
   }
 
-  async function save() {
+  function save() {
     const r = buildResult(f);
     if ('err' in r) {
       setErr(r.err);
@@ -182,7 +181,9 @@ export default function ResultSheet(props: ResultProps) {
     if (blockDemo()) return;
     const had = gotIds(),
       x0 = xpState();
-    await saveSession(r.s);
+    /* como en el original, el puntaje sale al instante: la sesión ya está en el estado y la subida a la nube sigue
+       en segundo plano (si falla, queda marcada y se reintenta sola) */
+    void saveSession(r.s);
     draftClear();
     openSheet('score', { id: r.s.id, fresh: true });
     announceProgress(had, x0);

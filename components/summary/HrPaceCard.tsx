@@ -2,6 +2,7 @@
 import { LineChart, TableTv } from '@/components/charts';
 import { easyHrRuns, efTrend, medOf } from '@/lib/domain/analysis';
 import { DF_M, DF_MY, cap, clamp, dateLabel, fmt, fmtPace, pd } from '@/lib/domain/util';
+import { TvMore } from '@/components/ui/TvMore';
 
 /** semicírculo de −10% a +30%; la aguja marca tu mejora */
 export function HrGauge({ pct }: { pct: number }) {
@@ -154,14 +155,11 @@ export function HrPaceCard() {
             return [m, q.hr + ' lpm', fmtPace(paceAt(ef)) + '/km'];
           })}
         />
-        <details className="tv">
-          <summary>¿Cómo se calcula?</summary>
-          <p className="sub">
-            Uso tus rodajes y fondos con frecuencia cardíaca ({R.length} salidas desde el {dateLabel(R[0].d)}; antes corrías sin reloj). Para cada uno calculo cuántos metros avanzás por cada latido y saco la tendencia de todas tus
-            salidas, desde la primera hasta la última, con un método robusto (una salida rara no la mueve). Dejo afuera las salidas con caminatas y los valores fuera de lo normal. Después lo paso a algo concreto: la FC que necesitás
-            para tu ritmo habitual ({fmtPace(refP)}/km) y el ritmo que te sale con tu FC habitual ({refH} lpm). El calor, las subidas, el cansancio o dormir mal suben la FC: mirá la tendencia, no un solo mes.
-          </p>
-        </details>
+        <TvMore t="¿Cómo se calcula?">
+          Uso tus rodajes y fondos con frecuencia cardíaca ({R.length} salidas desde el {dateLabel(R[0].d)}; antes corrías sin reloj). Para cada uno calculo cuántos metros avanzás por cada latido y saco la tendencia de todas tus
+          salidas, desde la primera hasta la última, con un método robusto (una salida rara no la mueve). Dejo afuera las salidas con caminatas y los valores fuera de lo normal. Después lo paso a algo concreto: la FC que necesitás
+          para tu ritmo habitual ({fmtPace(refP)}/km) y el ritmo que te sale con tu FC habitual ({refH} lpm). El calor, las subidas, el cansancio o dormir mal suben la FC: mirá la tendencia, no un solo mes.
+        </TvMore>
       </div>
     </section>
   );

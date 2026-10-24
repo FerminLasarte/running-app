@@ -1,8 +1,9 @@
 /* Estado global de la app (Zustand).
-   - Los componentes se suscriben con `useApp(selector)` o `useS()` (todo el estado: re-render ante cualquier cambio,
-     igual que el `render()` del artifact original).
+   - Los componentes se suscriben con `useApp(selector)` o `useS()` (todo el estado, como el `render()` del artifact
+     original, salvo lo que cambia a cada rato y no dibuja nada en las vistas: ver VOLATILE).
    - El código de dominio (lib/domain/*) lee el estado actual a través de `S`, un proxy de solo lectura:
      `S.cfg`, `S.sessions`, `S.routes`… Para escribir, usá `setS` / `setUi` o las acciones de lib/data/actions. */
+import { useRef, useSyncExternalStore } from 'react';
 import { create } from 'zustand';
 import type { Cfg, Route, Session } from './domain/types';
 import { defaultCfg } from './domain/defaults';
@@ -97,8 +98,30 @@ export const useApp = create<AppState>()(() => ({
   toast: null,
 }));
 
-/** Todo el estado, suscripto: el componente se vuelve a dibujar ante cualquier cambio. */
-export const useS = () => useApp();
+/* lo que cambia seguido y solo lo dibujan el shell, la hoja, el aviso o el estado de guardado (que se suscriben con
+   un selector propio): que no redibuje las vistas. El estado que devuelve useS() puede tener estos campos viejos. */
+const VOLATILE = new Set<keyof AppState>(['saving', 'toast', 'sheet', 'failed', 'cloudLost']);
+const VOLATILE_UI = new Set(['sheetClosing', 'sheetConfirm', 'celebrate']);
+function sameForViews(a: AppState, b: AppState) {
+  if (a === b) return true;
+  for (const k in b) {
+    const key = k as keyof AppState;
+    if (VOLATILE.has(key) || a[key] === b[key]) continue;
+    if (key !== 'ui') return false;
+    for (const u of new Set([...Object.keys(a.ui), ...Object.keys(b.ui)])) if (!VOLATILE_UI.has(u) && a.ui[u] !== b.ui[u]) return false;
+  }
+  return true;
+}
+/** Todo el estado, suscripto: el componente se vuelve a dibujar ante cualquier cambio que pueda verse en una vista. */
+export function useS(): AppState {
+  const last = useRef<AppState | null>(null);
+  const snap = () => {
+    const n = useApp.getState();
+    if (!last.current || !sameForViews(last.current, n)) last.current = n;
+    return last.current;
+  };
+  return useSyncExternalStore(useApp.subscribe, snap, snap);
+}
 
 /** Lectura del estado actual para el código de dominio y los manejadores de eventos (no suscribe). */
 export const S: Readonly<AppState> = new Proxy({} as AppState, {

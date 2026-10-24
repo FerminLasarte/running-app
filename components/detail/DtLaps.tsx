@@ -2,7 +2,7 @@
 /* Vuelta por vuelta: los parciales del reloj traídos de Strava (quedan en caché mientras la app está abierta). */
 import { useState, type CSSProperties } from 'react';
 import { getUi, useApp, useUi } from '@/lib/store';
-import { svCall, stravaErrMsg } from '@/lib/strava/client';
+import { runActs, svCall, stravaErrMsg } from '@/lib/strava/client';
 import { fmt, fmtPace, sum } from '@/lib/domain/util';
 
 /** un parcial: km, segundos y FC media (0 si no hay) */
@@ -67,7 +67,7 @@ export function DtLaps({ id }: { id: string }) {
         setPh({ k: 'busy' });
         if (!sid) {
           const pl = await svCall('list_activities', { first: 60, ordering: 'StartDateLocalDesc' });
-          const a = ((pl && pl.activities) || []).find((q) => /run/i.test(q.sport_type || '') && String(q.start_local || '').slice(0, 10) === r.date && Math.abs(((q.summary && q.summary.distance) || 0) / 1000 - r.distKm) < 0.4);
+          const a = runActs(pl).find((q) => q.date === r.date && Math.abs(q.km - r.distKm) < 0.4);
           if (!a) {
             setPh({ k: 'msg', t: 'No encontré esta corrida en Strava.' });
             return;

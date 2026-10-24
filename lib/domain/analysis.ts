@@ -3,6 +3,7 @@ import { S } from '@/lib/store';
 import type { SessionType } from './types';
 import { doneList, type DoneSession } from './stats';
 import { addDays, dayDiff, num, pd, sod, ymd } from './util';
+import { memoData } from './memo';
 
 export const LOAD_BUMP: Record<SessionType, number> = { series: 1.25, tempo: 1.25, test: 1.3, fondo: 1, regen: 0.9 };
 
@@ -24,7 +25,7 @@ export interface FormPoint {
   tsb: number;
 }
 /** forma, fatiga y frescura día por día desde la primera salida; null con menos de 5 salidas o 3 semanas */
-export function formSeries(): FormPoint[] | null {
+export const formSeries = memoData(function formSeries(): FormPoint[] | null {
   const d = doneList();
   if (d.length < 5) return null;
   const first = pd(d[0].result.date),
@@ -46,7 +47,7 @@ export function formSeries(): FormPoint[] | null {
     out.push({ t: day.getTime(), d: day, ctl, atl, tsb: ctl - atl });
   }
   return out;
-}
+});
 
 /** km a ritmo fuerte de una sesión de calidad: «8x600 m» en la nota, o el 40% de la sesión */
 export function hardKm(x: DoneSession) {

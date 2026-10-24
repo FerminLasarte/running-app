@@ -1,6 +1,7 @@
 /* Carga de la semana: últimos 7 días contra el promedio de 4 semanas (línea 2663 del original). */
 import { deloadInfo, loadInfo } from '@/lib/domain/stats';
 import { clamp, fmt } from '@/lib/domain/util';
+import { TvMore } from '@/components/ui/TvMore';
 
 export function LoadCard() {
   const L = loadInfo(),
@@ -54,12 +55,9 @@ export function LoadCard() {
       </p>
       {dl != null && dl >= 3 ? <p className="note">Hace {dl} semanas que no bajás el volumen. Una semana liviana (20–30% menos km) ayuda a asimilar el trabajo. Si tu plan ya tiene una, seguila a ella.</p> : null}
       <div className="tv-row">
-        <details className="tv">
-          <summary>¿Cómo se calcula?</summary>
-          <p className="sub">
-            Divido los km de tus últimos 7 días por tu promedio semanal de las últimas 4 semanas. Entre 0,8 y 1,3 es la zona más segura; sobre 1,5 el riesgo sube. No uso la regla del «10% por semana» porque los estudios no la respaldan.
-          </p>
-        </details>
+        <TvMore t="¿Cómo se calcula?">
+          Divido los km de tus últimos 7 días por tu promedio semanal de las últimas 4 semanas. Entre 0,8 y 1,3 es la zona más segura; sobre 1,5 el riesgo sube. No uso la regla del «10% por semana» porque los estudios no la respaldan.
+        </TvMore>
       </div>
     </section>
   );

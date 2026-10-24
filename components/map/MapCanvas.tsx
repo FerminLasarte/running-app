@@ -35,13 +35,27 @@ interface Rt extends MapRuntime {
   wheelT?: ReturnType<typeof setTimeout>;
   ht?: ReturnType<typeof setTimeout>;
   setHint: Dispatch<SetStateAction<Hint>> | null;
+  /** cuadro pedido para el gesto en curso (uno por cuadro aunque lleguen varios movimientos) */
+  raf: number;
 }
 
 function mapSafeTop(rt: Rt) {
   return rt.w ? parseFloat(getComputedStyle(rt.w).getPropertyValue('--sat')) || 0 : 0;
 }
-function draw(rt: Rt) {
-  if (rt.cv) mapDraw(rt.cv, rt, rt.M, rt.M.fs ? mapSafeTop(rt) : 0);
+function draw(rt: Rt, fast = false) {
+  if (rt.raf) {
+    cancelAnimationFrame(rt.raf);
+    rt.raf = 0;
+  }
+  if (rt.cv) mapDraw(rt.cv, rt, rt.M, rt.M.fs ? mapSafeTop(rt) : 0, fast);
+}
+/** durante un gesto: a lo sumo un dibujo por cuadro, reusando la imagen del mapa de fondo */
+function drawSoon(rt: Rt) {
+  if (!rt.raf)
+    rt.raf = requestAnimationFrame(() => {
+      rt.raf = 0;
+      draw(rt, true);
+    });
 }
 function mapSize(rt: Rt) {
   const cv = rt.cv;
@@ -64,7 +78,7 @@ function commit(rt: Rt) {
   rt.seen = v;
   setMapUi({ view: v });
 }
-function mapZoomAt(rt: Rt, cx: number, cy: number, k: number) {
+function mapZoomAt(rt: Rt, cx: number, cy: number, k: number, gesture = false) {
   const cv = rt.cv,
     V = rt.view;
   if (!cv || !V) return;
@@ -76,7 +90,8 @@ function mapZoomAt(rt: Rt, cx: number, cy: number, k: number) {
   V.x = wx - (cx - W / 2) / V.s;
   V.y = wy - (cy - H / 2) / V.s;
   rt.dirty = true;
-  draw(rt);
+  if (gesture) drawSoon(rt);
+  else draw(rt);
 }
 /** dibuja los recorridos de a uno, como si se fueran trazando (o directo, sin animación) */
 function play(rt: Rt, on: boolean) {
@@ -89,7 +104,8 @@ function play(rt: Rt, on: boolean) {
     const step = (now: number) => {
       if (rt.tok !== tok || !rt.cv) return;
       rt.t = clamp((now - t0 - 250) / 1900, 0, 1);
-      draw(rt);
+      /* el encuadre no cambia mientras se trazan los recorridos: el mapa de fondo se reusa tal cual */
+      draw(rt, true);
       if (rt.t < 1) requestAnimationFrame(step);
     };
     step(t0);
@@ -162,7 +178,7 @@ export default function MapCanvas({
 }) {
   const wRef = useRef<HTMLDivElement>(null),
     cRef = useRef<HTMLCanvasElement>(null);
-  const R = useRef<Rt>({ view: null, t: 1, dpr: 1, bc: null, cv: null, w: null, M, locked, tok: null, seen: null, dirty: false, setHint: null });
+  const R = useRef<Rt>({ view: null, t: 1, dpr: 1, bc: null, cv: null, w: null, M, locked, tok: null, seen: null, dirty: false, setHint: null, raf: 0 });
   const [hint, setHint] = useState<Hint>({ t: '', on: false });
 
   /* lo último que dibujó React: los gestos y la animación lo leen de acá */
@@ -238,11 +254,11 @@ export default function MapCanvas({
         V.x -= (p[0] - old[0]) / V.s;
         V.y -= (p[1] - old[1]) / V.s;
         rt.dirty = true;
-        draw(rt);
+        drawSoon(rt);
       } else if (ptrs.size === 2) {
         const q = [...ptrs.values()],
           dist = Math.hypot(q[0][0] - q[1][0], q[0][1] - q[1][1]);
-        if (pinch > 0 && dist > 0) mapZoomAt(rt, (q[0][0] + q[1][0]) / 2, (q[0][1] + q[1][1]) / 2, dist / pinch);
+        if (pinch > 0 && dist > 0) mapZoomAt(rt, (q[0][0] + q[1][0]) / 2, (q[0][1] + q[1][1]) / 2, dist / pinch, true);
         pinch = dist;
         if (down) down.moved = 99;
       }
@@ -260,6 +276,8 @@ export default function MapCanvas({
         setMapUi({ sel: r ? r.id : null });
       }
       if (ptrs.size === 0) {
+        /* al soltar, el mapa de fondo se traza de nuevo, nítido */
+        if (rt.raf || rt.dirty) draw(rt);
         commit(rt);
         down = null;
       }
@@ -268,6 +286,7 @@ export default function MapCanvas({
       ptrs.delete(e.pointerId);
       pinch = 0;
       down = null;
+      draw(rt);
       commit(rt);
     };
     /* la rueda hace scroll de la página; con Ctrl/⌘ (o pellizcando el trackpad) hace zoom. En pantalla completa, siempre zoom */
@@ -279,9 +298,12 @@ export default function MapCanvas({
       e.preventDefault();
       const p = pos(e);
       stopPlay(rt);
-      mapZoomAt(rt, p[0], p[1], Math.exp(-e.deltaY * (e.ctrlKey && Math.abs(e.deltaY) < 40 ? 0.01 : 0.0016)));
+      mapZoomAt(rt, p[0], p[1], Math.exp(-e.deltaY * (e.ctrlKey && Math.abs(e.deltaY) < 40 ? 0.01 : 0.0016)), true);
       clearTimeout(rt.wheelT);
-      rt.wheelT = setTimeout(() => commit(rt), 250);
+      rt.wheelT = setTimeout(() => {
+        draw(rt);
+        commit(rt);
+      }, 250);
     };
     const onDbl = (e: MouseEvent) => {
       const p = pos(e);
@@ -313,6 +335,8 @@ export default function MapCanvas({
       mo.disconnect();
       clearTimeout(rt.wheelT);
       clearTimeout(rt.ht);
+      cancelAnimationFrame(rt.raf);
+      rt.raf = 0;
       rt.tok = null;
       commit(rt);
       rt.cv = null;

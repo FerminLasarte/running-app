@@ -3,6 +3,7 @@ import { zoneRange } from '@/lib/domain/config';
 import { hardKm } from '@/lib/domain/analysis';
 import { doneList, hrRangeOf } from '@/lib/domain/stats';
 import { addDays, sod, sum, ymd } from '@/lib/domain/util';
+import { TvMore } from '@/components/ui/TvMore';
 
 export function IntensityCard() {
   const today = sod(new Date()),
@@ -66,13 +67,10 @@ export function IntensityCard() {
       <p style={{ marginTop: 8 }}>{msg}</p>
       {zt}
       <div className="tv-row">
-        <details className="tv">
-          <summary>¿Cómo se calcula?</summary>
-          <p className="sub">
-            Fuerte: los kilómetros de trabajo de series, tempos y tests. Si en la nota de la sesión está escrito «8x600 m», cuento 8 por 600 m; si no, estimo el 40% de la sesión (el resto es calentamiento, pausas y enfriamiento). Para un
-            10K se busca algo así como 75 a 85% fácil.
-          </p>
-        </details>
+        <TvMore t="¿Cómo se calcula?">
+          Fuerte: los kilómetros de trabajo de series, tempos y tests. Si en la nota de la sesión está escrito «8x600 m», cuento 8 por 600 m; si no, estimo el 40% de la sesión (el resto es calentamiento, pausas y enfriamiento). Para un
+          10K se busca algo así como 75 a 85% fácil.
+        </TvMore>
       </div>
     </section>
   );

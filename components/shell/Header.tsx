@@ -1,14 +1,17 @@
 'use client';
-/* Encabezado de cada pestaña (líneas 2204–2274 del original): saludo y «hoy» en Semana; ícono, título y una línea
-   con lo más importante en las demás. Los avisos (ejemplo, sin conexión, sin guardar) van aparte, en #bnr. */
-import type { CSSProperties, ReactNode } from 'react';
-import { useS, type Tab } from '@/lib/store';
+/* Encabezado de cada pestaña (líneas 2204–2274 del original): saludo y «hoy» en Semana; título y una línea con lo
+   más importante en las demás. Es un título grande que se va con la página; al bajar queda la barra fina (NavBar).
+   Los avisos (ejemplo, sin conexión, sin guardar) van aparte, en #bnr, en una línea. */
+import { useEffect, useState, type ReactNode } from 'react';
+import { useShallow } from 'zustand/react/shallow';
+import { useApp, useS, type Tab } from '@/lib/store';
 import { TYPES, upcomingRaces } from '@/lib/domain/config';
-import { doneList, planKmOf, sdate } from '@/lib/domain/stats';
+import { doneList, monthNow, planKmOf, sdate } from '@/lib/domain/stats';
+import { nextSession } from '@/lib/domain/week';
 import { xpState } from '@/lib/domain/xp';
-import { DF_LONG, WD, cap, dShort, dayDiff, fmt, fmtDur, pd, sod, sum, todayS } from '@/lib/domain/util';
+import { DF_LONG, WD, addDays, cap, daysTo, dShort, fmt, fmtDur, pd, sod, sum, todayS, ymd } from '@/lib/domain/util';
 import { demoOff, goTab, retryFailed } from '@/lib/data/actions';
-import { TABS, TITLES } from './tabs';
+import { TITLES } from './tabs';
 
 export const TAB_C: Record<Tab, string> = { week: 'var(--t2)', sum: 'var(--info)', log: 'var(--t3)', lv: 'var(--accent)', map: 'var(--t5)', top: 'var(--warn)', set: 'var(--ink2)' };
 
@@ -40,9 +43,9 @@ function TodayLine() {
         {planKmOf(p) ? ' · ' + fmt(planKmOf(p), 1) + ' km' : ''}
       </>
     );
-  const nx = S.sessions.filter((x) => x.plan && !x.result && !x.missed && sdate(x) > tS).sort((a, b) => sdate(a).localeCompare(sdate(b)))[0];
+  const nx = nextSession(ymd(addDays(sod(new Date()), 1)));
   if (!nx) return <>Hoy es día de descanso</>;
-  const nd = dayDiff(sod(new Date()), pd(sdate(nx))),
+  const nd = daysTo(sdate(nx)),
     d = pd(sdate(nx));
   return (
     <>
@@ -58,14 +61,12 @@ function TabSub({ t }: { t: Tab }): ReactNode {
   const d = doneList(),
     k = (v: number) => fmt(v, v < 100 ? 1 : 0);
   if (t === 'sum') {
-    const m = todayS().slice(0, 7),
-      L = d.filter((x) => x.result.date.slice(0, 7) === m),
-      km = sum(L.map((x) => x.result.distKm));
+    const { km, count } = monthNow();
     const mn = cap(new Intl.DateTimeFormat('es-AR', { month: 'long' }).format(new Date()));
-    return L.length ? (
+    return count ? (
       <>
-        {mn}: <b>{k(km)} km</b> en {L.length}
-        {L.length === 1 ? ' salida' : ' salidas'}
+        {mn}: <b>{k(km)} km</b> en {count}
+        {count === 1 ? ' salida' : ' salidas'}
       </>
     ) : (
       <>{mn}: todavía sin salidas</>
@@ -82,7 +83,7 @@ function TabSub({ t }: { t: Tab }): ReactNode {
   if (t === 'lv') {
     const r = upcomingRaces()[0];
     if (!r) return <>Cargá tu próxima carrera para armar el plan</>;
-    const n = dayDiff(sod(new Date()), pd(r.date));
+    const n = daysTo(r.date);
     return (
       <>
         <b>{r.name}</b> {n === 0 ? 'es hoy' : n === 1 ? 'es mañana' : 'en ' + n + ' días'}
@@ -111,13 +112,8 @@ function TabSub({ t }: { t: Tab }): ReactNode {
   return null;
 }
 
-export function TabIcon({ t, hidden = true }: { t: Tab; hidden?: boolean }) {
-  const it = TABS.find((x) => x.v === t)!;
-  return <svg className="ic ph" viewBox="0 0 256 256" aria-hidden={hidden} dangerouslySetInnerHTML={{ __html: it.svg }} />;
-}
-
 export function SaveState() {
-  const S = useS();
+  const S = useApp(useShallow((s) => ({ mode: s.mode, saving: s.saving, cloudLost: s.cloudLost, failed: s.failed })));
   let t = 'Solo en este navegador',
     c = 'warn';
   if (S.mode === 'cloud') {
@@ -172,57 +168,51 @@ export const SettingsGlyph = () => (
   </svg>
 );
 
+/** Ajustes: en el celu es el botón redondo de arriba a la derecha; si cargaste tu foto, es tu foto. */
+export function SettingsButton() {
+  const tab = useApp((s) => s.tab),
+    av = useApp((s) => s.cfg.avatar);
+  return (
+    <button className={'themebtn setbtn' + (av ? ' has-av' : '')} aria-label="Ajustes" aria-current={tab === 'set' ? 'page' : undefined} onClick={() => goTab('set')}>
+      {av ? (
+        // eslint-disable-next-line @next/next/no-img-element
+        <img className="av-img" src={av} alt="" />
+      ) : (
+        <SettingsGlyph />
+      )}
+    </button>
+  );
+}
+
 function HeaderRight() {
-  const S = useS();
   return (
     <div className="tb-r">
       <SaveState />
-      <button className="themebtn setbtn" aria-label="Ajustes" aria-current={S.tab === 'set' ? 'page' : undefined} onClick={() => goTab('set')}>
-        <SettingsGlyph />
-      </button>
+      <SettingsButton />
       <ThemeButton />
     </div>
   );
 }
 
+/* el saludo cambia con la franja horaria: si la app queda abierta, se actualiza solo */
+function useMinute() {
+  const [, set] = useState(0);
+  useEffect(() => {
+    const iv = setInterval(() => set((t) => t + 1), 60000);
+    return () => clearInterval(iv);
+  }, []);
+}
+
 export function Header() {
   const S = useS();
-  const eyebrow = cap(DF_LONG.format(new Date()));
-  if (S.tab !== 'week') {
-    const c = TAB_C[S.tab] || 'var(--accent)';
-    return (
-      <div className="topbar ph" style={{ '--pc': c } as CSSProperties}>
-        <i className="ph-wm" aria-hidden="true">
-          <TabIcon t={S.tab} />
-        </i>
-        <div className="ph-main">
-          <span className="ph-ic">
-            <TabIcon t={S.tab} />
-          </span>
-          <div className="ph-tx">
-            <span className="eyebrow">{eyebrow}</span>
-            <h1>{TITLES[S.tab]}</h1>
-            {S.loaded ? (
-              <p className="ph-sub">
-                <TabSub t={S.tab} />
-              </p>
-            ) : null}
-          </div>
-        </div>
-        <HeaderRight />
-      </div>
-    );
-  }
+  useMinute();
+  const week = S.tab === 'week';
   return (
-    <div className="topbar greet-bar">
-      <div>
-        <span className="eyebrow">{eyebrow}</span>
-        <h1 className="greet">{greeting(S.cfg.name)}</h1>
-        {S.loaded ? (
-          <p className="greet-sub">
-            <TodayLine />
-          </p>
-        ) : null}
+    <div className="topbar">
+      <div className="hd-tx">
+        {week ? <span className="eyebrow">{cap(DF_LONG.format(new Date()))}</span> : null}
+        <h1>{week ? greeting(S.cfg.name) : TITLES[S.tab]}</h1>
+        {S.loaded ? <p className="hd-sub">{week ? <TodayLine /> : <TabSub t={S.tab} />}</p> : null}
       </div>
       <HeaderRight />
     </div>
@@ -230,7 +220,7 @@ export function Header() {
 }
 
 export function Banners() {
-  const S = useS();
+  const S = useApp(useShallow((s) => ({ demo: s.demo, mode: s.mode, loaded: s.loaded, cloudLost: s.cloudLost, failed: s.failed })));
   const nf = Object.keys(S.failed).length;
   return (
     <>
@@ -245,14 +235,14 @@ export function Banners() {
         </div>
       ) : null}
       {S.cloudLost ? (
-        <div className="banner" role="status">
+        <div className="banner bad" role="status">
           <span>
             <b>Sin conexión con tu cuenta.</b> {nf ? nf + (nf === 1 ? ' cambio queda' : ' cambios quedan') + ' en este navegador y lo' : 'Lo que cargues queda en este navegador y lo'} subo solo cuando vuelva. Si vas a
             cerrar, exportá un respaldo.
           </span>
         </div>
       ) : nf ? (
-        <div className="banner" role="status">
+        <div className="banner bad" role="status">
           <span>
             <b>Hay cambios sin guardar en la nube.</b> Siguen en este navegador; los reintento solo cada 20 segundos.
           </span>

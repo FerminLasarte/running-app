@@ -6,7 +6,7 @@ import { openSheet } from '@/lib/sheets';
 import { blockDemo, saveCfg, toast } from '@/lib/data/actions';
 import { addChallenge, chKindOf, chPresets, chProgress } from '@/lib/domain/challenges';
 import type { Challenge } from '@/lib/domain/types';
-import { cleanObj, dayDiff, dShort, fmt, pd, sod, todayS } from '@/lib/domain/util';
+import { cleanObj, daysTo, dShort, fmt, pd, todayS } from '@/lib/domain/util';
 
 const cssVars = (o: Record<string, string | number>) => o as CSSProperties;
 
@@ -30,7 +30,7 @@ function ChCard({ c }: { c: Challenge }) {
     K = chKindOf(c.kind),
     f = Math.min(1, p.cur / c.target),
     tS = todayS(),
-    left = dayDiff(sod(new Date()), pd(c.to));
+    left = daysTo(c.to);
   const fv = (v: number) => (c.kind === 'runs' ? fmt(v, 0) : c.kind === 'plan' ? fmt(v, 0) : fmt(v, 1));
   let st;
   if (p.done)

@@ -4,6 +4,7 @@ import { CountUp } from '@/components/ui/CountUp';
 import { LineChart } from '@/components/charts';
 import { formSeries } from '@/lib/domain/analysis';
 import { dShort, fmt } from '@/lib/domain/util';
+import { TvMore } from '@/components/ui/TvMore';
 
 const sign = (t: number) => (Math.round(t) > 0 ? '+' : '') + fmt(Math.round(t) || 0, 0);
 
@@ -49,13 +50,10 @@ export function FormCard() {
       </div>
       <LineChart id="form" pts={pts} o={{ invert: false, yFmt: (v) => fmt(v, 0), minPad: 3, aria: 'Forma acumulada' }} />
       <div className="tv-row">
-        <details className="tv">
-          <summary>¿Cómo se calcula?</summary>
-          <p className="sub">
-            A cada salida le asigno una carga según su duración y qué tan alta fue tu frecuencia cardíaca (las series y tempos pesan un poco más). La <b>forma</b> es el promedio de esa carga en unas 6 semanas, la <b>fatiga</b> en unos 7
-            días y la <b>frescura</b> es la diferencia. Son unidades relativas: sirven para comparar tu semana con tus semanas anteriores, no con otras personas. No cuento el gimnasio ni la bici.
-          </p>
-        </details>
+        <TvMore t="¿Cómo se calcula?">
+          A cada salida le asigno una carga según su duración y qué tan alta fue tu frecuencia cardíaca (las series y tempos pesan un poco más). La <b>forma</b> es el promedio de esa carga en unas 6 semanas, la <b>fatiga</b> en unos 7
+          días y la <b>frescura</b> es la diferencia. Son unidades relativas: sirven para comparar tu semana con tus semanas anteriores, no con otras personas. No cuento el gimnasio ni la bici.
+        </TvMore>
       </div>
     </section>
   );

@@ -17,7 +17,7 @@ import { ExpandedPlan } from '@/components/detail/ExpandedPlan';
 import { Glance } from '@/components/week/Glance';
 import { LastRaceNote } from '@/components/week/LastRaceNote';
 import { MovedNote } from '@/components/week/MovedNote';
-import { PendCard, pendCardShown } from '@/components/week/PendCard';
+import { PendCard } from '@/components/week/PendCard';
 import { SessChip } from '@/components/week/SessChip';
 import { WeekReview } from '@/components/week/WeekReview';
 import { WeekStrip } from '@/components/week/WeekStrip';
@@ -112,8 +112,6 @@ export default function WeekView() {
   const nxt = nextSession(tS);
   const starter = !st.sessions.length && !st.demo;
   const pend = pendingSessions(tS);
-  const hasL = !!nxt || starter,
-    hasR = pendCardShown(pend, st.demo);
 
   const endDrag = () => {
     setDrag(null);
@@ -129,11 +127,9 @@ export default function WeekView() {
     }
   };
 
+  /* arriba lo que importa hoy: el modo suave si está activo, la próxima sesión, los datos de un vistazo y la semana */
   return (
     <>
-      <Glance wk={wk} tS={tS} />
-      {st.weekOff === 0 ? <Medallero /> : null}
-      <LastRaceNote />
       {easyOn ? (
         <div className="banner" style={{ margin: '0 0 14px' }}>
           <span>
@@ -144,6 +140,23 @@ export default function WeekView() {
           </button>
         </div>
       ) : null}
+      {nxt ? <NextCard nxt={nxt} easyOn={easyOn} /> : null}
+      {starter ? (
+        <section className="card">
+          <div className="h3">Empezá acá</div>
+          <p>
+            1. Planificá tu próxima sesión: subí una captura de tu reloj o armá las etapas (calentamiento, parte principal, enfriamiento).
+            <br />
+            2. Después de correr, cargá el resultado y te doy un puntaje de 0 a 100 con la explicación.
+          </p>
+          <div style={{ marginTop: 12 }}>
+            <button className="btn blk" data-a="demoOn" onClick={demoOn}>
+              Ver la app con datos de ejemplo
+            </button>
+          </div>
+        </section>
+      ) : null}
+      <Glance tS={tS} />
       <section className="card wk-card" id="wk-card">
         <div className="weekhead">
           <button className="ibtn" data-a="wk" data-d="-1" aria-label="Semana anterior" onClick={() => weekGo(-1)}>
@@ -207,29 +220,9 @@ export default function WeekView() {
           ) : null}
         </div>
       </section>
-      <div className={'wk-top' + (hasL && hasR ? '' : ' one')}>
-        <div className="wk-l">
-          {nxt ? <NextCard nxt={nxt} easyOn={easyOn} /> : null}
-          {starter ? (
-            <section className="card">
-              <div className="h3">Empezá acá</div>
-              <p>
-                1. Planificá tu próxima sesión: subí una captura de tu reloj o armá las etapas (calentamiento, parte principal, enfriamiento).
-                <br />
-                2. Después de correr, cargá el resultado y te doy un puntaje de 0 a 100 con la explicación.
-              </p>
-              <div style={{ marginTop: 12 }}>
-                <button className="btn blk" data-a="demoOn" onClick={demoOn}>
-                  Ver la app con datos de ejemplo
-                </button>
-              </div>
-            </section>
-          ) : null}
-        </div>
-        <div className="wk-r">
-          <PendCard pend={pend} />
-        </div>
-      </div>
+      <PendCard pend={pend} />
+      <LastRaceNote />
+      {st.weekOff === 0 ? <Medallero /> : null}
       {/* día por día: los días vacíos ocupan una línea */}
       <h2 className="sec-h">Día por día</h2>
       <ul className="cal">

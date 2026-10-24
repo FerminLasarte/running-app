@@ -9,8 +9,8 @@ import { saveSession } from '@/lib/data/actions';
 import { openSheet } from '@/lib/sheets';
 import { useS, useUi } from '@/lib/store';
 
-/** ¿se muestra la tarjeta? (la parte de Strava no aparece en el modo ejemplo) */
-export const pendCardShown = (pend: Session[], demo: boolean) => pend.length > 0 || !demo;
+/* ¿se muestra la tarjeta? (la parte de Strava no aparece en el modo ejemplo) */
+const pendCardShown = (pend: Session[], demo: boolean) => pend.length > 0 || !demo;
 
 /* la parte de Strava (fuera del modo ejemplo: la tarjeta de arriba ya lo filtra) */
 function SvwCard() {
@@ -58,7 +58,7 @@ export function PendCard({ pend }: { pend: Session[] }) {
   const st = useS();
   if (!pendCardShown(pend, st.demo)) return null;
   return (
-    <section className="card">
+    <section className="card" id="pend-card">
       <div className="h3">Pendientes</div>
       {pend.length ? (
         <>

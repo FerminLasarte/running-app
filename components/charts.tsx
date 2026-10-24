@@ -6,6 +6,7 @@ import { useCallback, useState, type CSSProperties, type MouseEvent, type Pointe
 import type { SessionType } from '@/lib/domain/types';
 import { TYPES } from '@/lib/domain/config';
 import { dShort, fmt, fmtDur, fmtPace, sum } from '@/lib/domain/util';
+import { TvMore } from '@/components/ui/TvMore';
 
 const cssVars = (o: Record<string, string | number | undefined>) => o as CSSProperties;
 
@@ -337,10 +338,7 @@ export function ChartCard({ title, sub, extra, chart, table, more, children }: {
         <div className="tv-row">
           {table}
           {more ? (
-            <details className="tv">
-              <summary>Cómo se lee</summary>
-              <p className="sub">{more}</p>
-            </details>
+            <TvMore t="Cómo se lee">{more}</TvMore>
           ) : null}
         </div>
       ) : null}

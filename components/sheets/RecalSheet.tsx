@@ -5,7 +5,8 @@ import { RACE_PRESETS } from '@/lib/domain/config';
 import { RC_F, RC_N, applyRecal, paceAtVo2, rcChanges, rcDelta, rcRefDefault, rcSources, rcSteps, rcTargets, vo2AtPace, type RcCat, type RecalForm } from '@/lib/domain/recal';
 import { planTitle, vdotOf } from '@/lib/domain/daniels';
 import { dShort, dateLabel, fmt, fmtDur, fmtPace, pd } from '@/lib/domain/util';
-import { HmsInput, hmsFromSec, readHms, type Hms } from '@/components/ui/fields';
+import { HmsInput } from '@/components/ui/fields';
+import { hmsFromSec, readHms, type Hms } from '@/lib/domain/hms';
 import { SheetFrame } from './SheetFrame';
 
 const CAT_KEYS = Object.keys(RC_N) as RcCat[];

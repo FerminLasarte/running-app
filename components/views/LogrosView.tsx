@@ -5,6 +5,7 @@ import Character from '@/components/logros/Character';
 import Vitrina from '@/components/logros/Vitrina';
 import Desafios from '@/components/logros/Desafios';
 import TopList from '@/components/logros/TopList';
+import { SubTabs } from '@/components/ui/SubTabs';
 
 const SUBS: [string, string][] = [
   ['pj', 'Personaje'],
@@ -22,13 +23,7 @@ export default function LogrosView() {
   };
   return (
     <>
-      <div className="seg subtabs" role="tablist">
-        {SUBS.map((q) => (
-          <button key={q[0]} className="chip" data-a="logSub" data-v={q[0]} aria-pressed={q[0] === sub} onClick={() => pick(q[0])}>
-            {q[1]}
-          </button>
-        ))}
-      </div>
+      <SubTabs label="Secciones de logros" value={sub} items={SUBS} onPick={pick} act="logSub" />
       {sub === 'pj' ? <Character /> : sub === 'vit' ? <Vitrina /> : sub === 'des' ? <Desafios /> : <TopList />}
     </>
   );

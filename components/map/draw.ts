@@ -14,9 +14,14 @@ export interface MapRuntime {
   dpr: number;
   /** lienzo aparte para el mapa de fondo */
   bc: HTMLCanvasElement | null;
+  /** encuadre y opciones con los que se dibujó ese lienzo aparte (para reusarlo mientras dura un gesto) */
+  bcView?: MapVp | null;
+  bcKey?: string;
 }
 
-export function mapDraw(cv: HTMLCanvasElement, rt: MapRuntime, M: MapUi, safeTop: number) {
+/** `fast`: hay un gesto en curso. El mapa de fondo (miles de calles y sus nombres) no se vuelve a trazar en cada
+    cuadro: se mueve y escala la imagen ya dibujada, y al soltar se traza de nuevo, nítido. */
+export function mapDraw(cv: HTMLCanvasElement, rt: MapRuntime, M: MapUi, safeTop: number, fast = false) {
   const d = rt.dpr || 1,
     W = cv.width / d,
     H = cv.height / d;
@@ -48,7 +53,20 @@ export function mapDraw(cv: HTMLCanvasElement, rt: MapRuntime, M: MapUi, safeTop
     }
     const main = ctx,
       bx = bc.getContext('2d');
-    if (bx) {
+    const key = [cv.width, cv.height, d, dark, M.hb || '', M.fs ? safeTop : 0, M.sel ? 1 : 0].join('|'),
+      B0 = rt.bcView;
+    const same = !!B0 && rt.bcKey === key && B0.x === V.x && B0.y === V.y && B0.s === V.s;
+    if (bx && B0 && rt.bcKey === key && (same || fast)) {
+      /* la imagen guardada, llevada al encuadre de ahora: x' = k·x + (W/2 − k·W/2 + (x0 − x)·s) */
+      const k = V.s / B0.s;
+      ctx.fillStyle = g('--surface2') || '#171F2A';
+      ctx.fillRect(0, 0, W, H);
+      ctx.setTransform(k, 0, 0, k, d * (W / 2 - (k * W) / 2 + (B0.x - V.x) * V.s), d * (H / 2 - (k * H) / 2 + (B0.y - V.y) * V.s));
+      ctx.drawImage(bc, 0, 0);
+      ctx.setTransform(d, 0, 0, d, 0, 0);
+    } else if (bx) {
+      rt.bcView = { ...V };
+      rt.bcKey = key;
       ctx = bx;
       ctx.setTransform(d, 0, 0, d, 0, 0);
       ctx.globalCompositeOperation = 'source-over';
