@@ -5,7 +5,7 @@ import { setS, useS } from '@/lib/store';
 import { demoOn } from '@/lib/data/actions';
 import { TYPES, TYPE_KEYS, isType, nextRace, racePaceSec, refRace } from '@/lib/domain/config';
 import { keyPace } from '@/lib/domain/score';
-import { doneList, effPoints, kmBetween, monthSeries, streakInfo, typeParts, typeRead, weekSeries } from '@/lib/domain/stats';
+import { doneList, effPoints, kmBetween, monthSeries, streakInfo, typeParts, typeRead, weekSeries, monthNow } from '@/lib/domain/stats';
 import type { SessionType } from '@/lib/domain/types';
 import { DF_M, DF_MY, addDays, cap, dShort, dateLabel, fmt, fmtPace, mondayOf, pd, sod, sum, ymd } from '@/lib/domain/util';
 import { CountUp } from '@/components/ui/CountUp';
@@ -21,6 +21,7 @@ import { ZonesCard } from '@/components/summary/ZonesCard';
 import { EstCard } from '@/components/summary/EstCard';
 import { DecCard } from '@/components/summary/DecCard';
 import { ShoesCard } from '@/components/summary/ShoesCard';
+import { SubTabs } from '@/components/ui/SubTabs';
 
 type Sub = 'vol' | 'ritmo' | 'forma';
 const SUBS: [Sub, string][] = [
@@ -71,9 +72,7 @@ export default function SummaryView() {
   const today = sod(new Date()),
     tS = ymd(today),
     wkKm = kmBetween(mondayOf(today), today);
-  const mD = d.filter((s) => s.result.date.slice(0, 7) === tS.slice(0, 7)),
-    mKm = sum(mD.map((s) => s.result.distKm)),
-    mN = mD.length;
+  const { km: mKm, count: mN } = monthNow();
   const st = streakInfo(),
     totKm = sum(d.map((s) => s.result.distKm));
   /* de un vistazo: una idea por tarjeta, con un mini gráfico donde suma */
@@ -271,15 +270,7 @@ export default function SummaryView() {
         />
       </div>
       <ReadyCard />
-      <div className="seg subtabs" role="tablist" aria-label="Secciones del resumen">
-        {SUBS.map((q) => (
-          /* aria-pressed como en el original: el CSS de .subtabs pinta la elegida con él */
-          // eslint-disable-next-line jsx-a11y/role-supports-aria-props
-          <button key={q[0]} className="chip" role="tab" aria-selected={q[0] === sub} aria-pressed={q[0] === sub} data-a="sumSub" data-v={q[0]} onClick={() => goSub(q[0])}>
-            {q[1]}
-          </button>
-        ))}
-      </div>
+      <SubTabs label="Secciones del resumen" value={sub} items={SUBS} onPick={(v) => goSub(v as Sub)} act="sumSub" />
       <div className="grid2">{cards}</div>
     </>
   );

@@ -3,7 +3,7 @@ import { NextResponse, type NextRequest } from 'next/server';
 import { createServerClient } from '@supabase/ssr';
 import { SUPABASE_KEY, SUPABASE_URL, isAllowed, supabaseConfigured } from '@/lib/supabase/env';
 
-const PUBLIC = ['/login', '/auth', '/manifest.webmanifest', '/pwa-icon'];
+const PUBLIC = ['/login', '/auth', '/manifest.webmanifest', '/pwa-icon', '/sw.js'];
 
 export async function proxy(request: NextRequest) {
   let response = NextResponse.next({ request });
@@ -47,5 +47,5 @@ export async function proxy(request: NextRequest) {
 
 export const config = {
   // todo menos archivos estáticos, imágenes y los datos del mapa
-  matcher: ['/((?!_next/static|_next/image|favicon.ico|icon|apple-icon|pwa-icon|manifest.webmanifest|medals/|map/|.*\\.(?:svg|png|jpg|jpeg|gif|webp|json)$).*)'],
+  matcher: ['/((?!_next/static|_next/image|favicon.ico|icon|apple-icon|pwa-icon|manifest.webmanifest|sw.js|medals/|map/|.*\\.(?:svg|png|jpg|jpeg|gif|webp|json)$).*)'],
 };

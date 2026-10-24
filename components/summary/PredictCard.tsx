@@ -2,6 +2,7 @@
 import { nextRace, racePaceSec } from '@/lib/domain/config';
 import { dShort, dateLabel, fmt, fmtDur, fmtPace, pd } from '@/lib/domain/util';
 import { raceEst } from '@/lib/domain/race';
+import { TvMore } from '@/components/ui/TvMore';
 
 export function PredictCard() {
   const race = nextRace();
@@ -52,18 +53,15 @@ export function PredictCard() {
         </p>
       ) : null}
       <div className="tv-row">
-        <details className="tv">
-          <summary>¿Cómo se calcula?</summary>
-          <p className="sub">
-            {e.src === 'test'
-              ? 'Uso la fórmula de Riegel: tu tiempo se multiplica por (distancia nueva ÷ distancia del test) elevado a 1,06. Sirve si el test fue a máximo esfuerzo y llegaste descansado. ' +
-                (lo
-                  ? 'Para distancias largas desde un test corto suele dar tiempos demasiado rápidos si no tenés mucho volumen, así que muestro un rango: el número más rápido es el de Riegel y el más lento usa un exponente de 1,10 (caso prudente). '
-                  : '')
-              : 'Cada serie y tempo se convierte a un 10K equivalente, se mide cuánto venís mejorando y se proyecta al día de la carrera, con un tope prudente de 3% por mes. Es el mismo número que el escenario «Realista» de Ritmo de carrera. Un test nuevo a esfuerzo máximo pasa a mandar sobre esta cuenta. '}
-            Es una estimación, no una promesa.
-          </p>
-        </details>
+        <TvMore t="¿Cómo se calcula?">
+          {e.src === 'test'
+            ? 'Uso la fórmula de Riegel: tu tiempo se multiplica por (distancia nueva ÷ distancia del test) elevado a 1,06. Sirve si el test fue a máximo esfuerzo y llegaste descansado. ' +
+              (lo
+                ? 'Para distancias largas desde un test corto suele dar tiempos demasiado rápidos si no tenés mucho volumen, así que muestro un rango: el número más rápido es el de Riegel y el más lento usa un exponente de 1,10 (caso prudente). '
+                : '')
+            : 'Cada serie y tempo se convierte a un 10K equivalente, se mide cuánto venís mejorando y se proyecta al día de la carrera, con un tope prudente de 3% por mes. Es el mismo número que el escenario «Realista» de Ritmo de carrera. Un test nuevo a esfuerzo máximo pasa a mandar sobre esta cuenta. '}
+          Es una estimación, no una promesa.
+        </TvMore>
       </div>
     </section>
   );

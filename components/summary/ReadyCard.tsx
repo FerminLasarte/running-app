@@ -3,7 +3,8 @@ import type { CSSProperties } from 'react';
 import { isLong, longTarget, nextRace } from '@/lib/domain/config';
 import { readyItems, type ReadyItem, type ReadyKind } from '@/lib/domain/readiness';
 import { raceDateLabel } from '@/lib/domain/week';
-import { dayDiff, fmt, pd, sod } from '@/lib/domain/util';
+import { daysTo, fmt } from '@/lib/domain/util';
+import { TvMore } from '@/components/ui/TvMore';
 
 const COL: Record<ReadyKind, string> = { good: 'var(--good)', warn: 'var(--warn)', crit: 'var(--crit)', na: 'var(--base)' };
 
@@ -22,7 +23,7 @@ function Li({ i }: { i: ReadyItem }) {
 export function ReadyCard() {
   const race = nextRace();
   if (!race) return null;
-  const days = dayDiff(sod(new Date()), pd(race.date));
+  const days = daysTo(race.date);
   const I = readyItems(race),
     val = I.filter((i) => i.k !== 'na'),
     ok = val.filter((i) => i.k === 'good').length,
@@ -88,16 +89,13 @@ export function ReadyCard() {
             </ul>
           </details>
         ) : null}
-        <details className="tv">
-          <summary>¿Cómo se evalúa?</summary>
-          <p className="sub">
-            Verde, amarillo y rojo son reglas simples sobre tus propios datos, no una predicción de tu tiempo.{' '}
-            {isLong(race)
-              ? 'Volumen: unos ' + (race.km > 30 ? 45 : 30) + ' km por semana en el bloque específico. Tirada larga: al menos ' + fmt(longTarget(race.km), 0) + ' km. Faltando más de 16 semanas, volumen y tirada larga quedan en gris si todavía no llegás: no se esperan aún.'
-              : 'Series: cuánto te alejás del ritmo de carrera. Tirada larga: al menos ' + fmt(longTarget(race.km), 0) + ' km.'}{' '}
-            Cumplimiento: 85% o más. Carga: entre 0,8 y 1,3. Deriva: menos de 5%. Gris significa que todavía faltan datos.
-          </p>
-        </details>
+        <TvMore t="¿Cómo se evalúa?">
+          Verde, amarillo y rojo son reglas simples sobre tus propios datos, no una predicción de tu tiempo.{' '}
+          {isLong(race)
+            ? 'Volumen: unos ' + (race.km > 30 ? 45 : 30) + ' km por semana en el bloque específico. Tirada larga: al menos ' + fmt(longTarget(race.km), 0) + ' km. Faltando más de 16 semanas, volumen y tirada larga quedan en gris si todavía no llegás: no se esperan aún.'
+            : 'Series: cuánto te alejás del ritmo de carrera. Tirada larga: al menos ' + fmt(longTarget(race.km), 0) + ' km.'}{' '}
+          Cumplimiento: 85% o más. Carga: entre 0,8 y 1,3. Deriva: menos de 5%. Gris significa que todavía faltan datos.
+        </TvMore>
       </div>
     </section>
   );

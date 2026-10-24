@@ -185,6 +185,8 @@ export const MAP_PERIODS: [string, string][] = [
 export const MPU = 40075016.686 * Math.cos((34.58 * Math.PI) / 180);
 /** lado de la cuadrícula de zonas pintadas: 200 m */
 export const CELL = 200 / MPU;
+/** cuadrícula de 200 m de un punto (el área recorrida se cuenta en estas celdas; también la usan trofeos y XP) */
+export const cellKey = (q: ArrayLike<number>) => Math.floor(q[0] / CELL) + ',' + Math.floor(q[1] / CELL);
 
 export function decodePoly(s: string): Pt[] {
   let i = 0,
@@ -255,7 +257,7 @@ export function mapCells(L: Route[], period: string): MapCells {
     const P = routePts(r),
       seen = new Set<string>();
     const add = (q: Pt) => {
-      const k = Math.floor(q[0] / CELL) + ',' + Math.floor(q[1] / CELL);
+      const k = cellKey(q);
       if (!seen.has(k)) {
         seen.add(k);
         m.set(k, (m.get(k) || 0) + 1);

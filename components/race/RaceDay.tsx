@@ -7,7 +7,7 @@ import { blockDemo, goRaces, saveCfg, toast } from '@/lib/data/actions';
 import type { Race } from '@/lib/domain/types';
 import { isLong } from '@/lib/domain/config';
 import { racePhases, raceScen, raceSplits, rcItems, type RaceScen } from '@/lib/domain/race';
-import { cleanObj, dayDiff, fmt, fmtDur, fmtPace, pad, pd, sod } from '@/lib/domain/util';
+import { cleanObj, daysTo, fmt, fmtDur, fmtPace, pad } from '@/lib/domain/util';
 import { raceDateLabel } from '@/lib/domain/week';
 import { CountUp } from '@/components/ui/CountUp';
 import { TrainEst } from './TrainEst';
@@ -53,7 +53,7 @@ function toggleCheck(raceId: string, item: string, on: boolean) {
 export function RaceDay({ race }: { race: Race }) {
   const { cfg } = useS();
   const rsel = useApp((st) => st.ui.rsel as string | undefined);
-  const days = dayDiff(sod(new Date()), pd(race.date)),
+  const days = daysTo(race.date),
     long = isLong(race),
     K = race.km,
     ph = racePhases(K);

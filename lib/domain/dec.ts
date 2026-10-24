@@ -1,7 +1,7 @@
 /* Deriva cardíaca (decoupling) con los streams de Strava (líneas 5709–5778 del original). */
 import { S, getUi, setUi } from '@/lib/store';
 import { blockDemo, saveSessions } from '@/lib/data/actions';
-import { svCall, stravaErrMsg, type StreamsPayload } from '@/lib/strava/client';
+import { runActs, svCall, stravaErrMsg, type RunAct, type StreamsPayload } from '@/lib/strava/client';
 import type { Decoupling, Session } from './types';
 import type { DoneSession } from './stats';
 import { fmt, fmtPace, sum } from './util';
@@ -104,15 +104,13 @@ export async function decBackfill() {
       return;
     }
     note('Buscando tus corridas en Strava…');
-    const runs: { id: string; date: string; km: number }[] = [];
+    const runs: RunAct[] = [];
     let after: string | null = null;
     for (let page = 0; page < 8; page++) {
       const input: { first: number; ordering: string; after?: string } = { first: 100, ordering: 'StartDateLocalDesc' };
       if (after) input.after = after;
       const pl = await svCall('list_activities', input);
-      ((pl && pl.activities) || []).forEach((a) => {
-        if (/run/i.test(a.sport_type || '')) runs.push({ id: String(a.id), date: String(a.start_local || '').slice(0, 10), km: ((a.summary && a.summary.distance) || 0) / 1000 });
-      });
+      runs.push(...runActs(pl));
       const minD = runs.length ? runs[runs.length - 1].date : '9999';
       if (!pl || !pl.has_next_page || !pl.end_cursor || minD < todo.map((q) => q.result.date).sort()[0]) break;
       after = pl.end_cursor;

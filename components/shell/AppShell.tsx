@@ -1,8 +1,9 @@
 'use client';
 /* Estructura de la app: barra lateral (compu), barra de pestañas flotante (celu), encabezado, vista, hojas y avisos.
    Reemplaza al render() del original: React redibuja; acá quedan los efectos que el original hacía después. */
-import { useEffect, useLayoutEffect, useRef, useState, type CSSProperties, type ComponentType } from 'react';
-import { S, setS, useS, TAB_ORDER, type Tab } from '@/lib/store';
+import { useEffect, useLayoutEffect, useMemo, useRef, useState, type CSSProperties, type ComponentType } from 'react';
+import { useShallow } from 'zustand/react/shallow';
+import { S, setS, useApp, useS, TAB_ORDER, type Tab } from '@/lib/store';
 import { requestClose } from '@/lib/sheets';
 import { setNotifier, boot } from '@/lib/data/sync';
 import { draftRestore } from '@/lib/data/draft';
@@ -10,22 +11,35 @@ import { buzz, goChar, goRace, goTab, toast, weekGo } from '@/lib/data/actions';
 import { nextRace } from '@/lib/domain/config';
 import { doneList } from '@/lib/domain/stats';
 import { xpState } from '@/lib/domain/xp';
-import { DF_WD, cap, dayDiff, pd, sod, todayS } from '@/lib/domain/util';
+import { daysTo, todayS } from '@/lib/domain/util';
 import WeekView from '@/components/views/WeekView';
-import SummaryView from '@/components/views/SummaryView';
-import LogView from '@/components/views/LogView';
-import RaceView from '@/components/views/RaceView';
-import MapView from '@/components/views/MapView';
-import LogrosView from '@/components/views/LogrosView';
-import SettingsView from '@/components/views/SettingsView';
-import { Banners, Header, SettingsGlyph, TAB_C } from './Header';
+import { preloadable } from '@/components/ui/preloadable';
+import { preloadSheets } from '@/components/sheets/registry';
+import { Banners, Header, SettingsButton, TAB_C } from './Header';
 import { SheetHost } from './SheetHost';
 import { Toast } from './Toast';
 import CelebrateHost from '@/components/logros/CelebrateHost';
-import { pillInit, pillSync } from './pill';
-import { TABS } from './tabs';
+import { pillInit } from './pill';
+import { TABS, TITLES } from './tabs';
 
-const VIEWS: Record<Tab, ComponentType> = { week: WeekView, sum: SummaryView, log: LogView, lv: RaceView, map: MapView, top: LogrosView, set: SettingsView };
+/* Semana viene con la app; las demás pestañas viajan cada una en su archivo y se bajan solas al rato de arrancar */
+const skel = (
+  <>
+    <div className="skel" />
+    <div className="skel" />
+  </>
+);
+const LAZY = {
+  sum: preloadable(() => import('@/components/views/SummaryView'), skel),
+  log: preloadable(() => import('@/components/views/LogView'), skel),
+  lv: preloadable(() => import('@/components/views/RaceView'), skel),
+  map: preloadable(() => import('@/components/views/MapView'), skel),
+  top: preloadable(() => import('@/components/views/LogrosView'), skel),
+  set: preloadable(() => import('@/components/views/SettingsView'), skel),
+};
+const VIEWS: Record<Tab, ComponentType> = { week: WeekView, ...LAZY };
+/* en un rato libre: el resto de las pestañas y las hojas (así también quedan guardadas para abrir sin señal) */
+const preloadAll = () => Promise.all([...Object.values(LAZY).map((c) => c.preload()), preloadSheets()]).catch(() => {});
 
 const LOGO = (
   <svg className="ic" viewBox="0 0 24 24" aria-hidden="true">
@@ -37,11 +51,10 @@ const LOGO = (
 );
 
 /* tu foto, si la cargaste en Ajustes, reemplaza al logo de la app */
-function Logo({ cls = 'mk-logo' }: { cls?: string }) {
-  const S = useS();
-  const av = S.cfg.avatar;
+function Logo() {
+  const av = useApp((s) => s.cfg.avatar);
   return (
-    <span className={cls + (av ? ' has-av' : '')}>
+    <span className={'mk-logo' + (av ? ' has-av' : '')}>
       {av ? (
         // eslint-disable-next-line @next/next/no-img-element
         <img className="av-img" src={av} alt="Tu foto" />
@@ -53,11 +66,11 @@ function Logo({ cls = 'mk-logo' }: { cls?: string }) {
 }
 
 function TabButtons() {
-  const S = useS();
+  const tab = useApp((s) => s.tab);
   return (
     <>
       {TABS.map((t) => (
-        <button key={t.v} className="tab" data-a="tab" data-v={t.v} aria-current={S.tab === t.v ? 'page' : undefined} onClick={() => goTab(t.v)}>
+        <button key={t.v} className="tab" data-a="tab" data-v={t.v} aria-current={tab === t.v ? 'page' : undefined} onClick={() => goTab(t.v)}>
           <svg className="ic ph" viewBox="0 0 256 256" aria-hidden="true" dangerouslySetInnerHTML={{ __html: t.svg }} />
           {t.label}
         </button>
@@ -91,35 +104,31 @@ function SideFoot() {
       {r ? (
         <button className="sf-race" onClick={() => goRace('race')}>
           <span>{r.name}</span>
-          <b>{dayDiff(sod(new Date()), pd(r.date)) === 0 ? 'Hoy' : dayDiff(sod(new Date()), pd(r.date)) + ' días'}</b>
+          <b>{daysTo(r.date) === 0 ? 'Hoy' : daysTo(r.date) + ' días'}</b>
         </button>
       ) : null}
     </>
   );
 }
 
-/* en el celu no hay barra lateral: la marca queda fija arriba de la pantalla principal */
-function MBar() {
+/* celu: el título grande se va con la página; al bajar queda esta barra fina con el título chico, como en iOS */
+function NavBar() {
+  const tab = useApp((s) => s.tab);
   return (
-    <>
-      <div className="m-brand">
-        <Logo />
-        <b>My Running App</b>
-      </div>
-      <span className="mb-date">{cap(DF_WD.format(pd(todayS())).replace(/[.,]/g, ''))}</span>
-      <button className="themebtn setbtn" aria-label="Ajustes" onClick={() => goTab('set')}>
-        <SettingsGlyph />
-      </button>
-    </>
+    <div id="nbar">
+      <b>{TITLES[tab]}</b>
+      <SettingsButton />
+    </div>
   );
 }
 
 export default function AppShell() {
-  const S0 = useS();
+  /* el shell solo depende de la pantalla en la que estás: cada vista y cada pieza se suscriben a lo suyo */
+  const S0 = useApp(useShallow((s) => ({ tab: s.tab, logSub: s.ui.logSub, cSub: s.ui.cSub, sumSub: s.sumSub, loaded: s.loaded, demo: s.demo })));
   const [, setTick] = useState(0);
   const viewRef = useRef<HTMLElement>(null);
   /* «play»: animaciones de entrada solo al entrar a una pantalla (pestaña o subpestaña nueva) */
-  const screenKey = S0.tab + '|' + String(S0.ui.logSub ?? '') + '|' + String(S0.ui.cSub ?? '') + '|' + S0.sumSub;
+  const screenKey = S0.tab + '|' + String(S0.logSub ?? '') + '|' + String(S0.cSub ?? '') + '|' + S0.sumSub;
   const [play, setPlay] = useState(false);
   const lastKey = useRef<string | null>(null);
 
@@ -127,10 +136,25 @@ export default function AppShell() {
   useEffect(() => {
     setNotifier(toast);
     boot();
+    /* que la app instalada abra sin señal (public/sw.js); en desarrollo no, para no pelear con la recarga en vivo */
+    if (process.env.NODE_ENV === 'production' && 'serviceWorker' in navigator) navigator.serviceWorker.register('/sw.js').catch(() => {});
     const off = pillInit();
-    /* si la app queda abierta y cambia la franja horaria, el saludo se actualiza solo */
-    const iv = setInterval(() => setTick((t) => t + 1), 60000);
-    const onScroll = () => document.body.classList.toggle('scrolled', window.scrollY > 24);
+    const pre = setTimeout(preloadAll, 1200);
+    /* si la app queda abierta y pasa la medianoche, «hoy» cambia en todas las vistas (el saludo tiene su propio reloj) */
+    let day = todayS();
+    const iv = setInterval(() => {
+      if (todayS() === day) return;
+      day = todayS();
+      setTick((t) => t + 1);
+    }, 60000);
+    const onScroll = () => {
+      /* primero las medidas, después las clases: así no se recalcula el layout dos veces */
+      const h = document.querySelector('#hdr h1'),
+        nb = document.getElementById('nbar');
+      const mini = !!(h && nb && nb.offsetHeight && h.getBoundingClientRect().bottom < nb.getBoundingClientRect().bottom);
+      document.body.classList.toggle('scrolled', window.scrollY > 24);
+      document.body.classList.toggle('hd-mini', mini);
+    };
     window.addEventListener('scroll', onScroll, { passive: true });
     onScroll();
     const esc = (e: KeyboardEvent) => {
@@ -200,6 +224,7 @@ export default function AppShell() {
     document.addEventListener('touchend', te, { passive: true });
     return () => {
       off();
+      clearTimeout(pre);
       clearInterval(iv);
       window.removeEventListener('scroll', onScroll);
       document.removeEventListener('keydown', esc);
@@ -233,66 +258,53 @@ export default function AppShell() {
     draftRestore();
   }, [S0.loaded, S0.demo]);
 
-  /* después de cada dibujo: la gota de vidrio se acomoda sobre la opción elegida */
-  useLayoutEffect(() => {
-    pillSync();
-  });
-
   const View = VIEWS[S0.tab];
+  /* las piezas se suscriben solas: cuando el shell se redibuja (por ejemplo, para prender o apagar la animación de
+     entrada) reuso los mismos elementos y React no las vuelve a dibujar */
+  const parts = useMemo(
+    () => ({ logo: <Logo />, tabs: <TabButtons />, foot: <SideFoot />, header: <Header />, banners: <Banners />, nav: <NavBar />, sheet: <SheetHost />, toast: <Toast />, cel: <CelebrateHost /> }),
+    [],
+  );
+  const viewEl = useMemo(() => (S0.loaded ? <View /> : skel), [S0.loaded, View]);
   /* en la barra de abajo no va Ajustes (está arriba, en el engranaje): la gota se mueve entre las otras seis */
-  const bar = TABS.filter((t) => t.v !== 'set'),
-    vis = bar.length,
-    ti = bar.findIndex((t) => t.v === S0.tab);
+  const vis = TABS.filter((t) => t.v !== 'set').length;
   return (
     <>
-      <div id="bgfx" aria-hidden="true">
-        <div className="fx-lines" />
-        <div className="fx-track" />
-        <div className="fx-track t2" />
-        <div className="fx-grain" />
-      </div>
       <aside className="side" aria-label="Navegación principal">
         <div className="brand">
-          <Logo />
+          {parts.logo}
           <div>
             <b>My Running App</b>
             <span>Registro y progreso</span>
           </div>
         </div>
         <nav className="sidenav">
-          <TabButtons />
+          {parts.tabs}
         </nav>
         <div className="side-foot">
-          <SideFoot />
+          {parts.foot}
         </div>
       </aside>
       <div id="app">
-        <div id="mbar">{S0.tab === 'week' ? <MBar /> : null}</div>
         <header id="hdr" className={play ? 'ph-in' : ''}>
-          <Header />
+          {parts.header}
         </header>
         <div id="bnr">
-          <Banners />
+          {parts.banners}
         </div>
         <main id="view" ref={viewRef} className={play ? 'play' : ''} style={{ '--sc': TAB_C[S0.tab] || 'var(--accent)' } as CSSProperties}>
-          {S0.loaded ? (
-            <View />
-          ) : (
-            <>
-              <div className="skel" />
-              <div className="skel" />
-            </>
-          )}
+          {viewEl}
         </main>
       </div>
+      {parts.nav}
       <nav className="tabs" aria-label="Secciones">
-        <div className={'tabs-in' + (ti < 0 ? ' noact' : '')} style={{ '--tn': vis, '--ac': TAB_C[S0.tab] || 'var(--accent)', '--ti': Math.max(ti, 0) } as CSSProperties}>
-          <TabButtons />
+        <div className="tabs-in" style={{ '--tn': vis } as CSSProperties}>
+          {parts.tabs}
         </div>
       </nav>
-      <SheetHost />
-      <Toast />
-      <CelebrateHost />
+      {parts.sheet}
+      {parts.toast}
+      {parts.cel}
     </>
   );
 }

@@ -6,6 +6,7 @@ import { PZ, paceAtV, vdotOf } from '@/lib/domain/daniels';
 import { doneList } from '@/lib/domain/stats';
 import { dayDiff, fmt, fmtDur, fmtPace, pd, sum } from '@/lib/domain/util';
 import { lvPace } from '@/lib/domain/level';
+import { TvMore } from '@/components/ui/TvMore';
 
 /** `inner`: la versión corta que va dentro de «Los ritmos de tu plan» */
 export function DanielsCard({ inner }: { inner: boolean }) {
@@ -117,13 +118,10 @@ export function DanielsCard({ inner }: { inner: boolean }) {
       {cmp}
       {msg}
       <div className="tv-row">
-        <details className="tv">
-          <summary>¿Cómo se calcula?</summary>
-          <p className="sub">
-            Con la fórmula de Jack Daniels (VDOT): de un tiempo de 10K saca tu capacidad aeróbica ({fmt(vd, 1)}) y de ahí el ritmo de cada tipo de entrenamiento. Es una estimación: un test o una carrera de 10K la ajustan con un dato
-            real.
-          </p>
-        </details>
+        <TvMore t="¿Cómo se calcula?">
+          Con la fórmula de Jack Daniels (VDOT): de un tiempo de 10K saca tu capacidad aeróbica ({fmt(vd, 1)}) y de ahí el ritmo de cada tipo de entrenamiento. Es una estimación: un test o una carrera de 10K la ajustan con un dato
+          real.
+        </TvMore>
       </div>
     </section>
   );

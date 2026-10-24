@@ -3,10 +3,10 @@
 import { S } from '@/lib/store';
 import { TYPES } from './config';
 import { vdotOf } from './daniels';
-import { routePts } from './geo';
+import { cellKey, routePts } from './geo';
 import { scoreSession } from './score';
 import { doneList, kmBetween, weekSeries, type DoneSession } from './stats';
-import { bestTimeEvents, cellKey, trophies, trophyXp } from './trophies';
+import { bestTimeEvents, trophies, trophyXp } from './trophies';
 import { addDays, clamp, dayDiff, fmt, fmtDur, pd, sod, sum, todayS, ymd } from './util';
 
 export const XP_TITLES: [number, string][] = [
@@ -65,9 +65,15 @@ export interface XpState {
   month: number;
 }
 let XP_CACHE: XpState | null = null;
+let XP_SRC: unknown[] = [];
+let XP_N = 0;
 export function xpState(): XpState {
-  const key = S.sessions.length + '|' + sum(S.sessions.map((x) => x.updated || 0)) + '|' + JSON.stringify(S.cfg).length + '|' + S.routes.length + '|' + todayS() + '|' + S.demo;
-  if (XP_CACHE && XP_CACHE.key === key) return XP_CACHE;
+  /* sesiones, configuración y recorridos son inmutables: si ninguno cambió (por identidad), el XP es el mismo.
+     (El original comparaba el largo del JSON de la configuración, y cambiar 3 por 4 salidas no lo invalidaba.) */
+  const src = [S.sessions, S.cfg, S.routes, todayS(), S.demo];
+  if (XP_CACHE && src.every((v, i) => v === XP_SRC[i])) return XP_CACHE;
+  XP_SRC = src;
+  const key = String(++XP_N);
   const E: XpEvent[] = [];
   doneList().forEach((x) => {
     const q = sessionXp(x);

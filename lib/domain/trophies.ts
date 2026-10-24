@@ -2,18 +2,13 @@
 import { S, setUi } from '@/lib/store';
 import { saveCfg, toast } from '@/lib/data/actions';
 import { vdotOf } from './daniels';
-import { routePts, CELL } from './geo';
+import { cellKey, routePts } from './geo';
 import { chProgress } from './challenges';
 import { XP_TIER, xpState, type XpState } from './xp';
 import { scoreSession } from './score';
 import { doneList, monthSeries, weekSeries } from './stats';
 import { clamp, cleanObj, fmt, fmtDur, ymd } from './util';
 
-export const TIER = [
-  { n: 'Bronce', c: '#C8834A' },
-  { n: 'Plata', c: '#9FB0C2' },
-  { n: 'Oro', c: '#E8B53C' },
-];
 export const tierOf = (i: number, n: number) => (n <= 1 ? 2 : i < Math.ceil(n / 3) ? 0 : i < Math.ceil((2 * n) / 3) ? 1 : 2);
 
 export interface Trophy {
@@ -69,8 +64,6 @@ export const FIN_TXT: Record<string, string> = { '21': '21,1 km de una: uno de l
 export const prXp = (sec: number, km: number, m: number) => Math.round(((100 + 4 * Math.pow(Math.max(0, vdotOf(sec, km) - 28), 1.7)) * m) / 25) * 25;
 export const trophyXp = (t: Trophy) => (t.xp != null ? t.xp : t.cat === 'ch' ? 200 : XP_TIER[t.tier]);
 
-/* área recorrida en km² (cuadrículas de 200 m), también la usa el personaje */
-export const cellKey = (q: ArrayLike<number>) => Math.floor(q[0] / CELL) + ',' + Math.floor(q[1] / CELL);
 
 /* se recalcula muchas veces por render: lo guardo mientras no cambien sesiones, ajustes, recorridos ni el día */
 let TC: { s: unknown; c: unknown; r: unknown; d: string; v: Trophy[] } | null = null;
@@ -350,23 +343,6 @@ export function markTrophiesSeen() {
   saveCfg(c);
 }
 export const gotIds = () => new Set(trophies().filter((t) => t.got).map((t) => t.id));
-export function announceNew(before: Set<string>) {
-  const T = trophies().filter((t) => t.got && !before.has(t.id));
-  if (T.length)
-    setTimeout(
-      () =>
-        toast(
-          '¡Nuevo logro! ' +
-            T.map((t) => t.name)
-              .slice(0, 2)
-              .join(' · ') +
-            (T.length > 2 ? ' y ' + (T.length - 2) + ' más' : ''),
-          6000,
-        ),
-      400,
-    );
-}
-
 /* ---- celebración al ganar trofeos o subir de nivel: la dibuja <CelebrateHost/> ---- */
 export interface Confetto {
   left: string;

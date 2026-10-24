@@ -2,6 +2,8 @@
    guardados en Supabase. Mantiene las mismas herramientas y formas de respuesta que el conector de claude.ai que
    usaba el artifact, así el código portado no cambia. */
 
+import { supabaseConfigured } from '@/lib/supabase/env';
+
 export type StravaTool = 'list_activities' | 'get_activity_performance' | 'get_activity_streams';
 
 export interface StravaActivity {
@@ -18,6 +20,27 @@ export interface ListActivitiesPayload {
   has_next_page: boolean;
   end_cursor: string | null;
 }
+/** una corrida de Strava como la usa la app: fecha AAAA-MM-DD, km y segundos en movimiento */
+export interface RunAct {
+  id: string;
+  date: string;
+  name: string;
+  km: number;
+  tsec: number;
+  poly?: string;
+}
+/** las corridas de una página de actividades (sin bici ni caminatas) */
+export const runActs = (pl: ListActivitiesPayload | null): RunAct[] =>
+  ((pl && pl.activities) || [])
+    .filter((a) => /run/i.test(a.sport_type || ''))
+    .map((a) => ({
+      id: String(a.id),
+      date: String(a.start_local || '').slice(0, 10),
+      name: a.name || 'Carrera',
+      km: ((a.summary && a.summary.distance) || 0) / 1000,
+      tsec: Math.round((a.summary && a.summary.moving_time) || 0),
+      poly: a.reduced_polyline,
+    }));
 export interface PerformancePayload {
   average_heartrate?: number;
   max_heartrate?: number;
@@ -55,6 +78,8 @@ export async function svCall(tool: StravaTool, input: Record<string, unknown>): 
 
 /** Estado de la conexión con Strava de este usuario. */
 export async function stravaStatus(): Promise<{ configured?: boolean; connected: boolean; athlete?: string }> {
+  /* sin cuenta (modo local de desarrollo) no hay a quién conectar */
+  if (!supabaseConfigured()) return { connected: false };
   try {
     const r = await fetch('/api/strava/status');
     return r.ok ? r.json() : { connected: false };

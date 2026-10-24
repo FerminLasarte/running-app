@@ -3,7 +3,7 @@ import { S } from '@/lib/store';
 import { nextRace } from './config';
 import { riegel } from './score';
 import { doneList, effPoints, weekSeries } from './stats';
-import { addDays, dateLabel, dayDiff, fmt, fmtDur, fmtPace, num, pd, sod, sum, ymd } from './util';
+import { addDays, dateLabel, dayDiff, daysTo, fmt, fmtDur, fmtPace, num, pd, sod, sum, ymd } from './util';
 
 type Pl = [number, number][];
 export const LV_AGE: Pl = [[22, 51], [27, 53], [32, 55], [37, 57], [42, 58.5], [47, 60.5], [52, 63], [57, 66], [62, 70]];
@@ -236,7 +236,7 @@ export function lvBuild() {
   };
   let goal: { days: number; hi: number; lo: number; t: number; name: string; date: string } | null = null;
   if (pace && race && race.km === 10 && race.targetSec > 0) {
-    const dl = dayDiff(sod(new Date()), pd(race.date));
+    const dl = daysTo(race.date);
     if (dl > 0) {
       const mo = dl / 30.44;
       goal = { days: dl, hi: pace.sec * (1 - 0.015 * mo), lo: pace.sec * (1 - 0.025 * mo), t: race.targetSec, name: race.name, date: race.date };

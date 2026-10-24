@@ -1,16 +1,16 @@
 /* Formulario «Registrar resultado»: filas por etapa, validaciones, parciales, Strava y armado del resultado.
    Puro como planForm: cada acción recibe el estado del formulario y devuelve uno nuevo. */
 import { S } from '@/lib/store';
-import type { PerformancePayload, ListActivitiesPayload } from '@/lib/strava/client';
-import { hmsFromSec, msFromSec, readHms, readMs, type Hms, type Ms } from '@/components/ui/fields';
+import type { PerformancePayload } from '@/lib/strava/client';
+import { hmsFromSec, msFromSec, readHms, readMs, type Hms, type Ms } from './hms';
 import type { Decoupling, Lap, Plan, Result, Session, SessionType, Stage, Step, StepKind } from './types';
 import { easyActive, isType, mainShoe } from './config';
 import { expand, KINDS, REC_PACE, stageTotals, stepDesc, stepTgt, type ExStep } from './stages';
 import { judge, judgeTxt, lapTxt, volTxt } from './score';
 import { sdate } from './stats';
-import { addDays, cap, fmt, fmtDur, fmtPace, newId, num, pad, sum, todayS, ymd } from './util';
+import { cap, fmt, fmtDur, fmtPace, newId, num, pad, sum, todayS } from './util';
 import { batchNote } from './planForm';
-import { SV_DAYS, svLinked, type SvItem } from './week';
+import type { SvItem } from './week';
 
 /* ---- estado ---- */
 /** un parcial tal como se escribe */
@@ -466,21 +466,6 @@ export function lapsPrompt0(ex: ExStep[]) {
 export const lapsPrompt = (ex: ExStep[], prev: unknown, i: number, t: number) => lapsPrompt0(ex) + batchNote(prev, i, t);
 
 /* ---- Strava dentro del formulario ---- */
-/** corridas de los últimos SV_DAYS días que todavía no están cargadas en otra sesión */
-export function svActs(pl: ListActivitiesPayload | null, sid: string | null): SvItem[] {
-  const lim = ymd(addDays(new Date(), -SV_DAYS)),
-    linked = svLinked(sid);
-  return ((pl && pl.activities) || [])
-    .filter((a) => /run/i.test(a.sport_type || '') && !linked.has(String(a.id)))
-    .map((a) => ({
-      id: String(a.id),
-      date: String(a.start_local || '').slice(0, 10),
-      name: a.name || 'Carrera',
-      km: ((a.summary && a.summary.distance) || 0) / 1000,
-      tsec: Math.round((a.summary && a.summary.moving_time) || 0),
-    }))
-    .filter((a) => a.date >= lim);
-}
 type SvLap = { d: number; t: number; h: number; x: number };
 /** agrupa los parciales de Strava en las etapas del plan, en orden, mientras la suma se acerque al objetivo */
 export function matchLaps(ex: ExStep[], laps: SvLap[]): Vuelta[] {

@@ -5,6 +5,7 @@ import { TYPES, nextRace } from './config';
 import { scoreSession, type Score } from './score';
 import { REC_PACE, expand, stepsBrief } from './stages';
 import { addDays, dayDiff, fmt, fmtPace, mondayOf, pad, pd, sod, sum, todayS, ymd } from './util';
+import { memoData } from './memo';
 
 /** fecha de la sesión: la del resultado si está hecha, si no la del plan */
 export const sdate = (s: Session) => (s.result && s.result.date) || (s.plan && s.plan.date) || '0000-00-00';
@@ -54,7 +55,7 @@ export interface WeekRow {
   cur: boolean;
   bt: ByType;
 }
-export function weekSeries(maxN?: number): WeekRow[] {
+export const weekSeries = memoData(function weekSeries(maxN?: number): WeekRow[] {
   const d = doneList();
   if (!d.length) return [];
   const m0 = mondayOf(new Date()),
@@ -71,7 +72,7 @@ export function weekSeries(maxN?: number): WeekRow[] {
     out.push({ start: m, end: e, km: sum(it.map((s) => s.result.distKm)), count: it.length, cur: i === 0, bt: kmByType(it) });
   }
   return out;
-}
+});
 export interface MonthRow {
   m: Date;
   km: number;
@@ -79,7 +80,7 @@ export interface MonthRow {
   cur: boolean;
   bt: ByType;
 }
-export function monthSeries(maxN?: number): MonthRow[] {
+export const monthSeries = memoData(function monthSeries(maxN?: number): MonthRow[] {
   const d = doneList();
   if (!d.length) return [];
   const now = new Date(),
@@ -94,8 +95,10 @@ export function monthSeries(maxN?: number): MonthRow[] {
     out.push({ m, km: sum(it.map((s) => s.result.distKm)), count: it.length, cur: i === 0, bt: kmByType(it) });
   }
   return out;
-}
-export function streakInfo() {
+});
+/** km y salidas del mes en curso (lo usan el encabezado y Resumen) */
+export const monthNow = () => monthSeries(1)[0] || { km: 0, count: 0 };
+export const streakInfo = memoData(function streakInfo() {
   const G = S.cfg.weeklyGoal,
     d = S.sessions.filter((s) => s.result) as DoneSession[];
   const cnt = (m: Date) => {
@@ -124,7 +127,7 @@ export function streakInfo() {
     }
   }
   return { cur, best: Math.max(best, cur), thisWeek: cnt(m0), goal: G };
-}
+});
 export function loadInfo() {
   const d = doneList();
   if (!d.length) return null;

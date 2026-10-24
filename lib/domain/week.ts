@@ -3,7 +3,7 @@
 import { S, getUi, setUi } from '@/lib/store';
 import { buzz, saveSession, toast, toastUndo } from '@/lib/data/actions';
 import { openSheet } from '@/lib/sheets';
-import { svCall, stravaErrMsg } from '@/lib/strava/client';
+import { runActs, svCall, stravaErrMsg, type ListActivitiesPayload } from '@/lib/strava/client';
 import type { Plan, PlanStep, Race, Session, SessionType } from './types';
 import { TYPES, nextRace, racePaceSec } from './config';
 import { expand, planTotals } from './stages';
@@ -146,6 +146,12 @@ export function svLinked(exceptId?: string | null) {
   });
   return ids;
 }
+/** corridas de los últimos SV_DAYS días que todavía no están cargadas en otra sesión */
+export function svActs(pl: ListActivitiesPayload | null, sid: string | null): SvItem[] {
+  const lim = ymd(addDays(new Date(), -SV_DAYS)),
+    linked = svLinked(sid);
+  return runActs(pl).filter((a) => !linked.has(a.id) && a.date >= lim);
+}
 export interface SvItem {
   id: string;
   date: string;
@@ -166,19 +172,9 @@ export async function svwLoad() {
   set({ busy: true, msg: '' });
   try {
     const pl = await svCall('list_activities', { first: 30, ordering: 'StartDateLocalDesc' });
-    const lim = ymd(addDays(new Date(), -SV_DAYS)),
-      linked = svLinked(),
-      have = S.sessions.filter((x) => x.result);
-    const list = ((pl && pl.activities) || [])
-      .filter((a) => /run/i.test(a.sport_type || '') && !linked.has(String(a.id)))
-      .map((a) => ({
-        id: String(a.id),
-        date: String(a.start_local || '').slice(0, 10),
-        name: a.name || 'Carrera',
-        km: ((a.summary && a.summary.distance) || 0) / 1000,
-        tsec: Math.round((a.summary && a.summary.moving_time) || 0),
-      }))
-      .filter((a) => a.date >= lim && a.km >= 0.5 && !have.some((x) => x.result!.date === a.date && Math.abs(x.result!.distKm - a.km) < 0.3));
+    const have = S.sessions.filter((x) => x.result);
+    /* además de las ya vinculadas, se esconden las que parecen cargadas a mano (mismo día y casi la misma distancia) */
+    const list = svActs(pl, null).filter((a) => a.km >= 0.5 && !have.some((x) => x.result!.date === a.date && Math.abs(x.result!.distKm - a.km) < 0.3));
     set({ list, msg: list.length ? '' : 'No hay corridas nuevas en los últimos ' + SV_DAYS + ' días.', busy: false });
   } catch (e) {
     set({ msg: stravaErrMsg(e), busy: false });

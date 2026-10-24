@@ -20,7 +20,10 @@ de esta guía son de ese archivo). Copia viva del original con datos de ejemplo:
    - estado propio de una vista que el original guardaba en `S` (`S.lg`, `S.map`, `S.svw`, `S.dec`, `S.cSub`,
      `S.logSub`, `S.lapsCache`, `S.raceDel`, `S.chDel`, `S.recalUndo`…): `useUi('lg', init)` / `getUi` / `setUi`;
    - estado local de un formulario (lo que era `F`): `useState` dentro de la hoja.
-   Los componentes de vista se suscriben con `useS()` (re-render ante cualquier cambio, como `render()`).
+   Los componentes de vista se suscriben con `useS()` (re-render ante cualquier cambio de datos, como `render()`; no
+   ante `saving`, `toast`, `sheet`, `failed`, `cloudLost` ni el abrir y cerrar de hojas: quien los muestra usa
+   `useApp(selector)`). Un cálculo de dominio caro que se pide desde varias tarjetas va envuelto en `memoData`
+   (`@/lib/domain/memo`), que lo recalcula solo cuando cambian las sesiones, la configuración o el día.
 4. **Eventos.** El original usa `data-a="accion"` y la tabla `const A={…}` (líneas 6151–6400). Para cada botón que
    portes, buscá su entrada en `A` y convertila en un `onClick`. Podés dejar el atributo `data-a` (algunos estilos
    lo usan), pero la lógica va en el handler.
@@ -31,7 +34,9 @@ de esta guía son de ese archivo). Copia viva del original con datos de ejemplo:
    elementos que dibuja React: usá estado. Canvas (mapa) y medidas (`getBoundingClientRect`) sí, con `useRef`.
 7. **Números que cuentan.** `cuN(v,d)` → `<CountUp v={v} d={d}/>` (`@/components/ui/CountUp`).
 8. **«Cómo se lee» y tablas.** El original agrupa al final de cada `.card` los `<details class="tv">` contiguos dentro
-   de `<div class="tv-row">` (función `groupTv`). En React escribilos ya agrupados: `<div className="tv-row">…</div>`.
+   de `<div class="tv-row">` (función `groupTv`). En React escribilos ya agrupados: `<div className="tv-row">…</div>`,
+   con `<TvMore t="¿Cómo se calcula?">texto</TvMore>` (`@/components/ui/TvMore`) para cada explicación plegada.
+   Las subpestañas van con `<SubTabs label value items onPick act/>` (`@/components/ui/SubTabs`).
 9. **Animaciones de entrada.** No hace falta agregar `rise` ni `--i`: el shell las pone al cambiar de pestaña.
 10. **TypeScript estricto**, sin `any` salvo al leer datos externos (respaldos, Strava). Tipos en `lib/domain/types.ts`.
 11. **Comentarios** como en el original: pocos, en castellano rioplatense, explicando el porqué.
@@ -66,7 +71,13 @@ de esta guía son de ese archivo). Copia viva del original con datos de ejemplo:
 - `@/components/ui/CountUp`: `<CountUp v d/>`.
 - `@/components/ui/glance`: `GL_IC`, `<GlIc k c/>`, `<GlTile …/>`, `<SumTile ic c t v viz sub/>`, `<Spark a c/>`,
   `formState(tsb)` (líneas 2395–2415, 2408).
-- `@/components/ui/fields`: `<HmsInput value={seg|null} onChange idPrefix/>`, `<MsInput …/>`, `readHms`… (ver archivo).
+- `@/components/ui/fields`: `<HmsInput value={seg|null} onChange idPrefix/>`, `<MsInput …/>`; leer y armar los valores
+  (`hmsFromSec`, `readHms`, `msFromSec`, `readMs`) está en `@/lib/domain/hms`.
+- `@/lib/strava/client`: `runActs(pl)` pasa una página de `list_activities` a corridas `{id, date, name, km, tsec, poly}`.
+- Estilos: el contenido va en superficies lisas (`.card` sin borde ni sombra); el vidrio es solo para lo que flota y sale
+  de los tokens `--m-*` (sección «Material» al final de `app/globals.css`). Espacios con `--sp-1`…`--sp-6`.
+- Pestañas y hojas viajan en su propio archivo de JS (`preloadable`, `@/components/ui/preloadable`) y se precargan al
+  rato de arrancar; `public/sw.js` guarda la app para que abra sin señal.
 
 ## Reparto (módulo → dueño). Importá de acá aunque el archivo todavía no exista.
 

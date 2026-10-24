@@ -219,7 +219,15 @@ export function pillInit() {
   document.addEventListener('click', click, true);
   window.addEventListener('resize', pillSync);
   document.fonts?.ready.then(() => pillSync()).catch(() => {});
+  /* la gota sigue a la opción elegida cuando React cambia cuál es (o dibuja un selector nuevo), sin depender de
+     quién se redibujó: el observador corre antes de que se pinte la pantalla */
+  const isPill = (n: Node) => n instanceof Element && (n.matches(PILL_SEL) || !!n.querySelector(PILL_SEL));
+  const mo = new MutationObserver((ms) => {
+    if (ms.some((m) => (m.type === 'attributes' ? !!(m.target as Element).closest(PILL_SEL) : [...m.addedNodes].some(isPill)))) pillSync();
+  });
+  mo.observe(document.body, { subtree: true, childList: true, attributes: true, attributeFilter: ['aria-pressed', 'aria-selected', 'aria-current'] });
   return () => {
+    mo.disconnect();
     document.removeEventListener('pointerdown', down);
     document.removeEventListener('pointermove', move);
     document.removeEventListener('pointerup', end);
