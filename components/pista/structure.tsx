@@ -23,7 +23,7 @@ export function PageHead({ eyebrow, title, actions, children }: { eyebrow?: Reac
         <BrandTitle>{title}</BrandTitle>
         {children ? <p>{children}</p> : null}
       </div>
-      {actions ? <div className="acts">{actions}</div> : null}
+      {actions ? <div className="p-acts">{actions}</div> : null}
     </header>
   );
 }

@@ -1,8 +1,8 @@
 import type { Metadata } from 'next';
-import SessionView from '@/components/views/SessionView';
+import SesionPage from '@/components/sesion/Sesion';
 
 export const metadata: Metadata = { title: 'Sesión' };
 
 export default function Page() {
-  return <SessionView />;
+  return <SesionPage />;
 }

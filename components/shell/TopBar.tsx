@@ -51,7 +51,7 @@ function SessionCrumb({ id }: { id: string }) {
     <>
       <Link href="/registro">Registro</Link>
       <span className="sep">/</span>
-      <span>{s ? TYPES[s.type].label + ' · ' + dateLabel(sdate(s)) : 'Sesión'}</span>
+      <span className="end">{s ? TYPES[s.type].label + ' · ' + dateLabel(sdate(s)) : 'Sesión'}</span>
     </>
   );
 }
