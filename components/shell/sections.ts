@@ -11,10 +11,12 @@ export interface SectionDef {
   Icon: Icon;
   /** color de la sección en las pantallas viejas (encabezado y subpestañas) */
   c: string;
+  /** pantalla rehecha: trae su propio comienzo y no lleva el encabezado viejo */
+  redone?: boolean;
 }
 
 export const SECTIONS: SectionDef[] = [
-  { id: 'semana', href: '/semana', label: 'Semana', Icon: CalendarBlank, c: 'var(--t2)' },
+  { id: 'semana', href: '/semana', label: 'Semana', Icon: CalendarBlank, c: 'var(--t2)', redone: true },
   { id: 'registro', href: '/registro', label: 'Registro', Icon: Rows, c: 'var(--t3)' },
   { id: 'analisis', href: '/analisis', label: 'Análisis', Icon: ChartLineUp, c: 'var(--info)' },
   { id: 'carreras', href: '/carreras', label: 'Carreras', Icon: FlagCheckered, c: 'var(--accent)' },

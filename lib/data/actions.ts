@@ -108,7 +108,7 @@ export function weekGo(d: number) {
   setS({ weekOff: d === 0 ? 0 : S.weekOff + d });
   if (reduceMotion()) return;
   afterPaint(() => {
-    document.querySelectorAll<HTMLElement>('#wk-card .weekhead>div,#wk-card .wstrip,.cal').forEach((el) => {
+    document.querySelectorAll<HTMLElement>('.sem-wsum,.sem-days').forEach((el) => {
       el.style.setProperty('--d', String(dir));
       el.classList.remove('wkslide');
       void el.offsetWidth;

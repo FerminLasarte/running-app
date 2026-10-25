@@ -1,5 +1,6 @@
 'use client';
-/* Pestaña Carrera: Día de carrera, Plan por bloques y Test de nivel (viewTest, líneas 3281–3287 del original). */
+/* Pestaña Carrera: Día de carrera, Plan por bloques y Test de nivel (viewTest, líneas 3281–3287 del original).
+   La última carrera (para cargar el tiempo) y el medallero vinieron de la Semana vieja; se rehacen en la fase 8. */
 import type { ReactNode } from 'react';
 import { setUi, useApp, useS } from '@/lib/store';
 import { goRaces } from '@/lib/data/actions';
@@ -8,6 +9,8 @@ import { blockPlan, longRace } from '@/lib/domain/blocks';
 import { daysTo } from '@/lib/domain/util';
 import { RaceDay } from '@/components/race/RaceDay';
 import { PastRacesCard } from '@/components/race/PastRacesCard';
+import { LastRaceNote } from '@/components/race/LastRaceNote';
+import { Medallero } from '@/components/race/Medallero';
 import { Blocks } from '@/components/race/Blocks';
 import { Level } from '@/components/race/Level';
 import { SubTabs } from '@/components/ui/SubTabs';
@@ -58,6 +61,7 @@ export default function RaceView() {
       />
       {sub === 'race' ? (
         <>
+          <LastRaceNote />
           {race ? (
             <RaceDay race={race} />
           ) : (
@@ -70,6 +74,7 @@ export default function RaceView() {
             </section>
           )}
           <PastRacesCard />
+          <Medallero />
         </>
       ) : sub === 'plan' ? (
         <Blocks race={lr} />

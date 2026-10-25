@@ -1,8 +1,8 @@
 import type { Metadata } from 'next';
-import WeekView from '@/components/views/WeekView';
+import Semana from '@/components/semana/Semana';
 
 export const metadata: Metadata = { title: 'Semana' };
 
 export default function Page() {
-  return <WeekView />;
+  return <Semana />;
 }

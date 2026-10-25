@@ -1,0 +1,93 @@
+/* Una sesión real en las piezas «Pista»: su barra de estructura, su descripción corta y las columnas de la tabla de
+   sesiones (la misma en Semana y en Registro). */
+import type { Session, SessionType } from '@/lib/domain/types';
+import { scoreSession } from '@/lib/domain/score';
+import { expand, isRep } from '@/lib/domain/stages';
+import { hrRangeOf, planKmOf, sdate, stepKm } from '@/lib/domain/stats';
+import { WD, fmt, fmtDur, fmtPace, pd } from '@/lib/domain/util';
+import { typeColor } from './util';
+import { Chip, Tag } from './controls';
+import { StructureBar, Ticks, type Seg } from './meters';
+import type { Col } from './structure';
+
+/* intensidad del trabajo según el tipo, de suave a fuerte (alto de la barra) */
+const RUN_I: Record<SessionType, number> = { regen: 0.34, fondo: 0.55, tempo: 0.78, series: 0.96, test: 1 };
+
+/** la estructura del plan (calor y calma, trabajo, pausas); sin tramos, un solo bloque con toda la distancia */
+export function segsOf(s: Session): Seg[] {
+  const ex = expand(s.plan?.steps),
+    segs: Seg[] = ex
+      .map((e) => ({ d: stepKm(e.st), k: e.k === 'run' ? 'r' : e.k === 'rec' ? 'x' : 'w', i: e.k === 'run' ? RUN_I[s.type] : e.k === 'rec' ? 0.2 : 0.36 }) as Seg)
+      .filter((g) => g.d > 0);
+  if (segs.length) return segs;
+  return [{ d: 1, k: 'r', i: RUN_I[s.type] }];
+}
+
+const dist = (km: number) => (km < 1 ? Math.round(km * 1000) + ' m' : fmt(km, 1) + ' km');
+
+/** lo principal en pocas palabras: «6 × 800 m», «FC 120–140», «a 4:30 /km» */
+export function briefOf(s: Session): string {
+  const p = s.plan;
+  if (!p) return '';
+  const rep = (p.steps || []).find(isRep),
+    main = rep && rep.steps.find((x) => x.k === 'run');
+  if (rep && main) return rep.n + ' × ' + (main.dist! > 0 ? dist(main.dist!) : main.dur! > 0 ? fmtDur(main.dur!) : '');
+  const hr = hrRangeOf(s);
+  if (hr) return 'FC ' + hr[0] + '–' + hr[1];
+  if (p.paceSec! > 0) return 'a ' + fmtPace(p.paceSec!) + ' /km';
+  return '';
+}
+
+/** km de la sesión: los hechos si está hecha, si no los del plan */
+export const kmOf = (s: Session) => (s.result ? s.result.distKm || 0 : planKmOf(s));
+
+export const SessionBar = ({ s, height }: { s: Session; height?: number }) => <StructureBar segs={segsOf(s)} color={typeColor(s.type)} height={height} plan={!s.result} />;
+
+/** puntaje con sus marcas; o en qué quedó si no está hecha */
+export function ScoreCell({ s }: { s: Session }) {
+  if (!s.result) return <Tag>{s.missed ? 'No hecha' : 'Pendiente'}</Tag>;
+  const sc = scoreSession(s)?.score;
+  if (sc == null) return <Tag>Hecha</Tag>;
+  return (
+    <span style={{ display: 'inline-flex', alignItems: 'center', gap: 8 }}>
+      <Ticks value={sc} />
+      {sc}
+    </span>
+  );
+}
+
+const DASH = <span className="mut">–</span>;
+export const SESSION_COLS: Col<Session>[] = [
+  {
+    key: 'd',
+    label: 'Fecha',
+    className: 'dd',
+    cell: (s) => {
+      const d = pd(sdate(s));
+      return (
+        <>
+          <b>{d.getDate()}</b>
+          <span>{WD[(d.getDay() + 6) % 7]}</span>
+        </>
+      );
+    },
+  },
+  {
+    key: 't',
+    label: 'Sesión',
+    cell: (s) => (
+      <>
+        <Chip type={s.type} />
+        {briefOf(s) ? <span className="s">{briefOf(s)}</span> : null}
+        {s.result?.pain ? <span className="pain" title="Con molestia" /> : null}
+      </>
+    ),
+  },
+  { key: 'sb', label: 'Estructura', hideS: true, className: 'sbc', cell: (s) => <SessionBar s={s} height={16} /> },
+  { key: 'km', label: 'Km', num: true, cell: (s) => fmt(kmOf(s), 2) },
+  { key: 'tm', label: 'Tiempo', num: true, hideS: true, cell: (s) => (s.result?.timeSec ? fmtDur(s.result.timeSec) : DASH) },
+  { key: 'p', label: 'Ritmo', num: true, cell: (s) => (s.result ? fmtPace(s.result.mainPaceSec || s.result.paceSec) : DASH) },
+  { key: 'hr', label: 'FC', num: true, hideS: true, cell: (s) => s.result?.hrAvg || DASH },
+  { key: 'f', label: 'Sens.', num: true, hideS: true, cell: (s) => (s.result?.feel ? s.result.feel + '/10' : DASH) },
+  { key: 'sc', label: 'Puntaje', num: true, cell: (s) => <ScoreCell s={s} /> },
+];

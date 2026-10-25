@@ -1,0 +1,186 @@
+/* Semana (boceto «Semana» y «Primera vez»): la cinta de datos, el pie del estadio, la semana con la pista y los 7
+   días (día, sesión en el día, descanso), lo que viene y la bienvenida. Las piezas tienen su CSS en
+   app/styles/components/; acá va lo que es de esta pantalla, con el prefijo sem-.
+   Ojo: globals.css (sin capa) pone h1, h2, h3, p y ul en margin 0; los espacios van con padding o gap. */
+@layer screens {
+  .sem { padding-top: 32px; }
+
+  /* cinta de datos: el tablero del estadio. Va de punta a punta, debajo de la barra de arriba */
+  .sem-ticker {
+    height: 38px; overflow: hidden; display: flex; align-items: center;
+    background: var(--acc); color: #fff; border-bottom: 1px solid color-mix(in oklab, var(--acc) 70%, #000);
+  }
+  .sem-tk { display: flex; flex: none; gap: 30px; padding-right: 30px; white-space: nowrap; animation: sem-tick 70s linear infinite; }
+  .sem-ticker:hover .sem-tk { animation-play-state: paused; }
+  .sem-tk > span { display: inline-flex; align-items: center; gap: 30px; font: italic 800 15px/1 var(--f-disp); font-stretch: 72%; text-transform: uppercase; letter-spacing: .03em; }
+  .sem-tk > span::after { content: ""; width: 8px; height: 14px; background: rgb(255 255 255 / .5); transform: skewX(-20deg); }
+  .sem-tk b { font-weight: 900; }
+  @keyframes sem-tick { to { transform: translateX(-100%); } }
+
+  /* modo suave */
+  .sem-easy {
+    display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 12px 16px;
+    border: 1px solid color-mix(in oklab, var(--t-tempo) 45%, var(--line)); border-radius: var(--r-lg);
+    background: color-mix(in oklab, var(--t-tempo) 10%, var(--surface)); color: var(--ink-2); font-size: 13.5px;
+  }
+  .sem-easy b { color: var(--ink); font-weight: 600; }
+
+  /* estadio: el título se achica si la palabra más larga (--w, en em) no entra en la columna */
+  .sem .p-stadium > div:first-of-type { container-type: inline-size; }
+  .sem-fit { font-size: min(112px, 100cqi / var(--w, 1)); }
+
+  /* estadio: el pie con el puntaje, el ritmo km a km y el link a la salida */
+  .sem-st-foot { display: flex; align-items: flex-end; gap: 22px; margin-top: 26px; }
+  .sem-st-foot > .p-btn { flex: none; }
+  .sem-st-score { flex: none; display: flex; align-items: center; gap: 10px; }
+  .sem-st-score .disp { font-size: 30px; }
+  .sem-st-score .lbl { display: block; margin-top: 5px; }
+  .sem-st-gap, .sem-st-bar { flex: 1; min-width: 0; }
+  .sem-st-bar .p-sb i.w { background: var(--hero-mut); }
+  .sem-st-bar .p-sb i.x { background: var(--hero-line); }
+  .sem-st-plan { display: inline-flex; align-items: center; color: var(--hero-mut); font: 600 10.5px/1 var(--f-ui); letter-spacing: .1em; text-transform: uppercase; }
+
+  /* la semana: la pista y sus números a la izquierda, los 7 días a la derecha */
+  .sem-board { display: grid; grid-template-columns: 208px minmax(0, 1fr); }
+  .sem-wsum { padding: 18px; border-right: 1px solid var(--line); display: flex; flex-direction: column; }
+  .sem-wsum .p-oval { margin: 8px -4px 0; }
+  .sem-zero { font-size: 26px; font-style: italic; color: var(--ink-4); }
+  .sem-wstats { margin-top: auto; display: grid; grid-template-columns: 1fr 1fr; gap: 12px 10px; padding-top: 16px; }
+  .sem-wstats .disp { display: block; font-size: 24px; margin-top: 4px; }
+  .sem-note { color: var(--ink-3); font-size: 12.5px; line-height: 1.5; padding-top: 12px; }
+
+  .sem-phase { width: 300px; margin-right: 12px; }
+  .sem-phase b { display: block; font-weight: 600; font-size: 12px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-bottom: 7px; }
+  .sem-cells { display: grid; grid-template-columns: repeat(var(--n, 12), 1fr); gap: 3px; }
+  .sem-cells i { height: 7px; background: color-mix(in oklab, var(--pc) 22%, var(--line)); }
+  .sem-cells i.on { background: var(--pc); }
+  .sem-cells i.cur { background: var(--pc); box-shadow: 0 0 0 2px var(--surface), 0 0 0 3.5px var(--pc); }
+
+  .sem-days { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); }
+  .sem-day { position: relative; display: flex; flex-direction: column; min-height: 226px; min-width: 0; border-right: 1px solid var(--line); transition: background-color .15s var(--ease); }
+  .sem-day:last-child { border-right: 0; }
+  .sem-day.today::before { content: ""; position: absolute; top: -1px; left: -1px; right: 0; height: 3px; background: var(--acc); }
+  .sem-day.over { background: color-mix(in oklab, var(--acc) 7%, transparent); }
+  .sem-day-h { display: flex; align-items: baseline; justify-content: space-between; padding: 14px 12px 10px; }
+  .sem-day-h .lbl { font-size: 10px; }
+  .sem-day-h .disp { font-size: 24px; color: var(--ink-2); font-style: italic; }
+  .sem-day.today .sem-day-h .lbl, .sem-day.today .sem-day-h .disp { color: var(--acc); }
+  .sem-day-b { flex: 1; display: flex; flex-direction: column; gap: 6px; padding: 0 8px 8px; }
+
+  /* una sesión en su día: el link al detalle cubre la tarjeta; los botones del pie quedan arriba de él */
+  .sem-ses {
+    position: relative; padding: 10px 10px 10px 12px; border-radius: var(--r-md);
+    background: var(--bg); border: 1px solid transparent;
+    transition: border-color .15s var(--ease), background-color .15s var(--ease), transform .15s var(--ease), opacity .15s var(--ease);
+  }
+  .sem-ses[draggable] { cursor: grab; }
+  .sem-ses[draggable]:active { cursor: grabbing; transform: scale(.985); }
+  .sem-ses::before { content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 3px; border-radius: var(--r-md) 0 0 var(--r-md); background: var(--tc); }
+  .sem-ses:hover { border-color: var(--line-2); background: var(--surface); }
+  .sem-ses:has(.sem-ses-go:focus-visible) { outline: 2px solid var(--acc); outline-offset: 2px; }
+  .sem-ses.drag { opacity: .45; }
+  .sem-ses-go { display: block; outline: 0; }
+  .sem-ses-go::after { content: ""; position: absolute; inset: 0; border-radius: inherit; }
+  .sem-ses-go b { display: block; font: 800 14px/1.1 var(--f-disp); font-stretch: 74%; text-transform: uppercase; letter-spacing: .015em; }
+  .sem-ses .m { display: block; margin-top: 3px; font-size: 11.5px; color: var(--ink-3); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .sem-ses .kp { display: flex; justify-content: space-between; gap: 6px; margin-top: 8px; font: 500 11.5px/1 var(--f-mono); color: var(--ink-2); font-variant-numeric: tabular-nums; }
+  .sem-ses .p-sb { margin-top: 9px; }
+  .sem-ses .sf { display: flex; align-items: center; justify-content: space-between; gap: 4px; min-height: 22px; margin-top: 6px; font-size: 11px; color: var(--ink-3); }
+  .sem-ses .sf > span:first-child { white-space: nowrap; }
+  .sem-ses .sf b { font: 600 12px/1 var(--f-mono); color: var(--ink); }
+  .sem-ses .sf.late { flex-wrap: wrap; }
+  .sem-ses .sf .acts { display: flex; gap: 2px; margin-left: auto; }
+  .sem-ses.plan { background: transparent; border: 1px dashed var(--line-2); }
+  .sem-ses.plan::before { opacity: .45; }
+  .sem-ses.miss { opacity: .6; }
+  .sem-ses.miss .sem-ses-go b { text-decoration: line-through; text-decoration-color: var(--ink-4); }
+  .sem-ib {
+    position: relative; z-index: 1; width: 22px; height: 22px; display: grid; place-items: center; border-radius: var(--r-sm); color: var(--ink-3);
+    transition: background-color .15s var(--ease), color .15s var(--ease);
+  }
+  .sem-ib:hover { background: var(--sunk); color: var(--ink); }
+  .sem-ib svg { width: 13px; height: 13px; }
+
+  /* descanso: días que ya pasaron sin nada */
+  .sem-rest {
+    flex: 1; display: grid; place-items: center; border-radius: var(--r-md); color: var(--ink-4);
+    font: 600 10px/1 var(--f-ui); letter-spacing: .1em; text-transform: uppercase;
+    background: repeating-linear-gradient(-45deg, transparent 0 6px, color-mix(in oklab, var(--line) 70%, transparent) 6px 7px);
+  }
+  .sem-rest span { background: var(--surface); padding: 3px 6px; }
+
+  /* planificar en un día: aparece al pasar o con el foco; en los días por venir vacíos se ve siempre y ocupa el día */
+  .sem-add {
+    display: flex; align-items: center; justify-content: center; gap: 4px; height: 28px; border-radius: var(--r-md);
+    font-size: 12px; color: var(--ink-3); border: 1px dashed var(--line-2); opacity: 0;
+    transition: opacity .15s var(--ease), color .15s var(--ease), border-color .15s var(--ease);
+  }
+  .sem-add svg { width: 13px; height: 13px; }
+  .sem-day:hover .sem-add, .sem-add:focus-visible { opacity: 1; }
+  .sem-add:hover { color: var(--ink); border-color: var(--ink-4); }
+  .sem-day.empty:not(.past) .sem-add { opacity: 1; flex: 1; height: auto; }
+  .sem-day.past .sem-add { display: none; }
+  @media (hover: none) { .sem-add { opacity: 1; } }
+
+  /* km del día: una barra por sesión, punteada si está planificada */
+  .sem-vol { height: 40px; display: flex; align-items: flex-end; justify-content: center; gap: 3px; padding: 0 12px 10px; border-top: 1px solid var(--line); }
+  .sem-vol i { flex: 1; background: color-mix(in oklab, var(--tc, var(--ink)) 80%, var(--surface)); transform-origin: bottom; animation: p-grow .7s var(--ease) both; animation-delay: calc(400ms + var(--j, 0) * 40ms); }
+  .sem-vol i.p { background: transparent; border: 1px dashed var(--tc); border-bottom: 0; }
+
+  /* lo que viene */
+  .sem-next-t { font-size: 52px; padding-top: 2px; }
+  .sem-next-sub { color: var(--ink-2); padding: 8px 0 18px; }
+  .sem-steps { padding: 14px 0 0; list-style: none; }
+  .sem-steps li { display: grid; grid-template-columns: 12px minmax(0, 1fr) auto; gap: 10px; align-items: baseline; padding: 8px 0; border-top: 1px solid var(--line); font-size: 13px; }
+  .sem-steps li::before { content: ""; width: 8px; height: 8px; background: var(--k, var(--ink-4)); transform: translateY(-1px) skewX(-14deg); }
+  .sem-steps li span { color: var(--ink-3); text-align: right; }
+  .sem-next-acts { display: flex; flex-wrap: wrap; gap: 8px; padding-top: 18px; }
+
+  /* primera vez: la bienvenida y sus cuatro pasos */
+  .sem-wl-p { padding-top: 18px; color: var(--hero-mut); font-size: 15.5px; max-width: 52ch; line-height: 1.55; }
+  .sem-wl-acts { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 24px; }
+  .sem-wl-acts .p-btn { height: 42px; padding: 0 18px; }
+  .sem-onb { align-self: center; margin: 0; padding: 0; list-style: none; background: rgb(255 255 255 / .04); border: 1px solid var(--hero-line); border-radius: var(--r-lg); overflow: hidden; }
+  .sem-onb li + li { border-top: 1px solid var(--hero-line); }
+  .sem-onb-r { display: grid; grid-template-columns: 34px minmax(0, 1fr) auto; gap: 12px; align-items: center; width: 100%; padding: 15px 16px; text-align: left; color: inherit; }
+  a.sem-onb-r:hover, button.sem-onb-r:hover { background: rgb(255 255 255 / .05); }
+  .sem-onb-r:focus-visible { outline-offset: -2px; }
+  .sem-onb .n { width: 30px; height: 30px; display: grid; place-items: center; font: italic 900 16px/1 var(--f-disp); font-stretch: 70%; border: 1.5px solid var(--hero-line); border-radius: 50%; }
+  .sem-onb b { display: block; font-weight: 600; font-size: 14px; }
+  .sem-onb small { display: block; font-size: 12px; color: var(--hero-mut); margin-top: 2px; }
+  .sem-onb-r > svg { width: 16px; height: 16px; color: var(--hero-mut); }
+  .sem-onb li.ok .n { background: #7BD3A0; border-color: #7BD3A0; color: #0E0E0F; }
+  .sem-onb li.ok b { color: var(--hero-mut); text-decoration: line-through; }
+  .sem-onb li.ok .sem-onb-r > svg { color: #7BD3A0; }
+  .sem-onb li.cur { background: rgb(242 85 47 / .1); }
+  .sem-onb li.cur .n { border-color: var(--acc); color: var(--acc); }
+
+  @media (max-width: 1240px) {
+    .sem-welcome { --side: 320px !important; }
+    .sem-fit { font-size: min(92px, 100cqi / var(--w, 1)); }
+    .sem-board { grid-template-columns: minmax(0, 1fr); }
+    .sem-wsum { display: grid; grid-template-columns: 220px 1fr; gap: 24px; align-items: center; border-right: 0; border-bottom: 1px solid var(--line); }
+    .sem-wsum > .lbl { grid-column: 1 / -1; }
+    .sem-wsum .p-oval { margin: 0; }
+    .sem-wstats { grid-template-columns: repeat(4, 1fr); margin: 0; padding: 0; }
+    .sem-days { grid-template-columns: repeat(7, minmax(132px, 1fr)); overflow-x: auto; scroll-snap-type: x mandatory; }
+    .sem-day { scroll-snap-align: start; }
+  }
+  @media (max-width: 900px) {
+    .sem { padding-top: 20px; }
+    .sem-fit { font-size: min(64px, 100cqi / var(--w, 1)); }
+    .sem-st-foot { flex-wrap: wrap; }
+    .sem-st-foot .p-spark, .sem-st-bar, .sem-st-gap { flex-basis: 100%; order: -1; }
+    .sem-st-gap { display: none; }
+    .sem-wsum { grid-template-columns: minmax(0, 1fr); }
+    .sem-wsum .p-oval { max-width: 260px; }
+    .sem-wstats { grid-template-columns: repeat(2, 1fr); }
+    .sem-next-t { font-size: 40px; }
+    .sem-easy { flex-direction: column; align-items: flex-start; }
+  }
+  /* «reducir movimiento»: la cinta quieta, una sola vuelta, y se corre de costado */
+  @media (prefers-reduced-motion: reduce) {
+    .sem-ticker { overflow-x: auto; }
+    .sem-tk + .sem-tk { display: none; }
+  }
+}

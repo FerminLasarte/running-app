@@ -6,9 +6,9 @@ import { CaretRight } from '@phosphor-icons/react';
 import { cssVars, cx } from './util';
 
 /** voz de marca: angosta, itálica, en mayúsculas y con el punto final en tartán */
-export function BrandTitle({ as: As = 'h1', className, children }: { as?: ElementType; className?: string; children: ReactNode }) {
+export function BrandTitle({ as: As = 'h1', className, style, children }: { as?: ElementType; className?: string; style?: CSSProperties; children: ReactNode }) {
   return (
-    <As className={cx('brand-t', className)}>
+    <As className={cx('brand-t', className)} style={style}>
       {children}
       <em>.</em>
     </As>

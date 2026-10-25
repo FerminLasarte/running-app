@@ -1,7 +1,7 @@
 'use client';
 /* Barra de arriba, fija: dónde estás (en Semana, la semana que ves), el estado del guardado y de Strava, el tema y
    «Registrar». En el celu también lleva a Ajustes, que en la compu está abajo en la barra lateral. */
-import { useEffect, useState, useSyncExternalStore } from 'react';
+import { useSyncExternalStore } from 'react';
 import Link from 'next/link';
 import { useShallow } from 'zustand/react/shallow';
 import { CaretLeft, CaretRight, Moon, Plus, Sun } from '@phosphor-icons/react';
@@ -11,9 +11,9 @@ import { weekGo } from '@/lib/data/actions';
 import { nextRace, TYPES } from '@/lib/domain/config';
 import { sdate } from '@/lib/domain/stats';
 import { addDays, dateLabel, dShort, isoWeek, mondayOf } from '@/lib/domain/util';
-import { stravaStatus } from '@/lib/strava/client';
 import { toggleTheme } from '@/lib/theme';
 import { Avatar } from './Rail';
+import { useStravaStatus } from './useStravaStatus';
 import type { SectionDef } from './sections';
 
 function WeekCrumb() {
@@ -101,17 +101,8 @@ function SaveState() {
 
 /* Strava: si está conectado, un punto verde; si no, el atajo para conectarlo. Sin cuenta (modo local), nada */
 function StravaState() {
-  const cloud = useApp((s) => s.mode === 'cloud');
-  const [st, setSt] = useState<Awaited<ReturnType<typeof stravaStatus>> | null>(null);
-  useEffect(() => {
-    if (!cloud) return;
-    let live = true;
-    stravaStatus().then((v) => live && setSt(v));
-    return () => {
-      live = false;
-    };
-  }, [cloud]);
-  if (!cloud || !st || st.configured === false) return null;
+  const st = useStravaStatus();
+  if (!st || st.configured === false) return null;
   return st.connected ? (
     <span className="sync" title={st.athlete ? 'Conectado como ' + st.athlete : 'Strava conectado'}>
       <i className="pulse" aria-hidden="true" />

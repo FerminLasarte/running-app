@@ -1,5 +1,5 @@
 /* Semana: carreras de la franja, sesiones pendientes, mover sesiones de día, planificar la semana entera y las
-   corridas nuevas de Strava. Sin HTML: los componentes viven en components/week/*. */
+   corridas nuevas de Strava. Sin HTML: los componentes viven en components/semana/*. */
 import { S, getUi, setUi } from '@/lib/store';
 import { buzz, saveSession, toast, toastUndo } from '@/lib/data/actions';
 import { openSheet } from '@/lib/sheets';
