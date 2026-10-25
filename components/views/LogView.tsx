@@ -3,13 +3,13 @@
    El buscador queda fuera de la lista: al tipear solo se vuelve a dibujar la lista y no pierde el foco. */
 import { Fragment, useEffect, useRef, type CSSProperties, type ReactNode } from 'react';
 import { S, useS, useUi } from '@/lib/store';
-import { openSheet } from '@/lib/sheets';
 import { blockDemo, toast } from '@/lib/data/actions';
 import { TYPES, TYPE_KEYS } from '@/lib/domain/config';
 import { bandOf } from '@/lib/domain/score';
 import { LG_INIT, LG_PAGE, LG_SORTS, LG_SORT_KEYS, LG_ST, lgCsv, lgHours, lgRows, lgSt, lgTotals, type LgInfo, type LgSortKey, type LgState } from '@/lib/domain/log';
 import { planSummary } from '@/lib/domain/stats';
 import { cap, DF_MY, fmt, fmtDur, fmtPace, pd, todayS, WD } from '@/lib/domain/util';
+import { goSession } from '@/lib/nav';
 
 const HD: Record<string, string> = { km: 'Km', time: 'Tiempo', pace: 'Ritmo', hr: 'FC', feel: 'Sens.', score: 'Puntaje' };
 
@@ -60,7 +60,7 @@ function LgRow({ q }: { q: LgInfo }) {
     );
   const sub = r ? [fmtDur(q.t), q.p ? fmtPace(q.p) + '/km' : '', q.hr ? 'FC ' + q.hr : ''].filter(Boolean).join(' · ') : x.plan ? planSummary(x.plan) : '';
   return (
-    <button className={'lg-r ' + q.st} style={{ '--tc': T.t } as CSSProperties} data-a="detail" data-id={x.id} onClick={() => openSheet('detail', { id: x.id })}>
+    <button className={'lg-r ' + q.st} style={{ '--tc': T.t } as CSSProperties} data-a="detail" data-id={x.id} onClick={() => goSession(x.id)}>
       <span className="lg-d">
         <b>{d.getDate()}</b>
         <small>{WD[(d.getDay() + 6) % 7]}</small>

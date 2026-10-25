@@ -1,6 +1,6 @@
 'use client';
 /* Pestaña Logros: Personaje, Vitrina, Desafíos y Ranking (viewLogros del original). */
-import { setS, setUi, useApp } from '@/lib/store';
+import { setUi, useApp } from '@/lib/store';
 import Character from '@/components/logros/Character';
 import Vitrina from '@/components/logros/Vitrina';
 import Desafios from '@/components/logros/Desafios';
@@ -19,7 +19,6 @@ export default function LogrosView() {
   const sub = v && SUBS.some((q) => q[0] === v) ? v : 'pj';
   const pick = (k: string) => {
     setUi('logSub', k);
-    setS({ lastTab: null });
   };
   return (
     <>

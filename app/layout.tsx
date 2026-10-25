@@ -3,6 +3,7 @@ import { Archivo, Geist, Geist_Mono } from 'next/font/google';
 import { THEME_SCRIPT } from '@/lib/theme';
 import './styles/tokens.css';
 import './styles/base.css';
+import './styles/shell.css';
 import './globals.css';
 
 /* Archivo variable con su eje de ancho: angosta para números y títulos de marca, itálica para la voz de marca */
@@ -11,7 +12,7 @@ const geist = Geist({ variable: '--font-geist', subsets: ['latin'], display: 'sw
 const geistMono = Geist_Mono({ variable: '--font-geist-mono', subsets: ['latin'], display: 'swap' });
 
 export const metadata: Metadata = {
-  title: 'My Running App',
+  title: { default: 'My Running App', template: '%s · My Running App' },
   description: 'Registro y progreso. Fondos guiados por frecuencia cardíaca; series y tempos, por ritmo.',
   applicationName: 'My Running App',
   appleWebApp: { capable: true, title: 'Running', statusBarStyle: 'black-translucent' },
@@ -30,7 +31,7 @@ export const viewport: Viewport = {
 
 export default function RootLayout({ children }: LayoutProps<'/'>) {
   return (
-    <html lang="es" className={`${archivo.variable} ${geist.variable} ${geistMono.variable}`} suppressHydrationWarning>
+    <html lang="es" className={`${archivo.variable} ${geist.variable} ${geistMono.variable}`} data-scroll-behavior="smooth" suppressHydrationWarning>
       <head>
         {/* el tema se aplica antes de pintar, para que no parpadee */}
         <script dangerouslySetInnerHTML={{ __html: THEME_SCRIPT }} />

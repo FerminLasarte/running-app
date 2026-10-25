@@ -1,0 +1,162 @@
+'use client';
+/* Barra de arriba, fija: dónde estás (en Semana, la semana que ves), el estado del guardado y de Strava, el tema y
+   «Registrar». En el celu también lleva a Ajustes, que en la compu está abajo en la barra lateral. */
+import { useEffect, useState, useSyncExternalStore } from 'react';
+import Link from 'next/link';
+import { useShallow } from 'zustand/react/shallow';
+import { CaretLeft, CaretRight, Moon, Plus, Sun } from '@phosphor-icons/react';
+import { useApp } from '@/lib/store';
+import { openSheet } from '@/lib/sheets';
+import { weekGo } from '@/lib/data/actions';
+import { nextRace, TYPES } from '@/lib/domain/config';
+import { sdate } from '@/lib/domain/stats';
+import { addDays, dateLabel, dShort, isoWeek, mondayOf } from '@/lib/domain/util';
+import { stravaStatus } from '@/lib/strava/client';
+import { toggleTheme } from '@/lib/theme';
+import { Avatar } from './Rail';
+import type { SectionDef } from './sections';
+
+function WeekCrumb() {
+  const off = useApp((s) => s.weekOff);
+  const mon = addDays(mondayOf(new Date()), off * 7);
+  return (
+    <>
+      <div className="wk">
+        <button className="ib" type="button" aria-label="Semana anterior" onClick={() => weekGo(-1)}>
+          <CaretLeft aria-hidden="true" />
+        </button>
+        <b>
+          Semana {isoWeek(mon)}{' '}
+          <span>
+            · {dShort(mon)} – {dShort(addDays(mon, 6))}
+          </span>
+        </b>
+        <button className="ib" type="button" aria-label="Semana siguiente" onClick={() => weekGo(1)}>
+          <CaretRight aria-hidden="true" />
+        </button>
+      </div>
+      {off !== 0 ? (
+        <button className="tb-btn ghost" type="button" onClick={() => weekGo(0)}>
+          Hoy
+        </button>
+      ) : null}
+    </>
+  );
+}
+
+function SessionCrumb({ id }: { id: string }) {
+  const s = useApp((st) => st.sessions.find((x) => x.id === id));
+  return (
+    <>
+      <Link href="/registro">Registro</Link>
+      <span className="sep">/</span>
+      <span>{s ? TYPES[s.type].label + ' · ' + dateLabel(sdate(s)) : 'Sesión'}</span>
+    </>
+  );
+}
+
+function Crumbs({ section, pathname }: { section: SectionDef | null; pathname: string }) {
+  /* la próxima carrera sale de la configuración: que se redibuje si cambia */
+  useApp((s) => s.cfg.races);
+  if (!section) return pathname.startsWith('/sesion/') ? <SessionCrumb id={decodeURIComponent(pathname.split('/')[2] || '')} /> : null;
+  if (section.id === 'semana') return <WeekCrumb />;
+  const r = section.id === 'carreras' ? nextRace() : null;
+  return (
+    <>
+      <span>{section.label}</span>
+      {r ? (
+        <>
+          <span className="sep">/</span>
+          <span className="mut">{r.name}</span>
+        </>
+      ) : null}
+    </>
+  );
+}
+
+/* guardado: solo se ve si hay algo que avisar o si estás en la nube y está todo bien */
+function SaveState() {
+  const S = useApp(useShallow((s) => ({ mode: s.mode, saving: s.saving, cloudLost: s.cloudLost, nf: Object.keys(s.failed).length })));
+  if (S.mode === 'boot') return null;
+  const [t, c] = S.cloudLost
+    ? ['Sin conexión', 'bad']
+    : S.nf
+      ? ['Sin guardar', 'bad']
+      : S.saving > 0
+        ? ['Guardando…', 'warn']
+        : S.mode === 'cloud'
+          ? ['Guardado', '']
+          : ['Solo en este navegador', 'warn'];
+  return (
+    <span className={'sync ' + c} role="status">
+      <i className="pulse" aria-hidden="true" />
+      <span>{t}</span>
+    </span>
+  );
+}
+
+/* Strava: si está conectado, un punto verde; si no, el atajo para conectarlo. Sin cuenta (modo local), nada */
+function StravaState() {
+  const cloud = useApp((s) => s.mode === 'cloud');
+  const [st, setSt] = useState<Awaited<ReturnType<typeof stravaStatus>> | null>(null);
+  useEffect(() => {
+    if (!cloud) return;
+    let live = true;
+    stravaStatus().then((v) => live && setSt(v));
+    return () => {
+      live = false;
+    };
+  }, [cloud]);
+  if (!cloud || !st || st.configured === false) return null;
+  return st.connected ? (
+    <span className="sync" title={st.athlete ? 'Conectado como ' + st.athlete : 'Strava conectado'}>
+      <i className="pulse" aria-hidden="true" />
+      <span>Strava</span>
+    </span>
+  ) : (
+    <Link className="sync warn" href="/ajustes">
+      <i className="pulse" aria-hidden="true" />
+      <span>Conectar Strava</span>
+    </Link>
+  );
+}
+
+const darkNow = () => document.documentElement.getAttribute('data-theme') === 'dark';
+
+const onThemeAttr = (cb: () => void) => {
+  const mo = new MutationObserver(cb);
+  mo.observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
+  return () => mo.disconnect();
+};
+
+function ThemeButton() {
+  /* también cambia si cambia el del sistema: lo leo del atributo que pone el script del tema */
+  const dark = useSyncExternalStore(onThemeAttr, darkNow, () => false);
+  return (
+    <button className="ib" type="button" aria-label={dark ? 'Pasar a tema claro' : 'Pasar a tema oscuro'} onClick={toggleTheme}>
+      {dark ? <Sun aria-hidden="true" /> : <Moon aria-hidden="true" />}
+    </button>
+  );
+}
+
+export function TopBar({ section, pathname }: { section: SectionDef | null; pathname: string }) {
+  return (
+    <header className="top">
+      <div className="crumbs">
+        <Crumbs section={section} pathname={pathname} />
+      </div>
+      <div className="spacer" />
+      <SaveState />
+      <StravaState />
+      <ThemeButton />
+      <button className="tb-btn pri" type="button" onClick={() => openSheet('result', { id: null })}>
+        <Plus weight="bold" aria-hidden="true" />
+        Registrar
+        <kbd>R</kbd>
+      </button>
+      <Link className="me-s" href="/ajustes" aria-label="Ajustes y cuenta" aria-current={section?.id === 'ajustes' ? 'page' : undefined}>
+        <Avatar />
+      </Link>
+    </header>
+  );
+}

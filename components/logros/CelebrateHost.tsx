@@ -2,9 +2,10 @@
 /* Celebración al ganar trofeos o subir de nivel (celebrate del original). Se monta una vez en el shell;
    también pone los degradados compartidos de las medallas. */
 import { useEffect, useRef, type CSSProperties } from 'react';
-import { setS, setUi, useApp } from '@/lib/store';
+import { setUi, useApp } from '@/lib/store';
 import { closeSheet } from '@/lib/sheets';
-import { afterPaint, jumpTo } from '@/lib/data/actions';
+import { jumpTo } from '@/lib/data/actions';
+import { navigate } from '@/lib/nav';
 import { closeCelebrate, rarOf, trophyXp, type CelebrateState } from '@/lib/domain/trophies';
 import { nf } from '@/lib/domain/util';
 import { MedalDefs, MedalSvg } from './MedalSvg';
@@ -37,8 +38,7 @@ function Celebrate({ c }: { c: CelebrateState }) {
     closeCelebrate();
     closeSheet();
     setUi('logSub', best ? 'vit' : 'pj');
-    setS({ tab: 'top' });
-    afterPaint(() => jumpTo(0));
+    navigate('/logros', () => jumpTo(0));
   };
 
   return (

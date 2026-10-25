@@ -6,7 +6,7 @@ export default function manifest(): MetadataRoute.Manifest {
     short_name: 'Running',
     description: 'Registro y progreso. Fondos guiados por frecuencia cardíaca; series y tempos, por ritmo.',
     lang: 'es-AR',
-    start_url: '/',
+    start_url: '/semana',
     scope: '/',
     display: 'standalone',
     orientation: 'portrait',

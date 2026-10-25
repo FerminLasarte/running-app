@@ -16,6 +16,11 @@ export const pd = (s: string) => {
 export const addDays = (d: Date, n: number) => new Date(d.getFullYear(), d.getMonth(), d.getDate() + n);
 export const mondayOf = (d: Date) => addDays(sod(d), -((sod(d).getDay() + 6) % 7));
 export const dayDiff = (a: Date, b: Date) => Math.round((+sod(b) - +sod(a)) / 864e5);
+/** número de semana ISO: la 1 es la que tiene el primer jueves del año */
+export const isoWeek = (d: Date) => {
+  const th = addDays(mondayOf(d), 3);
+  return Math.floor(dayDiff(new Date(th.getFullYear(), 0, 1), th) / 7) + 1;
+};
 /** días que faltan desde hoy hasta una fecha AAAA-MM-DD (0 = hoy, negativo = ya pasó) */
 export const daysTo = (date: string) => dayDiff(sod(new Date()), pd(date));
 export const todayS = () => ymd(new Date());

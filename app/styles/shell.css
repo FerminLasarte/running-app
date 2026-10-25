@@ -1,0 +1,136 @@
+/* Shell de los bocetos: barra lateral, barra de arriba y la página. En el celu, las secciones van en una barra abajo.
+   Los nombres no pisan clases del CSS viejo, que va sin capa y ganaría (por eso .tb-btn y no .btn, .pulse y no .dot). */
+@layer shell {
+  .app { display: grid; grid-template-columns: var(--rail) minmax(0, 1fr); min-height: 100dvh; }
+  .main { min-width: 0; }
+
+  .rail {
+    position: sticky; top: 0; height: 100dvh; display: flex; flex-direction: column;
+    border-right: 1px solid var(--line); padding: 16px 12px 12px; background: var(--bg);
+  }
+  .brand { display: flex; align-items: center; gap: 10px; padding: 2px 8px 22px; }
+  .brand .mark { width: 30px; height: 30px; flex: none; }
+  .brand b { display: block; font: italic 900 17px/1 var(--f-disp); font-stretch: 66%; text-transform: uppercase; letter-spacing: .005em; }
+  .brand small { display: block; font-size: 11px; color: var(--ink-3); margin-top: 3px; }
+
+  .nav { display: grid; gap: 2px; }
+  .nav a {
+    position: relative; display: flex; align-items: center; gap: 11px; height: 36px; padding: 0 10px;
+    border-radius: var(--r-sm); color: var(--ink-2); font-weight: 500; letter-spacing: -.005em;
+    transition: background-color .15s var(--ease), color .15s var(--ease);
+  }
+  .nav a svg { width: 18px; height: 18px; flex: none; }
+  .nav a kbd { margin-left: auto; opacity: 0; transition: opacity .15s var(--ease); }
+  .nav a:hover { background: var(--sunk); color: var(--ink); }
+  .nav a:hover kbd, .nav a:focus-visible kbd { opacity: 1; }
+  .nav a[aria-current="page"] { background: var(--ink); color: var(--bg); }
+  .nav a[aria-current="page"] kbd { background: transparent; color: color-mix(in oklab, var(--bg) 60%, transparent); border-color: color-mix(in oklab, var(--bg) 30%, transparent); }
+  .nav a[aria-current="page"]::after { content: ""; position: absolute; right: 0; top: 0; bottom: 0; width: 4px; background: var(--acc); border-radius: 0 var(--r-sm) var(--r-sm) 0; }
+
+  .rail-foot { margin-top: auto; display: grid; gap: 10px; }
+  .lvl { display: block; width: 100%; text-align: left; padding: 12px; border: 1px solid var(--line); border-radius: var(--r-md); background: var(--surface); transition: border-color .15s var(--ease); }
+  .lvl:hover { border-color: var(--line-2); }
+  .lvl-top { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; }
+  .lvl-top b { font: italic 900 15px/1 var(--f-disp); font-stretch: 66%; text-transform: uppercase; letter-spacing: .01em; }
+  .lvl-top .disp { font-size: 24px; }
+  .laps { display: grid; grid-template-columns: repeat(10, 1fr); gap: 2px; margin-top: 9px; }
+  .laps i { height: 4px; background: var(--line); }
+  .laps i.on { background: var(--ink); }
+  .laps i.cur { background: linear-gradient(90deg, var(--acc) var(--p), var(--line) var(--p)); }
+  .lvl small { display: block; margin-top: 7px; font-size: 11.5px; color: var(--ink-3); }
+
+  .me { display: flex; align-items: center; gap: 10px; padding: 6px 8px; border-radius: var(--r-sm); }
+  .me:hover, .me[aria-current="page"] { background: var(--sunk); }
+  .me b { font-size: 13px; font-weight: 600; display: block; line-height: 1.2; }
+  .me small { font-size: 11.5px; color: var(--ink-3); }
+  .me > svg { margin-left: auto; color: var(--ink-3); width: 16px; height: 16px; }
+  .av {
+    width: 28px; height: 28px; border-radius: 50%; flex: none; display: grid; place-items: center; overflow: hidden;
+    font: 600 11px/1 var(--f-ui); color: #fff; background: var(--t-fondo);
+  }
+  .av img { width: 100%; height: 100%; object-fit: cover; }
+  .av svg { width: 14px; height: 14px; }
+
+  /* barra de arriba */
+  .top {
+    position: sticky; top: 0; z-index: 20; height: 56px; display: flex; align-items: center; gap: 10px;
+    padding: 0 32px; border-bottom: 1px solid var(--line);
+    background: color-mix(in oklab, var(--bg) 88%, transparent);
+    backdrop-filter: saturate(1.3) blur(12px); -webkit-backdrop-filter: saturate(1.3) blur(12px);
+  }
+  .crumbs { display: flex; align-items: center; gap: 8px; font-weight: 500; min-width: 0; white-space: nowrap; }
+  .crumbs .sep { color: var(--ink-4); }
+  .crumbs .mut { overflow: hidden; text-overflow: ellipsis; }
+  .crumbs a { color: var(--ink-3); }
+  .crumbs a:hover { color: var(--ink); }
+  .wk { display: flex; align-items: center; gap: 2px; }
+  .wk b { font-weight: 600; padding: 0 6px; white-space: nowrap; }
+  .wk b span { color: var(--ink-3); font-weight: 500; }
+  .ib {
+    width: 30px; height: 30px; display: grid; place-items: center; border-radius: var(--r-sm); color: var(--ink-2); flex: none;
+    transition: background-color .15s var(--ease), transform .1s var(--ease);
+  }
+  .ib:hover { background: var(--sunk); color: var(--ink); }
+  .ib:active { transform: scale(.94); }
+  .ib svg { width: 16px; height: 16px; }
+  .spacer { flex: 1; }
+  .sync { display: flex; align-items: center; gap: 7px; font-size: 12.5px; color: var(--ink-3); padding: 0 8px; white-space: nowrap; }
+  .pulse { width: 7px; height: 7px; border-radius: 50%; background: var(--pos); position: relative; flex: none; }
+  .pulse::after { content: ""; position: absolute; inset: -3px; border-radius: 50%; border: 1px solid currentColor; color: var(--pos); opacity: 0; animation: ping 3s var(--ease) infinite; }
+  .sync.warn .pulse { background: var(--t-tempo); }
+  .sync.bad .pulse { background: var(--neg); }
+  .sync.warn .pulse::after, .sync.bad .pulse::after { display: none; }
+  a.sync:hover { color: var(--ink); }
+  @keyframes ping { 0% { opacity: .7; transform: scale(.6); } 70%, 100% { opacity: 0; transform: scale(1.6); } }
+
+  /* botones de la barra: rectos, en mayúsculas, como una etiqueta de producto */
+  .tb-btn {
+    display: inline-flex; align-items: center; justify-content: center; gap: 8px; height: 34px; padding: 0 14px; border-radius: var(--r-sm);
+    font: 600 11.5px/1 var(--f-ui); letter-spacing: .07em; text-transform: uppercase; white-space: nowrap;
+    border: 1px solid var(--line-2); background: var(--surface); color: var(--ink);
+    transition: background-color .15s var(--ease), border-color .15s var(--ease), transform .1s var(--ease);
+  }
+  .tb-btn:hover { border-color: var(--ink); }
+  .tb-btn:active { transform: translateY(1px); }
+  .tb-btn svg { width: 15px; height: 15px; }
+  .tb-btn.pri { background: var(--ink); border-color: var(--ink); color: var(--bg); }
+  .tb-btn.pri:hover { background: color-mix(in oklab, var(--ink) 84%, var(--bg)); }
+  .tb-btn.pri kbd { background: transparent; color: color-mix(in oklab, var(--bg) 70%, transparent); border-color: color-mix(in oklab, var(--bg) 35%, transparent); }
+  .tb-btn.ghost { height: 28px; padding: 0 10px; font-size: 11px; border-color: transparent; background: transparent; color: var(--ink-2); }
+  .tb-btn.ghost:hover { background: var(--sunk); color: var(--ink); }
+  .me-s { display: none; }
+
+  .page { max-width: 1260px; margin: 0 auto; padding: 0 40px 96px; }
+  /* al bajar a una parte, que la barra de arriba no la tape */
+  .page [id] { scroll-margin-top: 72px; }
+
+  @media (max-width: 1240px) {
+    .sync span { display: none; }
+  }
+  /* celu: las secciones abajo; Ajustes, arriba a la derecha */
+  @media (max-width: 900px) {
+    .app { grid-template-columns: minmax(0, 1fr); }
+    .rail {
+      position: fixed; z-index: 30; top: auto; bottom: 0; left: 0; right: 0; height: auto; flex-direction: row;
+      padding: 6px 8px calc(6px + env(safe-area-inset-bottom)); border-right: 0; border-top: 1px solid var(--line);
+      background: color-mix(in oklab, var(--bg) 92%, transparent); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+    }
+    .brand, .rail-foot, .nav kbd { display: none; }
+    .nav { grid-auto-flow: column; grid-auto-columns: minmax(0, 1fr); width: 100%; }
+    .nav a { flex-direction: column; height: 48px; gap: 3px; justify-content: center; font-size: 10.5px; padding: 0; }
+    .nav a svg { width: 20px; height: 20px; }
+    .nav a[aria-current="page"] { background: transparent; color: var(--ink); }
+    .nav a[aria-current="page"]::after { left: 30%; right: 30%; top: -7px; bottom: auto; width: auto; height: 3px; border-radius: 0; }
+    .top { padding: 0 12px; gap: 6px; padding-top: env(safe-area-inset-top); height: calc(56px + env(safe-area-inset-top)); }
+    .crumbs .sep, .crumbs .mut, .wk b span, .tb-btn.pri kbd { display: none; }
+    .me-s { display: block; }
+    .page { padding: 0 16px 110px; }
+  }
+  @media (max-width: 420px) {
+    .tb-btn.pri { padding: 0 10px; }
+    .sync { display: none; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .pulse::after { animation: none; }
+  }
+}
