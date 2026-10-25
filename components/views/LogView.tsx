@@ -211,7 +211,7 @@ export default function LogView() {
   /* atajo en la compu: «/» busca en el Registro */
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
-      if (e.key !== '/' || e.ctrlKey || e.metaKey || e.altKey || S.sheet) return;
+      if (e.key !== '/' || e.ctrlKey || e.metaKey || e.altKey || S.sheet || S.ui.palette) return;
       const tg = e.target as HTMLElement | null;
       if (tg && (tg.isContentEditable || /^(INPUT|TEXTAREA|SELECT)$/.test(tg.tagName))) return;
       if (qRef.current) {

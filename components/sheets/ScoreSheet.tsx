@@ -6,12 +6,12 @@ import { easyActive } from '@/lib/domain/config';
 import { todayS } from '@/lib/domain/util';
 import { openRecal } from '@/lib/domain/recal';
 import { ScoreHtml } from '@/components/detail/ScoreHtml';
-import { SheetFrame } from './SheetFrame';
+import { PanelFrame } from '@/components/panels/PanelFrame';
 
 export default function ScoreSheet({ id, fresh = false }: { id: string; fresh?: boolean }) {
   const s = useApp((st) => st.sessions.find((x) => x.id === id));
   const title = fresh ? 'Tu puntaje' : 'Detalle';
-  if (!s || !s.result) return <SheetFrame title={title}>{null}</SheetFrame>;
+  if (!s || !s.result) return <PanelFrame title={title}>{null}</PanelFrame>;
   const r = s.result;
   const recal = fresh && s.type === 'test' && r.distKm >= 3;
   const foot = (
@@ -32,8 +32,8 @@ export default function ScoreSheet({ id, fresh = false }: { id: string; fresh?: 
     </>
   );
   return (
-    <SheetFrame title={title} foot={foot}>
+    <PanelFrame title={title} foot={foot}>
       <ScoreHtml s={s} />
-    </SheetFrame>
+    </PanelFrame>
   );
 }

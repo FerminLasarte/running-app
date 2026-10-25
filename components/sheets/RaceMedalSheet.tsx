@@ -8,7 +8,7 @@ import { raceTheme } from '@/lib/domain/raceTheme';
 import { cap, fmt, fmtDur, fmtPace } from '@/lib/domain/util';
 import { raceDateLabel } from '@/lib/domain/week';
 import { RaceMedalSvg } from '@/components/race/RaceMedalSvg';
-import { SheetFrame } from './SheetFrame';
+import { PanelFrame } from '@/components/panels/PanelFrame';
 
 export default function RaceMedalSheet({ id }: { id: string }) {
   const { cfg } = useS();
@@ -20,7 +20,7 @@ export default function RaceMedalSheet({ id }: { id: string }) {
     all = pastRaces().filter((q) => (q.resultSec || 0) > 0 && Math.abs(q.km - r.km) < 0.3);
   const best = all.length > 1 && all.every((q) => q.resultSec! >= rs);
   return (
-    <SheetFrame
+    <PanelFrame
       title={r.name}
       foot={
         <button className="btn blk" data-a="goRace" data-v="race" onClick={() => goRace('race')}>
@@ -56,6 +56,6 @@ export default function RaceMedalSheet({ id }: { id: string }) {
         {best ? <p className="rmo-pb">Tu mejor marca en esta distancia</p> : null}
         {r.targetSec && rs <= r.targetSec ? <p className="rmo-pb">Objetivo cumplido</p> : null}
       </div>
-    </SheetFrame>
+    </PanelFrame>
   );
 }

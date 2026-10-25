@@ -6,7 +6,7 @@ import { hmsFromSec, msFromSec, readHms, readMs, type Hms, type Ms } from './hms
 import type { Decoupling, Lap, Plan, Result, Session, SessionType, Stage, Step, StepKind } from './types';
 import { easyActive, isType, mainShoe } from './config';
 import { expand, KINDS, REC_PACE, stageTotals, stepDesc, stepTgt, type ExStep } from './stages';
-import { judge, judgeTxt, lapTxt, volTxt } from './score';
+import { judge, judgeTxt, lapTxt, scoreFlat, volTxt } from './score';
 import { sdate } from './stats';
 import { cap, fmt, fmtDur, fmtPace, newId, num, pad, sum, todayS } from './util';
 import { batchNote } from './planForm';
@@ -543,6 +543,45 @@ export function svFill(f0: ResF, a: SvItem, p: Partial<PerformancePayload>): Res
   return { ...f, sv: { ...f.sv, msg } };
 }
 
+/* ---- en el momento (sin plan por etapas) ---- */
+export type FlatKey = 'dist' | 't' | 'pace' | 'hr' | 'hrmax';
+/** en el orden del formulario: el primero con error es el que se avisa (y se enfoca) al guardar */
+export const FLAT_KEYS: FlatKey[] = ['dist', 't', 'pace', 'hr', 'hrmax'];
+/** lee los campos y dice qué tiene cada uno de mal; el ritmo vacío es distancia sobre tiempo */
+export function flatRead(f: ResF) {
+  const err: Partial<Record<FlatKey, string>> = {},
+    dist = num(f.flat.dist),
+    t = readHms(f.flat.t),
+    hrA = num(f.flat.hr),
+    hrM = num(f.flat.hrmax);
+  const okD = dist != null && !isNaN(dist) && dist > 0 && dist <= 100,
+    okT = t != null && !isNaN(t) && t > 0 && t <= 86400;
+  if (!okD) err.dist = 'Poné la distancia en km, por ejemplo 10,2.';
+  if (!okT) err.t = 'Poné el tiempo total (horas, minutos y segundos).';
+  let pace = readMs(f.flat.pace);
+  if (pace == null) pace = okD && okT ? t! / dist! : null;
+  else if (isNaN(pace) || pace < 120 || pace > 1200) err.pace = 'Revisá el ritmo: tiene que estar entre 2:00 y 20:00 por km.';
+  else if (okD && okT && (f.type === 'fondo' || f.type === 'regen' || f.type === 'test') && Math.abs(pace - t! / dist!) / (t! / dist!) > 0.2)
+    err.pace = 'El ritmo no coincide con la distancia y el tiempo. Revisá los números.';
+  if (hrA != null && (isNaN(hrA) || hrA < 40 || hrA > 230)) err.hr = 'Revisá la FC promedio.';
+  if (hrM != null && (isNaN(hrM) || hrM < 40 || hrM > 230)) err.hrmax = 'Revisá la FC máxima.';
+  else if (hrA != null && hrM != null && !err.hr && hrM < hrA) err.hrmax = 'La FC máxima no puede ser menor que la promedio.';
+  return { err, dist, t, pace, hrA, hrM };
+}
+/** contra el plan, con lo que llevás cargado (la misma cuenta que el puntaje): null si todavía no hay con qué */
+export function flatPlanCheck(f: ResF): { ok: boolean; txt: string } | null {
+  const s = f.mode === 'flat' && f.sid ? S.sessions.find((x) => x.id === f.sid) : null;
+  if (!s || !s.plan) return null;
+  const v = flatRead(f);
+  if (FLAT_KEYS.some((k) => v.err[k])) return null;
+  const r: Result = { date: f.date, distKm: v.dist!, timeSec: Math.round(v.t!), paceSec: Math.round(v.pace!), easy: easyActive(f.date) };
+  if (v.hrA != null) r.hrAvg = Math.round(v.hrA);
+  const sc = scoreFlat({ ...s, result: r });
+  if (!sc || sc.score == null) return null;
+  const off = sc.parts.filter((p) => p.sc < 90);
+  return off.length ? { ok: false, txt: off.map((p) => p.text).join(' ') } : { ok: true, txt: sc.parts.map((p) => p.text).join(' ') };
+}
+
 /* ---- guardar ---- */
 /** valida y arma la sesión con el resultado (saveResult) */
 export function buildResult(f: ResF): { err: string } | { s: Session } {
@@ -566,23 +605,13 @@ export function buildResult(f: ResF): { err: string } | { s: Session } {
     if (!ex.some((e, i) => e.k === 'run' && !stages[i].skipped)) return { err: 'Marcá al menos una etapa de carrera como hecha.' };
     r = { date, stages, ...stageTotals(stages, ex) };
   } else {
-    const dist = num(f.flat.dist);
-    if (dist == null || isNaN(dist) || dist <= 0 || dist > 100) return { err: 'Poné la distancia en km, por ejemplo 10,2.' };
-    const t = readHms(f.flat.t);
-    if (t == null || isNaN(t) || t <= 0 || t > 86400) return { err: 'Poné el tiempo total (horas, minutos y segundos).' };
-    let pace = readMs(f.flat.pace);
-    if (pace == null) pace = t / dist;
-    else if (isNaN(pace) || pace < 120 || pace > 1200) return { err: 'Revisá el ritmo: tiene que estar entre 2:00 y 20:00 por km.' };
-    if ((f.type === 'fondo' || f.type === 'regen' || f.type === 'test') && Math.abs(pace - t / dist) / (t / dist) > 0.2) return { err: 'El ritmo no coincide con la distancia y el tiempo. Revisá los números.' };
-    const hrA = num(f.flat.hr),
-      hrM = num(f.flat.hrmax);
-    if (hrA != null && (isNaN(hrA) || hrA < 40 || hrA > 230)) return { err: 'Revisá la FC promedio.' };
-    if (hrM != null && (isNaN(hrM) || hrM < 40 || hrM > 230)) return { err: 'Revisá la FC máxima.' };
-    if (hrA != null && hrM != null && hrM < hrA) return { err: 'La FC máxima no puede ser menor que la promedio.' };
-    r = { date, distKm: dist, timeSec: Math.round(t), paceSec: Math.round(pace) };
+    const v = flatRead(f),
+      bad = FLAT_KEYS.find((k) => v.err[k]);
+    if (bad) return { err: v.err[bad]! };
+    r = { date, distKm: v.dist!, timeSec: Math.round(v.t!), paceSec: Math.round(v.pace!) };
     if (f.paceManual) r.paceManual = true;
-    if (hrA != null) r.hrAvg = Math.round(hrA);
-    if (hrM != null) r.hrMax = Math.round(hrM);
+    if (v.hrA != null) r.hrAvg = Math.round(v.hrA);
+    if (v.hrM != null) r.hrMax = Math.round(v.hrM);
   }
   if (!f.feel) return { err: 'Elegí cómo te sentiste, de 1 a 10.' };
   r.feel = f.feel;
