@@ -180,6 +180,10 @@ piezas están en `components/pista/` y su CSS en `app/styles/components/`.
 - La bienvenida y los estados vacíos cuando no hay datos (boceto «Primera vez»).
 - **Listo cuando:** coincide con el boceto con los datos reales y con los de ejemplo, y mover una sesión sigue
   avisando como hoy.
+- Hecho (PR #7). Lo que tenía la Semana vieja y el boceto no muestra quedó así (decidido): el modo «No me siento al
+  100%» es un aviso arriba con «Terminar» y un botón en Mañana; las pendientes se ven en su día como «Falta cargar»,
+  con «Cargar» y «No lo hice»; la lista de textos de la revisión de la semana salió (los números quedan al costado de
+  la pista); el medallero y la última carrera (para cargar su tiempo) pasaron a la pantalla vieja de Carreras.
 
 ### Fase 4 · Paneles y paleta
 
@@ -211,6 +215,10 @@ piezas están en `components/pista/` y su CSS en `app/styles/components/`.
   Forma y carga).
 
 ### Fase 8 · Carreras
+
+- Ojo: desde la fase 3, la pantalla vieja de Carreras (`RaceView`) también tiene el medallero (`Medallero`) y la nota
+  de la última carrera para cargar su tiempo (`LastRaceNote`), que vinieron de la Semana vieja. La pantalla nueva
+  tiene que cubrir las dos.
 
 - Estadio con reloj en vivo y pulsera (imprimible), plan por bloques, estrategia, lista para el día, medallero y el
   test de nivel.
