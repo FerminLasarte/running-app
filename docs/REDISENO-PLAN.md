@@ -45,20 +45,20 @@ visual de la fase.
 
 ## Decisiones técnicas
 
-Propuestas; las marcadas con **(decidir)** conviene confirmarlas al empezar la fase 0.
+Las tres marcadas con **(decidido)** se confirmaron al empezar la fase 0.
 
 | Tema | Propuesta | Por qué |
 |---|---|---|
 | CSS | CSS plano, partido en archivos por área (`app/styles/tokens.css`, `base.css`, `shell.css`, `components/*.css`, `screens/*.css`) con `@layer`. Sin Tailwind | El proyecto ya usa CSS plano y los bocetos están escritos así: se pasan casi tal cual. Agregar Tailwind sería rehacer todo |
 | Tokens | Las variables de los bocetos (`--bg`, `--ink`, `--acc`, `--hero`, `--paper`, `--t-*`, `--z*`…) en `tokens.css`, con `[data-theme="dark"]` | Una sola fuente de color para todo |
 | Fuentes | `next/font/google`: Archivo (con `axes: ['wdth']` e itálica), Geist y Geist Mono. Salen Barlow y Barlow Condensed | Son las de los bocetos; `next/font` las sirve desde el propio sitio |
-| Íconos | Agregar `@phosphor-icons/react` **(decidir)** | Los bocetos usan unos 60 íconos de Phosphor; pegarlos a mano como hoy no escala. Alternativa sin dependencia: un componente `Icon` con los SVG que se usen |
+| Íconos | Agregar `@phosphor-icons/react` **(decidido)** | Los bocetos usan 62 íconos de Phosphor (normal, negrita y relleno); pegarlos a mano como hoy no escala |
 | Rutas | Grupo `app/(app)/` con un `layout.tsx` que tiene el shell; una carpeta por sección | Atrás y adelante del navegador, links compartibles, y Next conserva el estado de las últimas 3 |
 | Dibujo en el navegador | `use(browser())` dentro de un `<Suspense>` con el esqueleto, en el layout del grupo | Es lo que recomienda la guía de SPA de esta versión; reemplaza el truco de `ClientApp` |
 | Estado en la URL | Semana visible, filtros de Registro y pestaña de Análisis en la URL (`?semana=-1`, `?tipo=fondo&q=`) | Se comparten y sobreviven a recargar |
 | Paneles | Siguen siendo estado de la app (no rutas): un `PanelHost` reemplaza a `SheetHost` | Se abren sobre cualquier pantalla y no ensucian el historial |
-| Tema | Claro, oscuro o el del sistema; por defecto el del sistema **(decidir: está abierto en REDISENO.md)** | El boceto ya lo trae así |
-| Planificar | Panel desde Semana, Carreras y ⌘K, sin sección propia **(decidir: está abierto en REDISENO.md)** | Así quedó en los bocetos; una sección aparte sumaría un calendario de bloques |
+| Tema | Claro, oscuro o el del sistema; por defecto el del sistema **(decidido)** | El boceto ya lo trae así |
+| Planificar | Panel desde Semana, Carreras y ⌘K, sin sección propia **(decidido)** | Así quedó en los bocetos; una sección aparte sumaría un calendario de bloques |
 
 ## Rutas
 

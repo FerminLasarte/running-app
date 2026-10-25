@@ -1,9 +1,14 @@
 import type { Metadata, Viewport } from 'next';
-import { Barlow, Barlow_Condensed } from 'next/font/google';
+import { Archivo, Geist, Geist_Mono } from 'next/font/google';
+import { THEME_SCRIPT } from '@/lib/theme';
+import './styles/tokens.css';
+import './styles/base.css';
 import './globals.css';
 
-const barlow = Barlow({ variable: '--font-barlow', subsets: ['latin'], weight: ['400', '500', '600', '700'], display: 'swap' });
-const barlowCond = Barlow_Condensed({ variable: '--font-barlow-cond', subsets: ['latin'], weight: ['600', '700'], display: 'swap' });
+/* Archivo variable con su eje de ancho: angosta para números y títulos de marca, itálica para la voz de marca */
+const archivo = Archivo({ variable: '--font-archivo', subsets: ['latin'], style: ['normal', 'italic'], axes: ['wdth'], display: 'swap' });
+const geist = Geist({ variable: '--font-geist', subsets: ['latin'], display: 'swap' });
+const geistMono = Geist_Mono({ variable: '--font-geist-mono', subsets: ['latin'], display: 'swap' });
 
 export const metadata: Metadata = {
   title: 'My Running App',
@@ -18,19 +23,17 @@ export const viewport: Viewport = {
   initialScale: 1,
   viewportFit: 'cover',
   themeColor: [
-    { media: '(prefers-color-scheme: dark)', color: '#080B10' },
-    { media: '(prefers-color-scheme: light)', color: '#EDF0F4' },
+    { media: '(prefers-color-scheme: dark)', color: '#0E0E0F' },
+    { media: '(prefers-color-scheme: light)', color: '#F2F1ED' },
   ],
 };
 
-/* el tema elegido y la transparencia del vidrio se aplican antes de pintar, para que no parpadee */
-const PREPAINT = `try{var t=localStorage.getItem('rr_theme');if(t==='dark'||t==='light')document.documentElement.setAttribute('data-theme',t);var g=localStorage.getItem('rr_glass');if(g)document.documentElement.style.setProperty('--glass-t',g)}catch(e){}`;
-
 export default function RootLayout({ children }: LayoutProps<'/'>) {
   return (
-    <html lang="es" className={`${barlow.variable} ${barlowCond.variable}`} suppressHydrationWarning>
+    <html lang="es" className={`${archivo.variable} ${geist.variable} ${geistMono.variable}`} suppressHydrationWarning>
       <head>
-        <script dangerouslySetInnerHTML={{ __html: PREPAINT }} />
+        {/* el tema se aplica antes de pintar, para que no parpadee */}
+        <script dangerouslySetInnerHTML={{ __html: THEME_SCRIPT }} />
       </head>
       <body>{children}</body>
     </html>

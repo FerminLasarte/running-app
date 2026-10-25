@@ -1,7 +1,7 @@
 'use client';
 /* Ajustes (viewSettings). Como en el original, cada campo se guarda solo al terminar de editarlo (el `change`:
    al salir del campo, o al instante en fechas, horas y casillas) y readSettings valida todo junto. */
-import { useEffect, useRef, useState, type CSSProperties, type ReactNode } from 'react';
+import { useEffect, useRef, useState, useSyncExternalStore, type CSSProperties, type ReactNode } from 'react';
 import { S, setUi, useS } from '@/lib/store';
 import { openSheet } from '@/lib/sheets';
 import { afterPaint, blockDemo, buzz, saveCfg, toast } from '@/lib/data/actions';
@@ -16,8 +16,8 @@ import { HmsInput } from '@/components/ui/fields';
 import { hmsFromSec, readHms, type Hms } from '@/lib/domain/hms';
 import { stravaConnect, stravaStatus } from '@/lib/strava/client';
 import { signOut } from '@/lib/auth/client';
-import { toggleTheme } from '@/components/shell/Header';
-import { GlassControl } from '@/components/shell/GlassControl';
+import { onThemeChange, setThemeMode, themeMode, type ThemeMode } from '@/lib/theme';
+import { User } from '@phosphor-icons/react';
 
 /* ---- borrador de los campos ---- */
 interface RaceDraft {
@@ -238,6 +238,29 @@ function openImport() {
 }
 
 /* ---- tarjetas nuevas de la versión web ---- */
+const THEMES: [ThemeMode, string][] = [
+  ['system', 'Como el sistema'],
+  ['light', 'Claro'],
+  ['dark', 'Oscuro'],
+];
+
+function ThemeCard() {
+  const mode = useSyncExternalStore(onThemeChange, themeMode, () => 'system');
+  return (
+    <section className="card">
+      <div className="h3">Apariencia</div>
+      <p>Por defecto sigue al de tu compu o tu teléfono.</p>
+      <div className="seg" role="group" aria-label="Tema" style={{ marginTop: 12 }}>
+        {THEMES.map(([m, l]) => (
+          <button key={m} className="chip" aria-pressed={mode === m} onClick={() => setThemeMode(m)}>
+            {l}
+          </button>
+        ))}
+      </div>
+    </section>
+  );
+}
+
 function StravaCard() {
   const [st, setSt] = useState<Awaited<ReturnType<typeof stravaStatus>> | null>(null);
   const [busy, setBusy] = useState(false);
@@ -486,9 +509,7 @@ export default function SettingsView() {
               // eslint-disable-next-line @next/next/no-img-element
               <img className="av-img" src={c.avatar} alt="Tu foto" />
             ) : (
-              <svg viewBox="0 0 256 256" aria-hidden="true">
-                <path d="M230.92,212c-15.23-26.33-38.7-45.21-66.09-54.16a72,72,0,1,0-73.66,0C63.78,166.78,40.31,185.66,25.08,212a8,8,0,1,0,13.85,8c18.84-32.56,52.14-52,89.07-52s70.23,19.44,89.07,52a8,8,0,1,0,13.85-8ZM72,96a56,56,0,1,1,56,56A56.06,56.06,0,0,1,72,96Z" />
-              </svg>
+              <User aria-hidden="true" />
             )}
           </span>
           <div className="av-tx">
@@ -525,16 +546,7 @@ export default function SettingsView() {
         <p>{st.mode === 'cloud' ? 'Tus datos se guardan en tu cuenta. No se pierden al cerrar el navegador ni al cambiar de celular.' : 'Tus datos se guardan solo en este navegador. Puede borrarse si limpiás los datos del sitio, así que usá el respaldo de abajo seguido.'}</p>
       </section>
       <StravaCard />
-      <section className="card">
-        <div className="h3">Apariencia</div>
-        <p>Claro u oscuro. Por defecto sigue al de tu teléfono.</p>
-        <div style={{ marginTop: 12 }}>
-          <button className="btn blk" data-a="theme" onClick={toggleTheme}>
-            Cambiar entre claro y oscuro
-          </button>
-        </div>
-        <GlassControl />
-      </section>
+      <ThemeCard />
       <section className="card">
         <div className="h3">Frecuencia cardíaca</div>
         <div className="field" style={{ marginTop: 8 }}>

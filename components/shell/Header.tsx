@@ -11,6 +11,7 @@ import { nextSession } from '@/lib/domain/week';
 import { xpState } from '@/lib/domain/xp';
 import { DF_LONG, WD, addDays, cap, daysTo, dShort, fmt, fmtDur, pd, sod, sum, todayS, ymd } from '@/lib/domain/util';
 import { demoOff, goTab, retryFailed } from '@/lib/data/actions';
+import { toggleTheme } from '@/lib/theme';
 import { TITLES } from './tabs';
 
 export const TAB_C: Record<Tab, string> = { week: 'var(--t2)', sum: 'var(--info)', log: 'var(--t3)', lv: 'var(--accent)', map: 'var(--t5)', top: 'var(--warn)', set: 'var(--ink2)' };
@@ -148,17 +149,6 @@ export function ThemeButton() {
       </svg>
     </button>
   );
-}
-export function toggleTheme() {
-  const a = document.documentElement.getAttribute('data-theme');
-  const cur = a === 'dark' || a === 'light' ? a : window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark';
-  const n = cur === 'dark' ? 'light' : 'dark';
-  document.documentElement.setAttribute('data-theme', n);
-  try {
-    localStorage.setItem('rr_theme', n);
-  } catch {
-    /* sin almacenamiento */
-  }
 }
 export const SettingsGlyph = () => (
   <svg viewBox="0 0 24 24">

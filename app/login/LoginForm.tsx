@@ -1,10 +1,9 @@
 'use client';
 /* Entrar con link mágico (por mail) o con contraseña. No hay registro abierto: la cuenta se crea con el primer link. */
-import { useEffect, useLayoutEffect, useState } from 'react';
+import { useState } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { supabaseBrowser } from '@/lib/supabase/client';
 import { supabaseConfigured } from '@/lib/supabase/env';
-import { pillInit, pillSync } from '@/components/shell/pill';
 
 type Mode = 'link' | 'pass';
 
@@ -17,10 +16,6 @@ export default function LoginForm() {
   const [msg, setMsg] = useState<{ t: string; bad?: boolean } | null>(
     e0 === 'link' ? { t: 'El link venció o ya se usó. Pedí uno nuevo.', bad: true } : e0 === 'denied' ? { t: 'Esta cuenta no tiene acceso a la app.', bad: true } : null,
   );
-
-  /* la gota de vidrio del selector, como en la app */
-  useEffect(() => pillInit(), []);
-  useLayoutEffect(() => pillSync(), [mode]);
 
   async function submit(e: React.FormEvent) {
     e.preventDefault();

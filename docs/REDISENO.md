@@ -163,10 +163,10 @@ dos temas; el dorsal y la pulsera quedan de papel en los dos.
 - **Detalle de sesión:** título y datos del lugar → seis números → ritmo y FC sobre la distancia con las bandas del
   objetivo → tramos plan contra real → recorrido, zonas, sensación, zapatillas y notas.
 
-## Preguntas abiertas
+## Preguntas cerradas
 
-1. ¿Tema por defecto: claro, oscuro o el del sistema?
-2. ¿«Planificar» merece su propia sección (calendario de semanas y bloques), o sigue dentro de Semana y Carreras?
+1. Tema por defecto: **el del sistema**. Se puede fijar claro u oscuro.
+2. «Planificar» **no tiene sección propia**: es un panel que se abre desde Semana, Carreras, la tecla `P` y ⌘K.
 3. Bocetado todo lo que tiene la app hoy. El paso a código está en [`REDISENO-PLAN.md`](REDISENO-PLAN.md), por fases.
 
 ## Referencias

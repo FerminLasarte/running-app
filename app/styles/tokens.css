@@ -1,0 +1,82 @@
+/* Orden de las capas del rediseño «Pista». El CSS viejo (globals.css) va sin capa, así que gana mientras exista:
+   cada pantalla nueva lo va reemplazando. */
+@layer tokens, base, shell, components, screens;
+
+/* Tokens de los bocetos (design/bocetos/index.html). Claro = papel y tartán. Oscuro = asfalto.
+   El bloque «estadio» (--hero) es oscuro en los dos; el dorsal y la pulsera (--paper) quedan de papel en los dos. */
+@layer tokens {
+  :root {
+    --bg: #F2F1ED;
+    --surface: #FFFFFF;
+    --sunk: #EAE9E4;
+    --line: #E0DED7;
+    --line-2: #CFCCC3;
+    --ink: #141414;
+    --ink-2: #4A4843;
+    --ink-3: #84817A;
+    --ink-4: #B0ADA5;
+
+    --acc: #DC4520;          /* tartán */
+    --acc-ink: #FFFFFF;
+    --acc-soft: #F8E2DA;
+    --track: #EBD3C8;
+
+    --hero: #151515;
+    --hero-2: #1E1E1E;
+    --hero-ink: #F2F1ED;
+    --hero-mut: rgb(242 241 237 / .55);
+    --hero-line: rgb(242 241 237 / .12);
+
+    --pos: #23804F;  --pos-soft: #DFEFE5;
+    --neg: #B83F25;  --neg-soft: #F7E1DA;
+    --hr: #C83A5C;
+    --water: #D5E1E8;
+
+    --t-regen: #7A9C88;
+    --t-fondo: #3569A3;
+    --t-tempo: #C9850F;
+    --t-series: #DC4520;
+    --t-test: #141414;
+
+    --z1: #BCC9D4; --z2: #7EA1BE; --z3: #DDB04F; --z4: #E07B3E; --z5: #BF372A;
+
+    --paper: #F7F5EF; --paper-ink: #141414; --paper-mut: #77736b;
+
+    --r-sm: 3px; --r-md: 4px; --r-lg: 6px;
+    --sh-pop: 0 1px 2px rgb(20 20 20 / .06), 0 14px 34px -12px rgb(20 20 20 / .22);
+    --f-ui: var(--font-geist), ui-sans-serif, system-ui, sans-serif;
+    --f-disp: var(--font-archivo), var(--font-geist), ui-sans-serif, sans-serif;
+    --f-mono: var(--font-geist-mono), ui-monospace, "SF Mono", monospace;
+    --ease: cubic-bezier(.2, 0, 0, 1);
+    --rail: 236px;
+    color-scheme: light;
+  }
+  [data-theme="dark"] {
+    --bg: #0E0E0F;
+    --surface: #171718;
+    --sunk: #131314;
+    --line: #262628;
+    --line-2: #343437;
+    --ink: #F0EEE9;
+    --ink-2: #B9B6AE;
+    --ink-3: #85827B;
+    --ink-4: #5B5955;
+    --acc: #F2552F;
+    --acc-soft: #2C1A14;
+    --track: #2E1E18;
+    --hero: #1A1A1B;
+    --hero-2: #232325;
+    --pos: #5CBB86;  --pos-soft: #15261C;
+    --neg: #EC7553;  --neg-soft: #2C1913;
+    --hr: #E66889;
+    --water: #1B2830;
+    --t-regen: #8FB39E;
+    --t-fondo: #6C9DD3;
+    --t-tempo: #E3A53A;
+    --t-series: #F2552F;
+    --t-test: #F0EEE9;
+    --z1: #3E4B57; --z2: #5D86A8; --z3: #D3A748; --z4: #E2813F; --z5: #D9503E;
+    --sh-pop: 0 1px 2px rgb(0 0 0 / .3), 0 16px 40px -12px rgb(0 0 0 / .6);
+    color-scheme: dark;
+  }
+}
