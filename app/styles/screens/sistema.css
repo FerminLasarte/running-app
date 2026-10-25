@@ -1,0 +1,86 @@
+/* Página del sistema de diseño (solo en desarrollo): muestras de color, filas de especificación y la disposición de
+   las piezas sueltas. Lo de acá es de esta página; las piezas tienen su CSS en app/styles/components/. */
+@layer screens {
+  .sx { padding-top: 32px; }
+  .sx-sec { grid-column: 1 / -1; display: flex; align-items: baseline; gap: 14px; padding-top: 18px; }
+  .sx-sec h2 { font-size: 40px; }
+
+  .sx-sw { display: grid; grid-template-columns: repeat(auto-fill, minmax(118px, 1fr)); gap: 10px; }
+  .sx-sw div { border: 1px solid var(--line); border-radius: var(--r-md); overflow: hidden; background: var(--surface); }
+  .sx-sw div::before { content: ""; display: block; height: 52px; background: var(--c); border-bottom: 1px solid var(--line); }
+  .sx-sw b { display: block; font-size: 12px; font-weight: 600; padding: 8px 10px 0; }
+  .sx-sw code { display: block; font: 400 11px/1.4 var(--f-mono); color: var(--ink-3); padding: 2px 10px 9px; }
+  .sx-spec { display: grid; grid-template-columns: 200px 1fr; gap: 18px; align-items: center; padding: 16px 0; border-top: 1px solid var(--line); }
+  .sx-spec:first-child { border-top: 0; padding-top: 0; }
+  .sx-spec:last-child { padding-bottom: 0; }
+  .sx-spec > small { color: var(--ink-3); font-size: 12px; line-height: 1.5; }
+  .sx-gal { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; min-width: 0; }
+  .sx-princ { margin: 0; padding: 0; list-style: none; counter-reset: p; }
+  .sx-princ li { counter-increment: p; display: grid; grid-template-columns: 34px 1fr; gap: 6px; padding: 12px 0; border-top: 1px solid var(--line); font-size: 13.5px; color: var(--ink-2); }
+  .sx-princ li:first-child { border-top: 0; padding-top: 0; }
+  .sx-princ li::before { content: counter(p, decimal-leading-zero); font: italic 900 16px/1.2 var(--f-disp); font-stretch: 70%; color: var(--acc); }
+  .sx-princ b { color: var(--ink); font-weight: 600; }
+
+  .sx-t64 { font-size: 64px; }
+  .sx-t52 { font-size: 52px; padding-top: 2px; }
+  .sx-w160 { width: 160px; }
+  .sx-w70 { width: 70%; }
+  .sx-g2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px 14px; }
+  .sx-stack { display: grid; gap: 18px; }
+  .sx-tgs .p-tg + .p-tg { border-top: 1px solid var(--line); }
+  .sx-row { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; }
+  .sx-sbs { display: grid; grid-template-columns: 120px 1fr; gap: 12px 16px; align-items: end; }
+  .sx-sbs .p-chip { justify-self: start; }
+  .sx-zl { margin: 14px 0 0; padding: 0; list-style: none; }
+  .sx-zl li { display: grid; grid-template-columns: 28px 1fr 44px; align-items: center; gap: 10px; height: 30px; font-size: 12.5px; border-top: 1px solid var(--line); }
+  .sx-zl li:first-child { border-top: 0; }
+  .sx-zl b { font: 600 11.5px/1 var(--f-mono); display: inline-flex; align-items: center; gap: 6px; }
+  .sx-zl b::before { content: ""; width: 6px; height: 6px; background: var(--zc); }
+  .sx-zl span { color: var(--ink-3); }
+  .sx-zl .r { text-align: right; font-family: var(--f-mono); font-size: 12px; color: var(--ink); }
+
+  .sx-foot { display: flex; align-items: center; flex-wrap: wrap; gap: 22px; margin-top: 26px; }
+  .sx-score { display: flex; align-items: center; gap: 10px; }
+  .sx-score .disp { font-size: 30px; }
+  .sx-spark { flex: 1; min-width: 160px; }
+  .sx-spark svg { width: 100%; height: 54px; display: block; overflow: visible; }
+  .sx-meta { display: flex; flex-wrap: wrap; gap: 6px 18px; margin-top: 16px; color: var(--hero-mut); font-size: 13.5px; }
+  .sx-meta span { display: inline-flex; align-items: center; gap: 6px; }
+  .sx-meta svg { width: 14px; height: 14px; }
+  .sx-clock { margin-top: 30px; }
+
+  .sx-medals { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); }
+  .sx-medals > * { padding: 22px 20px 20px; }
+  .sx-medals > * + * { border-left: 1px solid var(--line); }
+  .sx-vit { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); }
+  .sx-vit > div { display: flex; flex-direction: column; align-items: center; text-align: center; gap: 8px; padding: 18px 12px 16px; border-right: 1px solid var(--line); min-width: 0; }
+  .sx-vit > div:last-child { border-right: 0; }
+  .sx-vit b { font-size: 12.5px; font-weight: 600; line-height: 1.25; }
+  .sx-vit small { font-size: 11px; color: var(--ink-3); }
+  .sx-ready { display: grid; grid-template-columns: 200px 1fr; gap: 24px; align-items: center; }
+  .sx-factors { margin: 0; padding: 0; list-style: none; }
+  .sx-factors li { padding: 9px 0 11px; border-top: 1px solid var(--line); }
+  .sx-factors li:first-child { border-top: 0; padding-top: 0; }
+  .sx-factors .fr { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; font-size: 13px; }
+  .sx-factors b { font-weight: 600; }
+  .sx-factors small { display: block; font-size: 11.5px; color: var(--ink-3); margin: 2px 0 7px; }
+
+  @media (max-width: 1240px) {
+    .sx-medals { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .sx-medals > :nth-child(3) { border-left: 0; }
+    .sx-medals > :nth-child(n + 3) { border-top: 1px solid var(--line); }
+    .sx-vit { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    .sx-vit > div { border-bottom: 1px solid var(--line); }
+    .sx-ready { grid-template-columns: 160px 1fr; }
+  }
+  @media (max-width: 900px) {
+    .sx { padding-top: 20px; }
+    .sx-spec { grid-template-columns: 1fr; gap: 8px; }
+    .sx-g2 { grid-template-columns: minmax(0, 1fr); }
+    .sx-medals { grid-template-columns: minmax(0, 1fr); }
+    .sx-medals > * + *, .sx-medals > :nth-child(3) { border-left: 0; border-top: 1px solid var(--line); }
+    .sx-vit { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .sx-ready { grid-template-columns: minmax(0, 1fr); }
+    .sx-sbs { grid-template-columns: minmax(0, 1fr); gap: 6px; }
+  }
+}

@@ -154,8 +154,10 @@ Componentes reutilizables, cada uno con su CSS, sacados de los bocetos.
 Ojo con los nombres: `globals.css` va sin capa y le gana a todo lo que esté en `@layer`, aunque tenga menos
 especificidad. Mientras exista, una clase nueva no puede llamarse como una vieja (`.btn`, `.chip`, `.seg`, `.field`,
 `.kpi`, `.card`, `.dot`…): la vieja pisaría cada propiedad que declara. El shell ya lo resolvió con nombres propios
-(`.tb-btn`, `.pulse`). Hay que elegir una convención para las piezas (por ejemplo, un prefijo) o borrar la regla vieja
-cuando su última pantalla se rehace.
+(`.tb-btn`, `.pulse`). **Decidido: las piezas nuevas llevan el prefijo `p-`** (`.p-btn`, `.p-chip`, `.p-panel`…), y los
+modificadores van pegados a esa clase (`.p-btn.pri`). Por lo mismo, `globals.css` pone `h1, h2, h3, p, ul` en
+`margin: 0` y el `body` en 16 px: en las piezas, los espacios de los títulos van con padding o gap, y los contenedores
+fijan los 14 px del boceto. En la fase 12, cuando `globals.css` ya no esté, se puede sacar el prefijo con un reemplazo.
 
 - **Formulario y controles:** botón, chip de tipo, etiqueta, Δ contra el objetivo, PR, campos (texto, número con
   unidad, h:m:s, calculado, error), selector segmentado, interruptor, stepper, pestañas.
@@ -166,7 +168,8 @@ cuando su última pantalla se rehace.
   regresiva, cronógrafo de 60 marcas.
 - **Gráficos:** ejes, líneas, barras apiladas, puntos con tooltip, todo en SVG como hoy `components/charts.tsx`.
 
-Y la página del sistema de diseño (la del boceto) solo en desarrollo, para revisar las piezas sueltas.
+Y la página del sistema de diseño (la del boceto) solo en desarrollo, para revisar las piezas sueltas: `/sistema`. Las
+piezas están en `components/pista/` y su CSS en `app/styles/components/`.
 
 - **Listo cuando:** cada pieza se ve igual que en el boceto, en claro y oscuro, y es accesible con teclado.
 

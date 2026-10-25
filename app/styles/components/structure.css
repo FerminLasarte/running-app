@@ -1,0 +1,120 @@
+/* Estructura de los bocetos: grilla de 12 columnas, encabezado de página con título de marca, panel, fila de números,
+   bloque estadio con los andariveles y tabla de datos.
+   Ojo: globals.css (sin capa) pone h1, h2, h3, p y ul en margin 0 y le gana a cualquier capa; acá los espacios de los
+   títulos van con padding o gap. También pone el body en 16 px: los contenedores nuevos fijan los 14 px del boceto. */
+@layer components {
+  .p-grid { display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); gap: 20px; font-size: 14px; line-height: 1.5; }
+  .p-c3 { grid-column: span 3; } .p-c4 { grid-column: span 4; } .p-c5 { grid-column: span 5; } .p-c6 { grid-column: span 6; }
+  .p-c7 { grid-column: span 7; } .p-c8 { grid-column: span 8; } .p-c12 { grid-column: span 12; }
+
+  /* entrada en cascada: cada bloque sube un poco después del anterior (--i) */
+  .p-rise { animation: p-rise .55s var(--ease) both; animation-delay: calc(var(--i, 0) * 50ms); }
+  @keyframes p-rise { from { opacity: 0; transform: translateY(8px); } }
+
+  /* encabezado de página: el momento con voz de marca */
+  .p-phd { display: flex; align-items: flex-end; justify-content: space-between; gap: 32px; margin-bottom: 28px; }
+  .p-phd h1 { font-size: 84px; padding-top: calc(8px + .06em); }
+  .p-phd p { padding-top: 12px; color: var(--ink-2); font-size: 15px; line-height: 1.5; max-width: 62ch; }
+  .p-phd p b { color: var(--ink); font-weight: 600; }
+  .p-phd .acts { display: flex; gap: 8px; align-items: center; }
+
+  .p-panel { background: var(--surface); border: 1px solid var(--line); border-radius: var(--r-lg); min-width: 0; font-size: 14px; line-height: 1.5; }
+  .p-panel-h { display: flex; align-items: center; gap: 12px; min-height: 52px; padding: 0 20px; border-bottom: 1px solid var(--line); }
+  .p-panel-h h2 { font: 800 17px/1 var(--f-disp); font-stretch: 72%; text-transform: uppercase; letter-spacing: .015em; }
+  .p-panel-h .r { margin-left: auto; display: flex; gap: 6px; align-items: center; }
+  .p-panel-b { padding: 20px; }
+  /* tablas anchas: se corren de costado adentro del panel, no la página */
+  .p-panel.tw { overflow-x: auto; }
+
+  /* fila de números: el dato manda, la etiqueta arriba y la explicación abajo */
+  .p-kpis { display: grid; grid-template-columns: repeat(var(--n, 3), minmax(0, 1fr)); }
+  .p-kpis > div { padding: 16px 20px; min-width: 0; }
+  .p-kpis > div + div { border-left: 1px solid var(--line); }
+  .p-kpis .disp { display: block; font-size: 34px; margin-top: 8px; }
+  .p-kpis small { display: block; font-size: 12px; color: var(--ink-3); margin-top: 4px; }
+  .p-kpis.lg .disp { font-size: 52px; margin-top: 10px; font-style: italic; }
+  .p-panel-h + .p-kpis, .p-kpis:has(+ .p-panel-b) { border-bottom: 1px solid var(--line); }
+  .p-up { color: var(--pos); }
+  .p-dn { color: var(--neg); }
+
+  /* unidad chica al lado de un número grande */
+  .p-u { font-family: var(--f-ui); font-stretch: 100%; font-style: normal; font-weight: 500; font-size: .34em; letter-spacing: .02em; color: var(--ink-3); margin-left: .22em; text-transform: none; }
+
+  /* bloque estadio: oscuro en los dos temas, con los andariveles enormes de fondo */
+  .p-stadium {
+    position: relative; overflow: hidden; isolation: isolate;
+    display: grid; grid-template-columns: minmax(0, 1fr) var(--side, 300px); gap: 48px;
+    padding: 30px 36px; border-radius: var(--r-lg); font-size: 14px; line-height: 1.5;
+    background: var(--hero); color: var(--hero-ink);
+  }
+  .p-stadium.solo { grid-template-columns: minmax(0, 1fr); }
+  [data-theme="dark"] .p-stadium { box-shadow: inset 0 0 0 1px var(--line); }
+  .p-stadium .lbl, .p-stadium .p-u { color: var(--hero-mut); }
+  .p-lanes { position: absolute; z-index: -1; right: -300px; top: -70px; width: 900px; height: auto; pointer-events: none; }
+  .p-lanes rect { fill: none; stroke: var(--hero-ink); stroke-width: 1; opacity: .07; }
+  .p-lanes rect.a { stroke: var(--acc); opacity: .45; stroke-width: 2; }
+  .p-st-top { display: flex; align-items: center; flex-wrap: wrap; gap: 6px 10px; }
+  .p-st-ok { display: inline-flex; align-items: center; gap: 5px; color: #7BD3A0; font: 600 10.5px/1 var(--f-ui); letter-spacing: .1em; text-transform: uppercase; }
+  .p-st-ok svg { width: 13px; height: 13px; }
+  .p-st-h { font-size: 112px; padding-top: calc(18px + .05em); }
+  .p-st-stats { display: grid; grid-template-columns: repeat(4, auto); justify-content: start; margin-top: 26px; }
+  .p-st-stats > div { padding: 0 28px; border-left: 1px solid var(--hero-line); }
+  .p-st-stats > div:first-child { padding-left: 0; border-left: 0; }
+  .p-st-stats .disp { display: block; font-size: 46px; margin-top: 8px; }
+
+  /* tabla de datos: densa, números en mono a la derecha, la fila entera lleva al detalle */
+  .p-tbl { width: 100%; border-collapse: collapse; font-size: 13px; }
+  .p-tbl th { font: 600 10.5px/1 var(--f-ui); letter-spacing: .1em; text-transform: uppercase; color: var(--ink-3); text-align: left; padding: 13px 16px 11px; border-bottom: 1px solid var(--line); white-space: nowrap; }
+  .p-tbl td { padding: 0 16px; height: 46px; border-bottom: 1px solid var(--line); white-space: nowrap; }
+  .p-tbl tbody tr:last-child td { border-bottom: 0; }
+  .p-tbl .r { text-align: right; }
+  .p-tbl td.r { font-family: var(--f-mono); font-size: 12.5px; font-variant-numeric: tabular-nums; }
+  .p-tbl tr.go { position: relative; cursor: pointer; transition: background-color .12s var(--ease); }
+  .p-tbl tr.go:hover { background: color-mix(in oklab, var(--sunk) 70%, transparent); }
+  .p-tbl tr.go:has(.p-go:focus-visible) { outline: 2px solid var(--acc); outline-offset: -2px; }
+  .p-tbl .p-go { display: inline-grid; place-items: center; color: var(--ink-3); opacity: 0; transform: translateX(-4px); outline: 0; transition: opacity .15s var(--ease), transform .15s var(--ease); }
+  .p-tbl .p-go::after { content: ""; position: absolute; inset: 0; }
+  .p-tbl .p-go svg { width: 14px; height: 14px; }
+  .p-tbl tr.go:hover .p-go, .p-tbl .p-go:focus-visible { opacity: 1; transform: none; }
+  .p-tbl tr.dim td { color: var(--ink-3); }
+  .p-tbl tr.grp td { height: auto; padding: 22px 16px 10px; background: var(--bg); border-bottom: 1px solid var(--line); }
+  .p-tbl .grp-in { display: flex; align-items: baseline; flex-wrap: wrap; gap: 4px 14px; }
+  .p-tbl .grp-in b { font: italic 900 22px/1 var(--f-disp); font-stretch: 64%; text-transform: uppercase; letter-spacing: .01em; }
+  .p-tbl .grp-in span { font-size: 12.5px; color: var(--ink-3); }
+  .p-tbl .s { color: var(--ink-3); margin-left: 8px; }
+  /* la fecha: el día grande e itálico, el nombre chico */
+  .p-tbl td.dd { width: 64px; }
+  .p-tbl td.dd b { font: italic 800 20px/1 var(--f-disp); font-stretch: 70%; display: inline-block; width: 24px; }
+  .p-tbl td.dd span { font-size: 11px; color: var(--ink-3); text-transform: uppercase; letter-spacing: .06em; font-weight: 600; }
+  .p-tbl td.sbc { width: 96px; }
+  .p-tbl td.sbc .p-sb { width: 84px; }
+  .p-tbl tr.dim .p-chip, .p-tbl tr.dim .p-sb { opacity: .45; }
+  /* con molestia */
+  .p-tbl .pain { display: inline-block; width: 6px; height: 6px; border-radius: 50%; background: var(--neg); margin-left: 8px; vertical-align: 1px; }
+
+  @media (max-width: 1240px) {
+    .p-st-h { font-size: 92px; }
+    .p-st-stats > div { padding: 0 20px; }
+    .p-st-stats .disp { font-size: 38px; }
+  }
+  @media (max-width: 900px) {
+    .p-grid { grid-template-columns: minmax(0, 1fr); gap: 14px; }
+    .p-grid > * { grid-column: 1 / -1; }
+    .p-phd { flex-direction: column; align-items: stretch; gap: 16px; }
+    .p-phd h1 { font-size: 60px; }
+    .p-phd .acts { flex-wrap: wrap; }
+    .p-panel-h { flex-wrap: wrap; padding-top: 10px; padding-bottom: 10px; }
+    .p-panel-h .r { flex-wrap: wrap; row-gap: 6px; }
+    .p-panel-h .hide-s { display: none; }
+    .p-kpis { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .p-kpis > div:nth-child(odd) { border-left: 0; }
+    .p-kpis > div:nth-child(n + 3) { border-top: 1px solid var(--line); }
+    .p-kpis.lg .disp { font-size: 40px; }
+    .p-stadium { grid-template-columns: minmax(0, 1fr); padding: 22px 20px; gap: 28px; }
+    .p-st-h { font-size: 64px; }
+    .p-st-stats { grid-template-columns: repeat(2, auto); row-gap: 18px; }
+    .p-st-stats > div:nth-child(3) { padding-left: 0; border-left: 0; }
+    .p-tbl th, .p-tbl td { padding-left: 12px; padding-right: 12px; }
+    .p-tbl .hide-s, .p-tbl .p-ticks, .p-tbl td .s { display: none; }
+  }
+}

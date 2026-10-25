@@ -33,10 +33,7 @@
   .lvl-top { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; }
   .lvl-top b { font: italic 900 15px/1 var(--f-disp); font-stretch: 66%; text-transform: uppercase; letter-spacing: .01em; }
   .lvl-top .disp { font-size: 24px; }
-  .laps { display: grid; grid-template-columns: repeat(10, 1fr); gap: 2px; margin-top: 9px; }
-  .laps i { height: 4px; background: var(--line); }
-  .laps i.on { background: var(--ink); }
-  .laps i.cur { background: linear-gradient(90deg, var(--acc) var(--p), var(--line) var(--p)); }
+  .lvl .p-laps { margin-top: 9px; }
   .lvl small { display: block; margin-top: 7px; font-size: 11.5px; color: var(--ink-3); }
 
   .me { display: flex; align-items: center; gap: 10px; padding: 6px 8px; border-radius: var(--r-sm); }
