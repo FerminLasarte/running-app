@@ -94,7 +94,7 @@ export const useApp = create<AppState>()(() => ({
 /* lo que cambia seguido y solo lo dibujan el shell, la hoja, el aviso o el estado de guardado (que se suscriben con
    un selector propio): que no redibuje las vistas. El estado que devuelve useS() puede tener estos campos viejos. */
 const VOLATILE = new Set<keyof AppState>(['saving', 'toast', 'sheet', 'failed', 'cloudLost']);
-const VOLATILE_UI = new Set(['sheetClosing', 'sheetConfirm', 'celebrate']);
+const VOLATILE_UI = new Set(['sheetClosing', 'sheetConfirm', 'celebrate', 'palette']);
 function sameForViews(a: AppState, b: AppState) {
   if (a === b) return true;
   for (const k in b) {

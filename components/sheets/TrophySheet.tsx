@@ -6,7 +6,7 @@ import { closeSheet } from '@/lib/sheets';
 import { CAT_N, rarOf, trophies, trophyProg, trophyXp } from '@/lib/domain/trophies';
 import { dateLabel, fmt, fmtDur } from '@/lib/domain/util';
 import { MedalSvg } from '@/components/logros/MedalSvg';
-import { SheetFrame } from './SheetFrame';
+import { PanelFrame } from '@/components/panels/PanelFrame';
 
 export default function TrophySheet({ id }: { id: string }) {
   useS();
@@ -19,7 +19,7 @@ export default function TrophySheet({ id }: { id: string }) {
   if (!t.got)
     left = t.unit === 'time' ? (t.cur ? 'Tu mejor: ' + fv(t.cur) + '. Te faltan ' + fmtDur(t.cur - t.target) + '.' : '') : t.cur != null && t.target < 1e6 ? 'Llevás ' + fv(t.cur) + ' ' + t.unit + ' de ' + fv(t.target) + '.' : '';
   return (
-    <SheetFrame
+    <PanelFrame
       title={t.got ? 'Trofeo ganado' : 'Trofeo por ganar'}
       foot={
         <button className="btn pri blk" data-a="close" onClick={closeSheet}>
@@ -58,6 +58,6 @@ export default function TrophySheet({ id }: { id: string }) {
           </p>
         </>
       )}
-    </SheetFrame>
+    </PanelFrame>
   );
 }

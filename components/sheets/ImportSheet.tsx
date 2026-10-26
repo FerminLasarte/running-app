@@ -6,7 +6,7 @@ import { closeSheet } from '@/lib/sheets';
 import { blockDemo, saveCfg, saveSessions, toast } from '@/lib/data/actions';
 import { parseImport, type Parsed } from '@/lib/domain/csv';
 import { defaultCfgRaw, normCfg } from '@/lib/domain/config';
-import { SheetFrame } from './SheetFrame';
+import { PanelFrame } from '@/components/panels/PanelFrame';
 
 /** Las sesiones con el mismo id se actualizan y las demás se suman; los ajustes del respaldo reemplazan a los actuales. */
 function doImport(p: Parsed) {
@@ -60,7 +60,7 @@ export default function ImportSheet() {
   }
 
   return (
-    <SheetFrame
+    <PanelFrame
       title="Importar datos"
       foot={
         parsed ? (
@@ -97,6 +97,6 @@ export default function ImportSheet() {
         {err}
       </div>
       <div id="im-prev">{prev}</div>
-    </SheetFrame>
+    </PanelFrame>
   );
 }

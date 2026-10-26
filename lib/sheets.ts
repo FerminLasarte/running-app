@@ -1,11 +1,12 @@
-/* Hojas (paneles que suben desde abajo en el celu y modal en la compu). Una sola abierta a la vez. */
+/* Paneles (se abren desde la derecha; en el celu, a pantalla completa): components/shell/PanelHost.tsx los muestra.
+   Uno solo abierto a la vez. Los nombres vienen de cuando eran hojas que subían desde abajo. */
 import { useEffect } from 'react';
 import { reduceMotion } from './motion';
 import { S, setS, setUi } from './store';
 
 let dirty = false;
 
-/** Abre la hoja registrada como `kind` en components/sheets/registry.tsx. Reemplaza a la que esté abierta. */
+/** Abre el panel registrado como `kind` en components/panels/registry.tsx. Reemplaza al que esté abierto. */
 export function openSheet(kind: string, props: Record<string, unknown> = {}) {
   dirty = false;
   setUi('sheetConfirm', false);
@@ -30,7 +31,7 @@ export function closeSheet() {
   }, 300);
 }
 
-/** Cerrar a pedido del usuario (×, Escape, arrastre, tocar afuera): si hay cambios sin guardar, pregunta antes. */
+/** Cerrar a pedido del usuario (×, Esc, «Cancelar», tocar afuera): si hay cambios sin guardar, pregunta antes. */
 export function requestClose() {
   if (!S.sheet) return;
   if (dirty) {

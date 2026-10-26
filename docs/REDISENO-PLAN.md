@@ -193,6 +193,12 @@ piezas están en `components/pista/` y su CSS en `app/styles/components/`.
   botón que no hace nada).
 - **Listo cuando:** se registra y se planifica de punta a punta sin mouse, el borrador se recupera como hoy
   (`lib/data/draft.ts`) y en celular el panel ocupa toda la pantalla.
+- Hecho. Decisiones al pasarlo: el borrador sigue como hoy (vuelve si se recarga la página; cerrar el panel lo
+  descarta, aunque el boceto decía «queda como borrador si cerrás»); los tramos se editan de a uno, como en la lógica
+  de `planForm.ts` (el boceto los muestra todos editables); en el celu el panel no se arrastra para cerrar (ocupa toda
+  la pantalla y se cierra con la × o «Cancelar»). Los paneles de puntaje, trofeo, medalla, importar y copiar el
+  respaldo tienen el marco nuevo con el contenido viejo: se rehacen con el detalle (fase 5), Carreras (8), Logros (10)
+  y Ajustes (11).
 
 ### Fase 5 · Detalle de sesión
 

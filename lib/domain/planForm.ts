@@ -4,7 +4,8 @@ import { S } from '@/lib/store';
 import { aiJson, type AiLimits } from '@/lib/ai/client';
 import type { Plan, PlanStep, Session, SessionType, Step, StepKind } from './types';
 import { isType, racePaceSec, refRace, TYPES, ZN, zoneRange } from './config';
-import { cleanSteps, expand, legacySteps, planTotals } from './stages';
+import { cleanSteps, expand, legacySteps, planTotals, REC_PACE } from './stages';
+import { paceAtV, vdotOf } from './daniels';
 import { clamp, fmt, newId, num, sum, todayS } from './util';
 
 /* ---- Claude (lectura de fotos y texto), compartido con el formulario de resultado ---- */
@@ -367,19 +368,44 @@ export function repDel(f: PlanF, i: number): PlanF {
   steps.splice(i, 1);
   return paint({ ...r.f, steps, edit: null, touched: true });
 }
+/** reemplaza todas las etapas (una plantilla, lo que leyó Claude) */
+export const setSteps = (f: PlanF, steps: EdNode[]): PlanF => paint({ ...f, steps: clone(steps), edit: null, touched: true });
 /** Claude leyó el entrenamiento: reemplaza las etapas y, si no escribiste notas, usa el nombre y las notas leídas */
 export function applyAiPlan(f: PlanF, steps: EdNode[], j: AiPlanJson): PlanF {
   const nm = String(j.nombre || '').trim(),
     nt = String(j.notas || '').trim(),
     cur = f.notes.trim();
-  return paint({
-    ...f,
-    steps,
-    edit: null,
-    touched: true,
+  return {
+    ...setSteps(f, steps),
     type: isType(j.tipo) ? j.tipo : f.type,
     notes: !cur && (nm || nt) ? [nm, nt].filter(Boolean).join(' — ').slice(0, 500) : f.notes,
-  });
+  };
+}
+
+/* ---- plantillas: tus sesiones anteriores del mismo tipo ---- */
+/** las últimas `n` sesiones de ese tipo con etapas, sin repetir la misma estructura (la más nueva primero) */
+export function planTemplates(type: SessionType, exceptId: string | null, n = 3): (Session & { plan: Plan })[] {
+  const seen = new Set<string>(),
+    out: (Session & { plan: Plan })[] = [];
+  const list = S.sessions.filter((s): s is Session & { plan: Plan } => s.id !== exceptId && s.type === type && !!(s.plan && s.plan.steps && s.plan.steps.length));
+  list.sort((a, b) => b.plan.date.localeCompare(a.plan.date));
+  for (const s of list) {
+    const k = JSON.stringify(s.plan.steps);
+    if (seen.has(k)) continue;
+    seen.add(k);
+    out.push(s);
+    if (out.length >= n) break;
+  }
+  return out;
+}
+
+/* ---- cuánto dura, más o menos ---- */
+/** segundos estimados: lo que va por tiempo, tal cual; lo que va por ritmo, al medio del rango; lo demás (por FC o
+    sin objetivo), al ritmo fácil de tu carrera de referencia (o 6:30 /km si no tiene objetivo) */
+export function planEstSec(steps: PlanStep[]) {
+  const r = refRace(),
+    easy = r.targetSec > 0 ? paceAtV(vdotOf(r.targetSec, r.km), 0.64) : 390;
+  return sum(expand(steps).map((e) => (e.st.dur! > 0 ? e.st.dur! : (e.st.dist || 0) * (e.st.pf! > 0 ? (e.st.pf! + e.st.ps!) / 2 : e.k === 'rec' ? REC_PACE : easy))));
 }
 
 /* ---- abrir, borrador y guardar ---- */

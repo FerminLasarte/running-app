@@ -1,10 +1,10 @@
 'use client';
-/* Barra de arriba, fija: dónde estás (en Semana, la semana que ves), el estado del guardado y de Strava, el tema y
-   «Registrar». En el celu también lleva a Ajustes, que en la compu está abajo en la barra lateral. */
+/* Barra de arriba, fija: dónde estás (en Semana, la semana que ves), buscar (la paleta ⌘K), el estado del guardado y
+   de Strava, el tema y «Registrar». En el celu también lleva a Ajustes, que en la compu está abajo en la barra lateral. */
 import { useSyncExternalStore } from 'react';
 import Link from 'next/link';
 import { useShallow } from 'zustand/react/shallow';
-import { CaretLeft, CaretRight, Moon, Plus, Sun } from '@phosphor-icons/react';
+import { CaretLeft, CaretRight, MagnifyingGlass, Moon, Plus, Sun } from '@phosphor-icons/react';
 import { useApp } from '@/lib/store';
 import { openSheet } from '@/lib/sheets';
 import { weekGo } from '@/lib/data/actions';
@@ -14,6 +14,7 @@ import { addDays, dateLabel, dShort, isoWeek, mondayOf } from '@/lib/domain/util
 import { toggleTheme } from '@/lib/theme';
 import { Avatar } from './Rail';
 import { useStravaStatus } from './useStravaStatus';
+import { openPalette } from './Palette';
 import type { SectionDef } from './sections';
 
 function WeekCrumb() {
@@ -141,6 +142,11 @@ export function TopBar({ section, pathname }: { section: SectionDef | null; path
         <Crumbs section={section} pathname={pathname} />
       </div>
       <div className="spacer" />
+      <button className="tb-search" type="button" aria-label="Buscar sesiones, carreras o una acción" aria-keyshortcuts="Meta+K Control+K" onClick={openPalette}>
+        <MagnifyingGlass aria-hidden="true" />
+        <span>Buscar sesiones, carreras…</span>
+        <kbd aria-hidden="true">⌘K</kbd>
+      </button>
       <SaveState />
       <StravaState />
       <ThemeButton />

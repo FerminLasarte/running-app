@@ -58,7 +58,7 @@ export function Delta({ sec, better = 'lower' }: { sec: number; better?: 'lower'
 }
 
 /* ---- elección de uno entre varios: el foco sigue a la elección y se mueve con las flechas ---- */
-function useRoving(n: number, cur: number, pick: (i: number) => void) {
+export function useRoving(n: number, cur: number, pick: (i: number) => void) {
   const refs = useRef<(HTMLElement | null)[]>([]);
   const onKeyDown = (e: KeyboardEvent) => {
     const k = e.key,
@@ -90,6 +90,41 @@ export function Segmented<V extends string>({ options, value, onChange, label, f
           {o.color ? <span className="sq" aria-hidden="true" /> : null}
           {o.label}
           {o.n != null ? <span className="n">{o.n}</span> : null}
+        </button>
+      ))}
+    </div>
+  );
+}
+
+export interface ChoiceOption<V extends string> {
+  value: V;
+  label: ReactNode;
+  /** dato chico al lado, en mono (los km de unas zapatillas) */
+  sub?: ReactNode;
+  icon?: Icon;
+  /** cuadradito del color del tipo */
+  color?: string;
+  disabled?: boolean;
+  title?: string;
+}
+/** botones sueltos, uno elegido (molestia, zapatillas, clima, plantillas). Con `toggle`, tocar el elegido lo suelta */
+export function Choices<V extends string>({ options, value, onChange, label, toggle }: { options: ChoiceOption<V>[]; value: V | null; onChange: (v: V | null) => void; label: string; toggle?: boolean }) {
+  return (
+    <div className="p-choices" role="group" aria-label={label}>
+      {options.map(({ value: v, label: l, sub, icon: I, color, disabled, title }) => (
+        <button
+          key={v}
+          type="button"
+          aria-pressed={v === value}
+          disabled={disabled}
+          title={title}
+          style={color ? cssVars({ '--tc': color }) : undefined}
+          onClick={() => onChange(toggle && v === value ? null : v)}
+        >
+          {color ? <span className="sq" aria-hidden="true" /> : null}
+          {I ? <I aria-hidden="true" /> : null}
+          {l}
+          {sub != null ? <small>{sub}</small> : null}
         </button>
       ))}
     </div>

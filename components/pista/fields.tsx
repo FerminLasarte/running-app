@@ -1,9 +1,9 @@
 'use client';
 /* Campos del rediseño «Pista» (estilos en app/styles/components/fields.css). `Field` pone la etiqueta, la ayuda y el
    error; los campos marcan `aria-invalid` y apuntan al error con `aria-describedby` usando el mismo id. */
-import type { InputHTMLAttributes, ReactNode, TextareaHTMLAttributes } from 'react';
+import { Fragment, type InputHTMLAttributes, type ReactNode, type TextareaHTMLAttributes } from 'react';
 import { MagnifyingGlass, WarningCircle } from '@phosphor-icons/react';
-import type { Hms } from '@/lib/domain/hms';
+import type { Hms, Ms } from '@/lib/domain/hms';
 import { cx } from './util';
 
 const errId = (id: string) => id + '-err';
@@ -63,21 +63,33 @@ export function UnitInput({ unit, ...rest }: InputProps & { unit: string }) {
   );
 }
 
-/** horas : minutos : segundos, cada uno en su casillero; va con un `Field group` del mismo id */
-export function HmsInput({ id, value, onChange, invalid }: { id: string; value: Hms; onChange: (v: Hms) => void; invalid?: boolean }) {
-  const f = (k: keyof Hms, label: string) => (
-    <Input id={id + '-' + k} inputMode="numeric" aria-label={label} placeholder={k === 'h' ? '0' : '00'} invalid={invalid} value={value[k]} onChange={(e) => onChange({ ...value, [k]: e.target.value })} />
-  );
+/* casilleros de tiempo, uno por parte; van con un `Field group` del mismo id */
+function TimeBoxes<K extends string>({ id, parts, value, onChange, invalid, ph }: { id: string; parts: [K, string, string][]; value: Record<K, string>; onChange: (v: Record<K, string>) => void; invalid?: boolean; ph?: Partial<Record<K, string>> }) {
   return (
-    <div className="p-hms" role="group" aria-labelledby={labelId(id)} aria-describedby={invalid ? errId(id) : undefined}>
-      {f('h', 'horas')}
-      <b aria-hidden="true">:</b>
-      {f('m', 'minutos')}
-      <b aria-hidden="true">:</b>
-      {f('s', 'segundos')}
+    <div className={cx('p-hms', parts.length === 2 && 'ms')} role="group" aria-labelledby={labelId(id)} aria-describedby={invalid ? errId(id) : undefined}>
+      {parts.map(([k, label, p0], i) => (
+        <Fragment key={k}>
+          {i ? <b aria-hidden="true">:</b> : null}
+          <Input id={id + '-' + k} inputMode="numeric" aria-label={label} placeholder={ph?.[k] || p0} invalid={invalid} value={value[k]} onChange={(e) => onChange({ ...value, [k]: e.target.value })} />
+        </Fragment>
+      ))}
     </div>
   );
 }
+
+const HMS: [keyof Hms, string, string][] = [
+  ['h', 'horas', '0'],
+  ['m', 'minutos', '00'],
+  ['s', 'segundos', '00'],
+];
+const MS: [keyof Ms, string, string][] = [
+  ['m', 'minutos', '0'],
+  ['s', 'segundos', '00'],
+];
+/** horas : minutos : segundos, cada uno en su casillero */
+export const HmsInput = (p: { id: string; value: Hms; onChange: (v: Hms) => void; invalid?: boolean; ph?: Partial<Hms> }) => <TimeBoxes parts={HMS} {...p} />;
+/** minutos : segundos (un ritmo, una vuelta) */
+export const MsInput = (p: { id: string; value: Ms; onChange: (v: Ms) => void; invalid?: boolean; ph?: Partial<Ms> }) => <TimeBoxes parts={MS} {...p} />;
 
 /** lo que la app calcula sola (el ritmo con distancia y tiempo): se lee, no se edita */
 export function Calc({ id, children, note = 'calculado' }: { id: string; children: ReactNode; note?: string }) {

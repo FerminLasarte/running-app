@@ -3,7 +3,7 @@
 import { useEffect, useRef } from 'react';
 import { requestClose } from '@/lib/sheets';
 import { toast } from '@/lib/data/actions';
-import { SheetFrame } from './SheetFrame';
+import { PanelFrame } from '@/components/panels/PanelFrame';
 
 export default function ExportCopySheet({ name, text }: { name: string; text: string }) {
   const ta = useRef<HTMLTextAreaElement>(null);
@@ -22,7 +22,7 @@ export default function ExportCopySheet({ name, text }: { name: string; text: st
     }
   }
   return (
-    <SheetFrame
+    <PanelFrame
       title="Copiá tu respaldo"
       foot={
         <>
@@ -39,6 +39,6 @@ export default function ExportCopySheet({ name, text }: { name: string; text: st
       <div className="field" style={{ marginTop: 12 }}>
         <textarea className="in l" id="ex-text" rows={12} readOnly value={text} ref={ta}></textarea>
       </div>
-    </SheetFrame>
+    </PanelFrame>
   );
 }

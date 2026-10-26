@@ -1,5 +1,5 @@
 'use client';
-/* Estructura de la app: barra lateral (abajo en el celu), barra de arriba, la página, hojas y avisos.
+/* Estructura de la app: barra lateral (abajo en el celu), barra de arriba, la página, paneles, la paleta y avisos.
    La app depende de la fecha de hoy, del tema y de los datos guardados en el navegador: se dibuja solo ahí
    (use(browser())); el servidor manda el esqueleto del layout. Mientras una pantalla no se rehace, adentro va la
    vieja con su encabezado. */
@@ -13,10 +13,11 @@ import { draftRestore } from '@/lib/data/draft';
 import { buzz, toast, weekGo } from '@/lib/data/actions';
 import { runPending, setRouter } from '@/lib/nav';
 import { todayS } from '@/lib/domain/util';
-import { preloadSheets } from '@/components/sheets/registry';
+import { preloadPanels } from '@/components/panels/registry';
 import CelebrateHost from '@/components/logros/CelebrateHost';
 import { Banners, Header } from './Header';
-import { SheetHost } from './SheetHost';
+import { PanelHost } from './PanelHost';
+import { Palette } from './Palette';
 import { Toast } from './Toast';
 import { Rail } from './Rail';
 import { TopBar } from './TopBar';
@@ -47,8 +48,8 @@ export default function AppShell({ children }: { children: ReactNode }) {
     boot();
     /* que la app instalada abra sin señal (public/sw.js); en desarrollo no, para no pelear con la recarga en vivo */
     if (process.env.NODE_ENV === 'production' && 'serviceWorker' in navigator) navigator.serviceWorker.register('/sw.js').catch(() => {});
-    /* las hojas, en un rato libre (así también quedan guardadas para abrir sin señal) */
-    const pre = setTimeout(() => preloadSheets().catch(() => {}), 1200);
+    /* los paneles, en un rato libre (así también quedan guardados para abrir sin señal) */
+    const pre = setTimeout(() => preloadPanels().catch(() => {}), 1200);
     /* si la app queda abierta y pasa la medianoche, «hoy» cambia en todas las vistas (el saludo tiene su propio reloj) */
     let day = todayS();
     const iv = setInterval(() => {
@@ -131,7 +132,7 @@ export default function AppShell({ children }: { children: ReactNode }) {
   /* las piezas se suscriben solas: cuando el shell se redibuja (por ejemplo, para prender o apagar la animación de
      entrada) reuso los mismos elementos y React no las vuelve a dibujar */
   const parts = useMemo(
-    () => ({ rail: <Rail section={section} />, top: <TopBar section={section} pathname={pathname} />, banners: <Banners />, layers: [<SheetHost key="s" />, <Toast key="t" />, <CelebrateHost key="c" />] }),
+    () => ({ rail: <Rail section={section} />, top: <TopBar section={section} pathname={pathname} />, banners: <Banners />, layers: [<PanelHost key="s" />, <Palette key="k" />, <Toast key="t" />, <CelebrateHost key="c" />] }),
     [section, pathname],
   );
   const header = useMemo(() => (section && !section.redone && S0.loaded ? <Header section={section} /> : null), [section, S0.loaded]);

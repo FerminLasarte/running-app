@@ -96,6 +96,14 @@
   .tb-btn.ghost { height: 28px; padding: 0 10px; font-size: 11px; border-color: transparent; background: transparent; color: var(--ink-2); }
   .tb-btn.ghost:hover { background: var(--sunk); color: var(--ink); }
   .me-s { display: none; }
+  /* buscar: abre la paleta ⌘K */
+  .tb-search {
+    display: flex; align-items: center; gap: 8px; width: 260px; height: 34px; padding: 0 10px; border: 1px solid var(--line-2); border-radius: var(--r-sm);
+    background: var(--surface); color: var(--ink-3); font-size: 13px; text-align: left; transition: border-color .15s var(--ease);
+  }
+  .tb-search:hover { border-color: var(--ink-4); color: var(--ink-2); }
+  .tb-search svg { width: 15px; height: 15px; flex: none; }
+  .tb-search span { flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
   .page { max-width: 1260px; margin: 0 auto; padding: 0 40px 96px; }
   /* al bajar a una parte, que la barra de arriba no la tape */
@@ -103,6 +111,7 @@
 
   @media (max-width: 1240px) {
     .sync span { display: none; }
+    .tb-search { width: 200px; }
   }
   /* celu: las secciones abajo; Ajustes, arriba a la derecha */
   @media (max-width: 900px) {
@@ -121,6 +130,8 @@
     .top { padding: 0 12px; gap: 6px; padding-top: env(safe-area-inset-top); height: calc(56px + env(safe-area-inset-top)); }
     .crumbs .sep, .crumbs .mut, .wk b span, .tb-btn.pri kbd { display: none; }
     .me-s { display: block; }
+    .tb-search { width: 34px; padding: 0; justify-content: center; }
+    .tb-search span, .tb-search kbd { display: none; }
     .page { padding: 0 16px 110px; }
   }
   @media (max-width: 420px) {

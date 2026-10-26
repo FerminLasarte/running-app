@@ -24,6 +24,9 @@
   .p-btn.ghost:hover { background: var(--sunk); color: var(--ink); }
   .p-btn.on-dark { background: transparent; color: var(--hero-ink); border-color: var(--hero-line); }
   .p-btn.on-dark:hover { border-color: var(--hero-ink); }
+  /* borrar, descartar: en rojo, sin llenar */
+  .p-btn.dng { color: var(--neg); border-color: color-mix(in oklab, var(--neg) 45%, transparent); }
+  .p-btn.dng:hover { border-color: var(--neg); background: var(--neg-soft); }
   .p-btn.sm { height: 28px; padding: 0 10px; font-size: 11px; }
   .p-btn.lg { height: 42px; padding: 0 20px; }
 
@@ -68,6 +71,19 @@
   .p-seg .sq { width: 7px; height: 7px; background: var(--tc); transform: skewX(-14deg); }
   .p-seg.fill { display: flex; }
   .p-seg.fill button { flex: 1; justify-content: center; }
+
+  /* botones sueltos, uno elegido: molestia, zapatillas, clima, plantillas */
+  .p-choices { display: flex; flex-wrap: wrap; gap: 6px; }
+  .p-choices button {
+    height: 32px; padding: 0 12px; border-radius: var(--r-sm); border: 1px solid var(--line-2); display: inline-flex; align-items: center; gap: 6px;
+    font-size: 13px; color: var(--ink-2); transition: border-color .15s var(--ease), background-color .15s var(--ease), color .15s var(--ease);
+  }
+  .p-choices button:hover:not(:disabled) { border-color: var(--ink-4); color: var(--ink); }
+  .p-choices button:disabled { opacity: .5; cursor: not-allowed; }
+  .p-choices button[aria-pressed="true"] { background: var(--ink); border-color: var(--ink); color: var(--bg); }
+  .p-choices button svg { width: 15px; height: 15px; flex: none; }
+  .p-choices small { font: 500 11px/1 var(--f-mono); opacity: .7; }
+  .p-choices .sq { width: 7px; height: 7px; background: var(--tc); transform: skewX(-14deg); }
 
   /* interruptor: fila con el texto a la izquierda y la llave a la derecha */
   .p-tg { width: 100%; display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 12px 0; text-align: left; }
