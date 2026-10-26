@@ -1,8 +1,10 @@
 'use client';
-/* Nuevo desafío: tipo, meta y fechas; el nombre se arma solo si no ponés uno. */
+/* Nuevo desafío: uno de los sugeridos según tus últimas semanas (se crea con un toque) o el tuyo, con tipo, meta y
+   fechas; el nombre se arma solo si no ponés uno. */
 import { useState } from 'react';
 import { closeSheet } from '@/lib/sheets';
-import { CH_KINDS, CH_KIND_KEYS, addChallenge, type ChKind } from '@/lib/domain/challenges';
+import { S } from '@/lib/store';
+import { CH_KINDS, CH_KIND_KEYS, addChallenge, chDay, chPresets, type ChKind, type ChSpec } from '@/lib/domain/challenges';
 import { addDays, dShort, fmt, num, pd, sod, ymd } from '@/lib/domain/util';
 import { Choices } from '@/components/pista/controls';
 import { Field, Input, UnitInput } from '@/components/pista/fields';
@@ -22,6 +24,12 @@ export default function ChallengePanel() {
     return { ck: 'km' as ChKind, target: '', from: ymd(t), to: ymd(addDays(t, 29)), name: '' };
   });
   const [err, setErr] = useState('');
+  /* los sugeridos que todavía no agregaste */
+  const [sug] = useState(() => chPresets().filter((q) => !(S.cfg.challenges || []).some((c) => c.kind === q.kind && c.from === q.from && c.to === q.to)));
+  const pick = (q: ChSpec) => {
+    addChallenge(q);
+    closeSheet();
+  };
   const set = (p: Partial<typeof f>) => setF((o) => ({ ...o, ...p }));
 
   const save = () => {
@@ -40,6 +48,21 @@ export default function ChallengePanel() {
 
   return (
     <PanelFrame eyebrow="Logros" title="Nuevo desafío" onSubmit={save} err={err || null} foot={<PanelActions label="Crear desafío" onSave={save} />}>
+      {sug.length ? (
+        <PanelSection title="Sugeridos">
+          <div className="p-choices" role="group" aria-label="Desafíos sugeridos">
+            {sug.map((q) => (
+              <button key={q.name} type="button" onClick={() => pick(q)}>
+                {q.name}
+                <small>
+                  {chDay(q.from)} al {chDay(q.to)}
+                </small>
+              </button>
+            ))}
+          </div>
+          <p className="p-dr-hint">Se crea con un toque. O armá el tuyo abajo.</p>
+        </PanelSection>
+      ) : null}
       <PanelSection no="01" title="Tipo">
         <Choices label="Tipo de desafío" value={f.ck} onChange={(k) => k && set(k === 'plan' ? { ck: k, target: '100' } : { ck: k })} options={CH_KIND_KEYS.map((k) => ({ value: k, label: CH_KINDS[k].n }))} />
         <p className="p-dr-hint">{HINT[f.ck]}</p>

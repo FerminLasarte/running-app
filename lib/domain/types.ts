@@ -172,6 +172,8 @@ export interface Cfg {
   recals?: Recal[];
   challenges?: Challenge[];
   seenTrophies?: string[];
+  /** lo que ya se festejó (trofeos y el nivel más alto): la celebración sale una sola vez */
+  cel?: { ids: string[]; lv: number };
 }
 
 /** Recorrido traído de Strava (polilínea codificada). */

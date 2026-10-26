@@ -29,6 +29,17 @@ export function levelOf(xp: number) {
   return L;
 }
 export const titleOf = (L: number) => XP_TITLES.filter((q) => q[0] <= L).pop()![1];
+/** el próximo título que te falta (null en el último) */
+export const nextTitle = (L: number) => XP_TITLES.find((q) => q[0] > L) || null;
+/** dónde estás en el camino de títulos, contado en títulos: 2,33 es un tercio entre el tercero y el cuarto.
+    `f` es la fracción del nivel actual */
+export function titlePos(L: number, f: number) {
+  const k = XP_TITLES.findLastIndex((q) => q[0] <= L);
+  if (k >= XP_TITLES.length - 1) return k;
+  const a = XP_TITLES[k][0],
+    b = XP_TITLES[k + 1][0];
+  return k + (L + f - a) / (b - a);
+}
 
 export function sessionXp(x: DoneSession) {
   const r = x.result,
@@ -114,6 +125,11 @@ export interface CharStat {
   x: string;
   c: string;
 }
+/** la media de la ficha: el promedio de los atributos que se pueden medir (null si ninguno) */
+export function charOvr(st: CharStat[]) {
+  const v = st.map((s) => s.v).filter((x): x is number => x != null);
+  return v.length ? Math.round(sum(v) / v.length) : null;
+}
 /* atributos de 1 a 99 */
 export function charStats(): CharStat[] {
   const D = doneList(),
@@ -135,25 +151,25 @@ export function charStats(): CharStat[] {
         src = q[1] + ' en ' + fmtDur(e.sec);
       }
     }
-  st.push({ k: 'vel', n: 'Velocidad', v: vd == null ? null : m(vd, 25, 65), x: vd == null ? 'Corré un test o una carrera para medirla.' : 'Tu mejor marca: ' + src + ' (VDOT ' + fmt(vd, 1) + ').', c: 'var(--t2)' });
+  st.push({ k: 'vel', n: 'Velocidad', v: vd == null ? null : m(vd, 25, 65), x: vd == null ? 'Corré un test o una carrera para medirla.' : 'Tu mejor marca: ' + src + ' (VDOT ' + fmt(vd, 1) + ').', c: 'var(--t-series)' });
   const r6 = D.filter((x) => dayDiff(pd(x.result.date), today) <= 42),
     lg = r6.length ? Math.max(...r6.map((x) => x.result.distKm)) : 0,
     wk = kmBetween(addDays(today, -27), today) / 4;
-  st.push({ k: 'res', n: 'Resistencia', v: D.length ? Math.round((m(lg, 0, 32) + m(wk, 0, 60)) / 2) : null, x: 'Salida más larga de las últimas 6 semanas: ' + fmt(lg, 1) + ' km · ' + fmt(wk, 0) + ' km por semana.', c: 'var(--t1)' });
+  st.push({ k: 'res', n: 'Resistencia', v: D.length ? Math.round((m(lg, 0, 32) + m(wk, 0, 60)) / 2) : null, x: 'Salida más larga de las últimas 6 semanas: ' + fmt(lg, 1) + ' km · ' + fmt(wk, 0) + ' km por semana.', c: 'var(--t-fondo)' });
   const W = weekSeries(13).filter((w) => !w.cur),
     ok = W.filter((w) => w.count >= S.cfg.weeklyGoal).length;
-  st.push({ k: 'con', n: 'Constancia', v: W.length ? m(ok / W.length, 0, 1) : null, x: ok + ' de ' + W.length + ' semanas recientes con ' + S.cfg.weeklyGoal + ' o más salidas.', c: 'var(--t3)' });
+  st.push({ k: 'con', n: 'Constancia', v: W.length ? m(ok / W.length, 0, 1) : null, x: ok + ' de ' + W.length + ' semanas recientes con ' + S.cfg.weeklyGoal + ' o más salidas.', c: 'var(--t-tempo)' });
   const tS = todayS(),
     from = ymd(addDays(today, -56)),
     P = S.sessions.filter((x) => x.plan && x.plan.date >= from && x.plan.date < tS),
     done = P.filter((x) => x.result).length;
-  st.push({ k: 'dis', n: 'Disciplina', v: P.length ? m(done / P.length, 0, 1) : null, x: P.length ? 'Hiciste ' + done + ' de ' + P.length + ' sesiones planificadas en las últimas 8 semanas.' : 'Cargá un plan para medirla.', c: 'var(--t4)' });
+  st.push({ k: 'dis', n: 'Disciplina', v: P.length ? m(done / P.length, 0, 1) : null, x: P.length ? 'Hiciste ' + done + ' de ' + P.length + ' sesiones planificadas en las últimas 8 semanas.' : 'Cargá un plan para medirla.', c: 'var(--t-regen)' });
   let area = 0;
   if (S.routes.length) {
     const seen = new Set<string>();
     S.routes.forEach((r) => routeCells(r).forEach((k) => seen.add(k)));
     area = cellArea(seen.size);
   }
-  st.push({ k: 'exp', n: 'Exploración', v: S.routes.length ? m(Math.sqrt(area), 0, Math.sqrt(40)) : null, x: fmt(area, 1) + ' km² distintos recorridos.', c: 'var(--t5)' });
+  st.push({ k: 'exp', n: 'Exploración', v: S.routes.length ? m(Math.sqrt(area), 0, Math.sqrt(40)) : null, x: fmt(area, 1) + ' km² distintos recorridos.', c: 'var(--t-test)' });
   return st;
 }

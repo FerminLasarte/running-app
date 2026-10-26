@@ -1,5 +1,5 @@
 'use client';
-/* Paleta ⌘K: un solo buscador para acciones, secciones, sesiones y carreras. Sin texto muestra las acciones, las
+/* Paleta ⌘K: un solo buscador para acciones, secciones, sesiones, carreras, trofeos y desafíos. Sin texto muestra las acciones, las
    secciones y lo reciente; al escribir agrupa los resultados y marca lo que coincide (sin importar tildes). Se maneja
    entera con el teclado: ↑ ↓ para moverse, ↵ para abrir, Esc para cerrar. Estilos en
    app/styles/components/palette.css; el índice y la búsqueda, en lib/domain/palette.ts. */
@@ -19,6 +19,7 @@ import {
   Plus,
   Printer,
   SquaresFour,
+  Target,
   Trophy,
   type Icon,
 } from '@phosphor-icons/react';
@@ -33,6 +34,9 @@ import { openRecal } from '@/lib/domain/recal';
 import { palIndex, palMark, palSearch, type PalItem } from '@/lib/domain/palette';
 import { baseMapReady, loadBaseMap, mapBarrios, mapRoutes, onBaseMap } from '@/lib/domain/geo';
 import { addDays, fmt, mondayOf, todayS, ymd } from '@/lib/domain/util';
+import { CAT_N, trophies, trophyNote, trophyTier } from '@/lib/domain/trophies';
+import { chView } from '@/lib/domain/challenges';
+import { goLogros } from '@/lib/data/actions';
 import { stravaSync } from '@/lib/strava/sync';
 import { toggleTheme } from '@/lib/theme';
 import { briefOf } from '@/components/pista/session';
@@ -41,6 +45,8 @@ import { registroHref } from '@/components/registro/filters';
 import { AN_TABS } from '@/components/analisis/period';
 import { PRINT_BTN_ID } from '@/components/carreras/PrintBand';
 import { mapaHref } from '@/components/mapa/params';
+import { TIER_NAME } from '@/components/pista/sport';
+import { LO_PARTS, openTrophy, trophyIcon } from '@/components/logros/util';
 import { SECTIONS } from './sections';
 import { useStravaStatus } from './useStravaStatus';
 
@@ -72,6 +78,18 @@ const CAR_PARTS: { id: string; t: string; more: string; when?: () => boolean }[]
   { id: 'car-medallero', t: 'Medallero', more: 'medallas carreras corridas tiempos marcas pr' },
 ];
 
+/* las partes de Logros, y tus trofeos y desafíos: llevan a su lugar o abren el trofeo */
+const LO_ICON = SECTIONS.find((s) => s.id === 'logros')!.Icon;
+const LO_ROWS: Row[] = (
+  [
+    [LO_PARTS.road, 'Camino de títulos', 'nivel títulos experiencia xp cómo se gana'],
+    [LO_PARTS.vit, 'Vitrina', 'trofeos colección bronce plata oro platino ganados por ganar'],
+    [LO_PARTS.ch, 'Desafíos', 'metas con fecha sugeridos'],
+    [LO_PARTS.pod, 'Podio', 'mejores sesiones ranking distancia puntaje ritmo'],
+    [LO_PARTS.att, 'Atributos', 'ficha del jugador media velocidad resistencia constancia disciplina exploración'],
+  ] as const
+).map(([id, t, more]) => ({ g: 'Logros', key: id, t, sub: 'En Logros', more, icon: LO_ICON, run: () => goLogros(id) }));
+
 /* el Mapa: tus barrios (con el mapa de la Ciudad ya bajado) y traer recorridos nuevos */
 const MAP_ICON = SECTIONS.find((s) => s.id === 'mapa')!.Icon;
 
@@ -83,6 +101,7 @@ function PaletteBox() {
   const sessions = useApp((s) => s.sessions);
   const races = useApp((s) => s.cfg.races);
   const routes = useApp((s) => s.routes);
+  const cfg = useApp((s) => s.cfg);
   /* los barrios salen del mapa de la Ciudad (~530 KB): con recorridos, se baja al abrir la paleta, una sola vez */
   const baseReady = useSyncExternalStore(onBaseMap, baseMapReady, () => false);
   useEffect(() => {
@@ -126,6 +145,26 @@ function PaletteBox() {
     // el índice lee el estado: se rearma cuando cambian las sesiones o las carreras
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [sessions, races]);
+  /* tus trofeos y desafíos: salen de las sesiones, los recorridos y la configuración */
+  const logros = useMemo<Row[]>(
+    () => [
+      ...trophies().map(
+        (t): Row => ({
+          g: 'Trofeos',
+          key: 'tr:' + t.id,
+          t: t.name,
+          sub: (t.got ? 'Ganado el ' + trophyNote(t) + ' · ' + TIER_NAME[trophyTier(t)] : 'Por ganar' + (trophyNote(t) ? ' · ' + trophyNote(t) : '')),
+          more: 'trofeo ' + (CAT_N[t.cat] || ''),
+          icon: trophyIcon(t),
+          run: () => openTrophy(t.id),
+        }),
+      ),
+      ...(cfg.challenges || []).map((c): Row => ({ g: 'Desafíos', key: 'ch:' + c.id, t: c.name, sub: chView(c).lbl, more: 'desafío meta', icon: Target, run: () => goLogros(LO_PARTS.ch) })),
+    ],
+    // los trofeos leen el estado: se rearman cuando cambian las sesiones, los recorridos o la configuración
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [sessions, routes, cfg],
+  );
   /* tus barrios, de todos tus recorridos: llevan al Mapa con el barrio resaltado */
   const barrios = useMemo<Row[]>(
     () =>
@@ -146,13 +185,13 @@ function PaletteBox() {
   const list = useMemo<Row[]>(() => {
     const q0 = q.trim();
     if (!q0) return [...fixed, ...index.sessions.filter((x) => x.done).slice(0, 3).map((x) => ({ ...x, g: 'Recientes' }))];
-    const found = palSearch([...fixed, ...AN_ROWS, ...index.carreras, ...barrios, ...index.sessions, ...index.races, ...index.registro], q);
+    const found = palSearch([...fixed, ...AN_ROWS, ...index.carreras, ...LO_ROWS, ...logros, ...barrios, ...index.sessions, ...index.races, ...index.registro], q);
     /* la paleta muestra pocas sesiones: al final, todas las que encuentra el Registro con lo mismo */
     const n = lgRows({ ...LG_INIT, q: q0, st: 'all' }).length;
     if (!n) return found;
     return [...found, { g: 'Registro', key: 'reg:q', t: 'Buscar «' + q0 + '» en el Registro', sub: n + (n === 1 ? ' sesión' : ' sesiones'), icon: MagnifyingGlass, run: () => navigate(registroHref({ q: q0 })) }];
     /* lgRows lee las sesiones del estado: cuando cambian, cambia `index` y se vuelve a buscar */
-  }, [q, fixed, index, barrios]);
+  }, [q, fixed, index, logros, barrios]);
   const cur = Math.min(act, Math.max(0, list.length - 1));
 
   useEffect(() => {

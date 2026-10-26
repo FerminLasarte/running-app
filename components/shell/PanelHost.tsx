@@ -4,7 +4,7 @@
    components/panels/registry.tsx y se abren con openSheet (lib/sheets.ts). */
 import { useEffect, useRef, type KeyboardEvent } from 'react';
 import { useApp, setUi } from '@/lib/store';
-import { closeSheet, requestClose } from '@/lib/sheets';
+import { closeSheet, requestClose, sheetOpener } from '@/lib/sheets';
 import { PANELS } from '@/components/panels/registry';
 import { PANEL_BODY_ID, PANEL_TITLE_ID } from '@/components/panels/PanelFrame';
 import { Button } from '@/components/pista/controls';
@@ -23,7 +23,7 @@ export function PanelHost() {
   /* al abrir: guardo el foco y bloqueo el scroll de atrás; al cerrar, lo devuelvo */
   useEffect(() => {
     if (!open) return;
-    ret.current = document.activeElement;
+    ret.current = sheetOpener() || document.activeElement;
     document.body.style.overflow = 'hidden';
     return () => {
       document.body.style.overflow = '';
