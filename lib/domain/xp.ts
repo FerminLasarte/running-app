@@ -3,7 +3,7 @@
 import { S } from '@/lib/store';
 import { TYPES } from './config';
 import { vdotOf } from './daniels';
-import { cellKey, routePts } from './geo';
+import { cellArea, routeCells } from './geo';
 import { scoreSession } from './score';
 import { doneList, kmBetween, weekSeries, type DoneSession } from './stats';
 import { bestTimeEvents, trophies, trophyXp } from './trophies';
@@ -151,8 +151,8 @@ export function charStats(): CharStat[] {
   let area = 0;
   if (S.routes.length) {
     const seen = new Set<string>();
-    S.routes.forEach((r) => routePts(r).forEach((q) => seen.add(cellKey(q))));
-    area = seen.size * 0.04;
+    S.routes.forEach((r) => routeCells(r).forEach((k) => seen.add(k)));
+    area = cellArea(seen.size);
   }
   st.push({ k: 'exp', n: 'Exploración', v: S.routes.length ? m(Math.sqrt(area), 0, Math.sqrt(40)) : null, x: fmt(area, 1) + ' km² distintos recorridos.', c: 'var(--t5)' });
   return st;

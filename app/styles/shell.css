@@ -107,6 +107,15 @@
   .tb-search span { flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
   .page { max-width: 1260px; margin: 0 auto; padding: 0 40px 96px; }
+  /* las pantallas que ocupan todo (el Mapa) van sin márgenes. `#view` trae 6 px arriba de globals.css (sin capa): solo
+     le gana un !important desde la capa */
+  .page.full { max-width: none; padding: 0; }
+  .page.full #view { padding-top: 0 !important; }
+  /* en la compu llenan el alto que queda debajo de la barra (y de los avisos, si hay) */
+  @media (min-width: 901px) {
+    .page.full { display: flex; flex-direction: column; height: calc(100dvh - 56px); }
+    .page.full #view { flex: 1; min-height: 0; }
+  }
   /* al bajar a una parte, que la barra de arriba no la tape */
   .page [id] { scroll-margin-top: 72px; }
 

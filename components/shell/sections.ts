@@ -13,6 +13,8 @@ export interface SectionDef {
   c: string;
   /** pantalla rehecha: trae su propio comienzo y no lleva el encabezado viejo */
   redone?: boolean;
+  /** ocupa todo el ancho y el alto, sin los márgenes de la página (el Mapa) */
+  full?: boolean;
 }
 
 export const SECTIONS: SectionDef[] = [
@@ -20,7 +22,7 @@ export const SECTIONS: SectionDef[] = [
   { id: 'registro', href: '/registro', label: 'Registro', Icon: Rows, c: 'var(--t3)', redone: true },
   { id: 'analisis', href: '/analisis', label: 'Análisis', Icon: ChartLineUp, c: 'var(--info)', redone: true },
   { id: 'carreras', href: '/carreras', label: 'Carreras', Icon: FlagCheckered, c: 'var(--accent)', redone: true },
-  { id: 'mapa', href: '/mapa', label: 'Mapa', Icon: MapTrifold, c: 'var(--t5)' },
+  { id: 'mapa', href: '/mapa', label: 'Mapa', Icon: MapTrifold, c: 'var(--t5)', redone: true, full: true },
   { id: 'logros', href: '/logros', label: 'Logros', Icon: Medal, c: 'var(--warn)' },
   { id: 'ajustes', href: '/ajustes', label: 'Ajustes', Icon: SlidersHorizontal, c: 'var(--ink2)' },
 ];

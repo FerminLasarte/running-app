@@ -113,23 +113,37 @@ export interface ShareItem {
   /** el porcentaje, en gris */
   pct?: ReactNode;
 }
-/** reparto en barras horizontales: los km por tipo, para qué usás cada par de zapatillas */
-export function ShareBars({ items, label }: { items: ShareItem[]; label: string }) {
+/** reparto en barras horizontales: los km por tipo, para qué usás cada par de zapatillas. Con `onPick`, cada fila es un
+    botón que se elige (el ranking de barrios del Mapa) y la barra de la elegida va en tartán */
+export function ShareBars({ items, label, sel, onPick }: { items: ShareItem[]; label: string; sel?: string | null; onPick?: (key: string) => void }) {
   const max = Math.max(0, ...items.map((i) => i.v)) || 1;
   return (
     <ul className="p-share" aria-label={label}>
-      {items.map((it, j) => (
-        <li key={it.key} style={cssVars({ '--tc': it.color, '--j': j })}>
-          <span className="nm">{it.label}</span>
-          <span className="bar" aria-hidden="true">
-            <span style={cssVars({ width: (it.v / max) * 100 + '%' })}>
-              {(it.parts || [{ v: 1, c: it.color || 'var(--ink-3)' }]).map((p, k) => (p.v > 0 ? <i key={k} style={cssVars({ flex: p.v, background: p.c })} /> : null))}
+      {items.map((it, j) => {
+        const body = (
+          <>
+            <span className="nm">{it.label}</span>
+            <span className="bar" aria-hidden="true">
+              <span style={cssVars({ width: (it.v / max) * 100 + '%' })}>
+                {(it.parts || [{ v: 1, c: it.color || 'var(--tc, var(--ink-3))' }]).map((p, k) => (p.v > 0 ? <i key={k} style={cssVars({ flex: p.v, background: p.c })} /> : null))}
+              </span>
             </span>
-          </span>
-          <span className="r">{it.value}</span>
-          <span className="r p">{it.pct}</span>
-        </li>
-      ))}
+            <span className="r">{it.value}</span>
+            <span className="r p">{it.pct}</span>
+          </>
+        );
+        return (
+          <li key={it.key} style={cssVars({ '--tc': it.color, '--j': j })}>
+            {onPick ? (
+              <button type="button" className="pick" aria-pressed={sel === it.key} onClick={() => onPick(it.key)}>
+                {body}
+              </button>
+            ) : (
+              body
+            )}
+          </li>
+        );
+      })}
     </ul>
   );
 }

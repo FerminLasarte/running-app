@@ -65,14 +65,15 @@ function Crumbs({ section, pathname }: { section: SectionDef | null; pathname: s
     return pathname === '/sistema' ? <span>Sistema de diseño</span> : null;
   }
   if (section.id === 'semana') return <WeekCrumb />;
-  const r = section.id === 'carreras' ? nextRace() : null;
+  /* al lado: la próxima carrera en Carreras, la ciudad en el Mapa */
+  const sub = section.id === 'carreras' ? nextRace()?.name : section.id === 'mapa' ? 'Ciudad de Buenos Aires' : null;
   return (
     <>
       <span>{section.label}</span>
-      {r ? (
+      {sub ? (
         <>
           <span className="sep">/</span>
-          <span className="mut">{r.name}</span>
+          <span className="mut">{sub}</span>
         </>
       ) : null}
     </>

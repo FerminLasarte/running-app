@@ -1,8 +1,8 @@
 import type { Metadata } from 'next';
-import MapView from '@/components/views/MapView';
+import Mapa from '@/components/mapa/Mapa';
 
 export const metadata: Metadata = { title: 'Mapa' };
 
 export default function Page() {
-  return <MapView />;
+  return <Mapa />;
 }

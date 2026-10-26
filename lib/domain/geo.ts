@@ -40,39 +40,16 @@ export interface MapVp {
   s: number;
 }
 
-/* ---- estado de la vista (lo que el original guardaba en S.map) ---- */
+/* ---- estado de la vista que no va en la URL (el período, las capas, el barrio y la salida elegida sí van) ---- */
 export interface MapUi {
-  period: string;
-  zones: boolean;
   view: MapVp | null;
-  sel: string | null;
-  /** barrio resaltado */
-  hb: string | null;
-  /** panel de capas abierto */
-  lay: boolean;
   fs: boolean;
-  /** mapa de fondo prendido */
-  base: boolean;
-  color: 'one' | 'type';
   syncing: boolean;
   msg: string;
   baseErr: boolean;
-  /** volver a animar los recorridos (al cambiar el período) */
-  replay: boolean;
 }
-let MAP_INIT: MapUi | null = null;
-export function mapUiInit(): MapUi {
-  if (MAP_INIT) return MAP_INIT;
-  let color: MapUi['color'] = 'one';
-  try {
-    if (typeof window !== 'undefined' && localStorage.getItem('rr_map_color') === 'type') color = 'type';
-  } catch {
-    /* sin localStorage */
-  }
-  const init: MapUi = { period: 'all', zones: true, view: null, sel: null, hb: null, lay: false, fs: false, base: true, color, syncing: false, msg: '', baseErr: false, replay: false };
-  if (typeof window !== 'undefined') MAP_INIT = init;
-  return init;
-}
+const MAP_INIT: MapUi = { view: null, fs: false, syncing: false, msg: '', baseErr: false };
+export const mapUiInit = (): MapUi => MAP_INIT;
 export const getMapUi = (): MapUi => {
   const v = S.ui.map as MapUi | undefined;
   return v === undefined ? mapUiInit() : v;
@@ -176,11 +153,13 @@ export function osmLayers(): OsmLayers | null {
 }
 
 /* ---- geometría ---- */
-export const MAP_PERIODS: [string, string][] = [
-  ['all', 'Todo'],
-  ['90', '3 meses'],
-  ['28', '4 semanas'],
-];
+/** períodos del mapa: id (el de la URL), nombre y días hacia atrás (0 = todo) */
+export const MAP_PERIODS = [
+  ['todo', 'Todo', 0],
+  ['3m', '3 meses', 90],
+  ['4s', '4 semanas', 28],
+] as const;
+export type MapPeriod = (typeof MAP_PERIODS)[number][0];
 /** metros por unidad proyectada a la latitud de Buenos Aires */
 export const MPU = 40075016.686 * Math.cos((34.58 * Math.PI) / 180);
 /** lado de la cuadrícula de zonas pintadas: 200 m */
@@ -231,13 +210,101 @@ export function routePts(r: Route): Pt[] {
   }
   return p;
 }
-export function mapRoutes(period: string): Route[] {
+/** el rectángulo que ocupa un recorrido (para descartar rápido los que no están cerca del puntero) */
+const RT_BOX = new WeakMap<Route, Box>();
+export function routeBox(r: Route): Box {
+  let b = RT_BOX.get(r);
+  if (!b) {
+    b = boxOf(routePts(r));
+    RT_BOX.set(r, b);
+  }
+  return b;
+}
+export function mapRoutes(period: MapPeriod): Route[] {
   let L = S.routes.filter((r) => r.poly && r.date);
-  if (period !== 'all') {
-    const lim = ymd(addDays(sod(new Date()), -+period));
+  const days = MAP_PERIODS.find((p) => p[0] === period)?.[2] || 0;
+  if (days) {
+    const lim = ymd(addDays(sod(new Date()), -days));
     L = L.filter((r) => r.date >= lim);
   }
   return L.slice().sort((a, b) => a.date.localeCompare(b.date));
+}
+
+/** inverso de decodePoly: puntos [lat, lng] al formato de las polilíneas de Strava (para los recorridos de ejemplo) */
+export function encodePoly(pts: Pt[]): string {
+  const one = (v: number) => {
+    let n = v < 0 ? ~(v << 1) : v << 1,
+      s = '';
+    while (n >= 0x20) {
+      s += String.fromCharCode((0x20 | (n & 0x1f)) + 63);
+      n >>= 5;
+    }
+    return s + String.fromCharCode(n + 63);
+  };
+  let la = 0,
+    ln = 0,
+    out = '';
+  pts.forEach((q) => {
+    const a = Math.round(q[0] * 1e5),
+      b = Math.round(q[1] * 1e5);
+    out += one(a - la) + one(b - ln);
+    la = a;
+    ln = b;
+  });
+  return out;
+}
+
+/* cuadrículas de 200 m por las que pasa un recorrido: las de cada punto y, entre dos puntos alejados (las polilíneas de
+   Strava vienen simplificadas), las del medio. Es lo que cuentan las zonas pintadas, los km² explorados, los trofeos
+   de exploración y la XP */
+const RT_C = new WeakMap<Route, Set<string>>();
+export function routeCells(r: Route): Set<string> {
+  const had = RT_C.get(r);
+  if (had) return had;
+  const P = routePts(r),
+    s = new Set<string>();
+  for (let i = 0; i < P.length; i++) {
+    const a = P[i];
+    s.add(cellKey(a));
+    if (i) {
+      const b = P[i - 1],
+        d = Math.hypot(a[0] - b[0], a[1] - b[1]),
+        n = Math.ceil(d / (CELL / 2));
+      for (let k = 1; k < n; k++) s.add(cellKey([b[0] + ((a[0] - b[0]) * k) / n, b[1] + ((a[1] - b[1]) * k) / n]));
+    }
+  }
+  RT_C.set(r, s);
+  return s;
+}
+/** km² distintos: cada cuadrícula de 200 m es 0,04 km² */
+export const cellArea = (n: number) => n * 0.04;
+
+/** marcas cada `every` km sobre un recorrido ya proyectado. El largo de la polilínea se lleva a los km de la salida, así
+    la última marca cae donde dice el reloj */
+export function kmMarks(P: Pt[], km: number, every = 2): { k: number; p: Pt }[] {
+  if (P.length < 2 || !(km > 0)) return [];
+  let tot = 0;
+  for (let i = 1; i < P.length; i++) tot += Math.hypot(P[i][0] - P[i - 1][0], P[i][1] - P[i - 1][1]);
+  if (!tot) return [];
+  const out: { k: number; p: Pt }[] = [];
+  let acc = 0,
+    i = 1,
+    k = every;
+  while (k < km && i < P.length) {
+    const want = (k / km) * tot,
+      a = P[i - 1],
+      b = P[i],
+      seg = Math.hypot(b[0] - a[0], b[1] - a[1]);
+    if (acc + seg >= want) {
+      const f = seg ? (want - acc) / seg : 0;
+      out.push({ k, p: [a[0] + (b[0] - a[0]) * f, a[1] + (b[1] - a[1]) * f] });
+      k += every;
+    } else {
+      acc += seg;
+      i++;
+    }
+  }
+  return out;
 }
 
 /* las cachés se invalidan si cambia el período, la lista o el arreglo de recorridos (al sincronizar o recargar) */
@@ -253,27 +320,7 @@ export function mapCells(L: Route[], period: string): MapCells {
   const key = cacheKey(L, period);
   if (CC && CC.key === key && CC.src === S.routes) return CC;
   const m = new Map<string, number>();
-  L.forEach((r) => {
-    const P = routePts(r),
-      seen = new Set<string>();
-    const add = (q: Pt) => {
-      const k = cellKey(q);
-      if (!seen.has(k)) {
-        seen.add(k);
-        m.set(k, (m.get(k) || 0) + 1);
-      }
-    };
-    for (let i = 0; i < P.length; i++) {
-      const a = P[i];
-      add(a);
-      if (i) {
-        const b = P[i - 1],
-          d = Math.hypot(a[0] - b[0], a[1] - b[1]),
-          n = Math.ceil(d / (CELL / 2));
-        for (let k = 1; k < n; k++) add([b[0] + ((a[0] - b[0]) * k) / n, b[1] + ((a[1] - b[1]) * k) / n]);
-      }
-    }
-  });
+  L.forEach((r) => routeCells(r).forEach((k) => m.set(k, (m.get(k) || 0) + 1)));
   let mx = 1;
   m.forEach((v) => {
     if (v > mx) mx = v;
@@ -374,12 +421,6 @@ export function hexA(c: string | null | undefined, a: number) {
   }
   return c || 'rgba(255,106,31,' + a + ')';
 }
-export function lumOf(c: string) {
-  const m = /^#([0-9a-f]{6})$/i.exec(String(c).trim());
-  if (!m) return 0;
-  const n = parseInt(m[1], 16);
-  return (0.2126 * (n >> 16) + 0.7152 * ((n >> 8) & 255) + 0.0722 * (n & 255)) / 255;
-}
 
 /* ---- sesión de cada recorrido: por id de Strava y, si no, por fecha y distancia ----
    la caché se tira cuando cambian las sesiones (el original la recalculaba en cada render) */
@@ -436,6 +477,33 @@ export interface MapBarrios {
   /** lo corrido fuera de la Ciudad */
   out: { n: number; km: number };
 }
+/** km de un recorrido en cada barrio y fuera de la Ciudad (vacío mientras no bajó el mapa). Con esto se arma el ranking
+    y se resaltan los recorridos de un barrio */
+export interface RouteBarrios {
+  km: Map<Barrio, number>;
+  out: number;
+}
+const RT_B = new WeakMap<Route, RouteBarrios>();
+export function routeBarrios(r: Route): RouteBarrios {
+  if (!BA_BARRIOS) return { km: new Map(), out: 0 };
+  const had = RT_B.get(r);
+  if (had) return had;
+  const P = routePts(r),
+    res: RouteBarrios = { km: new Map(), out: 0 };
+  let last: Barrio | null = null;
+  for (let i = 1; i < P.length; i++) {
+    const a = P[i - 1],
+      b = P[i],
+      km = (Math.hypot(b[0] - a[0], b[1] - a[1]) * MPU) / 1000,
+      B = barrioAt((a[0] + b[0]) / 2, (a[1] + b[1]) / 2, last);
+    if (B) {
+      last = B;
+      res.km.set(B, (res.km.get(B) || 0) + km);
+    } else res.out += km;
+  }
+  RT_B.set(r, res);
+  return res;
+}
 let BZ: (MapBarrios & { src: Route[] }) | null = null;
 export function mapBarrios(L: Route[], period: string): MapBarrios | null {
   if (!BA_BARRIOS) return null;
@@ -444,28 +512,17 @@ export function mapBarrios(L: Route[], period: string): MapBarrios | null {
   const m = new Map<string, BarrioKm>(),
     out = { n: 0, km: 0 };
   L.forEach((r) => {
-    const P = routePts(r),
-      seen = new Set<string>();
-    let last: Barrio | null = null,
-      o = false;
-    for (let i = 1; i < P.length; i++) {
-      const a = P[i - 1],
-        b = P[i],
-        km = (Math.hypot(b[0] - a[0], b[1] - a[1]) * MPU) / 1000,
-        B = barrioAt((a[0] + b[0]) / 2, (a[1] + b[1]) / 2, last);
-      if (B) {
-        last = B;
-        const e = m.get(B.n) || { b: B, n: 0, km: 0 };
-        e.km += km;
-        m.set(B.n, e);
-        seen.add(B.n);
-      } else {
-        out.km += km;
-        o = true;
-      }
+    const rb = routeBarrios(r);
+    rb.km.forEach((km, B) => {
+      const e = m.get(B.n) || { b: B, n: 0, km: 0 };
+      e.km += km;
+      e.n++;
+      m.set(B.n, e);
+    });
+    if (rb.out > 0) {
+      out.km += rb.out;
+      out.n++;
     }
-    seen.forEach((n) => m.get(n)!.n++);
-    if (o) out.n++;
   });
   const list = [...m.values()].filter((e) => e.km >= 0.05).sort((a, b) => b.km - a.km);
   BZ = { key, list, out, src: S.routes };

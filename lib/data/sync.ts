@@ -88,8 +88,9 @@ const mergeCfg = (c: unknown) => {
 
 /* en modo ejemplo los datos reales esperan a un costado */
 const curSessions = () => (S.demo ? S.realSessions || [] : S.sessions);
+const curRoutes = () => (S.demo ? S.realRoutes || [] : S.routes);
 function putData(p: { sessions?: Session[]; cfg?: Cfg; routes?: Route[] }) {
-  if (S.demo) setS({ ...(p.sessions ? { realSessions: p.sessions } : {}), ...(p.cfg ? { realCfg: p.cfg } : {}), ...(p.routes ? { routes: p.routes } : {}) });
+  if (S.demo) setS({ ...(p.sessions ? { realSessions: p.sessions } : {}), ...(p.cfg ? { realCfg: p.cfg } : {}), ...(p.routes ? { realRoutes: p.routes } : {}) });
   else {
     setS(p);
     persistLocal();
@@ -149,7 +150,7 @@ export function retryFailed() {
   keys.forEach((k) => {
     if (k === 'cfg') writeCfg();
     else if (k.startsWith('del_')) writeDelete(k.slice(4));
-    else if (k === 'routes') writeRoutes(S.routes);
+    else if (k === 'routes') writeRoutes(curRoutes());
   });
   writeSessions(S.sessions.filter((s) => ids.includes(s.id)));
 }
@@ -277,7 +278,7 @@ async function pull() {
   /* las creadas acá que todavía no llegaron a la nube */
   byId.forEach((x) => keepLocal(x.id, t0) && sessions.push(x));
   let routes = routeRows.map(toRoute);
-  if (keepLocal('routes', t0)) S.routes.forEach((r) => !routes.some((q) => q.id === r.id) && routes.push(r));
+  if (keepLocal('routes', t0)) curRoutes().forEach((r) => !routes.some((q) => q.id === r.id) && routes.push(r));
   routes = routes.sort(byDate);
   const row = cfgRows[0];
   const cfg = keepLocal('cfg', t0) ? (S.demo ? S.realCfg || S.cfg : S.cfg) : mergeCfg(row?.cfg);
@@ -331,13 +332,13 @@ async function refresh() {
   }
   /* recorridos: los que faltan o sobran */
   let routes: Route[] | undefined;
-  const have = new Set(S.routes.map((r) => r.id)),
+  const have = new Set(curRoutes().map((r) => r.id)),
     there = new Set(rIdx.map((r) => r.id));
   const miss = [...there].filter((id) => !have.has(id)),
-    gone = !keepLocal('routes', t0) && S.routes.some((r) => !there.has(r.id));
+    gone = !keepLocal('routes', t0) && curRoutes().some((r) => !there.has(r.id));
   if (miss.length || gone) {
     const add = (await fetchIn<RouteRow>('routes', ROUTE_COLS, miss)).map(toRoute);
-    routes = S.routes
+    routes = curRoutes()
       .filter((r) => there.has(r.id) || keepLocal('routes', t0))
       .concat(add)
       .sort(byDate);

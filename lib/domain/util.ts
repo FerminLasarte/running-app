@@ -24,6 +24,16 @@ export const isoWeek = (d: Date) => {
 /** días que faltan desde hoy hasta una fecha AAAA-MM-DD (0 = hoy, negativo = ya pasó) */
 export const daysTo = (date: string) => dayDiff(sod(new Date()), pd(date));
 export const todayS = () => ymd(new Date());
+/** km por mes, desde el mes de `from` hasta el actual (los meses sin nada, en 0): `rows` son [fecha AAAA-MM-DD, km] */
+export function kmByMonth(rows: [string, number][], from: Date) {
+  const now = sod(new Date()),
+    n = (now.getFullYear() - from.getFullYear()) * 12 + now.getMonth() - from.getMonth() + 1;
+  return Array.from({ length: Math.max(1, n) }, (_, i) => {
+    const m = new Date(from.getFullYear(), from.getMonth() + i, 1),
+      key = m.getFullYear() + '-' + pad(m.getMonth() + 1);
+    return { m, km: sum(rows.filter((r) => r[0].slice(0, 7) === key).map((r) => r[1])), cur: i === n - 1 };
+  });
+}
 export const cap = (s: string) => s.charAt(0).toUpperCase() + s.slice(1);
 
 export const DF_WD = new Intl.DateTimeFormat('es-AR', { weekday: 'short', day: 'numeric', month: 'short' });

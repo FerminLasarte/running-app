@@ -1,19 +1,25 @@
-/* Datos de ejemplo: 10 semanas con series/tempo, regenerativo y fondo. Nada de esto se guarda. */
+/* Datos de ejemplo: 10 semanas con series/tempo, regenerativo y fondo, y el recorrido de cada salida (por Palermo y
+   alrededores). Nada de esto se guarda. */
 import { S } from '@/lib/store';
-import type { Plan, Session, SessionType, Stage } from '@/lib/domain/types';
+import type { Plan, Route, Session, SessionType, Stage } from '@/lib/domain/types';
+import { encodePoly, type Pt } from '@/lib/domain/geo';
 import { expand, stageTotals } from '@/lib/domain/stages';
 import { addDays, mondayOf, sod, ymd } from '@/lib/domain/util';
 
-export function demoSessions(): Session[] {
-  /* aleatorio con semilla fija: siempre los mismos datos */
-  let a = 7;
-  const rnd = () => {
+/** aleatorio con semilla fija: siempre los mismos datos */
+function seeded(seed: number) {
+  let a = seed;
+  return () => {
     a |= 0;
     a = (a + 0x6d2b79f5) | 0;
     let t = Math.imul(a ^ (a >>> 15), 1 | a);
     t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
     return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
   };
+}
+
+export function demoSessions(): Session[] {
+  const rnd = seeded(7);
   const out: Session[] = [],
     today = sod(new Date()),
     m0 = mondayOf(today),
@@ -101,4 +107,64 @@ export function demoSessions(): Session[] {
     });
   }
   return out;
+}
+
+/* ---- recorridos de ejemplo: salen de cerca de Plaza Italia y dan vueltas a los lagos de Palermo, van hasta Núñez o
+   Recoleta por Figueroa Alcorta o recorren el barrio por la cuadrícula. Coordenadas [lat, lng] */
+const HOME: Pt = [-34.581, -58.4208];
+const TO_LAKES: Pt[] = [HOME, [-34.579, -58.4178], [-34.5752, -58.415], [-34.5728, -58.4178]];
+const LAKES: Pt[] = [[-34.5728, -58.4178], [-34.57, -58.4205], [-34.5672, -58.418], [-34.566, -58.414], [-34.5675, -58.4105], [-34.5705, -58.41], [-34.573, -58.413], [-34.5728, -58.4178]];
+const NUNEZ: Pt[] = [[-34.5672, -58.418], [-34.5615, -58.4255], [-34.556, -58.433], [-34.55, -58.441], [-34.545, -58.448], [-34.547, -58.4505], [-34.5525, -58.4435], [-34.5585, -58.4355], [-34.564, -58.428], [-34.569, -58.422], [-34.5728, -58.4178]];
+const RECOLETA: Pt[] = [[-34.5728, -58.4178], [-34.573, -58.413], [-34.5785, -58.404], [-34.583, -58.397], [-34.5865, -58.392], [-34.588, -58.394], [-34.584, -58.4], [-34.5795, -58.407], [-34.5752, -58.415], [-34.5728, -58.4178]];
+/* metros a grados a la latitud de Buenos Aires; las calles de Palermo van a 125° (hacia el centro) y a 215° (tierra adentro) */
+const M_LAT = 1 / 111320,
+  M_LNG = 1 / 91660;
+const walk = (p: Pt, deg: number, m: number): Pt => [p[0] + Math.cos((deg * Math.PI) / 180) * m * M_LAT, p[1] + Math.sin((deg * Math.PI) / 180) * m * M_LNG];
+const lenM = (P: Pt[]) => P.reduce((a, q, i) => (i ? a + Math.hypot((q[0] - P[i - 1][0]) / M_LAT, (q[1] - P[i - 1][1]) / M_LNG) : 0), 0);
+
+function demoPath(s: Session, i: number): { name: string; P: Pt[] } {
+  const target = s.result!.distKm * 1000,
+    back = TO_LAKES.slice().reverse(),
+    lap = lenM(LAKES),
+    laps = (base: number) => Array.from({ length: Math.max(0, Math.round((target - base) / lap)) }, () => LAKES.slice(1)).flat();
+  if (s.type === 'regen' && i % 2) {
+    /* una vuelta a la manzana grande: tierra adentro, de costado y de vuelta */
+    const a = target * 0.3,
+      b = target * 0.2,
+      side = i % 4 === 1 ? 125 : 305,
+      p1 = walk(HOME, 215, a),
+      p2 = walk(p1, side, b),
+      p3 = walk(p2, 35, a);
+    return { name: 'Por el barrio', P: [HOME, p1, p2, p3, HOME] };
+  }
+  const base = 2 * lenM(TO_LAKES);
+  if (s.type === 'fondo') {
+    const ext = i % 3 ? NUNEZ : RECOLETA;
+    return { name: ext === NUNEZ ? 'Lagos → Núñez → lagos' : 'Lagos → Recoleta', P: [...TO_LAKES, ...ext.slice(1), ...laps(base + lenM(ext)), ...back.slice(1)] };
+  }
+  if (s.type === 'tempo' && i % 2) return { name: 'Hasta Recoleta', P: [...TO_LAKES, ...RECOLETA.slice(1), ...laps(base + lenM(RECOLETA)), ...back.slice(1)] };
+  return { name: s.type === 'test' ? 'Test en los lagos' : 'Vuelta a los lagos', P: [...TO_LAKES, ...LAKES.slice(1), ...laps(base + lap), ...back.slice(1)] };
+}
+
+/** un recorrido por cada salida hecha de ejemplo, con sus km y su tiempo (así los números coinciden con el Registro) */
+export function demoRoutes(sessions: Session[]): Route[] {
+  const rnd = seeded(23);
+  return sessions
+    .filter((s) => s.result)
+    .map((s, i) => {
+      const { name, P } = demoPath(s, i);
+      /* GPS: cada salida va un poco corrida y con ruido, cada ~25 m, así las pasadas se ven como en la vida real */
+      const dx = (rnd() - 0.5) * 10 * M_LAT,
+        dy = (rnd() - 0.5) * 10 * M_LNG,
+        out: Pt[] = [];
+      for (let k = 1; k < P.length; k++) {
+        const a = P[k - 1],
+          b = P[k],
+          n = Math.max(1, Math.round(lenM([a, b]) / 25));
+        for (let j = 0; j < n; j++) out.push([a[0] + ((b[0] - a[0]) * j) / n + dx + (rnd() - 0.5) * 6 * M_LAT, a[1] + ((b[1] - a[1]) * j) / n + dy + (rnd() - 0.5) * 6 * M_LNG]);
+      }
+      out.push(P[P.length - 1]);
+      const r = s.result!;
+      return { id: 'demo_rt_' + s.id, sid: '', date: r.date, name, km: r.distKm, tsec: r.timeSec, poly: encodePoly(out) };
+    });
 }

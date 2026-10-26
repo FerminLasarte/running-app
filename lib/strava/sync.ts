@@ -56,7 +56,6 @@ export async function stravaSync() {
     }
     setMapUi({
       view: null,
-      sel: null,
       msg: added ? 'Listo: sumé ' + added + (added === 1 ? ' recorrido nuevo.' : ' recorridos nuevos.') : 'Ya tenés todas tus carreras al día.',
     });
   } catch (e) {
