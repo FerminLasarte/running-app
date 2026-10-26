@@ -58,7 +58,11 @@ function SessionCrumb({ id }: { id: string }) {
 function Crumbs({ section, pathname }: { section: SectionDef | null; pathname: string }) {
   /* la próxima carrera sale de la configuración: que se redibuje si cambia */
   useApp((s) => s.cfg.races);
-  if (!section) return pathname.startsWith('/sesion/') ? <SessionCrumb id={decodeURIComponent(pathname.split('/')[2] || '')} /> : null;
+  if (!section) {
+    if (pathname.startsWith('/sesion/')) return <SessionCrumb id={decodeURIComponent(pathname.split('/')[2] || '')} />;
+    /* la página de las piezas sueltas (solo en desarrollo) */
+    return pathname === '/sistema' ? <span>Sistema de diseño</span> : null;
+  }
   if (section.id === 'semana') return <WeekCrumb />;
   const r = section.id === 'carreras' ? nextRace() : null;
   return (

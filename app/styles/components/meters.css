@@ -1,0 +1,36 @@
+/* Medidores de los bocetos: marcas discretas en vez de barras lisas (puntaje, vueltas), la barra de estructura del
+   entrenamiento (ancho = distancia, alto = intensidad) y la barra de zonas de FC. Las barras crecen al aparecer. */
+@layer components {
+  @keyframes p-grow { from { transform: scaleY(0); } }
+  @keyframes p-growx { from { transform: scaleX(0); } }
+
+  /* marcas de puntaje: 10 rayitas al lado del número */
+  .p-ticks { display: inline-grid; grid-template-columns: repeat(10, 1fr); gap: 1.5px; width: 44px; height: 8px; vertical-align: middle; flex: none; }
+  .p-ticks i { background: var(--line); }
+  .p-ticks i.on { background: var(--ink); }
+  .p-ticks.on-dark i { background: var(--hero-line); }
+  .p-ticks.on-dark i.on { background: var(--hero-ink); }
+
+  /* contador de vueltas: --n marcas; la actual se llena por la mitad (--p) en tartán */
+  .p-laps { display: grid; grid-template-columns: repeat(var(--n, 10), 1fr); gap: var(--g, 2px); }
+  .p-laps i { height: var(--h, 4px); background: var(--line); }
+  .p-laps i.on { background: var(--ink); }
+  .p-laps i.cur { background: linear-gradient(90deg, var(--acc) var(--p), var(--line) var(--p)); }
+  .p-laps i.warn { background: var(--t-tempo); }
+  .p-laps.soft i.on { background: var(--ink-2); }
+  .p-laps.on-dark i { background: var(--hero-line); }
+  .p-laps.on-dark i.on { background: var(--hero-ink); }
+  .p-laps.on-dark i.cur { background: linear-gradient(90deg, var(--acc) var(--p), var(--hero-line) var(--p)); }
+
+  /* estructura: calor y calma en gris, el trabajo en el color del tipo, las pausas apenas */
+  .p-sb { display: flex; align-items: flex-end; gap: var(--g, 1.5px); height: var(--h, 28px); }
+  .p-sb i { display: block; min-width: 2px; border-radius: 1px; background: var(--ink-4); transform-origin: bottom; animation: p-grow .6s var(--ease) both; animation-delay: calc(200ms + var(--j, 0) * 18ms); }
+  .p-sb i.r { background: var(--tc); }
+  .p-sb i.x { background: var(--line-2); }
+  .p-sb.plan i { opacity: .45; }
+  .p-sb-ax { display: flex; justify-content: space-between; gap: 8px; margin-top: 6px; font: 500 10.5px/1 var(--f-mono); color: var(--ink-3); }
+
+  /* zonas de FC: el tiempo en cada una, de Z1 a Z5 */
+  .p-zones { display: flex; height: var(--h, 10px); overflow: hidden; gap: 2px; }
+  .p-zones i { background: var(--zc); transform-origin: left; animation: p-growx .7s var(--ease) both; animation-delay: calc(300ms + var(--j, 0) * 60ms); }
+}

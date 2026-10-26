@@ -1,0 +1,101 @@
+/* Piezas de deporte de los bocetos: cada una significa un dato. La pista (volumen contra el plan), el dorsal (la
+   próxima carrera), la pulsera de ritmos, el escudo de trofeo, la medalla, el reloj de cuenta regresiva y el
+   cronógrafo de 60 marcas. El dorsal y la pulsera quedan de papel en los dos temas. */
+@layer components {
+  /* la pista: el progreso entra por el andarivel 1 y el corredor aparece al final */
+  .p-oval { position: relative; }
+  .p-oval svg { width: 100%; height: auto; display: block; overflow: visible; }
+  .p-oval .prog { animation: p-oval-draw 1.4s var(--ease) .25s both; }
+  .p-oval .runner { animation: p-fade .3s var(--ease) 1.5s both; }
+  @keyframes p-oval-draw { from { stroke-dasharray: 0 100; } }
+  @keyframes p-fade { from { opacity: 0; } }
+  .p-oval-c { position: absolute; inset: 0; display: grid; place-items: center; text-align: center; pointer-events: none; }
+  .p-oval-c .disp { font-size: 30px; font-style: italic; }
+  .p-oval-c small { display: block; font-size: 11px; color: var(--ink-3); margin-top: 2px; }
+
+  /* dorsal: papel, cuatro alfileres y el talón troquelado. Torcido como prendido; se endereza al pasar */
+  .p-bib-wrap { align-self: center; }
+  .p-bib {
+    position: relative; display: flex; flex-direction: column; overflow: hidden; min-height: 360px;
+    background: var(--paper); color: var(--paper-ink); border-radius: var(--r-md);
+    box-shadow: 0 1px 0 rgb(0 0 0 / .1), 0 26px 40px -24px rgb(0 0 0 / .8);
+    transform: rotate(-3deg); transition: transform .5s var(--ease);
+  }
+  .p-bib:hover, .p-bib:focus-within { transform: rotate(0deg) translateY(-3px); }
+  .p-bib .pin { position: absolute; width: 9px; height: 9px; border-radius: 50%; background: var(--notch, var(--hero)); box-shadow: inset 0 1px 1.5px rgb(0 0 0 / .4); }
+  .p-bib .pin.a { top: 11px; left: 11px; } .p-bib .pin.b { top: 11px; right: 11px; }
+  .p-bib .pin.c { bottom: 78px; left: 11px; } .p-bib .pin.d { bottom: 78px; right: 11px; }
+  .p-bib-band { margin: 28px 26px 0; display: flex; justify-content: space-between; align-items: center; gap: 8px; height: 26px; padding: 0 10px; background: var(--acc); color: #fff; font: italic 900 13px/1 var(--f-disp); font-stretch: 70%; letter-spacing: .06em; text-transform: uppercase; white-space: nowrap; }
+  .p-bib-main { flex: 1; display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 8px 20px 12px; }
+  .p-bib-num { font-family: var(--f-disp); font-stretch: 62%; font-weight: 900; font-style: italic; font-size: 150px; line-height: .78; letter-spacing: -.035em; font-variant-numeric: tabular-nums; padding-right: .04em; }
+  .p-bib-num-l { font: 700 11px/1 var(--f-ui); letter-spacing: .4em; text-transform: uppercase; margin-top: 10px; color: var(--paper-mut); padding-left: .4em; }
+  .p-bib-meta { display: flex; justify-content: center; gap: 14px; font-size: 12px; color: var(--paper-mut); margin-top: 14px; }
+  .p-bib-meta b { color: var(--paper-ink); font-weight: 600; }
+  .p-bib-tear { position: relative; height: 68px; border-top: 1.5px dashed #cdc9bf; display: grid; grid-template-columns: 1fr 1fr; align-items: center; padding: 0 24px; }
+  .p-bib-tear::before, .p-bib-tear::after { content: ""; position: absolute; top: -8px; width: 14px; height: 14px; border-radius: 50%; background: var(--notch, var(--hero)); }
+  .p-bib-tear::before { left: -8px; } .p-bib-tear::after { right: -8px; }
+  .p-bib-tear .lbl { color: #8a867e; font-size: 9.5px; }
+  .p-bib-tear .disp { font-size: 26px; display: block; margin-top: 4px; }
+  .p-bib-tear .p-u { color: #8a867e; }
+  .p-bib-tear > div + div { text-align: right; }
+  .p-bib-link { display: flex; justify-content: center; margin-top: 18px; }
+
+  /* pulsera de ritmos: la tira de papel que se pega en la muñeca; se imprime */
+  .p-band {
+    position: relative; align-self: center; background: var(--paper); color: var(--paper-ink); border-radius: 22px 22px 6px 6px; overflow: hidden;
+    box-shadow: 0 1px 0 rgb(0 0 0 / .1), 0 26px 40px -24px rgb(0 0 0 / .8); transform: rotate(2.2deg); transition: transform .5s var(--ease);
+  }
+  .p-band:hover { transform: none; }
+  .p-band-h { background: var(--acc); color: #fff; padding: 16px 18px 12px; text-align: center; }
+  .p-band-h b { display: block; font: italic 900 22px/1 var(--f-disp); font-stretch: 64%; text-transform: uppercase; letter-spacing: .02em; }
+  .p-band-h small { display: block; font: 600 10px/1 var(--f-ui); letter-spacing: .14em; text-transform: uppercase; margin-top: 5px; opacity: .85; }
+  .p-band table { width: 100%; border-collapse: collapse; font: 500 13px/1 var(--f-mono); font-variant-numeric: tabular-nums; }
+  .p-band th { font: 700 9.5px/1 var(--f-ui); letter-spacing: .12em; text-transform: uppercase; color: var(--paper-mut); padding: 9px 14px 7px; text-align: right; }
+  .p-band th:first-child, .p-band td:first-child { text-align: left; }
+  .p-band td { padding: 0 14px; height: 25px; text-align: right; border-top: 1px solid #e3dfd5; }
+  .p-band td:first-child { font: italic 900 15px/1 var(--f-disp); font-stretch: 70%; }
+  .p-band tr.sh td { background: #efede6; }
+  .p-band tr.fin td { background: var(--paper-ink); color: var(--paper); border-top: 0; }
+  .p-band tr.fin td:first-child { color: var(--acc); text-transform: uppercase; }
+  .p-band-f { display: flex; justify-content: center; padding: 10px 0 12px; }
+  .p-band-f i { width: 34px; height: 6px; border-radius: 3px; background: #ddd8cc; }
+
+  /* escudo de trofeo: bronce, plata y oro; el que falta, punteado */
+  .p-shield { position: relative; display: block; width: var(--w, 52px); flex: none; }
+  .p-shield svg { width: 100%; height: auto; display: block; overflow: visible; }
+  .p-shield > .ic { position: absolute; left: 50%; top: 46%; transform: translate(-50%, -50%); width: 38%; height: auto; color: #fff; }
+  .p-shield.lock > .ic { color: var(--ink-4); }
+
+  /* medalla con cinta: carreras anteriores */
+  .p-medal { display: grid; grid-template-columns: 56px 1fr; gap: 16px; align-items: center; min-width: 0; }
+  .p-medal svg { width: 56px; height: 72px; display: block; overflow: visible; }
+  .p-medal b { display: block; font: italic 900 20px/1 var(--f-disp); font-stretch: 64%; text-transform: uppercase; }
+  .p-medal .disp { display: flex; align-items: center; gap: 8px; font-size: 30px; margin-top: 8px; }
+  .p-medal small { display: block; font-size: 12px; color: var(--ink-3); margin-top: 5px; }
+
+  /* reloj de largada: lo único que se mueve solo, porque el dato cambia */
+  .p-clock { display: flex; align-items: flex-end; gap: 6px; }
+  .p-clock > div { min-width: 92px; }
+  .p-clock .disp { display: block; font-size: 72px; font-style: italic; }
+  .p-clock .lbl { display: block; margin-top: 8px; }
+  .p-clock .colon { font: italic 800 56px/1 var(--f-disp); font-stretch: 70%; color: var(--acc); padding-bottom: 26px; }
+
+  /* cronógrafo: 60 marcas alrededor, una cada 5 más larga, en tartán hasta el valor */
+  .p-chrono { position: relative; }
+  .p-chrono svg { width: 100%; height: auto; display: block; }
+  .p-chrono .c { position: absolute; inset: 0; display: grid; place-items: center; text-align: center; }
+  .p-chrono .c .disp { font-size: 54px; font-style: italic; }
+  .p-chrono .c small { display: block; font-size: 11px; line-height: 1.3; color: var(--ink-3); margin: 4px auto 0; max-width: 96px; }
+
+  @media (max-width: 900px) {
+    .p-bib-wrap { padding: 0 12px; }
+    .p-band { max-width: 280px; justify-self: center; width: 100%; }
+    .p-clock > div { min-width: 0; }
+    .p-clock .disp { font-size: 46px; }
+    .p-clock .colon { font-size: 36px; padding-bottom: 22px; }
+    .p-chrono { max-width: 220px; justify-self: center; }
+  }
+  @media print {
+    .p-band { transform: none; box-shadow: none; }
+  }
+}

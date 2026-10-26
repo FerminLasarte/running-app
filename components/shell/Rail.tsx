@@ -1,11 +1,11 @@
 'use client';
 /* Barra lateral (compu): marca, secciones con su atajo, nivel y la cuenta. En el celu, las secciones van abajo. */
-import type { CSSProperties } from 'react';
 import Link from 'next/link';
 import { GearSix, User } from '@phosphor-icons/react';
 import { setUi, useApp, useS } from '@/lib/store';
 import { doneList } from '@/lib/domain/stats';
 import { xpState } from '@/lib/domain/xp';
+import { Laps } from '@/components/pista/meters';
 import { NAV, type SectionDef } from './sections';
 
 /* la pista vista desde arriba, con la línea de llegada */
@@ -41,19 +41,14 @@ export function Avatar() {
 function Level() {
   useS();
   if (!doneList().length) return null;
-  const X = xpState(),
-    on = Math.floor(X.f * 10);
+  const X = xpState();
   return (
     <Link className="lvl" href="/logros" title="Ver tu personaje" onClick={() => setUi('logSub', 'pj')}>
       <span className="lvl-top">
         <b>{X.title}</b>
         <span className="disp">{X.L}</span>
       </span>
-      <span className="laps" aria-label={Math.round(X.f * 100) + '% al nivel ' + (X.L + 1)}>
-        {Array.from({ length: 10 }, (_, k) => (
-          <i key={k} className={k < on ? 'on' : k === on ? 'cur' : ''} style={k === on ? { '--p': Math.round((X.f * 10 - on) * 100) + '%' } as CSSProperties : undefined} />
-        ))}
-      </span>
+      <Laps value={X.f} partial label={Math.round(X.f * 100) + '% al nivel ' + (X.L + 1)} />
       <small>
         Nivel {X.L} · {X.b - X.total} XP para el {X.L + 1}
       </small>

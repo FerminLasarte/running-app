@@ -1,0 +1,20 @@
+/* Gráficos de los bocetos, en SVG: grilla y ejes finos, números en mono, la leyenda arriba a la derecha del panel y
+   el punto elegido con su lectura. El dibujo escala con el ancho (viewBox), los textos escalan con él. */
+@layer components {
+  .p-chart svg { width: 100%; height: auto; display: block; overflow: visible; }
+  .p-chart svg:focus-visible { outline: 2px solid var(--acc); outline-offset: 4px; border-radius: 2px; }
+  .p-chart svg[tabindex] { cursor: crosshair; touch-action: pan-y; }
+  .p-ax { font: 500 10.5px var(--f-mono); fill: var(--ink-3); }
+  .p-ax.ink { fill: var(--ink); font-weight: 600; }
+  .p-gl { stroke: var(--line); stroke-width: 1; }
+  .p-gl0 { stroke: var(--line-2); stroke-width: 1; }
+  .p-tip { pointer-events: none; }
+  .p-tip rect { fill: var(--surface); stroke: var(--line-2); }
+  .p-tip .t { font: 600 12.5px var(--f-mono); fill: var(--ink); }
+
+  /* leyenda: raya, raya cortada o cuadradito inclinado */
+  .p-key { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; color: var(--ink-2); white-space: nowrap; }
+  .p-key i { width: 12px; height: 2px; background: var(--kc); }
+  .p-key i.dash { background: repeating-linear-gradient(90deg, var(--kc) 0 3px, transparent 3px 5px); }
+  .p-key i.sq { width: 8px; height: 8px; transform: skewX(-14deg); }
+}
