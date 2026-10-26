@@ -5,9 +5,14 @@ import { reduceMotion } from './motion';
 import { S, setS, setUi } from './store';
 
 let dirty = false;
+/* lo que tenía el foco antes de abrir: el panel enfoca lo suyo (autoFocus) antes de que PanelHost pueda guardarlo */
+let opener: Element | null = null;
+/** a dónde vuelve el foco al cerrar el panel */
+export const sheetOpener = () => opener;
 
 /** Abre el panel registrado como `kind` en components/panels/registry.tsx. Reemplaza al que esté abierto. */
 export function openSheet(kind: string, props: Record<string, unknown> = {}) {
+  if (!S.sheet) opener = document.activeElement;
   dirty = false;
   setUi('sheetConfirm', false);
   setUi('sheetClosing', false);

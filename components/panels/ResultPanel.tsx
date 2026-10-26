@@ -17,7 +17,7 @@ import { DEC_MIN_ACT, decLine, svStreams } from '@/lib/domain/dec';
 import type { Hms } from '@/lib/domain/hms';
 import { shoeKm } from '@/lib/domain/shoes';
 import { planSummary, sdate } from '@/lib/domain/stats';
-import { announceProgress, gotIds } from '@/lib/domain/trophies';
+import { announceProgress, expectProgress, gotIds } from '@/lib/domain/trophies';
 import type { Decoupling, Session, SessionType } from '@/lib/domain/types';
 import { cap, DF_LONG, dateLabel, fmt, fmtDur, pd, todayS, WEATHER } from '@/lib/domain/util';
 import { SV_DAYS, svActs, type SvItem } from '@/lib/domain/week';
@@ -308,14 +308,15 @@ export default function ResultPanel(props: ResultProps & { svLoad?: boolean }) {
       return;
     }
     if (blockDemo()) return;
-    const had = gotIds(),
-      x0 = xpState();
+    const x0 = xpState();
+    /* antes de guardar: así el festejo sabe qué tenías y cuánta XP sumó esta salida */
+    expectProgress(gotIds(), x0);
     /* el puntaje sale al instante: la sesión ya está en el estado y la subida a la nube sigue en segundo plano (si
        falla, queda marcada y se reintenta sola) */
     void saveSession(r.s);
     draftClear();
     openSheet('score', { id: r.s.id, fresh: true });
-    announceProgress(had, x0);
+    announceProgress(x0);
   }
 
   const s = f.sid ? sessions.find((x) => x.id === f.sid) || null : null;

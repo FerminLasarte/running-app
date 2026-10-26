@@ -183,11 +183,11 @@ export function PaceBand({
 }
 
 /* ---- escudo de trofeo ---- */
-const TIER = ['#A8693A', '#8D949C', '#C3962A'];
-export const TIER_NAME = ['bronce', 'plata', 'oro'];
-/** bronce, plata u oro (`tier` 0–2); sin ganar, punteado y con el ícono gris */
+export const TIER_C = ['#A8693A', '#8D949C', '#C3962A', '#8C7FCF'];
+export const TIER_NAME = ['bronce', 'plata', 'oro', 'platino'];
+/** bronce, plata, oro o platino (`tier` 0–3); sin ganar, punteado y con el ícono gris */
 export function Shield({ tier, got, icon: I, size = 52 }: { tier: number; got: boolean; icon: Icon; size?: number }) {
-  const c = TIER[clamp(tier, 0, 2)];
+  const c = TIER_C[clamp(tier, 0, 3)];
   return (
     <span className={cx('p-shield', !got && 'lock')} style={cssVars({ '--w': size + 'px' })} aria-hidden="true">
       <svg viewBox="0 0 52 58">

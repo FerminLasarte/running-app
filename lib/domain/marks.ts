@@ -88,3 +88,22 @@ export function bestMarks(): Mark[] {
   }
   return M;
 }
+
+/* podio de Logros: tus mejores sesiones por distancia, puntaje o ritmo */
+export type PodKey = 'dist' | 'score' | 'pace';
+export interface PodRow {
+  s: DoneSession;
+  v: number;
+  /** la carrera de ese día, si la sesión es un test o carrera */
+  race?: string;
+}
+/** las `n` mejores con el criterio (las que no tienen el dato no entran); a igual valor, la más nueva */
+export function podium(k: PodKey, n = 6): PodRow[] {
+  const sk = SORTS[k];
+  return doneList()
+    .map((s) => ({ s, v: sk.f(s) }))
+    .filter((x): x is { s: DoneSession; v: number } => x.v != null)
+    .sort((a, b) => (sk.inv ? a.v - b.v : b.v - a.v) || b.s.result.date.localeCompare(a.s.result.date))
+    .slice(0, n)
+    .map((x) => ({ ...x, race: x.s.type === 'test' ? S.cfg.races.find((r) => r.date === x.s.result.date)?.name : undefined }));
+}

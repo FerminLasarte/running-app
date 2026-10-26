@@ -14,7 +14,7 @@ import { buzz, toast, weekGo } from '@/lib/data/actions';
 import { runPending, setRouter } from '@/lib/nav';
 import { todayS } from '@/lib/domain/util';
 import { preloadPanels } from '@/components/panels/registry';
-import CelebrateHost from '@/components/logros/CelebrateHost';
+import Celebration from '@/components/logros/Celebration';
 import { Banners, Header } from './Header';
 import { PanelHost } from './PanelHost';
 import { Palette } from './Palette';
@@ -37,7 +37,7 @@ export default function AppShell({ children }: { children: ReactNode }) {
   const router = useRouter();
   const pathname = usePathname();
   const section = sectionOf(pathname);
-  const S0 = useApp(useShallow((s) => ({ logSub: s.ui.logSub, sumSub: s.sumSub, loaded: s.loaded, demo: s.demo })));
+  const S0 = useApp(useShallow((s) => ({ sumSub: s.sumSub, loaded: s.loaded, demo: s.demo })));
   const [, setTick] = useState(0);
   const viewRef = useRef<HTMLElement>(null);
   useShortcuts();
@@ -103,7 +103,7 @@ export default function AppShell({ children }: { children: ReactNode }) {
   }, [pathname]);
 
   /* «play»: animaciones de entrada solo al entrar a una pantalla (página o subpestaña nueva) */
-  const screenKey = pathname + '|' + String(S0.logSub ?? '') + '|' + S0.sumSub;
+  const screenKey = pathname + '|' + S0.sumSub;
   const [play, setPlay] = useState(false);
   const lastKey = useRef<string | null>(null);
   useLayoutEffect(() => {
@@ -132,7 +132,7 @@ export default function AppShell({ children }: { children: ReactNode }) {
   /* las piezas se suscriben solas: cuando el shell se redibuja (por ejemplo, para prender o apagar la animación de
      entrada) reuso los mismos elementos y React no las vuelve a dibujar */
   const parts = useMemo(
-    () => ({ rail: <Rail section={section} />, top: <TopBar section={section} pathname={pathname} />, banners: <Banners />, layers: [<PanelHost key="s" />, <Palette key="k" />, <Toast key="t" />, <CelebrateHost key="c" />] }),
+    () => ({ rail: <Rail section={section} />, top: <TopBar section={section} pathname={pathname} />, banners: <Banners />, layers: [<PanelHost key="s" />, <Palette key="k" />, <Toast key="t" />, <Celebration key="c" />] }),
     [section, pathname],
   );
   const header = useMemo(() => (section && !section.redone && S0.loaded ? <Header section={section} /> : null), [section, S0.loaded]);

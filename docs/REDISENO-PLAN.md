@@ -282,6 +282,19 @@ piezas están en `components/pista/` y su CSS en `app/styles/components/`.
 - Estadio con título, XP y ficha del jugador; camino de títulos; vitrina con filtros; desafíos; podio; atributos.
 - La celebración reemplaza a `CelebrateHost` con el diseño nuevo.
 - **Listo cuando:** ganar un trofeo o subir de nivel la dispara una vez, y con «reducir movimiento» no hay confeti.
+- Hecho. Decisiones al pasarlo (confirmadas por el usuario): la vitrina muestra los casi 90 trofeos por categoría, con
+  un título chico por cada una, y los filtros se aplican adentro («Por ganar» ordena por lo que te falta); como es muy
+  larga, tiene un alto fijo y baja por dentro. El color del escudo sale de la rareza (la XP del trofeo), como antes:
+  común bronce, rara plata, épica oro y legendaria platino (el escudo suma un cuarto tono). La celebración recuerda lo
+  que ya festejó (`cfg.cel`, en el JSON de la configuración, sin migración): sale al guardar un resultado y también
+  cuando llega algo de la nube o de Strava, y nunca repite un trofeo ni un nivel; la primera vez arranca desde lo que
+  ya tenés, sin festejar. De la pantalla vieja quedan «¿Cómo se gana experiencia?» (al pie del camino de títulos), los
+  desafíos sugeridos (dentro del panel «Nuevo»), borrar cada desafío y los terminados (plegados al final). Salen el Top
+  10, «Los más valiosos», el anillo por rareza, «Lo próximo» (lo cubre «Por ganar»), el ranking completo (Registro ya
+  ordena), Mejores marcas (está en Análisis → Volumen) y las medallas (están en Carreras). Lo que el boceto no
+  mostraba: la ficha dice «Corriendo desde» y el año (no hay temporada), con tu nombre o «Vos»; el podio usa el ritmo
+  principal (el de las repeticiones en las series) y, si la sesión es un test el día de una carrera, su nombre; el
+  filtro de la vitrina y el criterio del podio van en la URL (`?vitrina=ganados|faltan`, `?podio=puntaje|ritmo`).
 
 ### Fase 11 · Ajustes
 

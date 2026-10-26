@@ -122,9 +122,9 @@ export function weekGo(d: number) {
 export function goForm() {
   navigate('/analisis/forma', () => jumpTo(0));
 }
-export function goChar() {
-  setUi('logSub', 'pj');
-  navigate('/logros', () => jumpTo(0));
+/** a Logros, arriba de todo o bajando hasta una parte (por su id) */
+export function goLogros(part?: string) {
+  navigate('/logros', () => (part ? document.getElementById(part)?.scrollIntoView({ block: 'start' }) : jumpTo(0)));
 }
 /** después de agregar algo en Ajustes: lleva a su nombre para escribirlo */
 export const focusField = (id: string) =>

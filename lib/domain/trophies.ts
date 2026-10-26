@@ -1,13 +1,14 @@
 /* Logros: vitrina de trofeos, hitos y desafíos cumplidos. Todo se calcula con el historial. */
-import { S, setUi } from '@/lib/store';
+import { S, getUi, setUi } from '@/lib/store';
 import { saveCfg, toast } from '@/lib/data/actions';
+import { reduceMotion } from '@/lib/motion';
 import { vdotOf } from './daniels';
 import { cellArea, routeCells } from './geo';
 import { chProgress } from './challenges';
-import { XP_TIER, xpState, type XpState } from './xp';
+import { XP_TIER, levelOf, xpFor, xpState, type XpState } from './xp';
 import { scoreSession } from './score';
 import { doneList, monthSeries, weekSeries } from './stats';
-import { clamp, cleanObj, fmt, fmtDur, ymd } from './util';
+import { clamp, cleanObj, dShort, fmt, fmtDur, nf, pd, sum, ymd } from './util';
 
 export const tierOf = (i: number, n: number) => (n <= 1 ? 2 : i < Math.ceil(n / 3) ? 0 : i < Math.ceil((2 * n) / 3) ? 1 : 2);
 
@@ -343,40 +344,141 @@ export function markTrophiesSeen() {
   saveCfg(c);
 }
 export const gotIds = () => new Set(trophies().filter((t) => t.got).map((t) => t.id));
-/* ---- celebración al ganar trofeos o subir de nivel: la dibuja <CelebrateHost/> ---- */
+
+/** el metal del escudo según la rareza: 0 bronce, 1 plata, 2 oro, 3 platino */
+export const trophyTier = (t: Trophy) => RARITY.indexOf(rarOf(t));
+const COUNT_UNITS = ['km', 'km²', 'h'];
+/** lo que muestra la vitrina debajo del nombre: la fecha si lo ganaste; si no, cuánto llevás («46:12 → 45:00», «83 de 100») */
+export function trophyNote(t: Trophy): string {
+  if (t.got) return t.date ? dShort(pd(t.date)) : '';
+  if (t.cur == null || t.target >= 1e6) return '';
+  const f0 = t.fmtV || ((v: number) => fmt(v, 0)),
+    fv = (v: number) => (v >= 1000 ? nf(v) : f0(v));
+  if (t.unit === 'time') return t.cur ? f0(t.cur) + ' → ' + f0(t.target) : '';
+  return fv(t.cur) + ' de ' + fv(t.target) + (COUNT_UNITS.includes(t.unit) ? ' ' + t.unit : '');
+}
+/** cuánto te falta, en una frase (el panel del trofeo) */
+export function trophyLeft(t: Trophy): string {
+  if (t.got || t.cur == null) return '';
+  const fv = t.fmtV || ((v: number) => fmt(v, 0));
+  /* la descripción ya dice tu mejor marca */
+  if (t.unit === 'time') return t.cur ? 'Te faltan ' + fmtDur(t.cur - t.target) + '.' : '';
+  return t.target < 1e6 ? 'Llevás ' + fv(t.cur) + ' ' + t.unit + ' de ' + fv(t.target) + '.' : '';
+}
+
+/* ---- la vitrina: por categoría, con el filtro de arriba ---- */
+export type VitFilter = 'todos' | 'ganados' | 'faltan';
+export interface VitGroup {
+  cat: string;
+  name: string;
+  got: number;
+  all: number;
+  items: Trophy[];
+}
+/** los trofeos por categoría, en el orden de siempre. «Ganados» van del más nuevo al más viejo y «Por ganar», del más
+    cerca al más lejos; las categorías que quedan vacías no van */
+export function vitGroups(T: Trophy[], f: VitFilter): VitGroup[] {
+  const cats = [...new Set(T.map((t) => t.cat))];
+  return cats
+    .map((cat) => {
+      const L = T.filter((t) => t.cat === cat);
+      let items = f === 'todos' ? L : L.filter((t) => t.got === (f === 'ganados'));
+      if (f === 'ganados') items = items.slice().sort((a, b) => b.date!.localeCompare(a.date!));
+      else if (f === 'faltan') items = items.slice().sort((a, b) => (trophyProg(b) ?? -1) - (trophyProg(a) ?? -1));
+      return { cat, name: CAT_N[cat] || cat, got: L.filter((t) => t.got).length, all: L.length, items };
+    })
+    .filter((g) => g.items.length);
+}
+
+/* ---- celebración al ganar trofeos o subir de nivel: la dibuja <Celebration/> ----
+   Se festeja una sola vez: lo festejado queda anotado en la configuración (`cel`: trofeos y el nivel más alto). */
+export interface CelRec {
+  ids: string[];
+  lv: number;
+}
+/** lo que hay para festejar: los trofeos ganados que nunca se festejaron y si pasaste el nivel más alto festejado.
+    Sin registro (la primera vez), nada: se arranca desde lo que ya tenés */
+export function celebNews(got: string[], L: number, rec: CelRec | undefined): { ids: string[]; up: boolean; rec: CelRec } {
+  if (!rec) return { ids: [], up: false, rec: { ids: got, lv: L } };
+  const seen = new Set(rec.ids),
+    ids = got.filter((i) => !seen.has(i)),
+    up = L > rec.lv;
+  return { ids, up, rec: { ids: ids.length ? [...rec.ids, ...ids] : rec.ids, lv: Math.max(rec.lv, L) } };
+}
 export interface Confetto {
   left: string;
-  bg: string;
-  delay: string;
-  dur: string;
+  c: string;
+  d: string;
+  dl: string;
   dx: string;
-  rot: string;
+  r: string;
 }
 export interface CelebrateState {
   key: number;
+  /** los trofeos nuevos, el más valioso primero */
   T: Trophy[];
-  x0: XpState;
+  /** dónde estabas antes: nivel y fracción del nivel */
+  l0: number;
+  f0: number;
   x1: XpState;
+  /** XP que sumaste */
   g: number;
   conf: Confetto[];
 }
-export function celebrate(T: Trophy[], x0: XpState, x1: XpState, g: number) {
-  const cols = ['var(--accent)', 'var(--t1)', 'var(--t2)', 'var(--t3)', 'var(--t4)', 'var(--t5)', '#fff'];
-  const conf = Array.from({ length: 42 }, (_, i) => ({
-    left: (Math.random() * 100).toFixed(1) + '%',
-    bg: cols[i % cols.length],
-    delay: (Math.random() * 0.6).toFixed(2) + 's',
-    dur: (1.8 + Math.random() * 1.4).toFixed(2) + 's',
-    dx: ((Math.random() - 0.5) * 160).toFixed(0) + 'px',
-    rot: (Math.random() * 720).toFixed(0) + 'deg',
-  }));
-  setUi<CelebrateState | null>('celebrate', { key: Date.now() + Math.random(), T, x0, x1, g, conf });
+const CONF_C = ['var(--acc)', '#F2F1ED', '#C3962A', '#E3BC5A', 'var(--t-fondo)'];
+/** `lv0`: el nivel de antes (si no se sabe la XP de antes, el último festejado) */
+function celebrate(T: Trophy[], x1: XpState, g: number, lv0: number) {
+  const r = Math.random;
+  /* con «reducir movimiento», sin confeti */
+  const conf = reduceMotion()
+    ? []
+    : Array.from({ length: 64 }, () => ({
+        left: (r() * 100).toFixed(1) + '%',
+        c: CONF_C[Math.floor(r() * CONF_C.length)],
+        d: (2.6 + r() * 1.8).toFixed(2) + 's',
+        dl: (r() * 0.9).toFixed(2) + 's',
+        dx: ((r() - 0.5) * 260).toFixed(0) + 'px',
+        r: ((r() - 0.5) * 1100).toFixed(0) + 'deg',
+      }));
+  const from = Math.max(0, x1.total - g),
+    l0 = Math.min(levelOf(from), lv0),
+    a = xpFor(l0);
+  /* si la XP de antes no es de ese nivel, la barra arranca vacía */
+  const f0 = levelOf(from) === l0 ? (from - a) / (xpFor(l0 + 1) - a || 1) : 0;
+  setUi<CelebrateState | null>('celebrate', { key: Date.now() + r(), T: T.slice().sort((p, q) => trophyXp(q) - trophyXp(p)), l0, f0, x1, g, conf });
 }
 export const closeCelebrate = () => setUi<CelebrateState | null>('celebrate', null);
-export function announceProgress(had: Set<string>, x0: XpState) {
-  const T = trophies().filter((t) => t.got && !had.has(t.id)),
+
+/* al guardar un resultado a mano se sabe qué tenías antes: así el festejo cuenta la XP de esa salida */
+let hint: { had: Set<string>; x0: XpState } | null = null;
+export const expectProgress = (had: Set<string>, x0: XpState) => void (hint = { had, x0 });
+/** festeja lo nuevo, si hay, y lo anota. Lo llama el shell cada vez que cambian tus datos (al abrir la app, lo que
+    trae la nube o Strava) y el panel de carga al guardar. Devuelve si festejó */
+export function celebratePending(): boolean {
+  if (S.demo || S.mode === 'boot' || !S.loaded) return false;
+  const h = hint;
+  hint = null;
+  const T = trophies(),
     x1 = xpState(),
-    g = x1.total - x0.total;
-  if (T.length || x1.L > x0.L) setTimeout(() => celebrate(T, x0, x1, g), 500);
-  else if (g > 0) setTimeout(() => toast('+' + g + ' XP'), 400);
+    got = T.filter((t) => t.got).map((t) => t.id),
+    /* sin registro y recién guardado, se parte de lo que tenías antes de guardar */
+    rec0 = S.cfg.cel || (h ? { ids: [...h.had], lv: h.x0.L } : undefined),
+    n = celebNews(got, x1.L, rec0);
+  if (!S.cfg.cel || n.ids.length || n.rec.lv !== S.cfg.cel.lv) {
+    const c = cleanObj(S.cfg);
+    c.cel = n.rec;
+    saveCfg(c);
+  }
+  if (!n.ids.length && !n.up) return false;
+  const nw = T.filter((t) => n.ids.includes(t.id));
+  celebrate(nw, x1, h ? x1.total - h.x0.total : sum(nw.map(trophyXp)), h ? h.x0.L : rec0 ? rec0.lv : x1.L);
+  return true;
+}
+/** después de guardar un resultado: el festejo si ganaste algo; si no, la XP que sumaste en un aviso */
+export function announceProgress(x0: XpState) {
+  setTimeout(() => {
+    if (celebratePending() || getUi('celebrate', null)) return;
+    const g = xpState().total - x0.total;
+    if (g > 0) toast('+' + g + ' XP');
+  }, 500);
 }

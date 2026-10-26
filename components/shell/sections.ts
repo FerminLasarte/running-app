@@ -23,7 +23,7 @@ export const SECTIONS: SectionDef[] = [
   { id: 'analisis', href: '/analisis', label: 'Análisis', Icon: ChartLineUp, c: 'var(--info)', redone: true },
   { id: 'carreras', href: '/carreras', label: 'Carreras', Icon: FlagCheckered, c: 'var(--accent)', redone: true },
   { id: 'mapa', href: '/mapa', label: 'Mapa', Icon: MapTrifold, c: 'var(--t5)', redone: true, full: true },
-  { id: 'logros', href: '/logros', label: 'Logros', Icon: Medal, c: 'var(--warn)' },
+  { id: 'logros', href: '/logros', label: 'Logros', Icon: Medal, c: 'var(--warn)', redone: true },
   { id: 'ajustes', href: '/ajustes', label: 'Ajustes', Icon: SlidersHorizontal, c: 'var(--ink2)' },
 ];
 /** las de la barra (sin Ajustes) */

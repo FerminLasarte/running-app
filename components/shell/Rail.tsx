@@ -2,9 +2,10 @@
 /* Barra lateral (compu): marca, secciones con su atajo, nivel y la cuenta. En el celu, las secciones van abajo. */
 import Link from 'next/link';
 import { GearSix, User } from '@phosphor-icons/react';
-import { setUi, useApp, useS } from '@/lib/store';
+import { useApp, useS } from '@/lib/store';
 import { doneList } from '@/lib/domain/stats';
 import { xpState } from '@/lib/domain/xp';
+import { nf } from '@/lib/domain/util';
 import { Laps } from '@/components/pista/meters';
 import { NAV, type SectionDef } from './sections';
 
@@ -43,14 +44,14 @@ function Level() {
   if (!doneList().length) return null;
   const X = xpState();
   return (
-    <Link className="lvl" href="/logros" title="Ver tu personaje" onClick={() => setUi('logSub', 'pj')}>
+    <Link className="lvl" href="/logros" title="Ver tu personaje">
       <span className="lvl-top">
         <b>{X.title}</b>
         <span className="disp">{X.L}</span>
       </span>
       <Laps value={X.f} partial label={Math.round(X.f * 100) + '% al nivel ' + (X.L + 1)} />
       <small>
-        Nivel {X.L} · {X.b - X.total} XP para el {X.L + 1}
+        Nivel {X.L} · {nf(X.b - X.total)} XP para el {X.L + 1}
       </small>
     </Link>
   );
