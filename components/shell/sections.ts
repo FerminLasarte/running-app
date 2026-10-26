@@ -18,7 +18,7 @@ export interface SectionDef {
 export const SECTIONS: SectionDef[] = [
   { id: 'semana', href: '/semana', label: 'Semana', Icon: CalendarBlank, c: 'var(--t2)', redone: true },
   { id: 'registro', href: '/registro', label: 'Registro', Icon: Rows, c: 'var(--t3)', redone: true },
-  { id: 'analisis', href: '/analisis', label: 'Análisis', Icon: ChartLineUp, c: 'var(--info)' },
+  { id: 'analisis', href: '/analisis', label: 'Análisis', Icon: ChartLineUp, c: 'var(--info)', redone: true },
   { id: 'carreras', href: '/carreras', label: 'Carreras', Icon: FlagCheckered, c: 'var(--accent)' },
   { id: 'mapa', href: '/mapa', label: 'Mapa', Icon: MapTrifold, c: 'var(--t5)' },
   { id: 'logros', href: '/logros', label: 'Logros', Icon: Medal, c: 'var(--warn)' },

@@ -108,6 +108,19 @@ export function lvCandAll(win: boolean): LvCand[] {
   });
   return c;
 }
+/** tu 10K estimado sesión a sesión: el mejor de cada día, desde cada test o serie (los tempos no), de la más vieja a la
+    más nueva */
+export function lvHistory(): LvCand[] {
+  const by: Record<string, LvCand> = {};
+  lvCandAll(false)
+    .filter((c) => c.k !== 'tempo')
+    .forEach((c) => {
+      if (!by[c.date] || c.sec < by[c.date].sec) by[c.date] = c;
+    });
+  return Object.keys(by)
+    .sort()
+    .map((k) => by[k]);
+}
 /* el test manda si es posterior a tus últimas series o tempos; si no, la mejor señal */
 export function lvPace(): LvCand | null {
   const c = lvCandAll(true);

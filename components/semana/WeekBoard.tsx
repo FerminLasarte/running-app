@@ -4,13 +4,13 @@
 import { useState, type DragEvent } from 'react';
 import Link from 'next/link';
 import { Check, DotsSixVertical, MagicWand, Plus, X } from '@phosphor-icons/react';
-import type { PhaseKey, Session } from '@/lib/domain/types';
+import type { Session } from '@/lib/domain/types';
 import { TYPES } from '@/lib/domain/config';
 import { PHASES, blockPlan, blockWeekOf, longRace } from '@/lib/domain/blocks';
 import { scoreSession } from '@/lib/domain/score';
-import { planKmOf, sdate, streakInfo, weekStats } from '@/lib/domain/stats';
-import { applyMove, canMove, moveAdvice, occupiedOn, toastMoveUndo, weekSessions } from '@/lib/domain/week';
-import { WD, addDays, dateLabel, dShort, fmt, fmtPace, isoWeek, mondayOf, pad, sum, todayS, ymd } from '@/lib/domain/util';
+import { sdate, streakInfo, weekStats } from '@/lib/domain/stats';
+import { applyMove, canMove, moveAdvice, occupiedOn, toastMoveUndo, weekSessions, weekTotalKm } from '@/lib/domain/week';
+import { WD, addDays, dateLabel, dShort, fmt, fmtPace, isoWeek, mondayOf, pad, todayS, ymd } from '@/lib/domain/util';
 import { blockDemo, buzz, saveSession } from '@/lib/data/actions';
 import { openSheet } from '@/lib/sheets';
 import { sessionHref } from '@/lib/nav';
@@ -19,10 +19,7 @@ import { Button } from '@/components/pista/controls';
 import { Panel } from '@/components/pista/structure';
 import { Oval } from '@/components/pista/sport';
 import { SessionBar, briefOf, kmOf } from '@/components/pista/session';
-import { cssVars, cx, typeColor } from '@/components/pista/util';
-
-/* las fases del plan, en el color del tipo de sesión que manda en cada una */
-const PHASE_C: Record<PhaseKey, string> = { base: typeColor('fondo'), dev: typeColor('tempo'), spec: typeColor('series'), taper: typeColor('test') };
+import { PHASE_C, cssVars, cx, typeColor } from '@/components/pista/util';
 
 /* soltar una sesión en otro día: si hay algo que avisar (el día ocupado, dos fuertes seguidas…), abre la hoja de
    mover con ese día elegido; si no, la mueve directo con «Deshacer» */
@@ -139,7 +136,7 @@ export function WeekBoard({ fresh }: { fresh?: boolean }) {
     wk = weekSessions(mon),
     a = weekStats(mon),
     live = wk.filter((s) => s.result || !s.missed),
-    total = a.km + sum(wk.filter((s) => s.plan && !s.result && !s.missed).map(planKmOf)),
+    total = weekTotalKm(mon),
     maxKm = Math.max(1, ...wk.map(kmOf)),
     empty = !wk.length;
 

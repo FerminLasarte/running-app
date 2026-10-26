@@ -33,6 +33,7 @@ import { toggleTheme } from '@/lib/theme';
 import { briefOf } from '@/components/pista/session';
 import { cssVars, cx, typeColor } from '@/components/pista/util';
 import { registroHref } from '@/components/registro/filters';
+import { AN_TABS } from '@/components/analisis/period';
 import { SECTIONS } from './sections';
 import { useStravaStatus } from './useStravaStatus';
 
@@ -49,6 +50,10 @@ function Mark({ t, q }: { t: string; q: string }) {
     </>
   );
 }
+
+/* las pestañas de Análisis: se buscan por su nombre o por lo que muestran */
+const AN_ICON = SECTIONS.find((s) => s.id === 'analisis')!.Icon;
+const AN_ROWS: Row[] = AN_TABS.map((t) => ({ g: 'Análisis', key: 'an:' + t.value, t: t.label, sub: 'En Análisis', more: t.more, icon: AN_ICON, run: () => navigate(t.path) }));
 
 function PaletteBox() {
   const [q, setQ] = useState('');
@@ -92,7 +97,7 @@ function PaletteBox() {
   const list = useMemo<Row[]>(() => {
     const q0 = q.trim();
     if (!q0) return [...fixed, ...index.sessions.filter((x) => x.done).slice(0, 3).map((x) => ({ ...x, g: 'Recientes' }))];
-    const found = palSearch([...fixed, ...index.sessions, ...index.races, ...index.registro], q);
+    const found = palSearch([...fixed, ...AN_ROWS, ...index.sessions, ...index.races, ...index.registro], q);
     /* la paleta muestra pocas sesiones: al final, todas las que encuentra el Registro con lo mismo */
     const n = lgRows({ ...LG_INIT, q: q0, st: 'all' }).length;
     if (!n) return found;

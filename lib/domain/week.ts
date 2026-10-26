@@ -7,7 +7,7 @@ import { runActs, svCall, stravaErrMsg, type ListActivitiesPayload } from '@/lib
 import type { Plan, PlanStep, Race, Session, SessionType } from './types';
 import { TYPES, nextRace, racePaceSec } from './config';
 import { expand, planTotals } from './stages';
-import { planKmOf, sdate } from './stats';
+import { planKmOf, sdate, weekStats } from './stats';
 import { WD, addDays, cap, dateLabel, dayDiff, fmt, fmtDur, fmtPace, pd, sum, todayS, ymd } from './util';
 
 /* ---- carreras ---- */
@@ -29,6 +29,15 @@ export const weekSessions = (mon: Date) => {
     return d >= x && d <= y;
   });
 };
+/** km de la semana contando lo que falta: lo hecho más las planificadas sin hacer ni marcar como no hechas (la pista de
+    Semana y la barra en curso de Análisis) */
+export const weekTotalKm = (mon: Date) =>
+  weekStats(mon).km +
+  sum(
+    weekSessions(mon)
+      .filter((s) => s.plan && !s.result && !s.missed)
+      .map(planKmOf),
+  );
 /** planificadas sin resultado ni marcadas como no hechas, de días anteriores a `tS` (las «para cargar») */
 export const pendingSessions = (tS: string) =>
   S.sessions.filter((s) => s.plan && !s.result && !s.missed && sdate(s) < tS).sort((a, b) => sdate(a).localeCompare(sdate(b)));

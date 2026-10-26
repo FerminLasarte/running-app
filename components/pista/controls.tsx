@@ -48,13 +48,17 @@ export const Tag = ({ warn, children }: { warn?: boolean; children: ReactNode })
 
 export const Pr = () => <span className="p-pr" title="Marca personal">PR</span>;
 
+/** una diferencia de tiempo con su signo: «−0:41», «+1:05», «±0:00» */
+export function deltaTxt(sec: number) {
+  const s = Math.round(sec),
+    a = Math.abs(s);
+  return (s < 0 ? '−' : s > 0 ? '+' : '±') + Math.floor(a / 60) + ':' + pad(a % 60);
+}
 /** diferencia de tiempo contra el objetivo, en segundos: por defecto, menos es mejor (más rápido) */
 export function Delta({ sec, better = 'lower' }: { sec: number; better?: 'lower' | 'higher' }) {
-  const a = Math.round(Math.abs(sec)),
-    s = Math.round(sec),
+  const s = Math.round(sec),
     good = better === 'lower' ? s < 0 : s > 0;
-  const txt = (s < 0 ? '−' : s > 0 ? '+' : '±') + Math.floor(a / 60) + ':' + pad(a % 60);
-  return <span className={cx('p-delta', s === 0 ? 'eq' : good ? 'good' : 'bad')}>{txt}</span>;
+  return <span className={cx('p-delta', s === 0 ? 'eq' : good ? 'good' : 'bad')}>{deltaTxt(sec)}</span>;
 }
 
 /* ---- elección de uno entre varios: el foco sigue a la elección y se mueve con las flechas ---- */

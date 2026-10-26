@@ -1,5 +1,5 @@
 /* Estructura del rediseño «Pista» (estilos en app/styles/components/structure.css): título de marca, encabezado de
-   página, panel, fila de números, bloque estadio con los andariveles y tabla de datos. */
+   página, panel, fila de números, lista de marcas, bloque estadio con los andariveles y tabla de datos. */
 import { type CSSProperties, type ElementType, type ReactNode } from 'react';
 import Link from 'next/link';
 import { CaretDown, CaretRight, CaretUp } from '@phosphor-icons/react';
@@ -83,6 +83,45 @@ export function Kpis({ items, lg }: { items: Kpi[]; lg?: boolean }) {
         </div>
       ))}
     </div>
+  );
+}
+
+export interface MarkItem {
+  key: string;
+  label: ReactNode;
+  /** de dónde sale (la carrera y la fecha) */
+  sub?: ReactNode;
+  value: ReactNode;
+  /** con `href`, la fila lleva a la sesión */
+  href?: string;
+}
+/** lista de marcas: el nombre con su origen a la izquierda y el número grande a la derecha (tus marcas, las de un par) */
+export function MarkList({ items, label }: { items: MarkItem[]; label?: string }) {
+  return (
+    <ul className="p-marks" aria-label={label}>
+      {items.map((m) => {
+        const body = (
+          <>
+            <span>
+              {m.label}
+              {m.sub ? <small>{m.sub}</small> : null}
+            </span>
+            <span className="disp">{m.value}</span>
+          </>
+        );
+        return (
+          <li key={m.key}>
+            {m.href ? (
+              <Link className="mrow" href={m.href}>
+                {body}
+              </Link>
+            ) : (
+              <div className="mrow">{body}</div>
+            )}
+          </li>
+        );
+      })}
+    </ul>
   );
 }
 

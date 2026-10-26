@@ -225,6 +225,17 @@ piezas están en `components/pista/` y su CSS en `app/styles/components/`.
   1 a 6.
 - **Listo cuando:** cada número coincide con el de las otras pantallas (por ejemplo, la forma de Semana con la de
   Forma y carga).
+- Hecho. Decisiones al pasarlo (confirmadas por el usuario): el puntaje de preparación es el promedio de los chequeos
+  de `readyItems()` con el mismo peso (verde 100, amarillo 50, rojo 0; los grises no cuentan); «Ritmo a 145 lpm» usa tu
+  FC típica (la mediana de tus fondos y regenerativos, redondeada a 5) y el título dice el número; el período de arriba
+  (12 semanas, 26, un año o todo; arranca en 26 y va en la URL) se aplica a todos los gráficos, no a los números
+  grandes. Lo que el boceto no muestra: se van los km por mes (el período «Todo» los reemplaza; por par, en
+  Zapatillas), la cantidad de entrenamientos (está en Registro), la predicción de la próxima carrera (está en Carreras),
+  el gráfico del 10K estimado (queda el número con su cambio), los ritmos de las sesiones planificadas («Recalibrar»
+  sigue en Carreras y en ⌘K), el medidor de eficiencia y las pulsaciones ahorradas («Tu corazón» los reemplaza), el
+  filtro por tipo en la evolución del ritmo (una recta por tipo) y las series en tiempos de Daniels. Quedan adentro de
+  su panel: «Calcular con Strava» la deriva, el aviso de semana de descarga, los fondos contra su rango de FC, «hoy /
+  objetivo» en tus ritmos (en la URL: `?ritmos=objetivo`) y las explicaciones, como texto chico al pie.
 
 ### Fase 8 · Carreras
 

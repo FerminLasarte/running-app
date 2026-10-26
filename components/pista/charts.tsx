@@ -212,3 +212,22 @@ export function Key({ color, kind = 'line', children }: { color: string; kind?: 
     </span>
   );
 }
+
+/** columnas chicas (km por mes): la última en tartán si está en curso. `label` describe el conjunto para los lectores */
+export function MiniBars({ items, label, height = 72 }: { items: { key: string; label: string; v: number; cur?: boolean }[]; label: string; height?: number }) {
+  const max = Math.max(0, ...items.map((i) => i.v)) || 1;
+  return (
+    <div className="p-mbars" role="img" aria-label={label} style={cssVars({ '--n': items.length, '--h': height + 'px' })}>
+      <div className="b" aria-hidden="true">
+        {items.map((it, j) => (
+          <i key={it.key} className={it.cur ? 'cur' : undefined} style={cssVars({ height: (it.v / max) * 100 + '%', '--j': j })} />
+        ))}
+      </div>
+      <div className="l" aria-hidden="true">
+        {items.map((it) => (
+          <span key={it.key}>{it.label}</span>
+        ))}
+      </div>
+    </div>
+  );
+}
