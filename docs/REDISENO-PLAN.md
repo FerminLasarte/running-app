@@ -301,6 +301,17 @@ piezas están en `components/pista/` y su CSS en `app/styles/components/`.
 - Índice fijo, filas de ajuste, zonas de FC arrastrables, carreras, zapatillas, conexiones, tema, cuenta y respaldo.
   Cada cambio se guarda solo (como hoy en `SettingsView`).
 - **Listo cuando:** todo lo que se puede ajustar hoy se puede ajustar en la nueva, sin perder validaciones.
+- Hecho. Decisiones al pasarlo (confirmadas por el usuario): «Editar» abre los campos de la carrera o del par en la
+  misma fila y se guardan solos; «Agregar» (también desde Carreras y ⌘K) crea y abre la nueva con el nombre listo. Las
+  zonas son una barra con cuatro cortes pegados: mover un corte (arrastrando, con las flechas o escribiendo dónde arranca
+  cada zona) las pasa a mano, «Recalcular zonas» vuelve a las del %, la Z1 arranca en un número que se escribe y la Z5
+  llega a la FC máxima (si cambia la FC máxima, la Z5 la sigue); las zonas a mano con huecos se acomodan pegadas al
+  primer cambio. Lo que el boceto mostraba sin datos sale de lo que hay: en las zapatillas, «Desde» y «Retiradas» son la
+  primera y la última salida, y «Carreras», usarlas solo en tests; en Strava no va la fecha de conexión y
+  «Sincronizar» trae los recorridos nuevos al mapa, con la última vez. Lo que no mostraba: el nombre (va en la barra
+  lateral y en la ficha de Logros), las carreras ordenadas como en el boceto (las que vienen y después las que fueron)
+  y, para la que ya fue, «Tu tiempo» en vez del objetivo y el inicio del plan. Los paneles de importar y de copiar el
+  respaldo tienen el contenido nuevo.
 
 ### Fase 12 · Cierre
 

@@ -24,7 +24,7 @@ export const SECTIONS: SectionDef[] = [
   { id: 'carreras', href: '/carreras', label: 'Carreras', Icon: FlagCheckered, c: 'var(--accent)', redone: true },
   { id: 'mapa', href: '/mapa', label: 'Mapa', Icon: MapTrifold, c: 'var(--t5)', redone: true, full: true },
   { id: 'logros', href: '/logros', label: 'Logros', Icon: Medal, c: 'var(--warn)', redone: true },
-  { id: 'ajustes', href: '/ajustes', label: 'Ajustes', Icon: SlidersHorizontal, c: 'var(--ink2)' },
+  { id: 'ajustes', href: '/ajustes', label: 'Ajustes', Icon: SlidersHorizontal, c: 'var(--ink2)', redone: true },
 ];
 /** las de la barra (sin Ajustes) */
 export const NAV = SECTIONS.slice(0, 6);
