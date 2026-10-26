@@ -1,143 +1,53 @@
 'use client';
-/* Estructura de la app: barra lateral (compu), barra de pestañas flotante (celu), encabezado, vista, hojas y avisos.
-   Reemplaza al render() del original: React redibuja; acá quedan los efectos que el original hacía después. */
-import { useEffect, useLayoutEffect, useMemo, useRef, useState, type CSSProperties, type ComponentType } from 'react';
+/* Estructura de la app: barra lateral (abajo en el celu), barra de arriba, la página, hojas y avisos.
+   La app depende de la fecha de hoy, del tema y de los datos guardados en el navegador: se dibuja solo ahí
+   (use(browser())); el servidor manda el esqueleto del layout. Mientras una pantalla no se rehace, adentro va la
+   vieja con su encabezado. */
+import { use, useEffect, useLayoutEffect, useMemo, useRef, useState, type CSSProperties, type ReactNode } from 'react';
+import { browser } from 'react-dom';
+import { usePathname, useRouter } from 'next/navigation';
 import { useShallow } from 'zustand/react/shallow';
-import { S, setS, useApp, useS, TAB_ORDER, type Tab } from '@/lib/store';
-import { requestClose } from '@/lib/sheets';
+import { S, setS, useApp } from '@/lib/store';
 import { setNotifier, boot } from '@/lib/data/sync';
 import { draftRestore } from '@/lib/data/draft';
-import { buzz, goChar, goRace, goTab, toast, weekGo } from '@/lib/data/actions';
-import { nextRace } from '@/lib/domain/config';
-import { doneList } from '@/lib/domain/stats';
-import { xpState } from '@/lib/domain/xp';
-import { daysTo, todayS } from '@/lib/domain/util';
-import WeekView from '@/components/views/WeekView';
-import { preloadable } from '@/components/ui/preloadable';
+import { buzz, toast, weekGo } from '@/lib/data/actions';
+import { runPending, setRouter } from '@/lib/nav';
+import { todayS } from '@/lib/domain/util';
 import { preloadSheets } from '@/components/sheets/registry';
-import { Banners, Header, SettingsButton, TAB_C } from './Header';
+import CelebrateHost from '@/components/logros/CelebrateHost';
+import { Banners, Header } from './Header';
 import { SheetHost } from './SheetHost';
 import { Toast } from './Toast';
-import CelebrateHost from '@/components/logros/CelebrateHost';
-import { TABS, TITLES } from './tabs';
+import { Rail } from './Rail';
+import { TopBar } from './TopBar';
+import { sectionOf } from './sections';
+import { useShortcuts } from './useShortcuts';
 
-/* Semana viene con la app; las demás pestañas viajan cada una en su archivo y se bajan solas al rato de arrancar */
-const skel = (
+const Skel = () => (
   <>
     <div className="skel" />
     <div className="skel" />
   </>
 );
-const LAZY = {
-  sum: preloadable(() => import('@/components/views/SummaryView'), skel),
-  log: preloadable(() => import('@/components/views/LogView'), skel),
-  lv: preloadable(() => import('@/components/views/RaceView'), skel),
-  map: preloadable(() => import('@/components/views/MapView'), skel),
-  top: preloadable(() => import('@/components/views/LogrosView'), skel),
-  set: preloadable(() => import('@/components/views/SettingsView'), skel),
-};
-const VIEWS: Record<Tab, ComponentType> = { week: WeekView, ...LAZY };
-/* en un rato libre: el resto de las pestañas y las hojas (así también quedan guardadas para abrir sin señal) */
-const preloadAll = () => Promise.all([...Object.values(LAZY).map((c) => c.preload()), preloadSheets()]).catch(() => {});
 
-const LOGO = (
-  <svg className="ic" viewBox="0 0 24 24" aria-hidden="true">
-    <circle className="b" cx="12" cy="13.5" r="8.5" />
-    <rect className="f" x="9.8" y="1.6" width="4.4" height="3.2" rx="1.4" />
-    <path className="f" d="M12 5a8.5 8.5 0 0 1 0 17z" />
-    <circle className="h" cx="12" cy="13.5" r="2.6" />
-  </svg>
-);
-
-/* tu foto, si la cargaste en Ajustes, reemplaza al logo de la app */
-function Logo() {
-  const av = useApp((s) => s.cfg.avatar);
-  return (
-    <span className={'mk-logo' + (av ? ' has-av' : '')}>
-      {av ? (
-        // eslint-disable-next-line @next/next/no-img-element
-        <img className="av-img" src={av} alt="Tu foto" />
-      ) : (
-        LOGO
-      )}
-    </span>
-  );
-}
-
-function TabButtons() {
-  const tab = useApp((s) => s.tab);
-  return (
-    <>
-      {TABS.map((t) => (
-        <button key={t.v} className="tab" data-a="tab" data-v={t.v} aria-current={tab === t.v ? 'page' : undefined} onClick={() => goTab(t.v)}>
-          <t.Icon className="ic ph" weight={tab === t.v ? 'fill' : 'regular'} aria-hidden="true" />
-          {t.label}
-        </button>
-      ))}
-    </>
-  );
-}
-
-function SideFoot() {
-  const S = useS();
-  if (!S.loaded) return null;
-  const hasRuns = doneList().length > 0,
-    X = hasRuns ? xpState() : null,
-    r = nextRace();
-  return (
-    <>
-      {X ? (
-        <button className="sf-lv" onClick={goChar}>
-          <span className="sf-n">{X.L}</span>
-          <span className="sf-t">
-            <b>{X.title}</b>
-            <small>
-              Nivel {X.L} · {Math.round(X.f * 100)}% al siguiente
-            </small>
-            <i>
-              <em style={{ width: Math.round(X.f * 100) + '%' }} />
-            </i>
-          </span>
-        </button>
-      ) : null}
-      {r ? (
-        <button className="sf-race" onClick={() => goRace('race')}>
-          <span>{r.name}</span>
-          <b>{daysTo(r.date) === 0 ? 'Hoy' : daysTo(r.date) + ' días'}</b>
-        </button>
-      ) : null}
-    </>
-  );
-}
-
-/* celu: el título grande se va con la página; al bajar queda esta barra fina con el título chico, como en iOS */
-function NavBar() {
-  const tab = useApp((s) => s.tab);
-  return (
-    <div id="nbar">
-      <b>{TITLES[tab]}</b>
-      <SettingsButton />
-    </div>
-  );
-}
-
-export default function AppShell() {
-  /* el shell solo depende de la pantalla en la que estás: cada vista y cada pieza se suscriben a lo suyo */
-  const S0 = useApp(useShallow((s) => ({ tab: s.tab, logSub: s.ui.logSub, cSub: s.ui.cSub, sumSub: s.sumSub, loaded: s.loaded, demo: s.demo })));
+export default function AppShell({ children }: { children: ReactNode }) {
+  use(browser('La app depende de la fecha, el tema y los datos guardados en este navegador.'));
+  const router = useRouter();
+  const pathname = usePathname();
+  const section = sectionOf(pathname);
+  const S0 = useApp(useShallow((s) => ({ logSub: s.ui.logSub, cSub: s.ui.cSub, sumSub: s.sumSub, loaded: s.loaded, demo: s.demo })));
   const [, setTick] = useState(0);
   const viewRef = useRef<HTMLElement>(null);
-  /* «play»: animaciones de entrada solo al entrar a una pantalla (pestaña o subpestaña nueva) */
-  const screenKey = S0.tab + '|' + String(S0.logSub ?? '') + '|' + String(S0.cSub ?? '') + '|' + S0.sumSub;
-  const [play, setPlay] = useState(false);
-  const lastKey = useRef<string | null>(null);
+  useShortcuts();
 
-  /* arranque: datos y atajos */
+  /* arranque: datos y avisos */
   useEffect(() => {
     setNotifier(toast);
     boot();
     /* que la app instalada abra sin señal (public/sw.js); en desarrollo no, para no pelear con la recarga en vivo */
     if (process.env.NODE_ENV === 'production' && 'serviceWorker' in navigator) navigator.serviceWorker.register('/sw.js').catch(() => {});
-    const pre = setTimeout(preloadAll, 1200);
+    /* las hojas, en un rato libre (así también quedan guardadas para abrir sin señal) */
+    const pre = setTimeout(() => preloadSheets().catch(() => {}), 1200);
     /* si la app queda abierta y pasa la medianoche, «hoy» cambia en todas las vistas (el saludo tiene su propio reloj) */
     let day = todayS();
     const iv = setInterval(() => {
@@ -145,59 +55,13 @@ export default function AppShell() {
       day = todayS();
       setTick((t) => t + 1);
     }, 60000);
-    const onScroll = () => {
-      /* primero las medidas, después las clases: así no se recalcula el layout dos veces */
-      const h = document.querySelector('#hdr h1'),
-        nb = document.getElementById('nbar');
-      const mini = !!(h && nb && nb.offsetHeight && h.getBoundingClientRect().bottom < nb.getBoundingClientRect().bottom);
-      document.body.classList.toggle('scrolled', window.scrollY > 24);
-      document.body.classList.toggle('hd-mini', mini);
-    };
-    window.addEventListener('scroll', onScroll, { passive: true });
-    onScroll();
-    const esc = (e: KeyboardEvent) => {
-      if (e.key !== 'Escape') return;
-      const st = S;
-      const map = st.ui.map as { fs?: boolean } | undefined;
-      if (map && map.fs && st.tab === 'map' && !st.sheet) {
-        setS({ ui: { ...st.ui, map: { ...map, fs: false } } });
-        return;
-      }
-      if (st.ui.celebrate) {
-        setS({ ui: { ...st.ui, celebrate: null } });
-        return;
-      }
-      if (st.ui.sheetConfirm) {
-        setS({ ui: { ...st.ui, sheetConfirm: false } });
-        return;
-      }
-      if (st.sheet) requestClose();
-    };
-    /* atajos en la compu: 1 a 7 cambian de pestaña, ← → cambian de semana («/» busca en Registro: está en LogView) */
-    const keys = (e: KeyboardEvent) => {
-      const map = S.ui.map as { fs?: boolean } | undefined;
-      if (e.ctrlKey || e.metaKey || e.altKey || S.sheet || (map && map.fs)) return;
-      const tg = e.target as HTMLElement | null,
-        typing = tg && (tg.isContentEditable || /^(INPUT|TEXTAREA|SELECT)$/.test(tg.tagName));
-      if (typing) return;
-      if (/^[1-7]$/.test(e.key)) {
-        e.preventDefault();
-        goTab(TAB_ORDER[+e.key - 1]);
-        return;
-      }
-      if (S.tab === 'week' && (e.key === 'ArrowLeft' || e.key === 'ArrowRight')) {
-        e.preventDefault();
-        weekGo(e.key === 'ArrowLeft' ? -1 : 1);
-        return;
-      }
-    };
     /* deslizar de costado sobre la semana cambia de semana (celular) */
     let x0: number | null = null,
       y0 = 0,
       t0 = 0;
     const ts = (e: TouchEvent) => {
       const w = (e.target as Element).closest?.('#wk-card,.cal');
-      if (!w || S.tab !== 'week' || e.touches.length > 1) {
+      if (!w || e.touches.length > 1) {
         x0 = null;
         return;
       }
@@ -216,22 +80,30 @@ export default function AppShell() {
         buzz(6);
       }
     };
-    document.addEventListener('keydown', esc);
-    document.addEventListener('keydown', keys);
     document.addEventListener('touchstart', ts, { passive: true });
     document.addEventListener('touchend', te, { passive: true });
     return () => {
       clearTimeout(pre);
       clearInterval(iv);
-      window.removeEventListener('scroll', onScroll);
-      document.removeEventListener('keydown', esc);
-      document.removeEventListener('keydown', keys);
       document.removeEventListener('touchstart', ts);
       document.removeEventListener('touchend', te);
     };
   }, []);
 
-  /* pantalla nueva: animaciones de entrada (tarjetas que suben en cascada, gráficos que se dibujan) */
+  /* las acciones navegan con el router de Next */
+  useEffect(() => setRouter(router.push), [router]);
+
+  /* página nueva: lo que una acción pidió hacer al llegar (bajar a una parte); fuera de Semana, la semana vuelve a
+     la actual, como antes al cambiar de pestaña */
+  useEffect(() => {
+    runPending();
+    if (pathname !== '/semana' && S.weekOff) setS({ weekOff: 0 });
+  }, [pathname]);
+
+  /* «play»: animaciones de entrada solo al entrar a una pantalla (página o subpestaña nueva) */
+  const screenKey = pathname + '|' + String(S0.logSub ?? '') + '|' + String(S0.cSub ?? '') + '|' + S0.sumSub;
+  const [play, setPlay] = useState(false);
+  const lastKey = useRef<string | null>(null);
   useLayoutEffect(() => {
     if (!S0.loaded) return;
     if (lastKey.current === screenKey) return;
@@ -255,53 +127,27 @@ export default function AppShell() {
     draftRestore();
   }, [S0.loaded, S0.demo]);
 
-  const View = VIEWS[S0.tab];
   /* las piezas se suscriben solas: cuando el shell se redibuja (por ejemplo, para prender o apagar la animación de
      entrada) reuso los mismos elementos y React no las vuelve a dibujar */
   const parts = useMemo(
-    () => ({ logo: <Logo />, tabs: <TabButtons />, foot: <SideFoot />, header: <Header />, banners: <Banners />, nav: <NavBar />, sheet: <SheetHost />, toast: <Toast />, cel: <CelebrateHost /> }),
-    [],
+    () => ({ rail: <Rail section={section} />, top: <TopBar section={section} pathname={pathname} />, banners: <Banners />, layers: [<SheetHost key="s" />, <Toast key="t" />, <CelebrateHost key="c" />] }),
+    [section, pathname],
   );
-  const viewEl = useMemo(() => (S0.loaded ? <View /> : skel), [S0.loaded, View]);
-  /* en la barra de abajo no va Ajustes (está arriba, en el engranaje) */
-  const vis = TABS.filter((t) => t.v !== 'set').length;
+  const header = useMemo(() => (section && S0.loaded ? <Header section={section} /> : null), [section, S0.loaded]);
   return (
-    <>
-      <aside className="side" aria-label="Navegación principal">
-        <div className="brand">
-          {parts.logo}
-          <div>
-            <b>My Running App</b>
-            <span>Registro y progreso</span>
-          </div>
+    <div className="app">
+      {parts.rail}
+      <div className="main">
+        {parts.top}
+        <div className="page">
+          {section ? <header id="hdr">{header}</header> : null}
+          <div id="bnr">{parts.banners}</div>
+          <main id="view" ref={viewRef} className={play ? 'play' : ''} style={{ '--sc': section?.c || 'var(--accent)' } as CSSProperties}>
+            {S0.loaded ? children : <Skel />}
+          </main>
         </div>
-        <nav className="sidenav">
-          {parts.tabs}
-        </nav>
-        <div className="side-foot">
-          {parts.foot}
-        </div>
-      </aside>
-      <div id="app">
-        <header id="hdr" className={play ? 'ph-in' : ''}>
-          {parts.header}
-        </header>
-        <div id="bnr">
-          {parts.banners}
-        </div>
-        <main id="view" ref={viewRef} className={play ? 'play' : ''} style={{ '--sc': TAB_C[S0.tab] || 'var(--accent)' } as CSSProperties}>
-          {viewEl}
-        </main>
       </div>
-      {parts.nav}
-      <nav className="tabs" aria-label="Secciones">
-        <div className="tabs-in" style={{ '--tn': vis } as CSSProperties}>
-          {parts.tabs}
-        </div>
-      </nav>
-      {parts.sheet}
-      {parts.toast}
-      {parts.cel}
-    </>
+      {parts.layers}
+    </div>
   );
 }

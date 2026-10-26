@@ -7,7 +7,7 @@ import { bandOf, scoreSession } from '@/lib/domain/score';
 import { planSummary, resSummary, sdate } from '@/lib/domain/stats';
 import { todayS } from '@/lib/domain/util';
 import { canMove } from '@/lib/domain/week';
-import { openSheet } from '@/lib/sheets';
+import { goSession } from '@/lib/nav';
 
 export function SessChip({
   s,
@@ -46,7 +46,7 @@ export function SessChip({
       data-id={s.id}
       draggable={mv || undefined}
       title={mv ? 'Arrastrala a otro día para moverla' : undefined}
-      onClick={() => openSheet('detail', { id: s.id })}
+      onClick={() => goSession(s.id)}
       onDragStart={mv ? onDragStart : undefined}
       onDragEnd={mv ? onDragEnd : undefined}
     >

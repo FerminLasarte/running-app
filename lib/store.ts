@@ -8,9 +8,6 @@ import { create } from 'zustand';
 import type { Cfg, Route, Session } from './domain/types';
 import { defaultCfg } from './domain/defaults';
 
-export type Tab = 'week' | 'sum' | 'log' | 'lv' | 'map' | 'top' | 'set';
-export const TAB_ORDER: Tab[] = ['week', 'sum', 'log', 'lv', 'map', 'top', 'set'];
-
 export interface SheetDesc {
   /** clave del registro de hojas (components/sheets/registry.tsx) */
   kind: string;
@@ -45,9 +42,7 @@ export interface AppState {
   demo: boolean;
   realSessions: Session[] | null;
   realCfg: Cfg | null;
-  /* navegación y preferencias de vista */
-  tab: Tab;
-  lastTab: Tab | null;
+  /* preferencias de vista (la página en la que estás la dice la URL) */
   weekOff: number;
   topType: string;
   topSort: string;
@@ -84,8 +79,6 @@ export const useApp = create<AppState>()(() => ({
   demo: false,
   realSessions: null,
   realCfg: null,
-  tab: 'week',
-  lastTab: null,
   weekOff: 0,
   topType: 'all',
   topSort: 'score',

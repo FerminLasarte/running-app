@@ -1,7 +1,7 @@
 'use client';
 /* Mejores marcas: tiempos de carreras y tests, más récords de volumen. */
-import { openSheet } from '@/lib/sheets';
 import { bestMarks } from '@/lib/domain/marks';
+import { goSession } from '@/lib/nav';
 
 export default function MarksCard() {
   const M = bestMarks();
@@ -19,8 +19,9 @@ export default function MarksCard() {
               <small>{m.x}</small>
             </>
           );
-          return m.id ? (
-            <button key={m.n} className="pr-it" data-a="detail" data-id={m.id} onClick={() => openSheet('detail', { id: m.id })}>
+          const id = m.id;
+          return id ? (
+            <button key={m.n} className="pr-it" data-a="detail" data-id={id} onClick={() => goSession(id)}>
               {inner}
             </button>
           ) : (

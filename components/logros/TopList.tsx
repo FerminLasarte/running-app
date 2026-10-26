@@ -2,7 +2,6 @@
 /* Ranking: mejores marcas y todas las sesiones hechas ordenadas por el criterio que elijas (viewTop del original). */
 import { useEffect } from 'react';
 import { setS, useS } from '@/lib/store';
-import { openSheet } from '@/lib/sheets';
 import { demoOn } from '@/lib/data/actions';
 import { TYPES, TYPE_KEYS } from '@/lib/domain/config';
 import { SORTS } from '@/lib/domain/marks';
@@ -10,6 +9,7 @@ import { bandOf, scoreSession } from '@/lib/domain/score';
 import { resSummary, type DoneSession } from '@/lib/domain/stats';
 import { dateLabel } from '@/lib/domain/util';
 import MarksCard from './MarksCard';
+import { goSession } from '@/lib/nav';
 
 export default function TopList() {
   const S = useS();
@@ -79,7 +79,7 @@ export default function TopList() {
               T = TYPES[s.type];
             const pill = sc && sc.score != null ? <span className={'pill b-' + bandOf(sc.score).k}>{sc.score}</span> : <span className="tag">Sin puntaje</span>;
             return (
-              <button key={s.id} className="item" data-a="detail" data-id={s.id} onClick={() => openSheet('detail', { id: s.id })}>
+              <button key={s.id} className="item" data-a="detail" data-id={s.id} onClick={() => goSession(s.id)}>
                 <span className="rank">{i + 1}</span>
                 <span className="im">
                   <b>

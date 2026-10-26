@@ -21,6 +21,7 @@ import { PendCard } from '@/components/week/PendCard';
 import { SessChip } from '@/components/week/SessChip';
 import { WeekReview } from '@/components/week/WeekReview';
 import { WeekStrip } from '@/components/week/WeekStrip';
+import { goSession } from '@/lib/nav';
 
 function easyOff() {
   if (blockDemo()) return;
@@ -71,7 +72,7 @@ function NextCard({ nxt, easyOn }: { nxt: Session; easyOn: boolean }) {
       <RecalNote p={p} />
       <MovedNote p={p} />
       <div className="nx-acts">
-        <button className="btn sm" data-a="detail" data-id={nxt.id} onClick={() => openSheet('detail', { id: nxt.id })}>
+        <button className="btn sm" data-a="detail" data-id={nxt.id} onClick={() => goSession(nxt.id)}>
           Ver detalle
         </button>
         <button className="btn sm" data-a="mv-open" data-id={nxt.id} onClick={() => openSheet('move', { id: nxt.id })}>

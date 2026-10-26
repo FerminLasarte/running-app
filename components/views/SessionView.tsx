@@ -1,15 +1,16 @@
 'use client';
-/* Detalle de una sesión (openDetail): ficha, puntaje, plan vs. real, repeticiones y parciales de Strava. */
+/* Detalle de una sesión (/sesion/[id]): ficha, puntaje, plan vs. real, repeticiones y parciales de Strava.
+   Por ahora es el contenido de la hoja vieja como página; se rehace en la fase 5 del rediseño. */
 import { useState } from 'react';
+import { useParams, useRouter } from 'next/navigation';
 import { useApp } from '@/lib/store';
 import { openSheet } from '@/lib/sheets';
 import type { Session } from '@/lib/domain/types';
 import { TYPES, zoneOf } from '@/lib/domain/config';
 import { planSummary, sdate } from '@/lib/domain/stats';
-import { dateLabel, fmt, fmtDur, fmtPace } from '@/lib/domain/util';
+import { cap, dateLabel, fmt, fmtDur, fmtPace } from '@/lib/domain/util';
 import { canMove } from '@/lib/domain/week';
-import { SheetFrame } from './SheetFrame';
-import { DelConfirm } from './DelConfirm';
+import { DelConfirm } from '@/components/sheets/DelConfirm';
 import { FactHero } from '@/components/detail/FactHero';
 import { ScoreMini } from '@/components/detail/ScoreMini';
 import { StageBars } from '@/components/detail/StageBars';
@@ -165,20 +166,32 @@ function Body({ s }: { s: Session }) {
   );
 }
 
-export default function DetailSheet({ id }: { id: string }) {
+export default function SessionView() {
+  const { id } = useParams<{ id: string }>();
+  const router = useRouter();
   const live = useApp((st) => st.sessions.find((x) => x.id === id));
-  // al borrarla, la hoja se sigue viendo con la última versión mientras se cierra
+  // al borrarla, se sigue viendo la última versión mientras se vuelve atrás
   const [last, setLast] = useState(live);
   if (live && live !== last) setLast(live);
   const s = live || last;
   const [askDel, setAskDel] = useState(false);
-  if (!s) return <SheetFrame title="Detalle">{null}</SheetFrame>;
+  if (!s)
+    return (
+      <div className="topbar">
+        <div className="hd-tx">
+          <h1>Sesión</h1>
+          <p className="hd-sub">Esta sesión no existe o ya la borraste.</p>
+        </div>
+      </div>
+    );
   const p = s.plan,
     r = s.result;
+  /* borrada: a la página de la que viniste (o a la semana, si entraste por un link) */
+  const leave = () => (window.history.length > 1 ? router.back() : router.replace('/semana'));
 
   /* una acción principal si falta cargar; el resto en una fila chica y eliminar como ícono */
   const foot = askDel ? (
-    <DelConfirm id={s.id} />
+    <DelConfirm id={s.id} onDone={leave} onCancel={() => setAskDel(false)} />
   ) : (
     <>
       {!r && !s.missed ? (
@@ -212,8 +225,15 @@ export default function DetailSheet({ id }: { id: string }) {
   );
 
   return (
-    <SheetFrame title={TYPES[s.type].label + ' · ' + dateLabel(sdate(s))} foot={foot}>
+    <>
+      <div className="topbar">
+        <div className="hd-tx">
+          <span className="eyebrow">{cap(dateLabel(sdate(s)))}</span>
+          <h1>{TYPES[s.type].label}</h1>
+        </div>
+      </div>
       <Body s={s} />
-    </SheetFrame>
+      <div className="sfoot ses-foot">{foot}</div>
+    </>
   );
 }

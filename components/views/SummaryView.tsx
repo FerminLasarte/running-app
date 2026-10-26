@@ -31,8 +31,7 @@ const SUBS: [Sub, string][] = [
 ];
 
 function goSub(v: Sub) {
-  /* lastTab: null vuelve a reproducir las animaciones de entrada */
-  setS({ sumSub: v, lastTab: null });
+  setS({ sumSub: v });
   try {
     localStorage.setItem('rr_sumsub', v);
   } catch {

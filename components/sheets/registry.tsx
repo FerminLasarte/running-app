@@ -13,7 +13,6 @@ export const SHEETS = {
   recal: preloadable(() => import('./RecalSheet'), wait),
   plan: preloadable(() => import('./PlanSheet'), wait),
   result: preloadable(() => import('./ResultSheet'), wait),
-  detail: preloadable(() => import('./DetailSheet'), wait),
   score: preloadable(() => import('./ScoreSheet'), wait),
   import: preloadable(() => import('./ImportSheet'), wait),
   exportCopy: preloadable(() => import('./ExportCopySheet'), wait),

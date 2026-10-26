@@ -149,7 +149,13 @@ Cada fase deja la app funcionando. Hasta que una pantalla se rehace, se ve la vi
 
 ### Fase 2 · Piezas del sistema
 
-Componentes reutilizables, cada uno con su CSS, sacados de los bocetos:
+Componentes reutilizables, cada uno con su CSS, sacados de los bocetos.
+
+Ojo con los nombres: `globals.css` va sin capa y le gana a todo lo que esté en `@layer`, aunque tenga menos
+especificidad. Mientras exista, una clase nueva no puede llamarse como una vieja (`.btn`, `.chip`, `.seg`, `.field`,
+`.kpi`, `.card`, `.dot`…): la vieja pisaría cada propiedad que declara. El shell ya lo resolvió con nombres propios
+(`.tb-btn`, `.pulse`). Hay que elegir una convención para las piezas (por ejemplo, un prefijo) o borrar la regla vieja
+cuando su última pantalla se rehace.
 
 - **Formulario y controles:** botón, chip de tipo, etiqueta, Δ contra el objetivo, PR, campos (texto, número con
   unidad, h:m:s, calculado, error), selector segmentado, interruptor, stepper, pestañas.
@@ -176,7 +182,8 @@ Y la página del sistema de diseño (la del boceto) solo en desarrollo, para rev
 
 - `PanelHost`; panel de carga con Strava, validación en el momento y `⌘↵`; panel de planificar con el editor de
   tramos y los avisos de `moveAdvice`; planificar la semana; los paneles chicos de la tabla de arriba.
-- Paleta ⌘K con su índice.
+- Paleta ⌘K con su índice, y el botón de búsqueda de la barra de arriba (en la fase 1 no se puso para no dejar un
+  botón que no hace nada).
 - **Listo cuando:** se registra y se planifica de punta a punta sin mouse, el borrador se recupera como hoy
   (`lib/data/draft.ts`) y en celular el panel ocupa toda la pantalla.
 

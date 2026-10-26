@@ -4,7 +4,7 @@ import { TYPES, TYPE_KEYS } from '@/lib/domain/config';
 import { mapCells, routeSess, type MapUi } from '@/lib/domain/geo';
 import type { Route, SessionType } from '@/lib/domain/types';
 import { cap, dateLabel, fmt, fmtDur, fmtPace } from '@/lib/domain/util';
-import { openSheet } from '@/lib/sheets';
+import { goSession } from '@/lib/nav';
 
 export function MapInfo({ M, routes, L, locked, onUnsel }: { M: MapUi; routes: Route[]; L: Route[]; locked: boolean; onUnsel: () => void }) {
   if (!routes.length)
@@ -46,7 +46,7 @@ export function MapInfo({ M, routes, L, locked, onUnsel }: { M: MapUi; routes: R
         </div>
         <div className="mp-ca">
           {s ? (
-            <button className="btn sm" data-a="detail" data-id={s.id} onClick={() => openSheet('detail', { id: s.id })}>
+            <button className="btn sm" data-a="detail" data-id={s.id} onClick={() => goSession(s.id)}>
               Ver sesión
             </button>
           ) : null}

@@ -1,7 +1,7 @@
 'use client';
 /* Pestaña Carrera: Día de carrera, Plan por bloques y Test de nivel (viewTest, líneas 3281–3287 del original). */
 import type { ReactNode } from 'react';
-import { setS, setUi, useApp, useS } from '@/lib/store';
+import { setUi, useApp, useS } from '@/lib/store';
 import { goRaces } from '@/lib/data/actions';
 import { nextRace } from '@/lib/domain/config';
 import { blockPlan, longRace } from '@/lib/domain/blocks';
@@ -14,7 +14,6 @@ import { SubTabs } from '@/components/ui/SubTabs';
 
 const csub = (v: string) => {
   setUi('cSub', v);
-  setS({ lastTab: null });
 };
 
 export default function RaceView() {

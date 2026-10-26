@@ -1,7 +1,8 @@
 /* Acciones que cambian datos o navegan. Las vistas y hojas usan esto en vez de tocar el estado a mano. */
-import { S, setS, setUi, TAB_ORDER, type Tab } from '@/lib/store';
+import { S, setS, setUi } from '@/lib/store';
 import { closeSheet } from '@/lib/sheets';
 import { reduceMotion } from '@/lib/motion';
+import { afterPaint, navigate } from '@/lib/nav';
 import type { Cfg, Route, Session } from '@/lib/domain/types';
 import { demoSessions } from './demo';
 import { persistLocal, retryFailed, writeCfg, writeDelete, writeRoutes, writeSession, writeSessions } from './sync';
@@ -83,12 +84,12 @@ export function saveRoutes(fresh: Route[]) {
   persistLocal();
   writeRoutes(fresh);
 }
-export { retryFailed, reduceMotion };
+export { retryFailed, reduceMotion, afterPaint };
 
 /* ---- modo ejemplo ---- */
 export function demoOn() {
-  setS({ realSessions: S.sessions, realCfg: S.cfg, demo: true, sessions: demoSessions(), tab: 'week', weekOff: 0, paceType: null });
-  jumpTo(0);
+  setS({ realSessions: S.sessions, realCfg: S.cfg, demo: true, sessions: demoSessions(), weekOff: 0, paceType: null });
+  navigate('/semana', () => jumpTo(0));
 }
 export function demoOff() {
   setS({ demo: false, sessions: S.realSessions || [], cfg: S.realCfg || S.cfg, realSessions: null, realCfg: null, paceType: null });
@@ -102,28 +103,6 @@ export const jumpTo = (y: number) => {
     window.scrollTo(0, y);
   }
 };
-/** después de que React dibuje la vista nueva */
-export const afterPaint = (fn: () => void) => requestAnimationFrame(() => requestAnimationFrame(fn));
-const scr: Partial<Record<Tab, number>> = {};
-
-/* cada pestaña recuerda hasta dónde bajaste; tocar la pestaña en la que estás te sube arriba */
-export function goTab(nv: Tab) {
-  if (nv === S.tab) {
-    window.scrollTo({ top: 0, behavior: reduceMotion() ? 'auto' : 'smooth' });
-    return;
-  }
-  scr[S.tab] = window.scrollY;
-  const dir = Math.sign(TAB_ORDER.indexOf(nv) - TAB_ORDER.indexOf(S.tab)) || 1;
-  document.documentElement.style.setProperty('--vtd', String(dir));
-  setS({ tab: nv, weekOff: 0 });
-  afterPaint(() => jumpTo(scr[nv] || 0));
-}
-/** ir a otra pestaña dejando la posición actual guardada y arrancando arriba (o donde diga `then`) */
-function goTo(tab: Tab, patch: Partial<Parameters<typeof setS>[0]> = {}, then?: () => void) {
-  scr[S.tab] = window.scrollY;
-  setS({ tab, ...patch });
-  afterPaint(() => (then ? then() : jumpTo(0)));
-}
 export function weekGo(d: number) {
   const dir = d === 0 ? (S.weekOff > 0 ? -1 : 1) : d;
   setS({ weekOff: d === 0 ? 0 : S.weekOff + d });
@@ -137,28 +116,28 @@ export function weekGo(d: number) {
     });
   });
 }
-/** Carrera → sub-pestaña (`race`, `plan` o `lv`). Desde la medalla o una hoja, baja hasta el plan del día. */
+/** Carreras → sub-pestaña (`race`, `plan` o `lv`). Desde la medalla o una hoja, baja hasta el plan del día. */
 export function goRace(v = 'race', scrollToPlan = false) {
   const fromSheet = !!S.sheet;
   if (fromSheet) closeSheet();
   setUi('cSub', v);
-  goTo('lv', {}, () => {
+  navigate('/carreras', () => {
     const c = document.querySelector('.rc-sec');
     jumpTo(c && v === 'race' && (scrollToPlan || fromSheet) ? c.getBoundingClientRect().top + window.scrollY - 90 : 0);
   });
 }
 export function goForm() {
   setS({ sumSub: 'forma' });
-  goTo('sum');
+  navigate('/analisis', () => jumpTo(0));
 }
 export function goChar() {
   setUi('logSub', 'pj');
-  goTo('top');
+  navigate('/logros', () => jumpTo(0));
 }
 export function goRaces() {
   closeSheet();
-  goTo('set', {}, () => document.getElementById('st-races')?.scrollIntoView({ block: 'start' }));
+  navigate('/ajustes', () => document.getElementById('st-races')?.scrollIntoView({ block: 'start' }));
 }
 export function goShoes() {
-  goTo('set', {}, () => document.getElementById('st-shoes')?.scrollIntoView({ block: 'start' }));
+  navigate('/ajustes', () => document.getElementById('st-shoes')?.scrollIntoView({ block: 'start' }));
 }
