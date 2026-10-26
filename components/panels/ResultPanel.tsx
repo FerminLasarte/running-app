@@ -156,12 +156,8 @@ function StravaFound({ f, onLoad, onPick }: { f: ResF; onLoad: () => void; onPic
 /** `svLoad`: arranca buscando la salida en Strava (desde la paleta) */
 export default function ResultPanel(props: ResultProps & { svLoad?: boolean }) {
   const [init] = useState(() => {
-    let f = resultInit(props);
-    /* desde la Semana: arranca leyendo la corrida elegida (svGo) */
-    const a0 = props.sv && props.sv.pick ? props.sv.list.find((x) => x.id === props.sv!.pick) || null : null;
-    const snap = JSON.stringify(resultDraftData(f));
-    if (a0) f = svPickStart(f, a0.id);
-    return { f, snap, a0, tS: todayS() };
+    const f = resultInit(props);
+    return { f, snap: JSON.stringify(resultDraftData(f)), tS: todayS() };
   });
   const [f, setF] = useState<ResF>(init.f);
   /* el error de guardar se ve mientras el formulario siga igual */
@@ -227,10 +223,9 @@ export default function ResultPanel(props: ResultProps & { svLoad?: boolean }) {
   }
   const started = useRef(false);
   useEffect(() => {
-    if (started.current || !(init.a0 || props.svLoad)) return;
+    if (started.current || !props.svLoad) return;
     started.current = true;
-    if (init.a0) svPickRun(init.a0.id, init.a0);
-    else svLoad();
+    svLoad();
     // solo al abrir
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);

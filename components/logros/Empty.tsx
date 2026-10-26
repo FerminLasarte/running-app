@@ -7,15 +7,12 @@ import { demoOn } from '@/lib/data/actions';
 import { XP_TITLES, xpFor } from '@/lib/domain/xp';
 import { nf } from '@/lib/domain/util';
 import { Button } from '@/components/pista/controls';
-import { BrandTitle, Panel } from '@/components/pista/structure';
+import { EmptyPanel } from '@/components/pista/structure';
 
 export function Empty() {
   const { demo } = useS();
   return (
-    <Panel className="p-c12 p-rise lo-empty">
-      <Medal className="ic" aria-hidden="true" />
-      <BrandTitle as="h2">Logros</BrandTitle>
-      <p>Arrancás en el nivel 1, «{XP_TITLES[0][1]}». La primera salida ya suma experiencia y tu primer trofeo.</p>
+    <EmptyPanel icon={Medal} title="Logros" text={'Arrancás en el nivel 1, «' + XP_TITLES[0][1] + '». La primera salida ya suma experiencia y tu primer trofeo.'} className="p-c12 lo-empty">
       <div className="lo-rowb">
         <span className="mono">0 XP</span>
         <span>{nf(xpFor(2))} para el nivel 2</span>
@@ -30,6 +27,6 @@ export function Empty() {
           </Button>
         )}
       </div>
-    </Panel>
+    </EmptyPanel>
   );
 }

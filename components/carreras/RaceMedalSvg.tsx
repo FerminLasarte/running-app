@@ -249,7 +249,7 @@ export function RaceMedalSvg({ r }: { r: Pick<Race, 'name' | 'km'> }) {
     );
   } else {
     defs = grad('g', '#FFF1C2', '#E2A93B', '#8A5A12');
-    ribbon = <rect x="44" y="0" width="32" height="56" fill="var(--accent)" />;
+    ribbon = <rect x="44" y="0" width="32" height="56" fill="var(--acc)" />;
     medal = (
       <>
         <circle cx="60" cy="106" r="44" fill={url('g')} />

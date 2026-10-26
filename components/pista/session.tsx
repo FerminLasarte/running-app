@@ -1,9 +1,9 @@
-/* Una sesión real en las piezas «Pista»: su barra de estructura, su descripción corta y las columnas de la tabla de
-   sesiones (la misma en Semana y en Registro). */
-import type { Session, SessionType } from '@/lib/domain/types';
+/* Una sesión real en las piezas «Pista»: su barra de estructura, su descripción corta, las columnas de la tabla de
+   sesiones (la misma en Semana y en Registro) y los avisos de una sesión planificada (movida, ritmos recalibrados). */
+import type { Plan, Session, SessionType } from '@/lib/domain/types';
 import { scoreSession } from '@/lib/domain/score';
 import { decBand } from '@/lib/domain/dec';
-import { expand, isRep } from '@/lib/domain/stages';
+import { expand, isRep, stepsBrief } from '@/lib/domain/stages';
 import { hrRangeOf, planKmOf, sdate, stepKm } from '@/lib/domain/stats';
 import { TYPES } from '@/lib/domain/config';
 import { WD, dateLabel, fmt, fmtDur, fmtPace, pd, todayS } from '@/lib/domain/util';
@@ -110,3 +110,24 @@ const DEC_COL: Col<Session> = {
 };
 /** las columnas del Registro: las mismas, con la deriva antes del puntaje */
 export const SESSION_COLS_FULL: Col<Session>[] = [...SESSION_COLS.slice(0, -1), DEC_COL, ...SESSION_COLS.slice(-1)];
+
+/** «Movida desde el …»: en la próxima sesión y en el detalle */
+export function MovedNote({ p, className }: { p: Plan | null | undefined; className: string }) {
+  if (!(p && p.moved)) return null;
+  return (
+    <p className={className}>
+      Movida desde el {dateLabel(p.moved.from)}
+      {p.moved.reason ? ' · ' + p.moved.reason.toLowerCase() : ''}.
+    </p>
+  );
+}
+
+/** ritmos recalibrados en una sesión planificada: cuándo, con qué test y cómo eran antes */
+export function RecalNote({ p, className }: { p: Plan | null | undefined; className: string }) {
+  if (!p || !p.recal) return null;
+  return (
+    <p className={className}>
+      Ritmos recalibrados el {dateLabel(p.recal.at)} con tu {String(p.recal.src).toLowerCase()}. Antes: {stepsBrief(p.recal.prev)}.
+    </p>
+  );
+}

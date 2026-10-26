@@ -1,6 +1,6 @@
 /* Paneles: se abren desde la derecha sobre la pantalla en la que estás (registrar, planificar, mover…). En el celu
    ocupan toda la pantalla. Adentro, pasos numerados, los avisos en el momento y el pie con el botón principal.
-   Como en las piezas, los títulos van sin margen (globals.css) y el panel fija los 14 px del boceto. */
+   Como en las piezas, los títulos van sin margen (base.css) y el panel fija los 14 px del boceto. */
 @layer components {
   .p-scrim { position: fixed; inset: 0; z-index: 80; background: rgb(12 12 12 / .42); animation: p-fade .25s var(--ease) both; }
   .p-scrim.out { animation: p-fade .25s var(--ease) reverse both; pointer-events: none; }
@@ -34,9 +34,8 @@
   .p-dr-err { padding: 10px 24px; border-top: 1px solid color-mix(in oklab, var(--neg) 30%, transparent); background: var(--neg-soft); color: var(--neg); font-size: 13px; }
   /* texto suelto adentro de un paso */
   .p-dr-p { color: var(--ink-2); }
-  .p-dr-p + .p-dr-p, .p-dr-list + .p-dr-p { margin-top: 10px; }
-  .p-dr-list { margin: 10px 0 0; padding-left: 18px; color: var(--ink-2); line-height: 1.6; }
-  .p-dr-hint { margin-top: 8px; font-size: 12px; color: var(--ink-3); }
+  .p-dr-list { padding-left: 18px; color: var(--ink-2); line-height: 1.6; }
+  .p-dr-hint { font-size: 12px; color: var(--ink-3); }
   .p-dr-g2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px 14px; }
   .p-dr-g2 + .p-dr-g2 { margin-top: 16px; }
 
@@ -73,7 +72,7 @@
   .p-opt small { display: block; margin-top: 4px; font-size: 12px; color: var(--ink-3); }
   .p-opt .p-sb { height: 22px; }
   .p-opt.free { border-style: dashed; grid-template-columns: 20px 1fr; }
-  .p-pick + .p-seg, .p-pick + .p-dr-hint { margin-top: 12px; }
+  .p-pick + .p-seg { margin-top: 12px; }
 
   /* lo que trae Strava: oscuro como el estadio */
   .p-found { position: relative; padding: 16px; border-radius: var(--r-md); background: var(--hero); color: var(--hero-ink); }
@@ -84,7 +83,7 @@
   .p-found .nums { display: grid; grid-template-columns: repeat(4, auto); justify-content: start; gap: 22px; margin-top: 12px; }
   .p-found .nums .disp { display: block; margin-top: 6px; font-size: 26px; }
   .p-found .nums .p-u { color: var(--hero-mut); }
-  .p-found .p-note { margin-top: 10px; font-size: 12.5px; color: var(--hero-mut); }
+  .p-found .p-note { font-size: 12.5px; color: var(--hero-mut); }
   .p-found .p-acts { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 12px; }
   .p-found .p-acts button[aria-pressed="true"] { border-color: var(--hero-ink); background: rgb(255 255 255 / .08); }
   .p-found + .p-dr-g2 { margin-top: 18px; }
@@ -115,7 +114,7 @@
   .p-lrow-h b { display: block; font-weight: 600; }
   .p-lrow-h small { display: block; font-size: 12px; color: var(--ink-3); }
   .p-lrow .p-dr-g2 { gap: 10px 12px; }
-  .p-lres { margin-top: 10px; font-size: 12.5px; color: var(--ink-2); }
+  .p-lres { font-size: 12.5px; color: var(--ink-2); }
   .p-lres.bad { color: var(--neg); }
   .p-lres:empty { display: none; }
   .p-ghd { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin: 16px 0 8px; }
@@ -172,9 +171,6 @@
   .p-st.ed .p-fld + .p-fld, .p-st.ed .p-seg + .p-fld { margin-top: 14px; }
   /* los que van lado a lado no se separan hacia abajo */
   .p-st.ed .p-dr-g2 > .p-fld { margin-top: 0; }
-  .p-st.ed .row { display: flex; align-items: center; gap: 6px; }
-  .p-st.ed .row .p-in { width: 72px; text-align: center; font-family: var(--f-mono); }
-  .p-st.ed .row span { color: var(--ink-3); font-size: 12px; }
   .p-st.ed .p-acts { display: flex; gap: 8px; margin-top: 14px; }
   .p-st.ed .p-choices { margin-top: 8px; }
   .p-rep { border: 1.5px solid var(--t-series); border-radius: var(--r-md); padding: 10px; display: grid; gap: 6px; background: color-mix(in oklab, var(--t-series) 5%, var(--surface)); }
@@ -194,7 +190,7 @@
   .p-wday small { display: block; margin-bottom: 8px; font-size: 12px; color: var(--ink-3); }
 
   /* filas de vista previa (recalibrar) */
-  .p-prev { margin: 10px 0 0; padding: 0; list-style: none; display: grid; gap: 6px; }
+  .p-prev { padding: 0; list-style: none; display: grid; gap: 6px; }
   .p-prev li { padding: 8px 10px; border-radius: var(--r-sm); background: var(--sunk); font-size: 13px; }
   .p-prev li b { display: block; font-weight: 600; }
   .p-prev li span { color: var(--ink-3); font-size: 12px; }

@@ -4,7 +4,7 @@
    por el «cargando» y sin cortar las animaciones de entrada. */
 import { Suspense, lazy, type ComponentType, type ReactNode } from 'react';
 
-// las pestañas y las hojas tienen props distintas; acá se manejan como un mapa genérico
+// los paneles tienen props distintas; acá se manejan como un mapa genérico
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type AnyComp = ComponentType<any>;
 

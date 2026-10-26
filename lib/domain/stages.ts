@@ -4,10 +4,10 @@ import { isType } from './config';
 import { fmt, fmtDur, fmtPace, sum } from './util';
 
 export const KINDS: Record<StepKind, { l: string; s: string; c: string }> = {
-  warm: { l: 'Calentamiento', s: 'Calent.', c: 'var(--kw)' },
-  run: { l: 'Carrera', s: 'Carrera', c: 'var(--kr)' },
-  rec: { l: 'Recuperación', s: 'Recup.', c: 'var(--kc)' },
-  cool: { l: 'Enfriamiento', s: 'Enfr.', c: 'var(--kf)' },
+  warm: { l: 'Calentamiento', s: 'Calent.', c: 'var(--ink-4)' },
+  run: { l: 'Carrera', s: 'Carrera', c: 'var(--acc)' },
+  rec: { l: 'Recuperación', s: 'Recup.', c: 'var(--line-2)' },
+  cool: { l: 'Enfriamiento', s: 'Enfr.', c: 'var(--ink-4)' },
 };
 /** ritmo supuesto para estimar la distancia de una recuperación si no la cargás */
 export const REC_PACE = 450;
@@ -39,10 +39,6 @@ export function stepTgt(st: Partial<Step>) {
   if (st.pf! > 0) a.push(st.pf === st.ps ? fmtPace(st.pf!) + '/km' : fmtPace(st.pf!) + '–' + fmtPace(st.ps!) + '/km');
   if (st.hl! > 0) a.push('FC ' + st.hl + '–' + st.hh);
   return a.join(' · ');
-}
-export function stepLine(st: PlanStep): string {
-  if (isRep(st)) return st.n + '× [' + st.steps.map(stepLine).join(' + ') + ']';
-  return KINDS[st.k].s + ' ' + stepDesc(st) + (stepTgt(st) ? ' @ ' + stepTgt(st) : '');
 }
 export function stepsBrief(steps: PlanStep[]) {
   return steps

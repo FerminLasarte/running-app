@@ -1,7 +1,7 @@
 /* Registro (boceto «Registro» y su estado vacío en «Primera vez»): los totales, la barra de filtros, el pie de la tabla
    y los estados sin sesiones. Las piezas tienen su CSS en app/styles/components/; acá va lo que es de esta pantalla,
    con el prefijo reg-.
-   Ojo: globals.css (sin capa) pone h1, h2, h3, p y ul en margin 0; los espacios van con padding o gap. */
+   Ojo: base.css pone h1, h2, h3, p y ul en margin 0; los espacios van con padding o gap. */
 @layer screens {
   .reg { padding-top: 32px; font-size: 14px; line-height: 1.5; }
 
@@ -30,10 +30,7 @@
 
   /* sin ninguna sesión */
   .reg-empty { max-width: 520px; }
-  .reg-empty .p-panel-b { display: grid; gap: 10px; justify-items: start; padding: 22px 22px 24px; }
-  .reg-empty .ic { width: 26px; height: 26px; color: var(--ink-3); }
-  .reg-empty h2 { font-size: 34px; }
-  .reg-empty p { color: var(--ink-2); font-size: 13.5px; max-width: 46ch; }
+  .reg-empty p { max-width: 46ch; }
   .reg-ghost { width: 100%; display: grid; gap: 6px; margin: 4px 0 6px; }
   .reg-ghost i { height: 26px; border-radius: var(--r-sm); border: 1px dashed var(--line-2); background: repeating-linear-gradient(90deg, transparent 0 14px, var(--sunk) 14px 15px); }
   .reg-ghost i:nth-child(2) { width: 82%; }

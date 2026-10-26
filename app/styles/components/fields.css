@@ -20,9 +20,6 @@
   .p-in::placeholder { color: var(--ink-4); }
   .p-in:hover { border-color: var(--ink-4); }
   .p-in:focus { border-color: var(--ink); box-shadow: 0 0 0 3px color-mix(in oklab, var(--ink) 10%, transparent); }
-  /* el foco ya se ve en el borde: sin el anillo tartán de globals.css (sin capa; solo !important desde una capa le gana),
-     que en un formulario se confunde con un error */
-  .p-in:focus-visible { outline: none !important; }
   .p-in[aria-invalid="true"] { border-color: var(--neg); box-shadow: 0 0 0 3px color-mix(in oklab, var(--neg) 14%, transparent); }
   .p-in.num { font-family: var(--f-mono); font-variant-numeric: tabular-nums; }
   textarea.p-in { height: auto; min-height: 76px; padding: 10px 12px; resize: vertical; font: 400 14px/1.5 var(--f-ui); }

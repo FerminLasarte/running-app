@@ -1,7 +1,6 @@
 /* Estadísticas sobre las sesiones: km por semana y mes, racha, carga, eficiencia, semana del plan. */
 import { S } from '@/lib/store';
 import type { Plan, Result, Session, SessionType, Step } from './types';
-import { TYPES, nextRace } from './config';
 import { scoreSession, type Score } from './score';
 import { REC_PACE, expand, stepsBrief } from './stages';
 import { addDays, dayDiff, fmt, fmtPace, mondayOf, pad, pd, sod, sum, todayS, ymd } from './util';
@@ -40,12 +39,6 @@ export function kmByType(it: DoneSession[]) {
   });
   return o;
 }
-export const typeParts = (bt: ByType) =>
-  (Object.keys(TYPES) as SessionType[]).filter((k) => bt[k]! > 0).map((k) => ({ v: bt[k]!, c: TYPES[k].t, k }));
-export const typeRead = (bt: ByType) => {
-  const P = typeParts(bt);
-  return P.length > 1 ? ' (' + P.map((q) => TYPES[q.k].label.toLowerCase() + ' ' + fmt(q.v, 1)).join(', ') + ')' : '';
-};
 
 export interface WeekRow {
   start: Date;
@@ -155,16 +148,6 @@ export function effPoints() {
     .filter((s) => (s.type === 'fondo' || s.type === 'regen') && s.result.hrAvg! > 0 && s.result.timeSec > 0)
     .map((s) => ({ s, t: pd(s.result.date).getTime(), v: (s.result.distKm * 1000) / (s.result.timeSec / 60) / s.result.hrAvg! }));
 }
-export function planWeek() {
-  const r = nextRace();
-  if (!r || !r.planStart) return null;
-  const st = pd(r.planStart),
-    today = sod(new Date());
-  const total = Math.ceil((dayDiff(st, pd(r.date)) + 1) / 7),
-    wk = Math.floor(dayDiff(st, today) / 7) + 1;
-  if (wk < 1 || wk > total) return null;
-  return { wk, total, name: r.name };
-}
 
 /* ---- km y FC de una sesión planificada ---- */
 export function stepKm(st: Step) {
@@ -239,9 +222,4 @@ export function planSummary(p: Plan | null) {
   if (p.hrMin! > 0) a.push('FC ' + p.hrMin + '–' + p.hrMax);
   if (p.paceSec! > 0) a.push(fmtPace(p.paceSec!) + '/km');
   return a.filter(Boolean).join(' · ');
-}
-export function resSummary(r: Result) {
-  const a = [fmt(r.distKm, 2) + ' km', fmtPace(r.mainPaceSec || r.paceSec) + '/km'];
-  if (r.hrAvg! > 0) a.push(r.hrAvg + ' lpm');
-  return a.join(' · ');
 }

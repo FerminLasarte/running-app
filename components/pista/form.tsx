@@ -4,12 +4,13 @@
    proyección hasta la carrera): salen de la misma serie, así que dan lo mismo en las dos pantallas. */
 import type { FormPoint } from '@/lib/domain/analysis';
 import { isoWeek } from '@/lib/domain/util';
-import { formState } from '@/components/ui/glance';
 import { Kpis } from './structure';
 import { Chart, GridY, Guide, LabelsX, Line, Tip, lin, useCursor, type Pt } from './charts';
 
 const sign = (v: number) => (v > 0 ? '+' : v < 0 ? '−' : '±') + Math.abs(v);
 const tsbColor = (v: number) => (v >= 0 ? 'var(--pos)' : 'var(--t-tempo)');
+/** cómo está la forma según el balance de carga (TSB) */
+const formLabel = (t: number) => (t < -20 ? 'Muy cargado' : t < -8 ? 'Cargado' : t < 6 ? 'Equilibrado' : t < 18 ? 'Fresco' : 'Muy descansado');
 
 /** una muestra por semana de la serie diaria, la última es `F[end]` (hoy, si no se dice otra cosa) */
 export function weeklyOf(F: FormPoint[], n: number, end = F.length - 1) {
@@ -38,7 +39,7 @@ export function FormKpis({ F, pts }: { F: FormPoint[]; pts: FormPoint[] }) {
           ),
         },
         { label: 'Fatiga', value: Math.round(L.atl), note: sign(dAtl) + ' en 7 días' },
-        { label: 'Forma', value: sign(tsb), color: tsb < 0 ? 'var(--t-tempo)' : 'var(--pos)', note: formState(L.tsb)[0] },
+        { label: 'Forma', value: sign(tsb), color: tsb < 0 ? 'var(--t-tempo)' : 'var(--pos)', note: formLabel(L.tsb) },
       ]}
     />
   );

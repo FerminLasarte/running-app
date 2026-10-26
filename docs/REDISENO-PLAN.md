@@ -1,7 +1,7 @@
 # Plan de implementación del rediseño «Pista»
 
-Este plan lleva los bocetos a la app real. **Todavía no se implementó nada**: está pensado para arrancar en una
-conversación nueva, fase por fase.
+Este plan llevó los bocetos a la app real, fase por fase. **Está terminado**: las fases 0 a 12 están hechas, cada una
+con su PR. Lo de «Punto de partida» describe la app de antes.
 
 ## Antes de empezar
 
@@ -158,6 +158,7 @@ especificidad. Mientras exista, una clase nueva no puede llamarse como una vieja
 modificadores van pegados a esa clase (`.p-btn.pri`). Por lo mismo, `globals.css` pone `h1, h2, h3, p, ul` en
 `margin: 0` y el `body` en 16 px: en las piezas, los espacios de los títulos van con padding o gap, y los contenedores
 fijan los 14 px del boceto. En la fase 12, cuando `globals.css` ya no esté, se puede sacar el prefijo con un reemplazo.
+(Fase 12: `globals.css` ya no está, el prefijo `p-` se queda y esas dos reglas pasaron a `base.css`, en su capa.)
 
 - **Formulario y controles:** botón, chip de tipo, etiqueta, Δ contra el objetivo, PR, campos (texto, número con
   unidad, h:m:s, calculado, error), selector segmentado, interruptor, stepper, pestañas.
@@ -320,6 +321,16 @@ piezas están en `components/pista/` y su CSS en `app/styles/components/`.
 - Íconos y colores de la PWA (`app/manifest.ts`, `app/icon.tsx`, `apple-icon.tsx`) con la marca nueva.
 - Actualizar `README.md` y `docs/PORTING.md`.
 - Decidir si los bocetos quedan en el repo o se borran (y su entrada de `launch.json`).
+- Hecho. Decisiones al pasarlo (confirmadas por el usuario): los bocetos y su entrada de `launch.json` se quedan, y
+  las piezas siguen con el prefijo `p-`. Se ve igual que antes de borrar: el cuerpo queda en 16 px con interlínea 1,45
+  (el boceto usa 14: la barra lateral, la de arriba y el Mapa quedan como estaban), y salieron los márgenes de
+  párrafos y listas que el CSS nuevo declaraba pero `globals.css` anulaba (nunca se vieron). Se borró la lógica sin
+  uso de `lib/domain/` (la de la app vieja, como `planPaces`, `svwLoad`, `svGo` o `resSummary`) y del store (`topType`,
+  `topSort`, `topDir`, `topPicked`, `paceType`, `sumSub`). El login se rehízo con las piezas y la marca nueva. El
+  panel del puntaje ya estaba rehecho (fase 5): pasó a `components/panels/ScorePanel.tsx`. Sin consultar, para revisar
+  en el PR: los íconos de la PWA son la marca (la pista sobre tartán), con el fondo del estadio para la pantalla de
+  arranque; el botón «Salir» del aviso de datos de ejemplo es el botón del sistema, y el anillo del foco ya no redondea
+  las esquinas.
 
 ## Cómo verificar cada fase
 

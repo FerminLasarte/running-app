@@ -1,7 +1,7 @@
 /* Estructura de los bocetos: grilla de 12 columnas, encabezado de página con título de marca, panel, fila de números,
    bloque estadio con los andariveles y tabla de datos.
-   Ojo: globals.css (sin capa) pone h1, h2, h3, p y ul en margin 0 y le gana a cualquier capa; acá los espacios de los
-   títulos van con padding o gap. También pone el body en 16 px: los contenedores nuevos fijan los 14 px del boceto. */
+   Ojo: base.css pone h1, h2, h3, p y ul en margin 0 y el body en 16 px: los espacios de los títulos van con padding o
+   gap, y los contenedores fijan los 14 px del boceto. */
 @layer components {
   .p-grid { display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); gap: 20px; font-size: 14px; line-height: 1.5; }
   .p-c3 { grid-column: span 3; } .p-c4 { grid-column: span 4; } .p-c5 { grid-column: span 5; } .p-c6 { grid-column: span 6; }
@@ -23,6 +23,11 @@
   .p-panel-h h2 { font: 800 17px/1 var(--f-disp); font-stretch: 72%; text-transform: uppercase; letter-spacing: .015em; }
   .p-panel-h .r { margin-left: auto; display: flex; gap: 6px; align-items: center; }
   .p-panel-b { padding: 20px; }
+  /* estado vacío de una pantalla: ícono, título, una frase y lo que sigue */
+  .p-empty .p-panel-b { display: grid; gap: 10px; justify-items: start; padding: 22px 22px 24px; }
+  .p-empty .ic { width: 26px; height: 26px; color: var(--ink-3); }
+  .p-empty h2 { font-size: 34px; }
+  .p-empty p { color: var(--ink-2); font-size: 13.5px; max-width: 52ch; }
   /* tablas anchas: se corren de costado adentro del panel, no la página */
   .p-panel.tw { overflow-x: auto; }
 

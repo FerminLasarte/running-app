@@ -1,8 +1,8 @@
 /* Estructura del rediseño «Pista» (estilos en app/styles/components/structure.css): título de marca, encabezado de
-   página, panel, fila de números, lista de marcas, bloque estadio con los andariveles y tabla de datos. */
+   página, panel, estado vacío, fila de números, lista de marcas, bloque estadio con los andariveles y tabla de datos. */
 import { type CSSProperties, type ElementType, type ReactNode } from 'react';
 import Link from 'next/link';
-import { CaretDown, CaretRight, CaretUp } from '@phosphor-icons/react';
+import { CaretDown, CaretRight, CaretUp, type Icon } from '@phosphor-icons/react';
 import { cssVars, cx } from './util';
 
 /** voz de marca: angosta, itálica, en mayúsculas y con el punto final en tartán */
@@ -59,6 +59,18 @@ export function Panel({
       ) : null}
       {flush ? children : <div className="p-panel-b">{children}</div>}
     </article>
+  );
+}
+
+/** una pantalla sin datos todavía (boceto «Primera vez»): el ícono de la sección, su nombre, una frase y lo que sigue */
+export function EmptyPanel({ icon: I, title, text, className, style, children }: { icon: Icon; title: string; text: ReactNode; className?: string; style?: CSSProperties; children?: ReactNode }) {
+  return (
+    <Panel className={cx('p-empty p-rise', className)} style={style}>
+      <I className="ic" aria-hidden="true" />
+      <BrandTitle as="h2">{title}</BrandTitle>
+      <p>{text}</p>
+      {children}
+    </Panel>
   );
 }
 

@@ -1,9 +1,8 @@
 'use client';
 /* Estructura de la app: barra lateral (abajo en el celu), barra de arriba, la página, paneles, la paleta y avisos.
    La app depende de la fecha de hoy, del tema y de los datos guardados en el navegador: se dibuja solo ahí
-   (use(browser())); el servidor manda el esqueleto del layout. Mientras una pantalla no se rehace, adentro va la
-   vieja con su encabezado. */
-import { use, useEffect, useLayoutEffect, useMemo, useRef, useState, type CSSProperties, type ReactNode } from 'react';
+   (use(browser())); el servidor manda el esqueleto del layout. */
+import { use, useEffect, useLayoutEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 import { browser } from 'react-dom';
 import { usePathname, useRouter } from 'next/navigation';
 import { useShallow } from 'zustand/react/shallow';
@@ -15,7 +14,7 @@ import { runPending, setRouter } from '@/lib/nav';
 import { todayS } from '@/lib/domain/util';
 import { preloadPanels } from '@/components/panels/registry';
 import Celebration from '@/components/logros/Celebration';
-import { Banners, Header } from './Header';
+import { Banners } from './Banners';
 import { PanelHost } from './PanelHost';
 import { Palette } from './Palette';
 import { Toast } from './Toast';
@@ -37,9 +36,8 @@ export default function AppShell({ children }: { children: ReactNode }) {
   const router = useRouter();
   const pathname = usePathname();
   const section = sectionOf(pathname);
-  const S0 = useApp(useShallow((s) => ({ sumSub: s.sumSub, loaded: s.loaded, demo: s.demo })));
+  const S0 = useApp(useShallow((s) => ({ loaded: s.loaded, demo: s.demo })));
   const [, setTick] = useState(0);
-  const viewRef = useRef<HTMLElement>(null);
   useShortcuts();
 
   /* arranque: datos y avisos */
@@ -102,24 +100,17 @@ export default function AppShell({ children }: { children: ReactNode }) {
     if (pathname !== '/semana' && S.weekOff) setS({ weekOff: 0 });
   }, [pathname]);
 
-  /* «play»: animaciones de entrada solo al entrar a una pantalla (página o subpestaña nueva) */
-  const screenKey = pathname + '|' + S0.sumSub;
+  /* «play»: la vista entra con una animación corta solo al llegar a una página nueva */
   const [play, setPlay] = useState(false);
-  const lastKey = useRef<string | null>(null);
+  const lastPath = useRef<string | null>(null);
   useLayoutEffect(() => {
     if (!S0.loaded) return;
-    if (lastKey.current === screenKey) return;
-    lastKey.current = screenKey;
+    if (lastPath.current === pathname) return;
+    lastPath.current = pathname;
     setPlay(true);
-    const v = viewRef.current;
-    if (v)
-      v.querySelectorAll<HTMLElement>('.hero,.hero2,.card,.kpi,.day,.item').forEach((el, i) => {
-        el.classList.add('rise');
-        el.style.setProperty('--i', String(Math.min(i, 12)));
-      });
     const t = setTimeout(() => setPlay(false), 1800);
     return () => clearTimeout(t);
-  }, [screenKey, S0.loaded]);
+  }, [pathname, S0.loaded]);
 
   /* con los datos cargados: si quedó un formulario a medio cargar (por ejemplo al volver de la app del reloj), lo reabro */
   const draftTried = useRef(false);
@@ -135,7 +126,6 @@ export default function AppShell({ children }: { children: ReactNode }) {
     () => ({ rail: <Rail section={section} />, top: <TopBar section={section} pathname={pathname} />, banners: <Banners />, layers: [<PanelHost key="s" />, <Palette key="k" />, <Toast key="t" />, <Celebration key="c" />] }),
     [section, pathname],
   );
-  const header = useMemo(() => (section && !section.redone && S0.loaded ? <Header section={section} /> : null), [section, S0.loaded]);
   return (
     <div className="app">
       {parts.rail}
@@ -144,9 +134,8 @@ export default function AppShell({ children }: { children: ReactNode }) {
         {/* la cinta de Semana va de punta a punta, fuera del ancho de la página */}
         {section?.id === 'semana' && S0.loaded ? <Ticker /> : null}
         <div className={section?.full ? 'page full' : 'page'}>
-          {section && !section.redone ? <header id="hdr">{header}</header> : null}
           <div id="bnr">{parts.banners}</div>
-          <main id="view" ref={viewRef} className={play ? 'play' : ''} style={{ '--sc': section?.c || 'var(--accent)' } as CSSProperties}>
+          <main id="view" className={play ? 'play' : undefined}>
             {S0.loaded ? children : <Skel />}
           </main>
         </div>

@@ -22,7 +22,7 @@ export const RACE_TH: RaceTheme[] = [
   { k: 'adz', re: /adizero/i, n: 'Palermo', r1: '#3A3F45', r2: '#E9ECEF', ra: '#E9ECEF' },
   { k: 'mba', re: /medi[oa] marat[oó]n.*buenos aires|21k.*buenos aires/i, n: 'Obelisco', r1: '#6A35C9', r2: '#74ACDF', ra: '#A98BFF' },
 ];
-const GEN: RaceTheme = { k: 'gen', n: '', r1: 'var(--accent)', r2: 'var(--warn)', ra: 'var(--accent)' };
+const GEN: RaceTheme = { k: 'gen', n: '', r1: 'var(--acc)', r2: 'var(--t-tempo)', ra: 'var(--acc)' };
 export const raceTheme = (r: Pick<Race, 'name'>): RaceTheme => RACE_TH.find((t) => t.re!.test(r.name || '')) || GEN;
 
 /* de estas tres hay foto de la medalla real: la cinta queda dibujada y la medalla es la foto recortada */

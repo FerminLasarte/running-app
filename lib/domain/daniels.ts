@@ -1,10 +1,6 @@
-/* Ritmos de entrenamiento (fórmula de Jack Daniels) y ritmos del plan (líneas 4311–4349 del original). */
-import { S } from '@/lib/store';
+/* Ritmos de entrenamiento (fórmula de Jack Daniels, líneas 4311–4349 del original) y el nombre de una sesión del plan. */
 import type { Plan, Session } from './types';
-import { TYPES, racePaceSec } from './config';
-import { expand } from './stages';
-import { todayS } from './util';
-import { longRace } from './blocks';
+import { TYPES } from './config';
 
 /** VDOT (capacidad aeróbica) de un tiempo en segundos para una distancia en km */
 export function vdotOf(sec: number, km: number) {
@@ -42,61 +38,18 @@ export interface PaceZone {
   u: string;
 }
 export const PZ: PaceZone[] = [
-  { k: 'e', n: 'Fácil', f: [0.6, 0.68], z: 'Z2', c: 'var(--good)', u: 'Fondos y regenerativos. Mandan la FC y la charla: el ritmo es lo que sale.' },
-  { k: 'm', n: 'Maratón', f: [0.8, 0.8], z: 'Z3', c: 'var(--t4)', u: 'Tiradas largas con final a ritmo y el bloque de maratón.' },
-  { k: 't', n: 'Umbral', f: [0.88, 0.88], z: 'Z4', c: 'var(--serious)', u: 'Tempos: «cómodamente duro», sostenible ~20–30 min.' },
-  { k: 'i', n: 'Intervalos', f: [0.98, 0.98], z: 'Z4–Z5', c: 'var(--crit)', u: 'Series de 400 m a 1.200 m con trote de recuperación.' },
-  { k: 'r', n: 'Repeticiones', f: [1.08, 1.08], z: 'Z5', c: 'var(--t2)', u: 'Piques cortos (200–400 m) con recuperación completa.' },
+  { k: 'e', n: 'Fácil', f: [0.6, 0.68], z: 'Z2', c: 'var(--pos)', u: 'Fondos y regenerativos. Mandan la FC y la charla: el ritmo es lo que sale.' },
+  { k: 'm', n: 'Maratón', f: [0.8, 0.8], z: 'Z3', c: 'var(--t-regen)', u: 'Tiradas largas con final a ritmo y el bloque de maratón.' },
+  { k: 't', n: 'Umbral', f: [0.88, 0.88], z: 'Z4', c: 'var(--z4)', u: 'Tempos: «cómodamente duro», sostenible ~20–30 min.' },
+  { k: 'i', n: 'Intervalos', f: [0.98, 0.98], z: 'Z4–Z5', c: 'var(--neg)', u: 'Series de 400 m a 1.200 m con trote de recuperación.' },
+  { k: 'r', n: 'Repeticiones', f: [1.08, 1.08], z: 'Z5', c: 'var(--t-series)', u: 'Piques cortos (200–400 m) con recuperación completa.' },
 ];
 
-/* ritmos de tu plan: salen de las sesiones planificadas que vienen */
-export type PlanCatKey = 'easy' | 'mp' | 'thr' | 'int' | 'prog';
-export const PLAN_CATS: { k: PlanCatKey; n: string; c: string }[] = [
-  { k: 'easy', n: 'Fácil (rodajes y fondos)', c: 'var(--good)' },
-  { k: 'mp', n: 'Ritmo maratón', c: 'var(--t4)' },
-  { k: 'thr', n: 'Umbral y tempos', c: 'var(--serious)' },
-  { k: 'int', n: 'Series', c: 'var(--crit)' },
-  { k: 'prog', n: 'Finales progresivos', c: 'var(--t3)' },
-];
-
-/** sesión con plan (las que usa planPaces) */
+/** sesión con plan (las que se recalibran) */
 export type PlannedSession = Session & { plan: Plan };
 
 /** nombre de la sesión: el que puso la plantilla del plan («S3 · Mar · Fartlek · …») o el del tipo */
 export function planTitle(x: PlannedSession) {
   const m = /^S\d+ · [^·]+ · ([^·]+) ·/.exec(x.plan.notes || '');
   return m ? m[1].trim() : TYPES[x.type].label;
-}
-
-/** un tramo de una sesión planificada: rango de ritmo (s/km) o de FC (en `easy`) */
-export interface PlanPace {
-  x: PlannedSession;
-  lo: number;
-  hi: number;
-}
-/** tramos principales de las sesiones planificadas que vienen, por categoría y en orden de fecha */
-export function planPaces(): Partial<Record<PlanCatKey, PlanPace[]>> {
-  const tS = todayS(),
-    lr = longRace(),
-    mp = lr && lr.targetSec > 0 ? racePaceSec(lr) : null,
-    out: Partial<Record<PlanCatKey, PlanPace[]>> = {};
-  const add = (k: PlanCatKey, x: PlannedSession, v: [number, number]) => {
-    (out[k] = out[k] || []).push({ x, lo: v[0], hi: v[1] });
-  };
-  (S.sessions.filter((x) => x.plan && !x.result && x.plan.date >= tS && x.plan.steps) as PlannedSession[])
-    .sort((a, b) => a.plan.date.localeCompare(b.plan.date))
-    .forEach((x) => {
-      expand(x.plan.steps).forEach((e) => {
-        const st = e.st;
-        if (e.k !== 'run') return;
-        if (st.hl! > 0 && !(st.pf! > 0)) {
-          if (x.type === 'fondo' || x.type === 'regen') add('easy', x, [st.hl!, st.hh!]);
-          return;
-        }
-        if (!(st.pf! > 0)) return;
-        const mid = (st.pf! + st.ps!) / 2;
-        add(mp && Math.abs(mid - mp) <= 6 ? 'mp' : x.type === 'series' ? 'int' : x.type === 'tempo' ? 'thr' : x.type === 'fondo' ? 'prog' : 'thr', x, [st.pf!, st.ps!]);
-      });
-    });
-  return out;
 }

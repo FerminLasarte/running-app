@@ -6,7 +6,7 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { Camera, CaretLeft, CaretRight } from '@phosphor-icons/react';
 import { closeSheet, useSheetDirty } from '@/lib/sheets';
 import { useApp } from '@/lib/store';
-import { saveSession, toast } from '@/lib/data/actions';
+import { deleteSession, saveSession, toast } from '@/lib/data/actions';
 import { useDraft } from '@/lib/data/draft';
 import { AiError } from '@/lib/ai/client';
 import { TYPE_KEYS, TYPES } from '@/lib/domain/config';
@@ -37,7 +37,6 @@ import { Field, TextArea } from '@/components/pista/fields';
 import { StructureBar } from '@/components/pista/meters';
 import { briefOf, segsOf } from '@/components/pista/session';
 import { cssVars, cx, typeColor } from '@/components/pista/util';
-import { delSession } from '@/components/sheets/DelConfirm';
 import { Advice, PanelActions, PanelFrame, PanelSection } from './PanelFrame';
 import { PlanAiBox, useAi } from './AiBox';
 import { StepsEditor } from './StepsEditor';
@@ -178,7 +177,7 @@ export default function PlanPanel(props: { id?: string | null; date?: string; dr
       <Button variant="ghost" autoFocus onClick={() => setDelAsk(false)}>
         Cancelar
       </Button>
-      <Button className="dng" onClick={() => delSession(f.sid!, closeSheet)}>
+      <Button className="dng" onClick={() => deleteSession(f.sid!, closeSheet)}>
         Sí, eliminar
       </Button>
     </>

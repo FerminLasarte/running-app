@@ -1,7 +1,7 @@
 /* Logros (boceto «Logros» y su estado vacío en «Primera vez»), la celebración y el panel del trofeo: lo que es de esta
-   pantalla, con el prefijo lo- (`.lg-*` es el Registro viejo en globals.css). Las piezas (estadio, escudo, vueltas,
+   pantalla, con el prefijo lo-. Las piezas (estadio, escudo, vueltas,
    marcas) tienen su CSS en app/styles/components/.
-   Ojo: globals.css (sin capa) pone h1, h2, h3, p y ul en margin 0; los espacios van con padding o gap. */
+   Ojo: base.css pone h1, h2, h3, p y ul en margin 0; los espacios van con padding o gap. */
 @layer screens {
   .lo { padding-top: 32px; }
   /* los links de la paleta y de la celebración bajan hasta cada panel sin que lo tape la barra de arriba */
@@ -19,7 +19,7 @@
   .lo-xpbar { flex: 1; min-width: 0; padding-bottom: 6px; }
   .lo-xpbar .lo-rowb { margin-top: 9px; color: var(--hero-mut); }
   .lo-xpbar .lo-rowb b { color: var(--hero-ink); }
-  .lo-gains { margin: 26px 0 0; padding: 0; list-style: none; border-top: 1px solid var(--hero-line); }
+  .lo-gains { padding: 0; list-style: none; border-top: 1px solid var(--hero-line); }
   .lo-gains li { display: grid; grid-template-columns: 86px minmax(0, 1fr) auto; gap: 12px; align-items: baseline; padding: 10px 0; border-bottom: 1px solid var(--hero-line); font-size: 13.5px; }
   .lo-gains b { font: italic 800 17px/1 var(--f-disp); font-stretch: 70%; color: var(--acc); white-space: nowrap; }
   .lo-gains small { color: var(--hero-mut); font-size: 12px; white-space: nowrap; }
@@ -60,7 +60,7 @@
   .lo-more { border-top: 1px solid var(--line); padding: 12px 20px; font-size: 12.5px; }
   .lo-more summary { width: fit-content; cursor: pointer; color: var(--ink-2); font-weight: 600; border-radius: 2px; }
   .lo-more summary:hover { color: var(--ink); }
-  .lo-more p { margin-top: 10px; color: var(--ink-2); line-height: 1.55; max-width: 120ch; }
+  .lo-more p { color: var(--ink-2); line-height: 1.55; max-width: 120ch; }
   .lo-more b { color: var(--ink); font-weight: 600; }
 
   /* ---- vitrina: por categoría, seis por fila. Con casi 90 trofeos baja por dentro, con un alto fijo ---- */
@@ -72,7 +72,6 @@
   .lo-vit { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); list-style: none; margin: 0; padding: 0; border-top: 1px solid var(--line); }
   .lo-vit li { display: flex; min-width: 0; border-right: 1px solid var(--line); border-bottom: 1px solid var(--line); }
   .lo-vit li:nth-child(6n) { border-right: 0; }
-  .lo-vit-g:last-child .lo-vit { margin-bottom: -1px; }
   .lo-tro { position: relative; flex: 1; min-width: 0; display: flex; flex-direction: column; align-items: center; text-align: center; gap: 8px; padding: 18px 12px 16px; transition: background-color .15s var(--ease); }
   .lo-tro:hover { background: color-mix(in oklab, var(--sunk) 60%, transparent); }
   .lo-tro b { font-size: 12.5px; font-weight: 600; line-height: 1.25; }
@@ -136,10 +135,6 @@
   .lo-attl .sc i { position: absolute; inset: 0 auto 0 0; background: var(--ac); transform-origin: left; animation: p-growx .8s var(--ease) both; animation-delay: calc(300ms + var(--j) * 60ms); }
 
   /* ---- sin salidas: nivel 1 ---- */
-  .lo-empty .p-panel-b { display: grid; gap: 10px; justify-items: start; padding: 22px 22px 24px; }
-  .lo-empty .ic { width: 26px; height: 26px; color: var(--ink-3); }
-  .lo-empty h2 { font-size: 34px; }
-  .lo-empty p { color: var(--ink-2); font-size: 13.5px; max-width: 52ch; }
   .lo-empty .lo-rowb { width: 100%; max-width: 52ch; }
   .lo-empty .mono { color: var(--ink); }
   .lo-acts { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 6px; }

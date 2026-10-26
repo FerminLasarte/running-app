@@ -10,16 +10,15 @@ import { anFrom } from '@/lib/domain/analysis';
 import { bestMarks } from '@/lib/domain/marks';
 import { SHOE_NEAR, SHOE_WKS, shoeLife, shoeMonths, shoeRuns, shoeUse } from '@/lib/domain/shoes';
 import { kmByType } from '@/lib/domain/stats';
-import { DF_M, cap, dateLabel, dayDiff, fmt, fmtDur, nf, pd, sum } from '@/lib/domain/util';
+import { DF_M, cap, dateLabel, dayDiff, fmt, fmtDur, monthOf, nf, pd, plural, sum } from '@/lib/domain/util';
 import { goShoes } from '@/lib/data/actions';
 import { sessionHref } from '@/lib/nav';
 import { Button, Chip, Pr, Tag } from '@/components/pista/controls';
-import { BrandTitle, MarkList, Panel } from '@/components/pista/structure';
+import { BrandTitle, EmptyPanel, MarkList, Panel } from '@/components/pista/structure';
 import { Laps, ShareBars } from '@/components/pista/meters';
 import { MiniBars } from '@/components/pista/charts';
 import { cssVars, typeColor } from '@/components/pista/util';
 import { periodLabel, useAnPeriod } from './period';
-import { monthOf, plural } from './util';
 
 const STACK: SessionType[] = ['regen', 'fondo', 'tempo', 'series', 'test'];
 
@@ -193,14 +192,17 @@ function UsePanel({ A, from, label, i }: { A: Shoe[]; from: string; label: strin
 
 function Empty() {
   return (
-    <Panel className="p-c12 an-empty p-rise" style={cssVars({ '--i': 2 })}>
-      <Sneaker className="ic" aria-hidden="true" />
-      <BrandTitle as="h2">Zapatillas</BrandTitle>
-      <p>Cargá tus zapatillas y te llevo los km de cada par, cuándo llegan al límite y para qué las usás. Muchas rinden entre 500 y 800 km; el límite lo elegís vos.</p>
+    <EmptyPanel
+      icon={Sneaker}
+      title="Zapatillas"
+      text="Cargá tus zapatillas y te llevo los km de cada par, cuándo llegan al límite y para qué las usás. Muchas rinden entre 500 y 800 km; el límite lo elegís vos."
+      className="p-c12 an-empty"
+      style={cssVars({ '--i': 2 })}
+    >
       <Button size="sm" onClick={goShoes}>
         Cargar zapatillas
       </Button>
-    </Panel>
+    </EmptyPanel>
   );
 }
 

@@ -4,13 +4,12 @@ import { X } from '@phosphor-icons/react';
 import { TYPE_KEYS, TYPES } from '@/lib/domain/config';
 import { mapBarrios, routeSess } from '@/lib/domain/geo';
 import type { Route, SessionType } from '@/lib/domain/types';
-import { cap, dateLabel, fmt, fmtDur, fmtPace } from '@/lib/domain/util';
+import { cap, dateLabel, fmt, fmtDur, fmtPace, plural } from '@/lib/domain/util';
 import { sessionHref } from '@/lib/nav';
 import { Button, Chip } from '@/components/pista/controls';
 import { Key } from '@/components/pista/charts';
 import { BrandTitle } from '@/components/pista/structure';
 import { typeColor } from '@/components/pista/util';
-import { plural } from '@/components/analisis/util';
 import type { MapOpts } from './draw';
 
 export function Card({ o, L, routes, onClose }: { o: MapOpts; L: Route[]; routes: Route[]; onClose: () => void }) {

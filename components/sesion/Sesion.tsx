@@ -18,13 +18,13 @@ import { hrRangeOf, planKmOf, sdate } from '@/lib/domain/stats';
 import { planEstSec } from '@/lib/domain/planForm';
 import { DF_LONG, cap, fmt, fmtDur, fmtPace, pd } from '@/lib/domain/util';
 import { canMove } from '@/lib/domain/week';
+import { deleteSession } from '@/lib/data/actions';
 import { loadStreams, streamsSel } from '@/lib/data/streams';
 import { Button, Chip } from '@/components/pista/controls';
 import { BrandTitle, Kpis, Panel, type Kpi } from '@/components/pista/structure';
 import { Ticks } from '@/components/pista/meters';
 import { briefOf, kmOf, SessionBar } from '@/components/pista/session';
 import { cssVars } from '@/components/pista/util';
-import { delSession } from '@/components/sheets/DelConfirm';
 import { PacePanel } from './PaceChart';
 import { LapsPanel } from './LapsPanel';
 import { FeelPanel, RoutePanel, ZonesPanel } from './SidePanels';
@@ -108,7 +108,7 @@ function Actions({ s, onDeleted }: { s: Session; onDeleted: () => void }) {
     return (
       <div ref={box} className="p-acts ses-del" role="group" aria-label="Eliminar la sesión" onKeyDown={(e) => e.key === 'Escape' && setAsk(false)}>
         <span>¿Eliminar esta sesión? No se puede deshacer.</span>
-        <Button className="dng" onClick={() => delSession(s.id, onDeleted)}>
+        <Button className="dng" onClick={() => deleteSession(s.id, onDeleted)}>
           Sí, eliminar
         </Button>
         <Button onClick={() => setAsk(false)}>Cancelar</Button>

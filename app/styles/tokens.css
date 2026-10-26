@@ -1,5 +1,4 @@
-/* Orden de las capas del rediseño «Pista». El CSS viejo (globals.css) va sin capa, así que gana mientras exista:
-   cada pantalla nueva lo va reemplazando. */
+/* Orden de las capas del rediseño «Pista»: lo de una capa posterior gana sobre lo de una anterior. */
 @layer tokens, base, shell, components, screens;
 
 /* Tokens de los bocetos (design/bocetos/index.html). Claro = papel y tartán. Oscuro = asfalto.

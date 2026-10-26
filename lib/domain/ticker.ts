@@ -6,7 +6,7 @@ import { MARK_DISTS, bestMarks } from './marks';
 import { doneList, planKmOf, sdate, streakInfo } from './stats';
 import { nextSession, pendingSessions } from './week';
 import { xpState } from './xp';
-import { addDays, cap, dateLabel, daysTo, fmt, mondayOf, pd, sod, sum, ymd } from './util';
+import { addDays, cap, dateLabel, daysTo, fmt, mondayOf, pd, plural, sod, sum, ymd } from './util';
 
 export interface TickerItem {
   pre?: string;
@@ -16,7 +16,6 @@ export interface TickerItem {
 }
 
 const DF_DAY = new Intl.DateTimeFormat('es-AR', { weekday: 'long' });
-const plural = (n: number, one: string, many: string) => n + ' ' + (n === 1 ? one : many);
 
 /** las frases de la cinta, en orden; vacía sin salidas (la bienvenida ocupa su lugar) */
 export function tickerItems(): TickerItem[] {

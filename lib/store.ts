@@ -9,7 +9,7 @@ import type { Cfg, Route, Session } from './domain/types';
 import { defaultCfg } from './domain/defaults';
 
 export interface SheetDesc {
-  /** clave del registro de hojas (components/sheets/registry.tsx) */
+  /** clave del registro de paneles (components/panels/registry.tsx) */
   kind: string;
   props: Record<string, unknown>;
   /** cambia con cada apertura: remonta el formulario */
@@ -45,26 +45,12 @@ export interface AppState {
   realRoutes: Route[] | null;
   /* preferencias de vista (la página en la que estás la dice la URL) */
   weekOff: number;
-  topType: string;
-  topSort: string;
-  topDir: 'a' | 'b';
-  topPicked: boolean;
-  paceType: string | null;
-  sumSub: string;
   /** estado de cada vista que tiene que sobrevivir al cambio de pestaña (filtros del registro, mapa, Strava…) */
   ui: Record<string, unknown>;
   /* capas */
   sheet: SheetDesc | null;
   toast: ToastDesc | null;
 }
-
-const lsGet = (k: string) => {
-  try {
-    return typeof window === 'undefined' ? null : window.localStorage.getItem(k);
-  } catch {
-    return null;
-  }
-};
 
 export const useApp = create<AppState>()(() => ({
   cfg: defaultCfg(),
@@ -82,12 +68,6 @@ export const useApp = create<AppState>()(() => ({
   realCfg: null,
   realRoutes: null,
   weekOff: 0,
-  topType: 'all',
-  topSort: 'score',
-  topDir: 'a',
-  topPicked: false,
-  paceType: null,
-  sumSub: lsGet('rr_sumsub') || 'vol',
   ui: {},
   sheet: null,
   toast: null,

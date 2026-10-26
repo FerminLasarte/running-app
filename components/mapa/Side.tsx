@@ -3,13 +3,12 @@
 import { ArrowsClockwise } from '@phosphor-icons/react';
 import { MAP_PERIODS, barrioCount, cellArea, mapBarrios, mapCells, type MapPeriod } from '@/lib/domain/geo';
 import type { Route } from '@/lib/domain/types';
-import { DF_M, dShort, fmt, kmByMonth, nf, pd, sum } from '@/lib/domain/util';
+import { DF_M, dShort, fmt, kmByMonth, nf, pd, plural, sum } from '@/lib/domain/util';
 import { stravaLast, stravaSync } from '@/lib/strava/sync';
 import { Button, Segmented, Switch } from '@/components/pista/controls';
 import { MiniBars } from '@/components/pista/charts';
 import { ShareBars, type ShareItem } from '@/components/pista/meters';
 import { BrandTitle, Kpis } from '@/components/pista/structure';
-import { plural } from '@/components/analisis/util';
 import type { useMapParams } from './params';
 
 /** barrios a la vista; el resto, plegado */

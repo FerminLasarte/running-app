@@ -1,8 +1,11 @@
-/* Ícono de la app (cronómetro blanco sobre naranja), dibujado con next/og para el favicon, iOS y la PWA. */
+/* Ícono de la app: la marca (la pista en blanco sobre tartán), dibujada con next/og para el favicon, iOS y la PWA.
+   `pad`: el margen alrededor de la pista, como parte del lado (la de «maskable» lleva más, para que Android pueda
+   recortarla en círculo sin comerse la pista). */
 import { ImageResponse } from 'next/og';
+import { BRAND_ACC, trackRects } from '@/components/shell/BrandMark';
 
 export function appIcon(size: number, opts: { rounded?: boolean; pad?: number } = {}) {
-  const pad = opts.pad ?? 0.2,
+  const pad = opts.pad ?? 0,
     s = Math.round(size * (1 - pad * 2));
   return new ImageResponse(
     (
@@ -13,15 +16,13 @@ export function appIcon(size: number, opts: { rounded?: boolean; pad?: number } 
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
-          background: 'linear-gradient(145deg,#FF8A3D,#E8450A)',
-          borderRadius: opts.rounded ? size * 0.22 : 0,
+          background: BRAND_ACC,
+          borderRadius: opts.rounded ? size * 0.13 : 0,
         }}
       >
-        <svg width={s} height={s} viewBox="0 0 24 24">
-          <circle cx="12" cy="13.5" r="8.5" fill="rgba(255,255,255,.5)" />
-          <rect x="9.8" y="1.6" width="4.4" height="3.2" rx="1.4" fill="#fff" />
-          <path d="M12 5a8.5 8.5 0 0 1 0 17z" fill="#fff" />
-          <circle cx="12" cy="13.5" r="2.6" fill="#E8450A" />
+        {/* la caja de la marca sin su borde de 1: la pista queda donde está en la barra lateral */}
+        <svg width={s} height={s} viewBox="1 1 30 30">
+          {trackRects()}
         </svg>
       </div>
     ),

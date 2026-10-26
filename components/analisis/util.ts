@@ -1,7 +1,4 @@
 /* Ayudas chicas de las pantallas de Análisis, sin interfaz. */
-import { DF_MY } from '@/lib/domain/util';
-
-export const plural = (n: number, one: string, many: string) => n + ' ' + (n === 1 ? one : many);
 
 /** marcas del eje desde 0 con un paso redondo, para que entren unas 4: el tope y las marcas */
 export function niceTicks(max: number, n = 4) {
@@ -19,8 +16,3 @@ export function paceTicks(lo: number, hi: number) {
   for (let v = a; v <= b; v += step) ticks.push(v);
   return { lo: a, hi: b, ticks };
 }
-
-
-const DF_MON = new Intl.DateTimeFormat('es-AR', { month: 'long' });
-/** «junio», o «junio de 2025» si no es de este año */
-export const monthOf = (d: Date) => (d.getFullYear() === new Date().getFullYear() ? DF_MON : DF_MY).format(d);

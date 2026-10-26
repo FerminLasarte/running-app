@@ -7,10 +7,10 @@ import { addDays, dayDiff, mondayOf, pd, sum, todayS, ymd } from './util';
 import { memoData } from './memo';
 
 export const PHASES: Record<PhaseKey, { n: string; c: string; x: string }> = {
-  base: { n: 'Base', c: 'var(--t1)', x: 'Kilómetros fáciles y una sesión de calidad corta por semana. Se sube el volumen de a poco.' },
-  dev: { n: 'Desarrollo', c: 'var(--t3)', x: 'Crece la tirada larga y entran los tempos y el trabajo de umbral.' },
-  spec: { n: 'Específico', c: 'var(--t2)', x: 'Volumen máximo y tramos a ritmo de carrera dentro de las tiradas largas.' },
-  taper: { n: 'Puesta a punto', c: 'var(--t4)', x: 'Baja el volumen y se mantiene algo de ritmo para llegar fresco.' },
+  base: { n: 'Base', c: 'var(--t-fondo)', x: 'Kilómetros fáciles y una sesión de calidad corta por semana. Se sube el volumen de a poco.' },
+  dev: { n: 'Desarrollo', c: 'var(--t-tempo)', x: 'Crece la tirada larga y entran los tempos y el trabajo de umbral.' },
+  spec: { n: 'Específico', c: 'var(--t-series)', x: 'Volumen máximo y tramos a ritmo de carrera dentro de las tiradas largas.' },
+  taper: { n: 'Puesta a punto', c: 'var(--t-regen)', x: 'Baja el volumen y se mantiene algo de ritmo para llegar fresco.' },
 };
 
 export interface BlockWeek {

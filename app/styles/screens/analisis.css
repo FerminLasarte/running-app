@@ -1,7 +1,7 @@
 /* Análisis (boceto «Análisis» con sus cuatro pestañas y su estado vacío en «Primera vez»): lo que es de esta pantalla,
    con el prefijo an-. Las piezas (números, gráficos, reparto, marcas, cronógrafo) tienen su CSS en
    app/styles/components/.
-   Ojo: globals.css (sin capa) pone h1, h2, h3, p y ul en margin 0; los espacios van con padding o gap. */
+   Ojo: base.css pone h1, h2, h3, p y ul en margin 0; los espacios van con padding o gap. */
 @layer screens {
   .an { padding-top: 32px; font-size: 14px; line-height: 1.5; }
   .an-tabs { margin-bottom: 20px; }
@@ -13,7 +13,7 @@
   .an-note { color: var(--ink-2); font-size: 13px; line-height: 1.5; padding-top: 12px; }
   .an-note:first-child { padding-top: 0; }
   .an-note b { color: var(--ink); font-weight: 600; }
-  .an-warn { color: var(--ink); border-left: 3px solid var(--t-tempo); padding: 8px 0 8px 12px; margin-top: 14px; }
+  .an-warn { color: var(--ink); border-left: 3px solid var(--t-tempo); padding: 8px 0 8px 12px; }
   .an-foot { color: var(--ink-3); font-size: 12px; line-height: 1.5; padding-top: 14px; max-width: 110ch; }
   .an-tight { padding-top: 8px; padding-bottom: 8px; }
   .an-sep { border-top: 1px solid var(--line); }
@@ -92,10 +92,7 @@
 
   /* sin salidas suficientes, o sin zapatillas */
   .an-empty { max-width: 520px; }
-  .an-empty .p-panel-b { display: grid; gap: 10px; justify-items: start; padding: 22px 22px 24px; }
-  .an-empty .ic { width: 26px; height: 26px; color: var(--ink-3); }
-  .an-empty h2 { font-size: 34px; }
-  .an-empty p { color: var(--ink-2); font-size: 13.5px; max-width: 46ch; }
+  .an-empty p { max-width: 46ch; }
   .an-empty .p-laps { width: 100%; margin: 6px 0 0; }
   .an-empty small { color: var(--ink-3); font-size: 12px; }
 

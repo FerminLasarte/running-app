@@ -1,6 +1,8 @@
-/* Shell de los bocetos: barra lateral, barra de arriba y la página. En el celu, las secciones van en una barra abajo.
-   Los nombres no pisan clases del CSS viejo, que va sin capa y ganaría (por eso .tb-btn y no .btn, .pulse y no .dot). */
+/* Shell de los bocetos: barra lateral, barra de arriba, la página con sus avisos, el aviso flotante y el esqueleto
+   mientras carga. En el celu, las secciones van en una barra abajo. */
 @layer shell {
+  /* en la app instalada del iPhone, la franja de la hora queda del color del fondo */
+  body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 30; background: var(--bg); }
   .app { display: grid; grid-template-columns: var(--rail) minmax(0, 1fr); min-height: 100dvh; }
   .main { min-width: 0; }
 
@@ -107,10 +109,13 @@
   .tb-search span { flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
   .page { max-width: 1260px; margin: 0 auto; padding: 0 40px 96px; }
-  /* las pantallas que ocupan todo (el Mapa) van sin márgenes. `#view` trae 6 px arriba de globals.css (sin capa): solo
-     le gana un !important desde la capa */
+  #view { padding-top: 6px; }
+  /* al llegar a una página, la vista entra con un fundido corto */
+  #view.play { animation: view-in .4s cubic-bezier(.2, .8, .2, 1); }
+  @keyframes view-in { from { opacity: .4; } }
+  /* las pantallas que ocupan todo (el Mapa) van sin márgenes */
   .page.full { max-width: none; padding: 0; }
-  .page.full #view { padding-top: 0 !important; }
+  .page.full #view { padding-top: 0; }
   /* en la compu llenan el alto que queda debajo de la barra (y de los avisos, si hay) */
   @media (min-width: 901px) {
     .page.full { display: flex; flex-direction: column; height: calc(100dvh - 56px); }
@@ -119,6 +124,37 @@
   /* al bajar a una parte, que la barra de arriba no la tape */
   .page [id] { scroll-margin-top: 72px; }
 
+  /* avisos (ejemplo, solo local, sin conexión): una línea discreta con un punto de color, no una tarjeta */
+  #bnr:empty { display: none; }
+  .bnr-i { display: flex; align-items: center; gap: 8px; margin: 0 0 12px; font-size: 14px; line-height: 1.35; color: var(--ink-3); }
+  .bnr-i::before { content: ""; flex: none; width: 7px; height: 7px; border-radius: 50%; background: var(--t-tempo); }
+  .bnr-i.bad::before { background: var(--neg); }
+  .bnr-i b { color: var(--ink-2); font-weight: 600; }
+  .bnr-i .p-btn { margin-left: auto; }
+
+  /* mientras cargan los datos */
+  .skel {
+    height: 120px; margin: 14px 0; border-radius: var(--r-lg);
+    background: linear-gradient(90deg, var(--surface), var(--sunk), var(--surface)); background-size: 200% 100%;
+    animation: skel-shine 1.4s linear infinite;
+  }
+  @keyframes skel-shine { to { background-position: -200% 0; } }
+
+  /* aviso flotante de abajo (con «Deshacer» a veces): entra y se va */
+  .toast {
+    position: fixed; left: 50%; bottom: calc(92px + env(safe-area-inset-bottom, 0px)); z-index: 80; transform: translateX(-50%);
+    max-width: calc(100vw - 32px); padding: 12px 18px; border-radius: var(--r-md); box-shadow: var(--sh-pop);
+    background: var(--ink); color: var(--bg); font-weight: 600; font-size: 14px; text-align: center;
+    animation: toast-in .3s cubic-bezier(.2, .8, .2, 1);
+  }
+  .toast.out { animation: toast-out .22s cubic-bezier(.4, 0, 1, 1) forwards; }
+  @keyframes toast-in { from { opacity: 0; transform: translate(-50%, 12px); } }
+  @keyframes toast-out { to { opacity: 0; transform: translate(-50%, 10px) scale(.97); } }
+  .toast-btn { margin-left: 10px; padding: 4px 10px; border: 1px solid currentColor; border-radius: var(--r-sm); color: inherit; font-weight: 700; font-size: 14px; }
+
+  @media (min-width: 901px) {
+    .toast { bottom: 28px; }
+  }
   @media (max-width: 1240px) {
     .sync span { display: none; }
     .tb-search { width: 200px; }

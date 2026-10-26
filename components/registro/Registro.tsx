@@ -12,7 +12,7 @@ import { doExport } from '@/lib/data/backup';
 import { LG_INIT, LG_PERIODS, lgCsv, lgFrom, lgHm, lgRows, lgScoreAvg, lgTotals, type LgInfo } from '@/lib/domain/log';
 import { fmt, fmtPace, nf, todayS } from '@/lib/domain/util';
 import { Button } from '@/components/pista/controls';
-import { BrandTitle, Kpis, PageHead, Panel } from '@/components/pista/structure';
+import { EmptyPanel, Kpis, PageHead, Panel } from '@/components/pista/structure';
 import { cssVars } from '@/components/pista/util';
 import { useStravaStatus } from '@/components/shell/useStravaStatus';
 import { REG_INIT, useRegFilters, type RegFilters } from './filters';
@@ -45,10 +45,13 @@ function Totals({ rows, f }: { rows: LgInfo[]; f: RegFilters }) {
 /** sin ninguna sesión (y sin datos de ejemplo): qué va a aparecer acá y cómo empezar */
 function Empty() {
   return (
-    <Panel className="reg-empty p-rise" style={cssVars({ '--i': 1 })}>
-      <Rows className="ic" aria-hidden="true" />
-      <BrandTitle as="h2">Registro</BrandTitle>
-      <p>Acá van a quedar todas tus salidas, con su estructura, su puntaje y la deriva. Vas a poder buscarlas, filtrarlas y exportarlas.</p>
+    <EmptyPanel
+      icon={Rows}
+      title="Registro"
+      text="Acá van a quedar todas tus salidas, con su estructura, su puntaje y la deriva. Vas a poder buscarlas, filtrarlas y exportarlas."
+      className="reg-empty"
+      style={cssVars({ '--i': 1 })}
+    >
       <div className="reg-ghost" aria-hidden="true">
         <i />
         <i />
@@ -57,7 +60,7 @@ function Empty() {
       <Button size="sm" icon={Plus} iconWeight="bold" onClick={() => openSheet('result', { id: null })}>
         Registrar la primera
       </Button>
-    </Panel>
+    </EmptyPanel>
   );
 }
 

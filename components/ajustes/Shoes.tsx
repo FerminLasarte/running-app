@@ -8,13 +8,12 @@ import { AJ_PARTS, ajNameId, setAjEdit } from '@/lib/data/actions';
 import type { Shoe } from '@/lib/domain/types';
 import { SHOE_NEAR, shoeLife, shoeUse } from '@/lib/domain/shoes';
 import { applyShoe, shoeDraft, shoeErrs, type ShoeDraft } from '@/lib/domain/settings';
-import { nf, pd } from '@/lib/domain/util';
+import { monthOf, nf, pd } from '@/lib/domain/util';
 import { Button, Chip } from '@/components/pista/controls';
 import { Field, Input, UnitInput } from '@/components/pista/fields';
 import { Laps } from '@/components/pista/meters';
 import { Panel } from '@/components/pista/structure';
 import { cssVars, cx } from '@/components/pista/util';
-import { monthOf } from '@/components/analisis/util';
 import { addBtnId, closeEdit, commitCfg, editBtnId, shoeAdd, shoeMain, shoeRet } from './actions';
 import { useAuto } from './useAuto';
 

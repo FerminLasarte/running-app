@@ -35,12 +35,17 @@ export function kmByMonth(rows: [string, number][], from: Date) {
   });
 }
 export const cap = (s: string) => s.charAt(0).toUpperCase() + s.slice(1);
+/** «1 salida», «3 salidas» */
+export const plural = (n: number, one: string, many: string) => n + ' ' + (n === 1 ? one : many);
 
 export const DF_WD = new Intl.DateTimeFormat('es-AR', { weekday: 'short', day: 'numeric', month: 'short' });
 export const DF_D = new Intl.DateTimeFormat('es-AR', { day: 'numeric', month: 'short' });
 export const DF_M = new Intl.DateTimeFormat('es-AR', { month: 'short' });
 export const DF_MY = new Intl.DateTimeFormat('es-AR', { month: 'long', year: 'numeric' });
 export const DF_LONG = new Intl.DateTimeFormat('es-AR', { weekday: 'long', day: 'numeric', month: 'long' });
+const DF_MON = new Intl.DateTimeFormat('es-AR', { month: 'long' });
+/** «junio», o «junio de 2025» si no es de este año */
+export const monthOf = (d: Date) => (d.getFullYear() === new Date().getFullYear() ? DF_MON : DF_MY).format(d);
 
 export const dateLabel = (s: string) => DF_WD.format(pd(s)).replace(/[.,]/g, '');
 export const dShort = (d: Date) => DF_D.format(d).replace(/\./g, '');

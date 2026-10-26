@@ -6,7 +6,7 @@
 import { AN_PERIODS, anWeeks, type AnPeriod } from '@/lib/domain/analysis';
 import { weekSeries } from '@/lib/domain/stats';
 import { useParam } from '@/components/shell/useParam';
-import { plural } from './util';
+import { plural } from '@/lib/domain/util';
 
 export const AN_INIT: AnPeriod = '26s';
 

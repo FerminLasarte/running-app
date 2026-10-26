@@ -1,3 +1,4 @@
+import '@/app/styles/screens/login.css';
 import type { Metadata } from 'next';
 import { Suspense } from 'react';
 import LoginForm from './LoginForm';

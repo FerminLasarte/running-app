@@ -1,6 +1,6 @@
 # Rediseño: «Pista»
 
-Estado: **boceto 0.5**, para discutir. Los bocetos navegables están en `design/bocetos/index.html`
+Estado: **hecho** (fases 0 a 12 de `docs/REDISENO-PLAN.md`). Lo que sigue es lo que se decidió con los bocetos 0.5. Los bocetos navegables están en `design/bocetos/index.html`
 (se sirven con la configuración `bocetos` de `.claude/launch.json`, en http://localhost:4321). Pantallas bocetadas:
 Semana, Registro, Análisis (pestaña Volumen), Carreras, Mapa, Logros, Ajustes, Detalle de sesión y Sistema de diseño,
 más el panel de carga (tecla `R`), el de planificar (tecla `P`), la paleta de búsqueda (`⌘K`), la celebración y la

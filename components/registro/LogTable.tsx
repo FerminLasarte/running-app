@@ -5,7 +5,7 @@ import { useMemo, useState } from 'react';
 import { CaretDown } from '@phosphor-icons/react';
 import type { Session } from '@/lib/domain/types';
 import { LG_PAGE, LG_SORTS, lgHm, lgTotals, type LgInfo, type LgSortKey } from '@/lib/domain/log';
-import { DF_MY, cap, fmt, pd } from '@/lib/domain/util';
+import { DF_MY, cap, fmt, pd, plural } from '@/lib/domain/util';
 import { sessionHref } from '@/lib/nav';
 import { Button } from '@/components/pista/controls';
 import { Table, type Col, type Group } from '@/components/pista/structure';
@@ -17,7 +17,6 @@ const SORT_OF: Record<string, LgSortKey> = { d: 'date', km: 'km', tm: 'time', p:
 const COLS: Col<Session>[] = SESSION_COLS_FULL.map((c) => (SORT_OF[c.key] ? { ...c, sort: SORT_OF[c.key] } : c));
 
 const monthName = (m: string) => cap(DF_MY.format(pd(m + '-15')).replace(' de ', ' '));
-const plural = (n: number, one: string, many: string) => n + ' ' + (n === 1 ? one : many);
 
 function MonthHead({ m, rows }: { m: string; rows: LgInfo[] }) {
   const T = lgTotals(rows),
