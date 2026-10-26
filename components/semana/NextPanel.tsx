@@ -9,7 +9,7 @@ import { nextSession } from '@/lib/domain/week';
 import { DF_LONG, addDays, cap, daysTo, fmt, fmtPace, mondayOf, pd, sod, ymd } from '@/lib/domain/util';
 import { openSheet } from '@/lib/sheets';
 import { MovedNote } from '@/components/detail/MovedNote';
-import { RecalNote } from '@/components/race/RecalNote';
+import { RecalNote } from '@/components/carreras/RecalNote';
 import { BrandTitle, Panel } from '@/components/pista/structure';
 import { Button, Chip } from '@/components/pista/controls';
 import { StructureBar } from '@/components/pista/meters';

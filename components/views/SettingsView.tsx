@@ -4,11 +4,11 @@
 import { useEffect, useRef, useState, useSyncExternalStore, type CSSProperties, type ReactNode } from 'react';
 import { S, setUi, useS } from '@/lib/store';
 import { openSheet } from '@/lib/sheets';
-import { afterPaint, blockDemo, buzz, saveCfg, toast } from '@/lib/data/actions';
+import { addRace, blockDemo, buzz, focusField, saveCfg, toast } from '@/lib/data/actions';
 import { doExport } from '@/lib/data/backup';
 import type { Cfg, Race } from '@/lib/domain/types';
-import { RACE_PRESETS, ZN, activeShoes, nextRace, normCfg, normRace, normShoe, zoneRange } from '@/lib/domain/config';
-import { addDays, cleanObj, fmt, num, todayS, ymd } from '@/lib/domain/util';
+import { RACE_PRESETS, ZN, activeShoes, nextRace, normCfg, normShoe, zoneRange } from '@/lib/domain/config';
+import { cleanObj, fmt, num, todayS } from '@/lib/domain/util';
 import { raceDateLabel } from '@/lib/domain/week';
 import { shoeKm } from '@/lib/domain/shoes';
 import { ShoeMeter } from '@/components/summary/ShoeMeter';
@@ -130,27 +130,7 @@ function readSettings(d: Draft) {
   toast(bad.length ? 'Guardé el resto. Revisá ' + bad.join(', ') + '.' : 'Ajustes guardados', bad.length ? 5000 : 3000);
 }
 
-/* después de agregar una carrera o un par de zapatillas: lleva al nombre para escribirlo */
-const focusName = (id: string) =>
-  afterPaint(() => {
-    const e = document.getElementById(id) as HTMLInputElement | null;
-    if (!e) return;
-    e.scrollIntoView({ block: 'center' });
-    e.focus();
-    e.select();
-  });
-
 /* ---- acciones ---- */
-function raceAdd() {
-  if (blockDemo()) return;
-  const c = cleanObj(S.cfg),
-    r = normRace({ name: 'Nueva carrera', km: 10, date: ymd(addDays(new Date(), 90)) }, c);
-  c.races.push(r);
-  const n = normCfg(c);
-  setUi('raceDel', null);
-  saveCfg(n);
-  focusName('st-r' + n.races.findIndex((x) => x.id === r.id) + '-name');
-}
 function raceDelDo(id: string) {
   if (blockDemo()) return;
   const c = cleanObj(S.cfg);
@@ -167,7 +147,7 @@ function shoeAdd() {
   c.shoes = (c.shoes || []).concat([z]);
   const n = normCfg(c);
   saveCfg(n);
-  focusName('st-sh' + n.shoes.findIndex((x) => x.id === z.id) + '-name');
+  focusField('st-sh' + n.shoes.findIndex((x) => x.id === z.id) + '-name');
 }
 function shoeMain(id: string) {
   if (blockDemo()) return;
@@ -620,7 +600,7 @@ export default function SettingsView() {
         <div className="h3">Mis carreras</div>
         <p className="sub">La app trabaja siempre con la próxima carrera: cuando pasa una, sigue sola con la siguiente.</p>
         {races}
-        <button className="btn blk" style={{ marginTop: 14 }} data-a="race-add" onClick={raceAdd}>
+        <button className="btn blk" style={{ marginTop: 14 }} data-a="race-add" onClick={() => addRace()}>
           + Agregar carrera
         </button>
         <div className="field" style={{ marginTop: 20 }}>

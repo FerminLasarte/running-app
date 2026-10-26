@@ -2,6 +2,7 @@
 import { S } from '@/lib/store';
 import { nextRace } from './config';
 import { riegel } from './score';
+import { vdotOf, vdotTime } from './daniels';
 import { doneList, effPoints, weekSeries } from './stats';
 import { addDays, dateLabel, dayDiff, daysTo, fmt, fmtDur, fmtPace, num, pd, sod, sum, ymd } from './util';
 
@@ -129,6 +130,9 @@ export function lvPace(): LvCand | null {
   const ex = c.filter((q) => q.ex && q.date >= lastTr).sort((a, b) => a.sec - b.sec);
   return ex.length ? ex[0] : c.sort((a, b) => a.sec - b.sec)[0];
 }
+/** lo que harías hoy en `km` (segundos), desde tu 10K de hoy con las equivalencias de Daniels: Análisis → «Si corrieras
+    hoy» y el «Hoy darías» de Carreras */
+export const lvTimeAt = (lv: LvCand, km: number) => Math.round(km === 10 ? lv.sec : vdotTime(vdotOf(lv.sec, 10), km));
 export function lvStats() {
   const d = doneList(),
     today = sod(new Date());

@@ -16,14 +16,12 @@ import { Button, Chip } from '@/components/pista/controls';
 import { Ticks } from '@/components/pista/meters';
 import { Spark } from '@/components/pista/charts';
 import { SessionBar } from '@/components/pista/session';
-import { cssVars, typeColor } from '@/components/pista/util';
+import { cssVars, fitWords, typeColor } from '@/components/pista/util';
 
 /* el nombre en el título: «Fondo cumplido.», «Series cumplidas.» */
 const NAME: Record<SessionType, string> = { fondo: 'Fondo', series: 'Series', tempo: 'Tempo', regen: 'Regenerativo', test: 'Test' };
 const DONE: Record<SessionType, string> = { fondo: 'cumplido', series: 'cumplidas', tempo: 'cumplido', regen: 'cumplido', test: 'cumplido' };
 
-/** el título se achica si su palabra más larga no entra en la columna (Regenerativo, en el celu) */
-const fit = (...words: string[]) => cssVars({ '--w': Math.max(...words.map((w) => w.length)) * 0.5 });
 
 const dayLabel = (date: string) => cap(DF_LONG.format(pd(date)).replace(',', '')) + (date === todayS() ? ' · Hoy' : '');
 
@@ -60,7 +58,7 @@ function Done({ s }: { s: DoneSession }) {
           Hecho
         </span>
       </div>
-      <BrandTitle className="p-st-h sem-fit" style={fit(NAME[s.type], DONE[s.type])}>
+      <BrandTitle className="p-st-h sem-fit" style={fitWords(NAME[s.type], DONE[s.type])}>
         {NAME[s.type]}
         <br />
         {DONE[s.type]}
@@ -102,7 +100,7 @@ function Planned({ s }: { s: Session }) {
         <span className="lbl">{dayLabel(date)}</span>
         <span className="sem-st-plan">Planificada</span>
       </div>
-      <BrandTitle className="p-st-h sem-fit" style={fit(NAME[s.type], 'hoy')}>
+      <BrandTitle className="p-st-h sem-fit" style={fitWords(NAME[s.type], 'hoy')}>
         {NAME[s.type]}
         <br />
         {date === todayS() ? 'hoy' : WD[(pd(date).getDay() + 6) % 7] + ' ' + pd(date).getDate()}

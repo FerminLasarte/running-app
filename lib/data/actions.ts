@@ -4,6 +4,8 @@ import { closeSheet } from '@/lib/sheets';
 import { reduceMotion } from '@/lib/motion';
 import { afterPaint, navigate } from '@/lib/nav';
 import type { Cfg, Route, Session } from '@/lib/domain/types';
+import { normCfg, normRace } from '@/lib/domain/defaults';
+import { addDays, cleanObj, ymd } from '@/lib/domain/util';
 import { demoSessions } from './demo';
 import { persistLocal, retryFailed, writeCfg, writeDelete, writeRoutes, writeSession, writeSessions } from './sync';
 
@@ -116,22 +118,34 @@ export function weekGo(d: number) {
     });
   });
 }
-/** Carreras → sub-pestaña (`race`, `plan` o `lv`). Desde la medalla o una hoja, baja hasta el plan del día. */
-export function goRace(v = 'race', scrollToPlan = false) {
-  const fromSheet = !!S.sheet;
-  if (fromSheet) closeSheet();
-  setUi('cSub', v);
-  navigate('/carreras', () => {
-    const c = document.querySelector('.rc-sec');
-    jumpTo(c && v === 'race' && (scrollToPlan || fromSheet) ? c.getBoundingClientRect().top + window.scrollY - 90 : 0);
-  });
-}
 export function goForm() {
   navigate('/analisis/forma', () => jumpTo(0));
 }
 export function goChar() {
   setUi('logSub', 'pj');
   navigate('/logros', () => jumpTo(0));
+}
+/** después de agregar algo en Ajustes: lleva a su nombre para escribirlo */
+export const focusField = (id: string) =>
+  afterPaint(() => {
+    const e = document.getElementById(id) as HTMLInputElement | null;
+    if (!e) return;
+    e.scrollIntoView({ block: 'center' });
+    e.focus();
+    e.select();
+  });
+/** carrera nueva de `km` a 90 días (desde Ajustes o desde las distancias de Carreras): lleva a Ajustes con su nombre
+    listo para escribir */
+export function addRace(km = 10, name = 'Nueva carrera') {
+  if (blockDemo()) return;
+  const c = cleanObj(S.cfg),
+    r = normRace({ name, km, date: ymd(addDays(new Date(), 90)) }, c);
+  c.races.push(r);
+  const n = normCfg(c);
+  setUi('raceDel', null);
+  saveCfg(n);
+  const id = 'st-r' + n.races.findIndex((x) => x.id === r.id) + '-name';
+  navigate('/ajustes', () => focusField(id));
 }
 export function goRaces() {
   closeSheet();

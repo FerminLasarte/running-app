@@ -1,0 +1,192 @@
+/* Carreras (boceto «Carreras» y su estado vacío en «Primera vez») y sus paneles (la medalla y el test de nivel): lo
+   que es de esta pantalla, con el prefijo car-. Las piezas (estadio, reloj, pulsera, medalla, marcas) tienen su CSS en
+   app/styles/components/.
+   Ojo: globals.css (sin capa) pone h1, h2, h3, p y ul en margin 0; los espacios van con padding o gap. */
+@layer screens {
+  .car { padding-top: 32px; }
+  /* los links de la paleta bajan hasta cada panel sin que lo tape la barra de arriba */
+  .car > [id] { scroll-margin-top: 76px; }
+
+  /* textos dentro de los paneles: la nota en gris oscuro, la explicación más chica al pie */
+  .car-note { color: var(--ink-2); font-size: 13px; line-height: 1.5; padding-top: 16px; }
+  .car-note:first-child { padding-top: 0; }
+  .car-note b, .car-foot b { color: var(--ink); font-weight: 600; }
+  .car-foot { color: var(--ink-3); font-size: 12px; line-height: 1.5; padding-top: 12px; max-width: 110ch; }
+  .car-foot:first-child { padding-top: 0; }
+  .car-acts { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 16px; }
+  .car-sep { border-top: 1px solid var(--line); }
+  .car-more { margin-top: 12px; font-size: 12.5px; }
+  .car-more summary { width: fit-content; cursor: pointer; color: var(--ink-2); font-weight: 600; border-radius: 2px; }
+  .car-more summary:hover { color: var(--ink); }
+  .car-more .p-tbl { margin-top: 10px; }
+  .car-more .p-tbl td { height: 36px; }
+
+  /* el estadio: nombre enorme (se achica si su palabra más larga no entra), datos del lugar, reloj y la fila de tiempos */
+  .car-hero { --side: 260px; gap: 56px; padding: 32px 36px; }
+  .car-hero > div:first-of-type { container-type: inline-size; }
+  .car-name { font-size: min(128px, 100cqi / var(--w, 1)); padding-top: calc(16px + .05em); overflow-wrap: anywhere; }
+  .car-meta { display: flex; flex-wrap: wrap; gap: 6px 18px; margin-top: 16px; color: var(--hero-mut); font-size: 13.5px; }
+  .car-meta span { display: inline-flex; align-items: center; gap: 6px; }
+  .car-meta svg { width: 15px; height: 15px; }
+  .car-hero .p-clock { margin-top: 30px; }
+  .car-goal { display: flex; margin-top: 30px; border-top: 1px solid var(--hero-line); padding-top: 18px; }
+  .car-goal > div { padding: 0 28px; border-left: 1px solid var(--hero-line); min-width: 0; }
+  .car-goal > div:first-child { padding-left: 0; border-left: 0; }
+  .car-goal .disp { display: block; font-size: 34px; margin-top: 8px; }
+  .car-goal small { display: block; font-size: 12px; color: var(--hero-mut); margin-top: 4px; }
+  .car-goal small.warn { color: #F2B65B; }
+
+  /* plan por bloques: una columna por semana; más de 12, se corre de costado */
+  .car-keys { display: inline-flex; gap: 14px; margin-right: 6px; }
+  .car-weeks { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(var(--n, 12), minmax(78px, 1fr)); overflow-x: auto; overscroll-behavior-x: contain; }
+  .car-weeks li { position: relative; display: flex; flex-direction: column; border-right: 1px solid var(--line); min-width: 0; }
+  .car-weeks li:last-child { border-right: 0; }
+  .car-weeks .ph { height: 4px; background: var(--pc); opacity: .3; }
+  .car-weeks .done .ph, .car-weeks .cur .ph { opacity: 1; }
+  .car-weeks .phl { position: absolute; top: 12px; left: 10px; z-index: 1; font: 700 9.5px/1 var(--f-ui); letter-spacing: .1em; text-transform: uppercase; color: color-mix(in oklab, var(--pc) 80%, var(--ink)); white-space: nowrap; }
+  .car-weeks .hd { display: flex; justify-content: space-between; align-items: baseline; padding: 30px 10px 0; }
+  .car-weeks .now { font: italic 900 13px/1 var(--f-disp); font-stretch: 70%; color: var(--acc); text-transform: uppercase; letter-spacing: .04em; }
+  .car-weeks .bars { height: 120px; display: flex; align-items: flex-end; justify-content: center; padding: 10px 10px 0; position: relative; }
+  .car-weeks .bars .p { position: absolute; bottom: 0; left: 26%; right: 26%; border: 1px dashed var(--ink-4); border-bottom: 0; }
+  .car-weeks .bars .d { position: absolute; bottom: 0; left: 26%; right: 26%; background: var(--pc); transform-origin: bottom; animation: p-grow .8s var(--ease) both; animation-delay: calc(250ms + var(--j, 0) * 30ms); }
+  .car-weeks .ft { padding: 8px 6px 12px; border-top: 1px solid var(--line); font: 500 10.5px/1.35 var(--f-mono); color: var(--ink-3); text-align: center; }
+  .car-weeks .ft b { display: block; color: var(--ink); font-weight: 600; font-size: 12px; }
+  .car-weeks .ft span { display: block; color: var(--ink-4); }
+  .car-weeks .cur { background: color-mix(in oklab, var(--acc) 6%, transparent); }
+  .car-weeks .race .bars { align-items: center; }
+  .car-weeks .flag { width: 36px; height: 36px; display: grid; place-items: center; background: var(--ink); color: var(--bg); transform: skewX(-8deg); }
+  .car-weeks .flag svg { width: 18px; height: 18px; transform: skewX(8deg); }
+  .car-phases { list-style: none; margin: 10px 0 0; padding: 0; display: grid; gap: 6px; color: var(--ink-2); }
+  .car-phases li { padding-left: 14px; position: relative; }
+  .car-phases li::before { content: ""; position: absolute; left: 0; top: .45em; width: 7px; height: 7px; background: var(--pc); transform: skewX(-14deg); }
+  .car-phases b { color: var(--ink); font-weight: 600; }
+
+  /* estrategia: el escenario y los tramos, cada uno con su color de intensidad y ancho según sus km */
+  .car-scen { margin-bottom: 16px; }
+  .car-legs { display: grid; grid-template-columns: var(--cols); gap: 3px; }
+  .car-legs > div { padding: 14px 14px 16px; background: color-mix(in oklab, var(--sc) 11%, var(--surface)); border-top: 3px solid var(--sc); min-width: 0; }
+  .car-legs .lbl { color: color-mix(in oklab, var(--sc) 70%, var(--ink)); white-space: nowrap; }
+  .car-legs .disp { display: block; font-size: 32px; margin-top: 8px; font-style: italic; }
+  .car-legs small { display: block; font-size: 12px; color: var(--ink-2); margin-top: 6px; line-height: 1.4; }
+  .car-legs small.hr { margin-top: 4px; color: var(--ink-3); font-family: var(--f-mono); font-size: 11px; }
+
+  /* para el día: grupos por cuándo toca; la casilla es el input de verdad, escondido detrás del cuadradito */
+  .car-day section + section { margin-top: 18px; }
+  .car-day h3 { padding-bottom: 6px; }
+  .car-later { margin-top: 18px; }
+  .car-later[open] summary { margin-bottom: 14px; }
+  .car-check { list-style: none; margin: 0; padding: 0; }
+  .car-check li { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 10px; align-items: center; padding: 9px 0; border-top: 1px solid var(--line); font-size: 13.5px; line-height: 1.4; }
+  .car-check li:not(:has(> label)) { grid-template-columns: 22px minmax(0, 1fr) auto; }
+  .car-check label { position: relative; display: grid; grid-template-columns: 22px minmax(0, 1fr); gap: 10px; align-items: center; cursor: pointer; }
+  .car-check input { position: absolute; opacity: 0; width: 18px; height: 18px; margin: 0; pointer-events: none; }
+  .car-check .bx { width: 18px; height: 18px; border: 1.5px solid var(--line-2); border-radius: 2px; display: grid; place-items: center; color: transparent; }
+  .car-check .bx svg { width: 11px; height: 11px; }
+  .car-check li.ok .bx { background: var(--ink); border-color: var(--ink); color: var(--bg); }
+  .car-check li:not(:has(> label)) .bx { border-style: dashed; }
+  .car-check li.ok:not(:has(> label)) .bx { border-style: solid; }
+  .car-check input:focus-visible + .bx { outline: 2px solid var(--acc); outline-offset: 2px; }
+  .car-check li.ok > span:nth-child(2), .car-check li.ok label > span:last-child { color: var(--ink-3); text-decoration: line-through; text-decoration-color: var(--ink-4); }
+  .car-check small { color: var(--ink-3); font-size: 12px; font-family: var(--f-mono); white-space: nowrap; }
+  .car-check .due { display: inline-block; margin-left: 8px; font: 600 10px/1 var(--f-ui); letter-spacing: .08em; text-transform: uppercase; color: var(--acc); text-decoration: none; }
+
+  /* medallero: cuatro por fila; tocar una medalla abre su panel */
+  .car-medals { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); }
+  .car-medal { position: relative; display: grid; gap: 12px; justify-items: start; padding: 22px 20px 20px; border-left: 1px solid var(--line); border-top: 1px solid var(--line); min-width: 0; }
+  .car-medal:nth-child(4n + 1) { border-left: 0; }
+  .car-medal:nth-child(-n + 4) { border-top: 0; }
+  .car-medal .p-medal { width: 100%; }
+  .car-medal-go { position: absolute; inset: 0; border-radius: 0; transition: background-color .12s var(--ease); }
+  .car-medal-go:hover { background: color-mix(in oklab, var(--sunk) 55%, transparent); }
+  .car-medal-go:focus-visible { outline: 2px solid var(--acc); outline-offset: -2px; }
+  .car-notime { color: var(--ink-3); }
+
+  /* sin carrera */
+  .car-empty .p-panel-b { display: grid; gap: 10px; justify-items: start; padding: 22px 22px 24px; }
+  .car-empty .ic { width: 26px; height: 26px; color: var(--ink-3); }
+  .car-empty h2 { font-size: 34px; }
+  .car-empty p { color: var(--ink-2); font-size: 13.5px; max-width: 52ch; }
+  .car-dists { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 4px; }
+  .car-dists button { height: 32px; padding: 0 12px; border-radius: var(--r-sm); border: 1px solid var(--line-2); font-size: 13px; color: var(--ink-2); transition: border-color .15s var(--ease), color .15s var(--ease); }
+  .car-dists button:hover { border-color: var(--ink-4); color: var(--ink); }
+
+  /* panel de la medalla */
+  .car-mp { display: grid; gap: 18px; padding-top: 24px; }
+  .car-mp-med { display: grid; place-items: center; padding: 18px 0 6px; }
+  .car-mp-med svg { width: 190px; height: auto; overflow: visible; }
+  .car-mp-tags { display: flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: 8px 14px; font-size: 13px; color: var(--ink-2); }
+  .car-mp-tags span { color: var(--pos); font-weight: 600; }
+  .car-mp .p-kpis { border: 1px solid var(--line); border-radius: var(--r-md); }
+  .car-mp-none { display: grid; gap: 10px; justify-items: start; }
+
+  /* panel del test de nivel */
+  .car-lv-h { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 20px; align-items: center; padding-top: 24px; }
+  .car-lv-h .disp { display: block; font-size: 72px; font-style: italic; color: var(--lc); }
+  .car-lv-h .lbl { display: block; margin-top: 6px; }
+  .car-lv-tag { display: block; font: italic 900 24px/1 var(--f-disp); font-stretch: 64%; text-transform: uppercase; color: var(--lc); margin-bottom: 8px; }
+  .car-lv-h .p-dr-p b { color: var(--ink); font-weight: 600; }
+  .car-lv-l { list-style: none; margin: 0; padding: 0; }
+  .car-lv-l li { padding: 12px 0 14px; border-top: 1px solid var(--line); }
+  .car-lv-l li:first-child { border-top: 0; padding-top: 0; }
+  .car-lv-l .r { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; margin-bottom: 8px; }
+  .car-lv-l .r b { font-weight: 600; font-size: 13.5px; }
+  .car-lv-l .r small { color: var(--ink-3); font-weight: 400; font-size: 12px; }
+  .car-lv-l .disp { font-size: 26px; font-style: italic; color: var(--lc); }
+  .car-lv-l .p-laps i.on { background: var(--lc); }
+  .car-lv-l p { margin-top: 8px; font-size: 13px; color: var(--ink); }
+  .car-lv-l li > small { display: block; margin-top: 3px; font-size: 12px; color: var(--ink-3); line-height: 1.45; }
+  .car-lv-src { margin: 10px 0 0; padding-left: 16px; font-size: 12px; line-height: 1.7; }
+  .car-lv-src a { color: var(--ink-2); }
+
+  /* la pulsera que se imprime: solo existe mientras se imprime */
+  .car-print { display: none; }
+
+  @media (max-width: 1240px) {
+    .car-name { font-size: min(104px, 100cqi / var(--w, 1)); }
+    .car-goal > div { padding: 0 18px; }
+    .car-medals { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .car-medal:nth-child(4n + 1) { border-left: 1px solid var(--line); }
+    .car-medal:nth-child(2n + 1) { border-left: 0; }
+    .car-medal:nth-child(-n + 4) { border-top: 1px solid var(--line); }
+    .car-medal:nth-child(-n + 2) { border-top: 0; }
+  }
+  @media (max-width: 900px) {
+    .car { padding-top: 20px; }
+    .car-hero { grid-template-columns: minmax(0, 1fr); padding: 22px 20px; gap: 28px; }
+    .car-name { font-size: min(64px, 100cqi / var(--w, 1)); }
+    .car-goal { display: grid; grid-template-columns: 1fr 1fr; row-gap: 16px; }
+    .car-goal > div { padding: 0 16px; }
+    .car-goal > div:nth-child(3) { padding-left: 0; border-left: 0; }
+    .car-weeks { grid-template-columns: repeat(var(--n, 12), minmax(80px, 1fr)); }
+    .car-blocks .p-panel-h { flex-wrap: wrap; padding-top: 12px; padding-bottom: 12px; }
+    .car-blocks .p-panel-h .r { margin-left: 0; flex-wrap: wrap; }
+    .car-legs { grid-template-columns: 1fr 1fr; }
+    .car-medals { grid-template-columns: minmax(0, 1fr); }
+    .car-medal, .car-medal:nth-child(2n + 1), .car-medal:nth-child(4n + 1) { border-left: 0; }
+    .car-medal:nth-child(-n + 2) { border-top: 1px solid var(--line); }
+    .car-medal:first-child { border-top: 0; }
+    #car-medallero .p-panel-h { flex-wrap: wrap; padding-top: 12px; padding-bottom: 12px; }
+    #car-medallero .p-panel-h .r { margin-left: 0; }
+  }
+
+  /* imprimir la pulsera: sola en la hoja y en tamaño real (5 cm de ancho, filas de 5 mm), de papel en los dos temas */
+  @media print {
+    @page { margin: 12mm; }
+    body > :not(.car-print) { display: none !important; }
+    body { background: #fff !important; }
+    .car-print { display: block; }
+    .car-print .p-band {
+      width: 50mm; transform: none; box-shadow: none; border: .3mm solid #b9b4a8; border-radius: 4mm 4mm 1.5mm 1.5mm;
+      background: #fbfaf6; color: #141414; print-color-adjust: exact; -webkit-print-color-adjust: exact; break-inside: avoid;
+    }
+    .car-print .p-band-h { padding: 3mm 3mm 2.4mm; }
+    .car-print .p-band-h b { font-size: 4.6mm; }
+    .car-print .p-band-h small { font-size: 2mm; margin-top: 1mm; }
+    .car-print .p-band table { font-size: 2.9mm; }
+    .car-print .p-band th { font-size: 1.9mm; padding: 1.6mm 2.4mm 1.2mm; }
+    .car-print .p-band td { height: 5mm; padding: 0 2.4mm; }
+    .car-print .p-band td:first-child { font-size: 3.2mm; }
+    .car-print .p-band-f { padding: 2mm 0 2.4mm; }
+    .car-print .p-band-f i { width: 7mm; height: 1.2mm; }
+  }
+}

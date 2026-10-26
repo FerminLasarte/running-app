@@ -3,10 +3,9 @@
    período (`?periodo=52s`) y la base de tus ritmos (`?ritmos=objetivo`) van como parámetros. Se comparten, sobreviven
    a recargar y el período sigue al pasar de una pestaña a otra. Se leen con useSearchParams y se escriben con
    history.replaceState; los valores por defecto no se escriben. */
-import { useCallback } from 'react';
-import { useSearchParams } from 'next/navigation';
 import { AN_PERIODS, anWeeks, type AnPeriod } from '@/lib/domain/analysis';
 import { weekSeries } from '@/lib/domain/stats';
+import { useParam } from '@/components/shell/useParam';
 import { plural } from './util';
 
 export const AN_INIT: AnPeriod = '26s';
@@ -24,25 +23,6 @@ export const tabOf = (pathname: string) => AN_TABS.find((t) => t.path === pathna
 
 /** link a una pestaña con un período (para las pestañas y la paleta) */
 export const analisisHref = (tab: AnTab, per: AnPeriod = AN_INIT) => AN_TABS.find((t) => t.value === tab)!.path + (per !== AN_INIT ? '?periodo=' + per : '');
-
-/** un parámetro de la URL que toma uno de `values` (si no, `def`) y cómo cambiarlo sin tocar los demás */
-function useParam<V extends string>(key: string, values: readonly V[], def: V): [V, (v: V) => void] {
-  const sp = useSearchParams();
-  const raw = sp.get(key) as V | null;
-  const v = raw && values.includes(raw) ? raw : def;
-  const set = useCallback(
-    (x: V) => {
-      /* parto de la URL de ahora y no de la de este dibujo, que puede venir atrasada */
-      const q = new URLSearchParams(window.location.search);
-      if (x === def) q.delete(key);
-      else q.set(key, x);
-      const qs = q.toString();
-      window.history.replaceState(null, '', window.location.pathname + (qs ? '?' + qs : ''));
-    },
-    [key, def],
-  );
-  return [v, set];
-}
 
 /** lo que abarca el período, para los rótulos de los paneles: «26 semanas» (menos si tu historial es más corto) */
 export const periodLabel = (p: AnPeriod) => plural(weekSeries(anWeeks(p)).length, 'semana', 'semanas');

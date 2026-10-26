@@ -246,6 +246,20 @@ piezas están en `components/pista/` y su CSS en `app/styles/components/`.
 - Estadio con reloj en vivo y pulsera (imprimible), plan por bloques, estrategia, lista para el día, medallero y el
   test de nivel.
 - **Listo cuando:** sin carrera muestra el estado vacío con las distancias, y la pulsera se imprime en tamaño real.
+- Hecho. Decisiones al pasarlo (confirmadas por el usuario): «Hoy darías» sale de `lvPace()`, igual que Análisis → «Si
+  corrieras hoy»; el escenario «Realista» de la pulsera sigue siendo la proyección al día de la carrera (`raceEst()`).
+  El reloj cuenta en días de calendario, para dar los mismos días que el dorsal y la cinta: antes del día de la
+  carrera, las horas cuentan hasta la medianoche, y ese día, hasta la largada. El plan por bloques es el de la próxima
+  media o maratón, con su nombre, aunque el estadio muestre un 10K; sin carrera larga, no aparece. El test de nivel
+  es un panel (desde el medallero y ⌘K). Lo que el boceto no mostraba: el escenario (meta, realista, seguro) se
+  elige arriba de la estrategia y va en la URL (`?ritmo=`); cada tramo lleva su FC de control; «de dónde sale el ritmo
+  realista», la deriva y los geles del maratón quedan como texto chico al pie; «Copiar plan» al lado de «Imprimir
+  pulsera». La lista para el día son los pendientes de siempre, agrupados por cuándo tocan (se ve lo que ya toca y lo
+  que sigue; el resto, plegado); con hora de largada, el horario del día reemplaza a «comé 3 o 4 horas antes» y
+  «llegá con tiempo», y se suman dos chequeos que salen de tus datos (un test en las 12 semanas previas y las
+  zapatillas antes del límite). El medallero junta «Tus carreras» y el medallero viejo; la que no tiene tiempo lo
+  pide. «Agregar carrera» y las distancias del estado vacío crean la carrera y llevan a Ajustes. El panel del trofeo
+  queda para Logros.
 
 ### Fase 9 · Mapa
 
