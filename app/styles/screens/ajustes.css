@@ -1,0 +1,147 @@
+/* Ajustes (boceto «Ajustes»): lo que es de esta pantalla, con el prefijo aj-. Las piezas (panel, campos, botones,
+   stepper, vueltas) tienen su CSS en app/styles/components/.
+   Ojo: globals.css (sin capa) pone h1, h2, h3, p y ul en margin 0; los espacios van con padding o gap. */
+@layer screens {
+  .aj { padding-top: 32px; font-size: 14px; line-height: 1.5; }
+  .aj-saved { display: inline-flex; align-items: center; gap: 7px; font-size: 12.5px; color: var(--ink-3); }
+  .aj-saved i { width: 7px; height: 7px; border-radius: 50%; background: var(--pos); }
+
+  /* el índice fijo a la izquierda */
+  .aj-cols { display: grid; grid-template-columns: 200px minmax(0, 1fr); gap: 40px; align-items: start; }
+  .aj-nav { position: sticky; top: 88px; display: grid; gap: 2px; min-width: 0; }
+  .aj-nav a {
+    position: relative; display: flex; align-items: center; gap: 10px; height: 34px; padding: 0 12px; border-radius: var(--r-sm);
+    color: var(--ink-3); font-weight: 500; text-decoration: none; transition: color .15s var(--ease), background-color .15s var(--ease);
+  }
+  .aj-nav a:hover { color: var(--ink); background: var(--sunk); }
+  .aj-nav a[aria-current="true"] { color: var(--ink); }
+  .aj-nav a[aria-current="true"]::before { content: ""; position: absolute; left: 0; top: 8px; bottom: 8px; width: 3px; background: var(--acc); }
+  .aj-nav svg { width: 16px; height: 16px; flex: none; }
+  .aj-sets { display: grid; gap: 20px; min-width: 0; }
+  .aj-set { scroll-margin-top: 80px; }
+  .aj-set:focus { outline: none; }
+
+  /* una fila: qué es a la izquierda, el control a la derecha */
+  .aj-row { display: grid; grid-template-columns: 240px minmax(0, 1fr); gap: 32px; padding: 20px; border-top: 1px solid var(--line); }
+  .p-panel-h + .aj-row, .p-panel-h + div > .aj-row:first-child { border-top: 0; }
+  .aj-rt > b, .aj-rt > label { display: block; font-weight: 600; font-size: 13.5px; }
+  .aj-rt small { display: block; margin-top: 4px; font-size: 12.5px; color: var(--ink-3); line-height: 1.45; }
+  .aj-ctl { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; min-width: 0; }
+  .aj-top .aj-ctl { align-items: flex-start; gap: 14px; }
+  .aj-sp { flex: 1; }
+  .aj-mut { font-size: 12.5px; color: var(--ink-3); }
+  .aj-wide { max-width: 320px; }
+  .aj-n { width: 120px; }
+  .aj-fld { display: grid; gap: 6px; }
+  .aj-err { font-size: 12px; color: var(--neg); max-width: 34ch; }
+  .aj-foot { color: var(--ink-3); font-size: 12px; line-height: 1.5; padding-top: 14px; max-width: 90ch; }
+  .aj-none { color: var(--ink-3); font-size: 13px; }
+  .aj-mail { font-size: 13.5px; }
+
+  /* la foto: el mismo avatar de la barra lateral, en grande y con el anillo tartán */
+  .aj-av .av { width: 64px; height: 64px; background: var(--t-fondo); font: italic 900 26px/1 var(--f-disp); font-stretch: 62%; box-shadow: 0 0 0 3px var(--surface), 0 0 0 5px var(--acc); }
+  .aj-av .av svg { width: 28px; height: 28px; }
+  .aj-file { position: absolute; width: 1px; height: 1px; opacity: 0; overflow: hidden; clip-path: inset(50%); }
+  label.p-btn { cursor: pointer; }
+  label.p-btn:has(+ .aj-file:focus-visible) { outline: 3px solid var(--acc); outline-offset: 2px; }
+
+  /* zonas de FC: una barra con tiradores, como el dial de un reloj de entrenamiento */
+  .aj-zed { width: 100%; min-width: 0; }
+  .aj-zbar { position: relative; height: 44px; margin-top: 22px; user-select: none; touch-action: none; }
+  .aj-zseg {
+    position: absolute; top: 0; bottom: 0; display: grid; place-items: center; overflow: hidden;
+    font: italic 900 14px/1 var(--f-disp); font-stretch: 70%; color: #fff; background: var(--zc);
+  }
+  .aj-zseg.lt { color: var(--ink); }
+  [data-theme="dark"] .aj-zseg.lt { color: #fff; }
+  .aj-zhd { position: absolute; top: -6px; bottom: -6px; width: 22px; margin-left: -11px; cursor: ew-resize; display: grid; place-items: center; z-index: 2; touch-action: none; border-radius: 2px; }
+  .aj-zhd::before { content: ""; width: 4px; height: 100%; border-radius: 2px; background: var(--ink); box-shadow: 0 0 0 2px var(--surface); transition: background-color .15s var(--ease); }
+  .aj-zhd:hover::before, .aj-zhd:focus-visible::before, .aj-zhd:active::before { background: var(--acc); }
+  .aj-zhd:focus-visible { outline: 2px solid var(--acc) !important; outline-offset: 2px; }
+  .aj-zhd > span { position: absolute; top: -20px; font: 600 11px/1 var(--f-mono); color: var(--ink); background: var(--surface); padding: 2px 4px; border-radius: 2px; pointer-events: none; }
+  .aj-zbar.tall { margin-top: 40px; }
+  .aj-zhd.up > span { top: -38px; }
+  .aj-zax { position: relative; height: 18px; margin-top: 4px; }
+  .aj-zax span { position: absolute; top: 6px; transform: translateX(-50%); font: 500 10px/1 var(--f-mono); color: var(--ink-3); }
+  .aj-zax span::before { content: ""; position: absolute; left: 50%; top: -6px; width: 1px; height: 4px; background: var(--line-2); }
+  .aj-ztab { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 10px; margin-top: 18px; }
+  .aj-ztab > div { padding: 10px 12px; border-top: 3px solid var(--zc); background: var(--bg); min-width: 0; }
+  .aj-ztab b { font: 600 11px/1 var(--f-mono); }
+  .aj-zr { display: flex; align-items: center; gap: 6px; margin-top: 8px; }
+  .aj-zr .disp { font-size: 18px; font-style: italic; white-space: nowrap; }
+  .p-in.aj-zin { width: 56px; height: 30px; padding: 0 6px; text-align: right; }
+  .aj-ztab small { display: block; margin-top: 6px; font-size: 11.5px; color: var(--ink-3); }
+
+  /* listas de carreras y zapatillas: «Editar» abre los campos debajo de la fila */
+  .aj-list { list-style: none; margin: 0; padding: 0; }
+  .aj-li { display: grid; grid-template-columns: auto minmax(0, 1fr) auto auto; gap: 16px; align-items: center; padding: 14px 0; border-top: 1px solid var(--line); }
+  .aj-li:first-child { border-top: 0; padding-top: 0; }
+  .aj-li:last-child { padding-bottom: 0; }
+  .aj-ic { width: 40px; height: 40px; display: grid; place-items: center; background: var(--sunk); font: italic 900 14px/1 var(--f-disp); font-stretch: 66%; }
+  .aj-ic.next { background: var(--acc); color: #fff; }
+  .aj-ic svg { width: 18px; height: 18px; }
+  .aj-nm { min-width: 0; }
+  .aj-nm b { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 8px; font-weight: 600; font-size: 13.5px; }
+  .aj-nm small { display: block; font-size: 12px; color: var(--ink-3); margin-top: 2px; }
+  .aj-li > .disp { font-size: 22px; font-style: italic; text-align: right; }
+  .aj-li > .disp small { display: block; font: 500 11px/1 var(--f-ui); font-style: normal; color: var(--ink-3); margin-top: 4px; }
+  .aj-li.past .aj-nm b { color: var(--ink-2); }
+  .aj-li.ret > :not(.aj-li-b):not(.aj-ed) { opacity: .55; }
+  .aj-li-b { display: flex; gap: 6px; justify-content: flex-end; }
+  .aj-meter { margin-top: 8px; }
+  .aj-ed { grid-column: 1 / -1; padding: 18px; background: var(--bg); border: 1px solid var(--line); border-radius: var(--r-md); }
+  .aj-ed-g { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; align-items: start; }
+  .aj-ed-w { grid-column: 1 / -1; }
+  .aj-ed-w .p-tg { padding: 4px 0; }
+  .aj-ed-f { display: flex; flex-wrap: wrap; align-items: center; justify-content: flex-end; gap: 8px; margin-top: 18px; padding-top: 14px; border-top: 1px solid var(--line); }
+  .aj-ed-f > :first-child { margin-right: auto; }
+  .aj-del { display: inline-flex; flex-wrap: wrap; align-items: center; gap: 8px; font-size: 13px; }
+
+  /* conexiones */
+  .aj-conns { display: grid; gap: 10px; }
+  .aj-conn { display: flex; align-items: center; gap: 14px; padding: 14px; border: 1px solid var(--line); border-radius: var(--r-md); }
+  .aj-lg { width: 40px; height: 40px; border-radius: var(--r-md); display: grid; place-items: center; color: #fff; flex: none; }
+  .aj-lg svg { width: 18px; height: 18px; }
+  .aj-lg.ink { background: var(--ink); color: var(--bg); }
+  .aj-conn .p-btn { flex: none; }
+
+  /* tema con vista previa */
+  .aj-themes { display: grid; grid-template-columns: repeat(3, minmax(0, 150px)); gap: 12px; }
+  .aj-th { display: grid; gap: 8px; text-align: left; border-radius: var(--r-md); }
+  .aj-pv { height: 92px; border-radius: var(--r-md); border: 1px solid var(--line-2); overflow: hidden; display: grid; grid-template-columns: 26% 1fr; transition: box-shadow .15s var(--ease); }
+  .aj-pv i { display: block; }
+  .aj-pv .rl { background: var(--pc1); border-right: 1px solid rgb(128 128 128 / .2); }
+  .aj-pv .mn { background: var(--pc2); padding: 10px; display: grid; gap: 6px; align-content: start; }
+  .aj-pv .mn i { height: 20px; background: var(--pc3); border-radius: 2px; }
+  .aj-pv .mn i:first-child { height: 8px; width: 60%; background: #DC4520; }
+  .aj-pv.split { background: linear-gradient(90deg, #FFFFFF 50%, #171718 50%); }
+  .aj-th:hover .aj-pv { border-color: var(--ink-4); }
+  .aj-th[aria-pressed="true"] .aj-pv { box-shadow: 0 0 0 2px var(--surface), 0 0 0 4px var(--ink); }
+  .aj-th > span:last-child { font-size: 13px; font-weight: 500; }
+
+  /* paneles de importar y de copiar el respaldo */
+  .aj-pick { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; }
+  .aj-found { margin-top: 14px; }
+  .aj-copy { margin-top: 12px; font: 400 12px/1.5 var(--f-mono); }
+
+  @media (max-width: 1240px) {
+    .aj-cols { grid-template-columns: minmax(0, 1fr); gap: 20px; }
+    .aj-nav { position: static; display: flex; overflow-x: auto; gap: 4px; scrollbar-width: none; }
+    .aj-nav a { flex: none; }
+    .aj-nav a[aria-current="true"] { background: var(--sunk); }
+    .aj-row { grid-template-columns: 200px minmax(0, 1fr); }
+  }
+  @media (max-width: 900px) {
+    .aj { padding-top: 20px; }
+    .aj-row { grid-template-columns: minmax(0, 1fr); gap: 12px; padding: 16px; }
+    .aj-ztab { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .aj-zax span:nth-child(even) { display: none; }
+    .aj-themes { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    .aj-li { grid-template-columns: auto minmax(0, 1fr) auto; }
+    .aj-li > .aj-li-b, .aj-li > .p-btn { grid-column: 2 / -1; justify-self: start; }
+    .aj-ed { padding: 14px; }
+    .aj-ed-g { grid-template-columns: minmax(0, 1fr); }
+    .aj-conn { flex-wrap: wrap; }
+    .aj-conn .aj-sp { flex-basis: 100%; height: 0; }
+  }
+}

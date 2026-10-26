@@ -168,7 +168,7 @@ export function Banners() {
       ) : S.mode === 'local' && !S.demo && S.loaded ? (
         <div className="banner">
           <span>
-            <b>Se guarda solo en este navegador.</b> Hacé un respaldo seguido (Ajustes → Respaldo).
+            <b>Se guarda solo en este navegador.</b> Hacé un respaldo seguido (Ajustes → Cuenta y datos).
           </span>
         </div>
       ) : null}

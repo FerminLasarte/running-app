@@ -44,6 +44,14 @@ export const DF_LONG = new Intl.DateTimeFormat('es-AR', { weekday: 'long', day: 
 
 export const dateLabel = (s: string) => DF_WD.format(pd(s)).replace(/[.,]/g, '');
 export const dShort = (d: Date) => DF_D.format(d).replace(/\./g, '');
+/** cuánto pasó desde un momento (ms): «hace un momento», «hace 4 min», «hace 3 h» o el día */
+export function agoTxt(t: number, now = Date.now()) {
+  const m = Math.floor((now - t) / 60000);
+  if (m < 1) return 'hace un momento';
+  if (m < 60) return 'hace ' + m + ' min';
+  if (m < 24 * 60) return 'hace ' + Math.floor(m / 60) + ' h';
+  return 'el ' + dShort(new Date(t));
+}
 
 /** número con coma decimal y sin ceros de más; '–' si no es un número */
 export const fmt = (x: number | null | undefined, d?: number) => {

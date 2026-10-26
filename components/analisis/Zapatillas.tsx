@@ -8,7 +8,7 @@ import type { SessionType, Shoe } from '@/lib/domain/types';
 import { TYPES, activeShoes, mainShoe, nextRace } from '@/lib/domain/config';
 import { anFrom } from '@/lib/domain/analysis';
 import { bestMarks } from '@/lib/domain/marks';
-import { SHOE_WKS, shoeLife, shoeMonths, shoeRuns } from '@/lib/domain/shoes';
+import { SHOE_NEAR, SHOE_WKS, shoeLife, shoeMonths, shoeRuns, shoeUse } from '@/lib/domain/shoes';
 import { kmByType } from '@/lib/domain/stats';
 import { DF_M, cap, dateLabel, dayDiff, fmt, fmtDur, nf, pd, sum } from '@/lib/domain/util';
 import { goShoes } from '@/lib/data/actions';
@@ -22,8 +22,6 @@ import { periodLabel, useAnPeriod } from './period';
 import { monthOf, plural } from './util';
 
 const STACK: SessionType[] = ['regen', 'fondo', 'tempo', 'series', 'test'];
-/** desde qué parte de la vida útil se avisa (como en Ajustes) */
-const NEAR = 0.85;
 
 /** «a principios de diciembre» */
 function whenTxt(date: string) {
@@ -58,8 +56,8 @@ function lifeNote(z: Shoe) {
 
 /** «Desde junio · 92 salidas» */
 function sinceTxt(z: Shoe) {
-  const R = shoeRuns(z);
-  return R.length ? 'Desde ' + monthOf(pd(R[0].result.date)) + ' · ' + plural(R.length, 'salida', 'salidas') : 'Sin salidas todavía';
+  const u = shoeUse(z);
+  return u ? 'Desde ' + monthOf(pd(u.first)) + ' · ' + plural(u.n, 'salida', 'salidas') : 'Sin salidas todavía';
 }
 
 function MainShoe({ z, label, from, per }: { z: Shoe; label: string; from: string; per: string }) {
@@ -82,9 +80,9 @@ function MainShoe({ z, label, from, per }: { z: Shoe; label: string; from: strin
           {nf(L.km)}
           <span className="p-u">de {nf(z.limitKm)} km</span>
         </span>
-        {L.left <= 0 ? <Tag warn>Pasó el límite</Tag> : <Tag warn={f >= NEAR}>Quedan {nf(L.left)} km</Tag>}
+        {L.left <= 0 ? <Tag warn>Pasó el límite</Tag> : <Tag warn={f >= SHOE_NEAR}>Quedan {nf(L.left)} km</Tag>}
       </div>
-      <Laps value={f} n={40} h={18} gap={3} soft warnFrom={Math.round(NEAR * 40)} label={nf(L.km) + ' de ' + nf(z.limitKm) + ' km'} />
+      <Laps value={f} n={40} h={18} gap={3} soft warnFrom={Math.round(SHOE_NEAR * 40)} label={nf(L.km) + ' de ' + nf(z.limitKm) + ' km'} />
       <p className="an-note">{lifeNote(z)}</p>
       <div className="an-sh">
         <h3>Km por mes</h3>
@@ -127,9 +125,9 @@ function OtherShoe({ z, i }: { z: Shoe; i: number }) {
           {nf(L.km)}
           <span className="p-u">de {nf(z.limitKm)} km</span>
         </span>
-        {L.left <= 0 ? <Tag warn>Pasó el límite</Tag> : f >= NEAR ? <Tag warn>Quedan {nf(L.left)} km</Tag> : null}
+        {L.left <= 0 ? <Tag warn>Pasó el límite</Tag> : f >= SHOE_NEAR ? <Tag warn>Quedan {nf(L.left)} km</Tag> : null}
       </div>
-      <Laps value={f} n={20} h={10} soft warnFrom={Math.round(NEAR * 20)} label={nf(L.km) + ' de ' + nf(z.limitKm) + ' km'} />
+      <Laps value={f} n={20} h={10} soft warnFrom={Math.round(SHOE_NEAR * 20)} label={nf(L.km) + ' de ' + nf(z.limitKm) + ' km'} />
       {tests.length ? (
         <div className="an-shoe-marks">
           <MarkList

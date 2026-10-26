@@ -126,6 +126,15 @@ export function goForm() {
 export function goLogros(part?: string) {
   navigate('/logros', () => (part ? document.getElementById(part)?.scrollIntoView({ block: 'start' }) : jumpTo(0)));
 }
+/** las partes de Ajustes (el índice, la paleta y los links de otras pantallas bajan hasta ahí) */
+export const AJ_PARTS = { perfil: 'aj-perfil', fc: 'aj-fc', races: 'aj-carreras', shoes: 'aj-zapas', con: 'aj-con', apa: 'aj-apa', datos: 'aj-datos' } as const;
+/** el campo de la FC máxima (lo enfoca la bienvenida de Semana) */
+export const AJ_HRMAX = 'aj-hrmax';
+/** el nombre de una carrera o de un par en Ajustes */
+export const ajNameId = (kind: 'r' | 'z', id: string) => 'aj-' + kind + '-' + id + '-name';
+/** qué carrera o par está abierto para editar en Ajustes: «r:id», «z:id» o null */
+export const setAjEdit = (v: string | null) => setUi('ajEdit', v);
+
 /** después de agregar algo en Ajustes: lleva a su nombre para escribirlo */
 export const focusField = (id: string) =>
   afterPaint(() => {
@@ -135,23 +144,21 @@ export const focusField = (id: string) =>
     e.focus();
     e.select();
   });
-/** carrera nueva de `km` a 90 días (desde Ajustes o desde las distancias de Carreras): lleva a Ajustes con su nombre
-    listo para escribir */
+/** a Ajustes, arriba de todo o bajando hasta una parte (por su id) */
+export function goAjustes(part?: string) {
+  closeSheet();
+  navigate('/ajustes', () => (part ? document.getElementById(part)?.scrollIntoView({ block: 'start' }) : jumpTo(0)));
+}
+/** carrera nueva de `km` a 90 días (desde Ajustes o desde las distancias de Carreras): lleva a Ajustes con la carrera
+    abierta y su nombre listo para escribir */
 export function addRace(km = 10, name = 'Nueva carrera') {
   if (blockDemo()) return;
   const c = cleanObj(S.cfg),
     r = normRace({ name, km, date: ymd(addDays(new Date(), 90)) }, c);
   c.races.push(r);
-  const n = normCfg(c);
-  setUi('raceDel', null);
-  saveCfg(n);
-  const id = 'st-r' + n.races.findIndex((x) => x.id === r.id) + '-name';
-  navigate('/ajustes', () => focusField(id));
+  saveCfg(normCfg(c));
+  setAjEdit('r:' + r.id);
+  navigate('/ajustes', () => focusField(ajNameId('r', r.id)));
 }
-export function goRaces() {
-  closeSheet();
-  navigate('/ajustes', () => document.getElementById('st-races')?.scrollIntoView({ block: 'start' }));
-}
-export function goShoes() {
-  navigate('/ajustes', () => document.getElementById('st-shoes')?.scrollIntoView({ block: 'start' }));
-}
+export const goRaces = () => goAjustes(AJ_PARTS.races);
+export const goShoes = () => goAjustes(AJ_PARTS.shoes);

@@ -13,6 +13,14 @@ export function shoeKm(z: Shoe) {
 /** salidas hechas con un par, de la más vieja a la más nueva */
 export const shoeRuns = (z: Shoe) => doneList().filter((s) => s.result.shoe === z.id);
 
+/** primera y última salida con un par, cuántas fueron y si solo lo usaste en tests y carreras; null si no tiene */
+export function shoeUse(z: Shoe) {
+  const R = shoeRuns(z);
+  return R.length ? { first: R[0].result.date, last: R[R.length - 1].result.date, n: R.length, race: R.every((s) => s.type === 'test') } : null;
+}
+
+/** desde qué parte de la vida útil se avisa que se acaba */
+export const SHOE_NEAR = 0.85;
 /** semanas que se miran para saber cuánto usás un par */
 export const SHOE_WKS = 8;
 export interface ShoeLife {

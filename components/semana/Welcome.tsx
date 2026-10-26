@@ -7,7 +7,7 @@ import { ArrowRight, Check, Lightning } from '@phosphor-icons/react';
 import { firstSteps, type FirstStepKey } from '@/lib/domain/firstRun';
 import { nextRace } from '@/lib/domain/config';
 import { raceDateLabel } from '@/lib/domain/week';
-import { demoOn, goRaces } from '@/lib/data/actions';
+import { AJ_HRMAX, demoOn, goRaces } from '@/lib/data/actions';
 import { navigate } from '@/lib/nav';
 import { useApp } from '@/lib/store';
 import { stravaConnect } from '@/lib/strava/client';
@@ -18,7 +18,7 @@ import { cx } from '@/components/pista/util';
 
 const goHr = () =>
   navigate('/ajustes', () => {
-    const el = document.getElementById('st-hrmax');
+    const el = document.getElementById(AJ_HRMAX);
     el?.scrollIntoView({ block: 'center' });
     el?.focus({ preventScroll: true });
   });

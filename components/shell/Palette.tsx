@@ -18,9 +18,11 @@ import {
   Medal,
   Plus,
   Printer,
+  Sneaker,
   SquaresFour,
   Target,
   Trophy,
+  UploadSimple,
   type Icon,
 } from '@phosphor-icons/react';
 import { S, setUi, useApp } from '@/lib/store';
@@ -36,7 +38,7 @@ import { baseMapReady, loadBaseMap, mapBarrios, mapRoutes, onBaseMap } from '@/l
 import { addDays, fmt, mondayOf, todayS, ymd } from '@/lib/domain/util';
 import { CAT_N, trophies, trophyNote, trophyTier } from '@/lib/domain/trophies';
 import { chView } from '@/lib/domain/challenges';
-import { goLogros } from '@/lib/data/actions';
+import { AJ_PARTS, addRace, goAjustes, goLogros } from '@/lib/data/actions';
 import { stravaSync } from '@/lib/strava/sync';
 import { toggleTheme } from '@/lib/theme';
 import { briefOf } from '@/components/pista/session';
@@ -47,6 +49,8 @@ import { PRINT_BTN_ID } from '@/components/carreras/PrintBand';
 import { mapaHref } from '@/components/mapa/params';
 import { TIER_NAME } from '@/components/pista/sport';
 import { LO_PARTS, openTrophy, trophyIcon } from '@/components/logros/util';
+import { shoeAdd } from '@/components/ajustes/actions';
+import { openImport } from '@/components/ajustes/Datos';
 import { SECTIONS } from './sections';
 import { useStravaStatus } from './useStravaStatus';
 
@@ -89,6 +93,26 @@ const LO_ROWS: Row[] = (
     [LO_PARTS.att, 'Atributos', 'ficha del jugador media velocidad resistencia constancia disciplina exploración'],
   ] as const
 ).map(([id, t, more]) => ({ g: 'Logros', key: id, t, sub: 'En Logros', more, icon: LO_ICON, run: () => goLogros(id) }));
+
+/* las secciones de Ajustes: se buscan por su nombre o por lo que se ajusta ahí */
+const AJ_ICON = SECTIONS.find((s) => s.id === 'ajustes')!.Icon;
+const AJ_ROWS: Row[] = (
+  [
+    [AJ_PARTS.perfil, 'Perfil', 'foto nombre edad corriendo desde salidas por semana racha objetivo'],
+    [AJ_PARTS.fc, 'Frecuencia cardíaca', 'fc máxima zonas pulsaciones lpm recalcular'],
+    [AJ_PARTS.races, 'Editar carreras', 'agregar borrar fecha objetivo tiempo largada lugar inicio del plan'],
+    [AJ_PARTS.shoes, 'Zapatillas', 'vida útil km límite principal retirar agregar'],
+    [AJ_PARTS.con, 'Conexiones', 'strava conectar desconectar sincronizar capturas reloj foto'],
+    [AJ_PARTS.apa, 'Apariencia', 'tema claro oscuro sistema'],
+    [AJ_PARTS.datos, 'Cuenta y datos', 'respaldo exportar importar json csv planilla cerrar sesión cuenta nube'],
+  ] as const
+).map(([id, t, more]) => ({ g: 'Ajustes', key: id, t, sub: 'En Ajustes', more, icon: AJ_ICON, run: () => goAjustes(id) }));
+/* lo que se agrega o se trae en Ajustes: aparece al buscarlo, para no alargar la lista de siempre */
+const AJ_ACTS: Row[] = [
+  { g: 'Acciones', key: 'a:ra', t: 'Agregar carrera', sub: 'En Ajustes', more: 'nueva carrera', icon: FlagCheckered, run: () => addRace() },
+  { g: 'Acciones', key: 'a:za', t: 'Agregar zapatillas', sub: 'En Ajustes', more: 'nuevas zapatillas par', icon: Sneaker, run: () => navigate('/ajustes', shoeAdd) },
+  { g: 'Acciones', key: 'a:im', t: 'Importar respaldo', sub: 'Un JSON o un CSV de esta app', more: 'importar archivo planilla', icon: UploadSimple, run: openImport },
+];
 
 /* el Mapa: tus barrios (con el mapa de la Ciudad ya bajado) y traer recorridos nuevos */
 const MAP_ICON = SECTIONS.find((s) => s.id === 'mapa')!.Icon;
@@ -185,7 +209,7 @@ function PaletteBox() {
   const list = useMemo<Row[]>(() => {
     const q0 = q.trim();
     if (!q0) return [...fixed, ...index.sessions.filter((x) => x.done).slice(0, 3).map((x) => ({ ...x, g: 'Recientes' }))];
-    const found = palSearch([...fixed, ...AN_ROWS, ...index.carreras, ...LO_ROWS, ...logros, ...barrios, ...index.sessions, ...index.races, ...index.registro], q);
+    const found = palSearch([...fixed, ...AJ_ACTS, ...AN_ROWS, ...index.carreras, ...LO_ROWS, ...AJ_ROWS, ...logros, ...barrios, ...index.sessions, ...index.races, ...index.registro], q);
     /* la paleta muestra pocas sesiones: al final, todas las que encuentra el Registro con lo mismo */
     const n = lgRows({ ...LG_INIT, q: q0, st: 'all' }).length;
     if (!n) return found;
