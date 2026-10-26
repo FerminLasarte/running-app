@@ -1,9 +1,9 @@
 'use client';
 /* Controles del rediseño «Pista» (estilos en app/styles/components/controls.css): botón, chip de tipo, etiqueta,
-   Δ contra el objetivo, PR, selector segmentado, interruptor, stepper y pestañas. */
+   Δ contra el objetivo, PR, selector segmentado, lista con forma de botón, interruptor, stepper y pestañas. */
 import { useRef, type ButtonHTMLAttributes, type KeyboardEvent, type ReactNode } from 'react';
 import Link from 'next/link';
-import { ArrowRight, Minus, Plus, type Icon, type IconWeight } from '@phosphor-icons/react';
+import { ArrowRight, CaretDown, Minus, Plus, type Icon, type IconWeight } from '@phosphor-icons/react';
 import type { SessionType } from '@/lib/domain/types';
 import { TYPES } from '@/lib/domain/config';
 import { pad } from '@/lib/domain/util';
@@ -93,6 +93,25 @@ export function Segmented<V extends string>({ options, value, onChange, label, f
         </button>
       ))}
     </div>
+  );
+}
+
+/** una opción de una lista que se despliega, con forma de botón (el período). Es un `select` del navegador, invisible y
+    encima de todo el botón: en el celu abre la lista del sistema y con el teclado se elige con las flechas */
+export function SelectButton<V extends string>({ options, value, onChange, label, icon: I }: { options: [V, string][]; value: V; onChange: (v: V) => void; label: string; icon?: Icon }) {
+  return (
+    <span className="p-btn p-selb">
+      {I ? <I aria-hidden="true" /> : null}
+      <span aria-hidden="true">{options.find((o) => o[0] === value)?.[1]}</span>
+      <CaretDown className="cd" aria-hidden="true" />
+      <select aria-label={label} value={value} onChange={(e) => onChange(e.target.value as V)}>
+        {options.map(([v, l]) => (
+          <option key={v} value={v}>
+            {l}
+          </option>
+        ))}
+      </select>
+    </span>
   );
 }
 

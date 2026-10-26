@@ -67,6 +67,11 @@
   .p-tbl th { font: 600 10.5px/1 var(--f-ui); letter-spacing: .1em; text-transform: uppercase; color: var(--ink-3); text-align: left; padding: 13px 16px 11px; border-bottom: 1px solid var(--line); white-space: nowrap; }
   .p-tbl td { padding: 0 16px; height: 46px; border-bottom: 1px solid var(--line); white-space: nowrap; }
   .p-tbl tbody tr:last-child td { border-bottom: 0; }
+  /* encabezado que ordena: el texto es el botón; la columna elegida, en tinta y con su flecha */
+  .p-tbl .p-sort { display: inline-flex; align-items: center; gap: 4px; font: inherit; letter-spacing: inherit; text-transform: inherit; color: inherit; border-radius: 3px; transition: color .12s var(--ease); }
+  .p-tbl .p-sort:hover, .p-tbl .p-sort.on { color: var(--ink); }
+  .p-tbl .p-sort svg { width: 10px; height: 10px; }
+  .p-tbl th.r .p-sort { flex-direction: row-reverse; }
   .p-tbl .r { text-align: right; }
   .p-tbl td.r { font-family: var(--f-mono); font-size: 12.5px; font-variant-numeric: tabular-nums; }
   .p-tbl tr.go { position: relative; cursor: pointer; transition: background-color .12s var(--ease); }

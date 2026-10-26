@@ -1,7 +1,7 @@
 'use client';
 /* Campos del rediseño «Pista» (estilos en app/styles/components/fields.css). `Field` pone la etiqueta, la ayuda y el
    error; los campos marcan `aria-invalid` y apuntan al error con `aria-describedby` usando el mismo id. */
-import { Fragment, type InputHTMLAttributes, type ReactNode, type TextareaHTMLAttributes } from 'react';
+import { Fragment, type ComponentProps, type InputHTMLAttributes, type ReactNode, type TextareaHTMLAttributes } from 'react';
 import { MagnifyingGlass, WarningCircle } from '@phosphor-icons/react';
 import type { Hms, Ms } from '@/lib/domain/hms';
 import { cx } from './util';
@@ -102,7 +102,7 @@ export function Calc({ id, children, note = 'calculado' }: { id: string; childre
 }
 
 /** búsqueda con el ícono adentro y, si tiene, su atajo */
-export function SearchField({ label, kbd, ...rest }: InputHTMLAttributes<HTMLInputElement> & { label: string; kbd?: string }) {
+export function SearchField({ label, kbd, ...rest }: ComponentProps<'input'> & { label: string; kbd?: string }) {
   return (
     <label className="p-search">
       <MagnifyingGlass aria-hidden="true" />

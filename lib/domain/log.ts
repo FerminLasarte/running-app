@@ -5,7 +5,7 @@ import { csvQ } from './csv';
 import { scoreSession } from './score';
 import { planKmOf, planSummary, sdate } from './stats';
 import type { Session, SessionType } from './types';
-import { dateLabel, DF_MY, fmt, fmtDur, fmtPace, norm, pad, pd, sum } from './util';
+import { addDays, dateLabel, DF_MY, fmt, fmtDur, fmtPace, norm, pad, pd, sum, ymd } from './util';
 
 export const LG_PAGE = 80;
 
@@ -23,17 +23,17 @@ export interface LgInfo {
   txt: string;
 }
 export type LgSortKey = 'date' | 'km' | 'time' | 'pace' | 'hr' | 'feel' | 'score';
-/* clave: [etiqueta, valor para ordenar, orden por defecto (-1 = de mayor a menor)] */
-export const LG_SORTS: Record<LgSortKey, [string, (q: LgInfo) => number | string, 1 | -1]> = {
+/* clave: [etiqueta, valor para ordenar (null: no tiene el dato), orden por defecto (-1 = de mayor a menor)] */
+export const LG_SORTS: Record<LgSortKey, [string, (q: LgInfo) => number | string | null, 1 | -1]> = {
   date: ['Fecha', (q) => q.d, -1],
   km: ['Distancia', (q) => q.km, -1],
-  time: ['Tiempo', (q) => q.t || 0, -1],
-  pace: ['Ritmo', (q) => q.p || 9999, 1],
-  hr: ['FC media', (q) => q.hr || 0, -1],
-  feel: ['Sensación', (q) => q.feel || 0, -1],
-  score: ['Puntaje', (q) => (q.sc == null ? -1 : q.sc), -1],
+  time: ['Tiempo', (q) => q.t || null, -1],
+  /* el ritmo principal (el del trabajo), que es el que muestra la tabla; sin él, el promedio */
+  pace: ['Ritmo', (q) => q.s.result?.mainPaceSec || q.p || null, 1],
+  hr: ['FC media', (q) => q.hr || null, -1],
+  feel: ['Sensación', (q) => q.feel || null, -1],
+  score: ['Puntaje', (q) => q.sc, -1],
 };
-export const LG_SORT_KEYS = Object.keys(LG_SORTS) as LgSortKey[];
 export const LG_ST: [LgStatus | 'all', string][] = [
   ['done', 'Hechas'],
   ['plan', 'Planificadas'],
@@ -98,9 +98,11 @@ export function lgRows(L: LgState = lgState()): LgInfo[] {
   const k = LG_SORTS[L.sort] || LG_SORTS.date,
     f = k[1];
   return a.map(lgInfo).sort((x, y) => {
-    /* todos los valores de un mismo criterio son del mismo tipo (números, o fechas como texto) */
-    const u = f(x) as number,
-      v = f(y) as number;
+    /* todos los valores de un mismo criterio son del mismo tipo (números, o fechas como texto); las que no tienen el
+       dato (planificadas, sin FC…) van al final para los dos lados */
+    const u = f(x) as number | null,
+      v = f(y) as number | null;
+    if (u == null || v == null) return u == null && v == null ? y.d.localeCompare(x.d) : u == null ? 1 : -1;
     return (u < v ? -1 : u > v ? 1 : x.d.localeCompare(y.d)) * L.dir;
   });
 }
@@ -111,19 +113,39 @@ export function lgTotals(R: LgInfo[]) {
     H = D.filter((q) => q.hr);
   return { n: R.length, done: D.length, km, t, p: km > 0 ? t / km : 0, hr: H.length ? sum(H.map((q) => q.hr!)) / H.length : 0 };
 }
-export const lgHours = (t: number) => {
-  const h = Math.floor(t / 3600),
-    m = Math.round((t % 3600) / 60);
-  return h ? h + ' h ' + pad(m) + ' min' : m + ' min';
+/** puntaje medio de las que tienen puntaje (null si ninguna) */
+export function lgScoreAvg(R: LgInfo[]) {
+  const P = R.filter((q) => q.sc != null).map((q) => q.sc!);
+  return P.length ? sum(P) / P.length : null;
+}
+/** horas y minutos con dos puntos: «101:40» */
+export const lgHm = (t: number) => {
+  const m = Math.round(t / 60);
+  return Math.floor(m / 60) + ':' + pad(m % 60);
 };
 
-/* planilla de lo que estás viendo en el Registro (con los filtros aplicados) */
-export function lgCsv(L: LgState = lgState()) {
+/* período: desde cuándo se ven las sesiones. Las planificadas que vienen se ven siempre (el período no tiene fin) */
+export type LgPeriod = 'todo' | '30d' | '2m' | '6m' | '12m';
+export const LG_PERIODS: [LgPeriod, string][] = [
+  ['todo', 'Todo'],
+  ['30d', 'Últimos 30 días'],
+  ['2m', 'Últimos 2 meses'],
+  ['6m', 'Últimos 6 meses'],
+  ['12m', 'Último año'],
+];
+/** primer día del período (null: desde siempre) */
+export function lgFrom(p: LgPeriod, today = new Date()): string | null {
+  if (p === 'todo') return null;
+  if (p === '30d') return ymd(addDays(today, -29));
+  const m = p === '2m' ? 2 : p === '6m' ? 6 : 12;
+  return ymd(new Date(today.getFullYear(), today.getMonth() - m, today.getDate() + 1));
+}
+
+/** planilla de lo que estás viendo en el Registro (las filas con los filtros aplicados), de la más vieja a la más nueva */
+export function lgCsv(rows: LgInfo[]) {
   const H = ['fecha', 'tipo', 'estado', 'km', 'tiempo', 'ritmo_min_km', 'fc_media', 'fc_max', 'sensacion', 'molestia', 'clima', 'puntaje', 'notas'];
   const ST: Record<LgStatus, string> = { done: 'hecha', plan: 'planificada', miss: 'no hecha' };
-  const R = lgRows(L)
-    .slice()
-    .sort((a, b) => a.d.localeCompare(b.d));
+  const R = rows.slice().sort((a, b) => a.d.localeCompare(b.d));
   return [H.join(',')]
     .concat(
       R.map((q) => {

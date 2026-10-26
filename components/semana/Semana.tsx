@@ -4,15 +4,15 @@
    punta a punta (la pone el shell). Sin ninguna sesión, la bienvenida y la semana vacía. */
 import '@/app/styles/screens/semana.css';
 import { S, useS } from '@/lib/store';
-import { TYPES, easyActive } from '@/lib/domain/config';
+import { easyActive } from '@/lib/domain/config';
 import { isFirstRun } from '@/lib/domain/firstRun';
-import { doneList, sdate } from '@/lib/domain/stats';
-import { dateLabel, dShort, pd, todayS } from '@/lib/domain/util';
+import { doneList } from '@/lib/domain/stats';
+import { dShort, pd, todayS } from '@/lib/domain/util';
 import { blockDemo, saveCfg, toast } from '@/lib/data/actions';
 import { sessionHref } from '@/lib/nav';
 import { Button } from '@/components/pista/controls';
 import { Panel, Table } from '@/components/pista/structure';
-import { SESSION_COLS } from '@/components/pista/session';
+import { SESSION_COLS, sessionLabel } from '@/components/pista/session';
 import { cssVars } from '@/components/pista/util';
 import { Hero } from './Hero';
 import { WeekBoard } from './WeekBoard';
@@ -41,7 +41,7 @@ function Recent() {
         </Button>
       }
     >
-      <Table cols={SESSION_COLS} rows={rows} rowKey={(s) => s.id} href={(s) => sessionHref(s.id)} goLabel={(s) => TYPES[s.type].label + ' del ' + dateLabel(sdate(s))} label="Últimas sesiones" />
+      <Table cols={SESSION_COLS} rows={rows} rowKey={(s) => s.id} href={(s) => sessionHref(s.id)} goLabel={sessionLabel} label="Últimas sesiones" />
     </Panel>
   );
 }

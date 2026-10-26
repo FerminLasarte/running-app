@@ -24,13 +24,15 @@ import { S, setUi, useApp } from '@/lib/store';
 import { openSheet } from '@/lib/sheets';
 import { navigate, goSession } from '@/lib/nav';
 import { doExport } from '@/lib/data/backup';
-import { easyActive } from '@/lib/domain/config';
+import { TYPES, TYPE_KEYS, easyActive } from '@/lib/domain/config';
+import { LG_INIT, lgRows } from '@/lib/domain/log';
 import { openRecal } from '@/lib/domain/recal';
 import { palIndex, palMark, palSearch, type PalItem } from '@/lib/domain/palette';
 import { addDays, mondayOf, todayS, ymd } from '@/lib/domain/util';
 import { toggleTheme } from '@/lib/theme';
 import { briefOf } from '@/components/pista/session';
 import { cssVars, cx, typeColor } from '@/components/pista/util';
+import { registroHref } from '@/components/registro/filters';
 import { SECTIONS } from './sections';
 import { useStravaStatus } from './useStravaStatus';
 
@@ -78,14 +80,24 @@ function PaletteBox() {
     return {
       sessions: ix.sessions.map((x): Row => ({ g: x.g, key: x.key, t: x.t, sub: x.sub, more: x.more, color: typeColor(x.type), done: !!x.s.result, run: () => goSession(x.s.id) })),
       races: ix.races.map((x): Row => ({ g: x.g, key: x.key, t: x.t, sub: x.sub, more: x.more, icon: x.past ? Medal : FlagCheckered, run: () => (x.past && x.r.resultSec ? openSheet('raceMedal', { id: x.r.id }) : navigate('/carreras')) })),
+      /* el Registro filtrado por cada tipo que tenés */
+      registro: TYPE_KEYS.filter((k) => sessions.some((s) => s.type === k)).map(
+        (k): Row => ({ g: 'Registro', key: 'reg:' + k, t: TYPES[k].label, sub: 'Todas las de este tipo, en el Registro', color: typeColor(k), run: () => navigate(registroHref({ tipo: k })) }),
+      ),
     };
     // el índice lee el estado: se rearma cuando cambian las sesiones o las carreras
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [sessions, races]);
 
   const list = useMemo<Row[]>(() => {
-    if (!q.trim()) return [...fixed, ...index.sessions.filter((x) => x.done).slice(0, 3).map((x) => ({ ...x, g: 'Recientes' }))];
-    return palSearch([...fixed, ...index.sessions, ...index.races], q);
+    const q0 = q.trim();
+    if (!q0) return [...fixed, ...index.sessions.filter((x) => x.done).slice(0, 3).map((x) => ({ ...x, g: 'Recientes' }))];
+    const found = palSearch([...fixed, ...index.sessions, ...index.races, ...index.registro], q);
+    /* la paleta muestra pocas sesiones: al final, todas las que encuentra el Registro con lo mismo */
+    const n = lgRows({ ...LG_INIT, q: q0, st: 'all' }).length;
+    if (!n) return found;
+    return [...found, { g: 'Registro', key: 'reg:q', t: 'Buscar «' + q0 + '» en el Registro', sub: n + (n === 1 ? ' sesión' : ' sesiones'), icon: MagnifyingGlass, run: () => navigate(registroHref({ q: q0 })) }];
+    /* lgRows lee las sesiones del estado: cuando cambian, cambia `index` y se vuelve a buscar */
   }, [q, fixed, index]);
   const cur = Math.min(act, Math.max(0, list.length - 1));
 

@@ -2,7 +2,7 @@
    página, panel, fila de números, bloque estadio con los andariveles y tabla de datos. */
 import { type CSSProperties, type ElementType, type ReactNode } from 'react';
 import Link from 'next/link';
-import { CaretRight } from '@phosphor-icons/react';
+import { CaretDown, CaretRight, CaretUp } from '@phosphor-icons/react';
 import { cssVars, cx } from './util';
 
 /** voz de marca: angosta, itálica, en mayúsculas y con el punto final en tartán */
@@ -116,7 +116,15 @@ export interface Col<T> {
   /** se esconde en el celu */
   hideS?: boolean;
   className?: string;
+  /** se puede ordenar por esta columna: la clave del orden */
+  sort?: string;
   cell: (row: T) => ReactNode;
+}
+/** orden de la tabla: por qué columna (`by`, la clave de `Col.sort`) y para qué lado; tocar el encabezado llama a `onSort` */
+export interface TableSort {
+  by: string;
+  dir: 1 | -1;
+  onSort: (by: string) => void;
 }
 /** fila de grupo (el mes, con sus totales) entre las filas de datos */
 export interface Group {
@@ -133,6 +141,7 @@ export function Table<T>({
   href,
   goLabel,
   dim,
+  sort,
   label,
 }: {
   cols: Col<T>[];
@@ -143,6 +152,7 @@ export function Table<T>({
   goLabel?: (r: T) => string;
   /** planificadas y no hechas: en gris */
   dim?: (r: T) => boolean;
+  sort?: TableSort;
   label?: string;
 }) {
   const n = cols.length + (href ? 1 : 0);
@@ -150,11 +160,21 @@ export function Table<T>({
     <table className="p-tbl" aria-label={label}>
       <thead>
         <tr>
-          {cols.map((c) => (
-            <th key={c.key} className={cx(c.num && 'r', c.hideS && 'hide-s')}>
-              {c.label}
-            </th>
-          ))}
+          {cols.map((c) => {
+            const on = sort && c.sort === sort.by;
+            return (
+              <th key={c.key} className={cx(c.num && 'r', c.hideS && 'hide-s')} aria-sort={on ? (sort.dir < 0 ? 'descending' : 'ascending') : undefined}>
+                {sort && c.sort ? (
+                  <button type="button" className={cx('p-sort', on && 'on')} onClick={() => sort.onSort(c.sort!)}>
+                    {c.label}
+                    {on ? sort.dir < 0 ? <CaretDown weight="bold" aria-hidden="true" /> : <CaretUp weight="bold" aria-hidden="true" /> : null}
+                  </button>
+                ) : (
+                  c.label
+                )}
+              </th>
+            );
+          })}
           {href ? <th aria-hidden="true" /> : null}
         </tr>
       </thead>

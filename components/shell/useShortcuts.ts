@@ -1,6 +1,6 @@
 'use client';
 /* Atajos de teclado (compu): 1–6 secciones, ← → semana (en Semana), R registrar, P planificar, ⌘K (Ctrl+K) la paleta y
-   Esc cierra lo que esté arriba de todo. «/» busca en Registro: está en LogView. */
+   Esc cierra lo que esté arriba de todo. «/» busca en Registro: está en components/registro/FilterBar.tsx. */
 import { useEffect, useRef } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
 import { S, setS } from '@/lib/store';
@@ -9,7 +9,8 @@ import { weekGo } from '@/lib/data/actions';
 import { NAV } from './sections';
 import { closePalette, openPalette } from './Palette';
 
-const typingIn = (t: EventTarget | null) => {
+/** si la tecla cae en un campo de texto (ahí las letras se escriben, no son atajos) */
+export const typingIn = (t: EventTarget | null) => {
   const el = t as HTMLElement | null;
   return !!el && (el.isContentEditable || /^(INPUT|TEXTAREA|SELECT)$/.test(el.tagName));
 };

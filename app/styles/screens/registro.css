@@ -1,0 +1,54 @@
+/* Registro (boceto «Registro» y su estado vacío en «Primera vez»): los totales, la barra de filtros, el pie de la tabla
+   y los estados sin sesiones. Las piezas tienen su CSS en app/styles/components/; acá va lo que es de esta pantalla,
+   con el prefijo reg-.
+   Ojo: globals.css (sin capa) pone h1, h2, h3, p y ul en margin 0; los espacios van con padding o gap. */
+@layer screens {
+  .reg { padding-top: 32px; font-size: 14px; line-height: 1.5; }
+
+  /* totales: sin caja, los números grandes e itálicos separados por una raya */
+  .reg-tot { margin-bottom: 24px; }
+  .reg-tot .p-kpis > div { padding: 2px 22px; }
+  .reg-tot .p-kpis > div:first-child { padding-left: 0; }
+  .reg-tot .p-kpis > div + div { border-left-color: var(--line-2); }
+  .reg-tot .p-kpis .disp { font-size: 44px; font-style: italic; }
+
+  /* filtros: el tipo a la izquierda; búsqueda, estado y período a la derecha. Si no entran en una línea, las
+     herramientas bajan juntas y la búsqueda se estira */
+  .reg-bar { display: flex; align-items: center; flex-wrap: wrap; gap: 10px; margin-bottom: 16px; }
+  .reg-types { max-width: 100%; }
+  .reg-tools { flex: 1 1 520px; display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 10px; }
+  .reg-tools .p-search { flex: 1 1 220px; max-width: 520px; }
+  .reg-tools .p-search input { width: 100%; }
+
+  /* pie de la tabla: traer más filas */
+  .reg-more { display: flex; justify-content: center; align-items: center; height: 56px; border-top: 1px solid var(--line); }
+
+  /* los filtros no dejan ninguna */
+  .reg-none { padding: 56px 20px; display: grid; justify-items: center; gap: 6px; text-align: center; color: var(--ink-3); }
+  .reg-none b { font: italic 900 26px/1 var(--f-disp); font-stretch: 64%; text-transform: uppercase; color: var(--ink); }
+  .reg-none .p-btn { margin-top: 10px; }
+
+  /* sin ninguna sesión */
+  .reg-empty { max-width: 520px; }
+  .reg-empty .p-panel-b { display: grid; gap: 10px; justify-items: start; padding: 22px 22px 24px; }
+  .reg-empty .ic { width: 26px; height: 26px; color: var(--ink-3); }
+  .reg-empty h2 { font-size: 34px; }
+  .reg-empty p { color: var(--ink-2); font-size: 13.5px; max-width: 46ch; }
+  .reg-ghost { width: 100%; display: grid; gap: 6px; margin: 4px 0 6px; }
+  .reg-ghost i { height: 26px; border-radius: var(--r-sm); border: 1px dashed var(--line-2); background: repeating-linear-gradient(90deg, transparent 0 14px, var(--sunk) 14px 15px); }
+  .reg-ghost i:nth-child(2) { width: 82%; }
+  .reg-ghost i:nth-child(3) { width: 64%; }
+
+  @media (max-width: 900px) {
+    .reg { padding-top: 20px; }
+    .reg-tot .p-kpis { row-gap: 18px; }
+    .reg-tot .p-kpis > div { border-top: 0; }
+    .reg-tot .p-kpis > div:nth-child(odd) { padding-left: 0; }
+    .reg-tot .p-kpis .disp { font-size: 36px; }
+    /* el tipo se corre de costado; la búsqueda ocupa su línea */
+    .reg-types { width: 100%; overflow-x: auto; scrollbar-width: none; }
+    .reg-types::-webkit-scrollbar { display: none; }
+    .reg-tools .p-search { flex: 1 1 100%; max-width: none; }
+    .reg-tools .p-selb { flex: 1; }
+  }
+}

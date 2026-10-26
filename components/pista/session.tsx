@@ -2,9 +2,11 @@
    sesiones (la misma en Semana y en Registro). */
 import type { Session, SessionType } from '@/lib/domain/types';
 import { scoreSession } from '@/lib/domain/score';
+import { decBand } from '@/lib/domain/dec';
 import { expand, isRep } from '@/lib/domain/stages';
 import { hrRangeOf, planKmOf, sdate, stepKm } from '@/lib/domain/stats';
-import { WD, fmt, fmtDur, fmtPace, pd } from '@/lib/domain/util';
+import { TYPES } from '@/lib/domain/config';
+import { WD, dateLabel, fmt, fmtDur, fmtPace, pd, todayS } from '@/lib/domain/util';
 import { typeColor } from './util';
 import { Chip, Tag } from './controls';
 import { StructureBar, Ticks, type Seg } from './meters';
@@ -38,14 +40,17 @@ export function briefOf(s: Session): string {
   return '';
 }
 
+/** nombre del link de una fila de sesión, para los lectores de pantalla: «Fondo del dom 25 oct» */
+export const sessionLabel = (s: Session) => TYPES[s.type].label + ' del ' + dateLabel(sdate(s));
+
 /** km de la sesión: los hechos si está hecha, si no los del plan */
 export const kmOf = (s: Session) => (s.result ? s.result.distKm || 0 : planKmOf(s));
 
 export const SessionBar = ({ s, height }: { s: Session; height?: number }) => <StructureBar segs={segsOf(s)} color={typeColor(s.type)} height={height} plan={!s.result} />;
 
-/** puntaje con sus marcas; o en qué quedó si no está hecha */
+/** puntaje con sus marcas; o en qué quedó si no está hecha (si ya pasó el día, falta cargarla) */
 export function ScoreCell({ s }: { s: Session }) {
-  if (!s.result) return <Tag>{s.missed ? 'No hecha' : 'Pendiente'}</Tag>;
+  if (!s.result) return s.missed ? <Tag>No hecha</Tag> : sdate(s) < todayS() ? <Tag warn>Falta cargar</Tag> : <Tag>Pendiente</Tag>;
   const sc = scoreSession(s)?.score;
   if (sc == null) return <Tag>Hecha</Tag>;
   return (
@@ -91,3 +96,17 @@ export const SESSION_COLS: Col<Session>[] = [
   { key: 'f', label: 'Sens.', num: true, hideS: true, cell: (s) => (s.result?.feel ? s.result.feel + '/10' : DASH) },
   { key: 'sc', label: 'Puntaje', num: true, cell: (s) => <ScoreCell s={s} /> },
 ];
+
+/** deriva cardíaca: en rojo desde el 5% (cuando empieza a restar en el puntaje) */
+const DEC_COL: Col<Session> = {
+  key: 'dc',
+  label: 'Deriva',
+  num: true,
+  hideS: true,
+  cell: (s) => {
+    const p = s.result?.dec?.p;
+    return p != null ? <span className={decBand({ p }).k === 'good' ? undefined : 'p-dn'}>{fmt(p, 1)}%</span> : DASH;
+  },
+};
+/** las columnas del Registro: las mismas, con la deriva antes del puntaje */
+export const SESSION_COLS_FULL: Col<Session>[] = [...SESSION_COLS.slice(0, -1), DEC_COL, ...SESSION_COLS.slice(-1)];
