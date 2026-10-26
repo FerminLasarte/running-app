@@ -212,7 +212,7 @@ piezas están en `components/pista/` y su CSS en `app/styles/components/`.
 - Totales, filtros con cantidad, búsqueda con `/`, período, tabla agrupada por mes, CSV.
 - Los filtros en la URL.
 - **Listo cuando:** filtra al instante con el historial completo y la tabla se maneja bien con muchas filas.
-- Hecho. Decisiones al pasarlo: la app no tiene «temporada», así que los totales son de lo que estás viendo (siguen al
+- Hecho. Decisiones al pasarlo (confirmadas por el usuario): la app no tiene «temporada», así que los totales son de lo que estás viendo (siguen al
   período y a los filtros, como en el Registro viejo) y el primer número se llama como el período; el período arranca
   en «Todo» (el boceto mostraba «Últimos 2 meses»). Lo que hacía el Registro viejo sigue: el estado es una lista al lado
   del período y arranca en «Todos los estados» (antes, «Hechas»); el orden se elige tocando el encabezado de la columna
