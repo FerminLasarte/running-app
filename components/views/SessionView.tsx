@@ -21,7 +21,7 @@ import { RepCard } from '@/components/detail/RepCard';
 import { DtLaps } from '@/components/detail/DtLaps';
 import { ExpandedPlan } from '@/components/detail/ExpandedPlan';
 import { RecalNote } from '@/components/race/RecalNote';
-import { MovedNote } from '@/components/week/MovedNote';
+import { MovedNote } from '@/components/detail/MovedNote';
 
 function Body({ s }: { s: Session }) {
   const p = s.plan,

@@ -22,6 +22,7 @@ import { Rail } from './Rail';
 import { TopBar } from './TopBar';
 import { sectionOf } from './sections';
 import { useShortcuts } from './useShortcuts';
+import { Ticker } from '@/components/semana/Ticker';
 
 const Skel = () => (
   <>
@@ -60,7 +61,7 @@ export default function AppShell({ children }: { children: ReactNode }) {
       y0 = 0,
       t0 = 0;
     const ts = (e: TouchEvent) => {
-      const w = (e.target as Element).closest?.('#wk-card,.cal');
+      const w = (e.target as Element).closest?.('.sem-swipe');
       if (!w || e.touches.length > 1) {
         x0 = null;
         return;
@@ -133,14 +134,16 @@ export default function AppShell({ children }: { children: ReactNode }) {
     () => ({ rail: <Rail section={section} />, top: <TopBar section={section} pathname={pathname} />, banners: <Banners />, layers: [<SheetHost key="s" />, <Toast key="t" />, <CelebrateHost key="c" />] }),
     [section, pathname],
   );
-  const header = useMemo(() => (section && S0.loaded ? <Header section={section} /> : null), [section, S0.loaded]);
+  const header = useMemo(() => (section && !section.redone && S0.loaded ? <Header section={section} /> : null), [section, S0.loaded]);
   return (
     <div className="app">
       {parts.rail}
       <div className="main">
         {parts.top}
+        {/* la cinta de Semana va de punta a punta, fuera del ancho de la página */}
+        {section?.id === 'semana' && S0.loaded ? <Ticker /> : null}
         <div className="page">
-          {section ? <header id="hdr">{header}</header> : null}
+          {section && !section.redone ? <header id="hdr">{header}</header> : null}
           <div id="bnr">{parts.banners}</div>
           <main id="view" ref={viewRef} className={play ? 'play' : ''} style={{ '--sc': section?.c || 'var(--accent)' } as CSSProperties}>
             {S0.loaded ? children : <Skel />}

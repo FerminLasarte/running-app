@@ -3,7 +3,7 @@
    un `Chart`: grilla y eje Y, marcas del eje X, líneas, barras apiladas, puntos y la lectura del punto elegido.
    Todo en las coordenadas del viewBox: las escalas (`lin`) pasan de datos a esas coordenadas.
    Con `useCursor` el gráfico se recorre con el mouse o, con el foco, con las flechas. */
-import { useState, type KeyboardEvent, type PointerEvent, type ReactNode } from 'react';
+import { useId, useState, type KeyboardEvent, type PointerEvent, type ReactNode } from 'react';
 import { cssVars, cx } from './util';
 
 /** escala lineal: del dominio [d0, d1] al rango [r0, r1] (el Y va invertido: d0 abajo) */
@@ -172,6 +172,31 @@ export function Tip({ x, y, w = 120, head, lines, xMax }: { x: number; y: number
         </text>
       ))}
     </g>
+  );
+}
+
+/** línea chica en tartán con su área, sobre el estadio (el ritmo a lo largo de una salida). Los valores chicos van
+ *  arriba: en ritmo, más rápido arriba. Ocupa el ancho que le den */
+export function Spark({ values, label, className }: { values: number[]; label: string; className?: string }) {
+  const g = useId();
+  const lo = Math.min(...values) - 2,
+    hi = Math.max(...values) + 2,
+    n = values.length,
+    d = pathOf(values.map((v, k): Pt => [(k / (n - 1 || 1)) * 600, ((v - lo) / (hi - lo)) * 40]));
+  return (
+    <div className={cx('p-spark', className)} role="img" aria-label={label}>
+      <svg viewBox="0 0 600 54" preserveAspectRatio="none" aria-hidden="true">
+        <defs>
+          <linearGradient id={g} x1="0" x2="0" y1="0" y2="1">
+            <stop offset="0" stopColor="var(--acc)" stopOpacity=".35" />
+            <stop offset="1" stopColor="var(--acc)" stopOpacity="0" />
+          </linearGradient>
+        </defs>
+        <path d={`${d} L600 40 L0 40Z`} fill={`url(#${g})`} />
+        <path d={d} fill="none" stroke="var(--acc)" strokeWidth="2" vectorEffect="non-scaling-stroke" strokeLinejoin="round" />
+        <line x1="0" x2="600" y1="40" y2="40" stroke="var(--hero-line)" vectorEffect="non-scaling-stroke" />
+      </svg>
+    </div>
   );
 }
 

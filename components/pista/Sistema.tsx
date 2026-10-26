@@ -2,7 +2,7 @@
 /* Sistema de diseño «Pista»: las piezas sueltas, con los datos de ejemplo de los bocetos (design/bocetos, #sistema y
    las pantallas de donde sale cada una), para revisarlas en claro y oscuro. Solo en desarrollo. */
 import '@/app/styles/screens/sistema.css';
-import { useId, useState, type ReactNode } from 'react';
+import { useState, type ReactNode } from 'react';
 import { ArrowsLeftRight, Calendar, CalendarCheck, CaretDown, Check, Clock, FlagCheckered, MapPin, Mountains, Plus, Timer, UsersThree, type Icon } from '@phosphor-icons/react';
 import type { SessionType } from '@/lib/domain/types';
 import { TYPES } from '@/lib/domain/config';
@@ -14,7 +14,7 @@ import { Calc, Field, HmsInput, Input, SearchField, TextArea, UnitInput } from '
 import { BrandTitle, Kpis, PageHead, Panel, Stadium, Table, type Col, type Group } from './structure';
 import { Laps, StructureBar, Ticks, ZoneBar, type Seg } from './meters';
 import { Bib, Chrono, Countdown, Medal, Oval, PaceBand, Shield } from './sport';
-import { Chart, Dots, GridY, Guide, Key, LabelsX, Line, StackedBars, Tip, lin, pathOf, useCursor, type Bar, type Pt } from './charts';
+import { Chart, Dots, GridY, Guide, Key, LabelsX, Line, Spark, StackedBars, Tip, lin, useCursor, type Bar, type Pt } from './charts';
 
 /* ---- datos de ejemplo: los mismos del boceto ---- */
 const rng = (s: number) => () => (s = (s * 16807) % 2147483647) / 2147483647; /* fijo: siempre igual */
@@ -265,33 +265,14 @@ const COLS: Col<Row>[] = [
 ];
 
 /* ---- el estadio de Semana: el ritmo del fondo en tartán ---- */
-function Spark() {
-  const g = useId();
+const SPARK = (() => {
   const r = rng(7),
-    n = 72,
-    v = Array.from({ length: n }, (_, k) => {
-      const f = k / (n - 1);
-      return 338 - 14 * Math.min(1, f * 8) + Math.sin(f * 9) * 3 + (r() - 0.5) * 8 - (f > 0.93 ? 10 : 0);
-    });
-  const lo = Math.min(...v) - 2,
-    hi = Math.max(...v) + 2,
-    d = pathOf(v.map((s, k): Pt => [(k / (n - 1)) * 600, ((s - lo) / (hi - lo)) * 40]));
-  return (
-    <div className="sx-spark" role="img" aria-label="Ritmo a lo largo de la salida">
-      <svg viewBox="0 0 600 54" preserveAspectRatio="none" aria-hidden="true">
-        <defs>
-          <linearGradient id={g} x1="0" x2="0" y1="0" y2="1">
-            <stop offset="0" stopColor="var(--acc)" stopOpacity=".35" />
-            <stop offset="1" stopColor="var(--acc)" stopOpacity="0" />
-          </linearGradient>
-        </defs>
-        <path d={`${d} L600 40 L0 40Z`} fill={`url(#${g})`} />
-        <path d={d} fill="none" stroke="var(--acc)" strokeWidth="2" vectorEffect="non-scaling-stroke" strokeLinejoin="round" />
-        <line x1="0" x2="600" y1="40" y2="40" stroke="var(--hero-line)" vectorEffect="non-scaling-stroke" />
-      </svg>
-    </div>
-  );
-}
+    n = 72;
+  return Array.from({ length: n }, (_, k) => {
+    const f = k / (n - 1);
+    return 338 - 14 * Math.min(1, f * 8) + Math.sin(f * 9) * 3 + (r() - 0.5) * 8 - (f > 0.93 ? 10 : 0);
+  });
+})();
 
 const RACE = new Date('2026-11-28T08:00:00-03:00');
 const MEDALS: [string, string, string, string, string, boolean, string][] = [
@@ -542,7 +523,7 @@ export default function Sistema() {
           </div>
           <div className="sx-foot">
             <div className="sx-score"><span className="disp">91</span><span><Ticks value={91} onDark /><span className="lbl" style={{ display: 'block', marginTop: 5 }}>Puntaje</span></span></div>
-            <Spark />
+            <Spark values={SPARK} label="Ritmo a lo largo de la salida" className="sx-spark" />
             <Button size="sm" variant="on-dark" arrow>Ver la salida</Button>
           </div>
         </Stadium>
