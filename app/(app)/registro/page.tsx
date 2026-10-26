@@ -1,8 +1,8 @@
 import type { Metadata } from 'next';
-import LogView from '@/components/views/LogView';
+import Registro from '@/components/registro/Registro';
 
 export const metadata: Metadata = { title: 'Registro' };
 
 export default function Page() {
-  return <LogView />;
+  return <Registro />;
 }
