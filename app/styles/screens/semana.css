@@ -89,7 +89,7 @@
   .sem-ses .sf > span:first-child { white-space: nowrap; }
   .sem-ses .sf b { font: 600 12px/1 var(--f-mono); color: var(--ink); }
   .sem-ses .sf.late { flex-wrap: wrap; }
-  .sem-ses .sf .acts { display: flex; gap: 2px; margin-left: auto; }
+  .sem-ses .sf .sem-acts { display: flex; gap: 2px; margin-left: auto; }
   .sem-ses.plan { background: transparent; border: 1px dashed var(--line-2); }
   .sem-ses.plan::before { opacity: .45; }
   .sem-ses.miss { opacity: .6; }

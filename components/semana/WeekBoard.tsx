@@ -106,7 +106,7 @@ function DaySession({ s, tS, dragging, onDragStart, onDragEnd }: { s: Session; t
         ) : late ? (
           <>
             <span>Falta cargar</span>
-            <span className="acts">
+            <span className="sem-acts">
               <button type="button" className="sem-ib" aria-label={'Cargar el resultado de ' + TYPES[s.type].label.toLowerCase()} title="Cargar el resultado" onClick={() => openSheet('result', { id: s.id })}>
                 <Check weight="bold" aria-hidden="true" />
               </button>

@@ -138,7 +138,7 @@ function StravaFound({ f, onLoad, onPick }: { f: ResF; onLoad: () => void; onPic
         </div>
       ) : null}
       {sv.list && sv.list.length && !used ? (
-        <div className="acts" role="group" aria-label="Salidas de Strava">
+        <div className="p-acts" role="group" aria-label="Salidas de Strava">
           {sv.list.map((x) => (
             <Button key={x.id} size="sm" variant="on-dark" aria-pressed={sv.pick === x.id} disabled={sv.busy} onClick={() => onPick(x.id)}>
               {dateLabel(x.date) + ' · ' + fmt(x.km, 1) + ' km · ' + String(x.name).slice(0, 24)}
@@ -146,7 +146,7 @@ function StravaFound({ f, onLoad, onPick }: { f: ResF; onLoad: () => void; onPic
           ))}
         </div>
       ) : null}
-      <p className="note" role="status">
+      <p className="p-note" role="status">
         {sv.msg || (!sv.list ? 'Completo distancia, tiempo, FC y parciales por vos.' : '')}
       </p>
     </div>
