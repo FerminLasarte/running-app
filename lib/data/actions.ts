@@ -6,7 +6,7 @@ import { afterPaint, navigate } from '@/lib/nav';
 import type { Cfg, Route, Session } from '@/lib/domain/types';
 import { normCfg, normRace } from '@/lib/domain/defaults';
 import { addDays, cleanObj, ymd } from '@/lib/domain/util';
-import { demoSessions } from './demo';
+import { demoRoutes, demoSessions } from './demo';
 import { persistLocal, retryFailed, writeCfg, writeDelete, writeRoutes, writeSession, writeSessions } from './sync';
 
 /* ---- avisos ---- */
@@ -90,11 +90,12 @@ export { retryFailed, reduceMotion, afterPaint };
 
 /* ---- modo ejemplo ---- */
 export function demoOn() {
-  setS({ realSessions: S.sessions, realCfg: S.cfg, demo: true, sessions: demoSessions(), weekOff: 0, paceType: null });
+  const sessions = demoSessions();
+  setS({ realSessions: S.sessions, realCfg: S.cfg, realRoutes: S.routes, demo: true, sessions, routes: demoRoutes(sessions), weekOff: 0, paceType: null });
   navigate('/semana', () => jumpTo(0));
 }
 export function demoOff() {
-  setS({ demo: false, sessions: S.realSessions || [], cfg: S.realCfg || S.cfg, realSessions: null, realCfg: null, paceType: null });
+  setS({ demo: false, sessions: S.realSessions || [], cfg: S.realCfg || S.cfg, routes: S.realRoutes || [], realSessions: null, realCfg: null, realRoutes: null, paceType: null });
 }
 
 /* ---- navegación ---- */

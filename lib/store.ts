@@ -42,6 +42,7 @@ export interface AppState {
   demo: boolean;
   realSessions: Session[] | null;
   realCfg: Cfg | null;
+  realRoutes: Route[] | null;
   /* preferencias de vista (la página en la que estás la dice la URL) */
   weekOff: number;
   topType: string;
@@ -79,6 +80,7 @@ export const useApp = create<AppState>()(() => ({
   demo: false,
   realSessions: null,
   realCfg: null,
+  realRoutes: null,
   weekOff: 0,
   topType: 'all',
   topSort: 'score',

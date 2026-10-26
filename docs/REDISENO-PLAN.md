@@ -266,6 +266,16 @@ piezas están en `components/pista/` y su CSS en `app/styles/components/`.
 - Ciudad de noche (oscura en los dos temas) con el dibujo actual de `components/map/` adaptado: recorridos, cuadras
   pintadas, salida elegida con marcas de km, barrios con resaltado, capas, período, «Repetir la temporada».
 - **Listo cuando:** se mueve fluido con muchos recorridos y la escala es la real.
+- Hecho. Decisiones al pasarlo (confirmadas por el usuario): los km² explorados salen de una sola función
+  (`routeCells`), así que Logros (atributo Exploración y trofeos «Explorador») ahora cuenta como el Mapa, con las
+  cuadras entre dos puntos del GPS, y da un poco más que antes; los datos de ejemplo traen un recorrido por cada salida
+  (por Palermo y alrededores, con los km y el tiempo de la sesión); las capas van en la URL y además se recuerdan en el
+  navegador; «Repetir la temporada» se llama «Repetir», dibuja en orden las salidas del período elegido y muestra la
+  fecha que va pasando. Lo que el boceto no mostraba: el período, el barrio y la salida elegida van en la URL
+  (`?periodo=`, `?barrio=`, `?salida=`); de los barrios se ven 8 y el resto queda en «Ver los otros N», con las salidas
+  y qué parte del total es cada uno; «Fuera de la Ciudad» queda como texto chico al pie; los km por mes son los últimos
+  12 (no siguen al período); la «N» del boceto no va, porque el mapa real no está girado; «Por tipo» pinta los colores
+  uno encima del otro (sumados se volvían blancos); en el celu el mapa se mueve en pantalla completa, como antes.
 
 ### Fase 10 · Logros y celebración
 

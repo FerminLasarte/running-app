@@ -143,7 +143,7 @@ export default function AppShell({ children }: { children: ReactNode }) {
         {parts.top}
         {/* la cinta de Semana va de punta a punta, fuera del ancho de la página */}
         {section?.id === 'semana' && S0.loaded ? <Ticker /> : null}
-        <div className="page">
+        <div className={section?.full ? 'page full' : 'page'}>
           {section && !section.redone ? <header id="hdr">{header}</header> : null}
           <div id="bnr">{parts.banners}</div>
           <main id="view" ref={viewRef} className={play ? 'play' : ''} style={{ '--sc': section?.c || 'var(--accent)' } as CSSProperties}>

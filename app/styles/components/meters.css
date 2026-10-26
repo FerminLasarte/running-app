@@ -36,7 +36,13 @@
 
   /* reparto: el nombre, la barra (contra la más larga), el dato y el porcentaje */
   .p-share { list-style: none; padding: 0; margin: 0; }
-  .p-share li { display: grid; grid-template-columns: minmax(96px, auto) 1fr 64px 34px; align-items: center; gap: 12px; min-height: 40px; border-top: 1px solid var(--line); font-size: 13px; }
+  .p-share li, .p-share .pick { display: grid; grid-template-columns: minmax(96px, auto) 1fr 64px 34px; align-items: center; gap: 12px; min-height: 40px; }
+  .p-share li { border-top: 1px solid var(--line); font-size: 13px; }
+  /* filas que se eligen: el botón ocupa la fila entera; al pasar o elegida, la barra va en tartán */
+  .p-share li:has(> .pick) { display: block; }
+  .p-share .pick { width: 100%; padding: 4px 0; text-align: left; border-radius: var(--r-sm); }
+  .p-share .pick:hover, .p-share .pick[aria-pressed="true"] { --tc: var(--acc); }
+  .p-share .pick[aria-pressed="true"] .nm { font-weight: 600; }
   .p-share li:first-child { border-top: 0; }
   .p-share .nm { min-width: 0; }
   .p-share .bar { height: 10px; background: var(--sunk); }
@@ -45,6 +51,6 @@
   .p-share .r { text-align: right; font: 500 12.5px/1 var(--f-mono); font-variant-numeric: tabular-nums; white-space: nowrap; }
   .p-share .r.p { color: var(--ink-3); }
   @media (max-width: 900px) {
-    .p-share li { grid-template-columns: minmax(84px, auto) 1fr 56px 30px; gap: 8px; }
+    .p-share li, .p-share .pick { grid-template-columns: minmax(84px, auto) 1fr 56px 30px; gap: 8px; }
   }
 }

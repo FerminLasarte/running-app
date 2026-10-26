@@ -3,7 +3,7 @@
    secciones y lo reciente; al escribir agrupa los resultados y marca lo que coincide (sin importar tildes). Se maneja
    entera con el teclado: ↑ ↓ para moverse, ↵ para abrir, Esc para cerrar. Estilos en
    app/styles/components/palette.css; el índice y la búsqueda, en lib/domain/palette.ts. */
-import { useEffect, useMemo, useRef, useState, type KeyboardEvent } from 'react';
+import { useEffect, useMemo, useRef, useState, useSyncExternalStore, type KeyboardEvent } from 'react';
 import {
   ArrowRight,
   ArrowsClockwise,
@@ -31,13 +31,16 @@ import { longRace } from '@/lib/domain/blocks';
 import { LG_INIT, lgRows } from '@/lib/domain/log';
 import { openRecal } from '@/lib/domain/recal';
 import { palIndex, palMark, palSearch, type PalItem } from '@/lib/domain/palette';
-import { addDays, mondayOf, todayS, ymd } from '@/lib/domain/util';
+import { baseMapReady, loadBaseMap, mapBarrios, mapRoutes, onBaseMap } from '@/lib/domain/geo';
+import { addDays, fmt, mondayOf, todayS, ymd } from '@/lib/domain/util';
+import { stravaSync } from '@/lib/strava/sync';
 import { toggleTheme } from '@/lib/theme';
 import { briefOf } from '@/components/pista/session';
 import { cssVars, cx, typeColor } from '@/components/pista/util';
 import { registroHref } from '@/components/registro/filters';
 import { AN_TABS } from '@/components/analisis/period';
 import { PRINT_BTN_ID } from '@/components/carreras/PrintBand';
+import { mapaHref } from '@/components/mapa/params';
 import { SECTIONS } from './sections';
 import { useStravaStatus } from './useStravaStatus';
 
@@ -69,6 +72,9 @@ const CAR_PARTS: { id: string; t: string; more: string; when?: () => boolean }[]
   { id: 'car-medallero', t: 'Medallero', more: 'medallas carreras corridas tiempos marcas pr' },
 ];
 
+/* el Mapa: tus barrios (con el mapa de la Ciudad ya bajado) y traer recorridos nuevos */
+const MAP_ICON = SECTIONS.find((s) => s.id === 'mapa')!.Icon;
+
 function PaletteBox() {
   const [q, setQ] = useState('');
   const [act, setAct] = useState(0);
@@ -76,13 +82,21 @@ function PaletteBox() {
   const strava = useStravaStatus();
   const sessions = useApp((s) => s.sessions);
   const races = useApp((s) => s.cfg.races);
+  const routes = useApp((s) => s.routes);
+  /* los barrios salen del mapa de la Ciudad (~530 KB): con recorridos, se baja al abrir la paleta, una sola vez */
+  const baseReady = useSyncExternalStore(onBaseMap, baseMapReady, () => false);
+  useEffect(() => {
+    if (routes.length) void loadBaseMap();
+  }, [routes]);
 
   /* lo que se puede hacer, siempre a mano */
   const fixed = useMemo<Row[]>(() => {
     const a = (key: string, t: string, icon: Icon, run: () => void, k?: string): Row => ({ g: 'Acciones', key, t, icon, run, k });
     return [
       a('a:r', 'Registrar resultado', Plus, () => openSheet('result', { id: null }), 'R'),
-      ...(strava && strava.connected ? [a('a:sv', 'Traer la salida de Strava', ArrowsClockwise, () => openSheet('result', { id: null, svLoad: true }))] : []),
+      ...(strava && strava.connected
+        ? [a('a:sv', 'Traer la salida de Strava', ArrowsClockwise, () => openSheet('result', { id: null, svLoad: true })), a('a:rt', 'Traer recorridos nuevos al mapa', MAP_ICON, () => navigate('/mapa', () => void stravaSync()))]
+        : []),
       a('a:p', 'Planificar una sesión', CalendarPlus, () => openSheet('plan', {}), 'P'),
       a('a:w', 'Planificar la semana', SquaresFour, () => openSheet('weekPlan', { mon: ymd(mondayOf(addDays(new Date(), 1))) })),
       a('a:t', 'Cambiar entre claro y oscuro', CircleHalf, toggleTheme),
@@ -112,17 +126,33 @@ function PaletteBox() {
     // el índice lee el estado: se rearma cuando cambian las sesiones o las carreras
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [sessions, races]);
+  /* tus barrios, de todos tus recorridos: llevan al Mapa con el barrio resaltado */
+  const barrios = useMemo<Row[]>(
+    () =>
+      (mapBarrios(mapRoutes('todo'), 'todo')?.list || []).map((e) => ({
+        g: 'Mapa',
+        key: 'bz:' + e.b.n,
+        t: e.b.n,
+        sub: 'Barrio · ' + fmt(e.km, e.km < 10 ? 1 : 0) + ' km en el Mapa',
+        more: 'barrio recorridos mapa',
+        icon: MAP_ICON,
+        run: () => navigate(mapaHref(e.b.n)),
+      })),
+    // mapBarrios lee los recorridos del estado; se rearma cuando cambian o cuando termina de bajar el mapa
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [routes, baseReady],
+  );
 
   const list = useMemo<Row[]>(() => {
     const q0 = q.trim();
     if (!q0) return [...fixed, ...index.sessions.filter((x) => x.done).slice(0, 3).map((x) => ({ ...x, g: 'Recientes' }))];
-    const found = palSearch([...fixed, ...AN_ROWS, ...index.carreras, ...index.sessions, ...index.races, ...index.registro], q);
+    const found = palSearch([...fixed, ...AN_ROWS, ...index.carreras, ...barrios, ...index.sessions, ...index.races, ...index.registro], q);
     /* la paleta muestra pocas sesiones: al final, todas las que encuentra el Registro con lo mismo */
     const n = lgRows({ ...LG_INIT, q: q0, st: 'all' }).length;
     if (!n) return found;
     return [...found, { g: 'Registro', key: 'reg:q', t: 'Buscar «' + q0 + '» en el Registro', sub: n + (n === 1 ? ' sesión' : ' sesiones'), icon: MagnifyingGlass, run: () => navigate(registroHref({ q: q0 })) }];
     /* lgRows lee las sesiones del estado: cuando cambian, cambia `index` y se vuelve a buscar */
-  }, [q, fixed, index]);
+  }, [q, fixed, index, barrios]);
   const cur = Math.min(act, Math.max(0, list.length - 1));
 
   useEffect(() => {

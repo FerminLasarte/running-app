@@ -2,7 +2,7 @@
 import { S, setUi } from '@/lib/store';
 import { saveCfg, toast } from '@/lib/data/actions';
 import { vdotOf } from './daniels';
-import { cellKey, routePts } from './geo';
+import { cellArea, routeCells } from './geo';
 import { chProgress } from './challenges';
 import { XP_TIER, xpState, type XpState } from './xp';
 import { scoreSession } from './score';
@@ -270,10 +270,10 @@ function calcTrophies(): Trophy[] {
       .slice()
       .sort((a, b) => String(a.date).localeCompare(String(b.date)))
       .forEach((r) => {
-        routePts(r).forEach((q) => seen.add(cellKey(q)));
-        eE.push({ d: r.date, v: seen.size * 0.04 });
+        routeCells(r).forEach((k) => seen.add(k));
+        eE.push({ d: r.date, v: cellArea(seen.size) });
       });
-    const area = seen.size * 0.04;
+    const area = cellArea(seen.size);
     T.push(...ladder('area', ['5', '10', '25'], [5, 10, 25], ['Explorador: 5 km²', 'Explorador: 10 km²', 'Explorador: 25 km²'], ['Corriste por 5 km² distintos.', 'Corriste por 10 km² distintos.', 'Corriste por 25 km² distintos.'], eE, area, 'km²', (v) => fmt(v, 1)));
   }
   // desafíos cumplidos

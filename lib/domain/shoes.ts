@@ -3,7 +3,7 @@
 import { S } from '@/lib/store';
 import type { Shoe } from './types';
 import { doneList } from './stats';
-import { addDays, pad, pd, sod, sum, ymd } from './util';
+import { addDays, kmByMonth, pd, sod, sum, ymd } from './util';
 
 /** km de un par: los que tenía al cargarlo más las salidas hechas con él */
 export function shoeKm(z: Shoe) {
@@ -35,14 +35,8 @@ export function shoeLife(z: Shoe): ShoeLife {
 }
 
 /** km por mes con un par, desde el mes de `from` hasta el actual (los meses sin uso, en 0) */
-export function shoeMonths(z: Shoe, from: string) {
-  const R = shoeRuns(z),
-    now = sod(new Date()),
-    f = pd(from),
-    n = (now.getFullYear() - f.getFullYear()) * 12 + now.getMonth() - f.getMonth() + 1;
-  return Array.from({ length: Math.max(1, n) }, (_, i) => {
-    const m = new Date(f.getFullYear(), f.getMonth() + i, 1),
-      key = m.getFullYear() + '-' + pad(m.getMonth() + 1);
-    return { m, km: sum(R.filter((s) => s.result.date.slice(0, 7) === key).map((s) => s.result.distKm)), cur: i === n - 1 };
-  });
-}
+export const shoeMonths = (z: Shoe, from: string) =>
+  kmByMonth(
+    shoeRuns(z).map((s) => [s.result.date, s.result.distKm]),
+    pd(from),
+  );
