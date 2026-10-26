@@ -134,7 +134,7 @@ function StepForm({ st, ed, upd, onClose }: { st: EdStep; ed: EdFields; upd: Upd
       <p className="p-lres bad" role="alert">
         {ed.err}
       </p>
-      <div className="acts">
+      <div className="p-acts">
         <Button
           size="sm"
           variant="pri"

@@ -83,7 +83,7 @@ export function PlanAiBox({
   return (
     <div className="p-ai">
       <p className="p-dr-p">Subí una o varias capturas del entrenamiento o pegá el texto, y armo los tramos por vos.</p>
-      <div className="acts">
+      <div className="p-acts">
         {ai.images ? <PickFiles ai={ai} busy={busy} label="Subir capturas" onFiles={onFiles} /> : null}
         <Button icon={TextAlignLeft} disabled={busy} aria-expanded={open} onClick={() => setOpen(!open)}>
           Pegar el texto
@@ -101,7 +101,7 @@ export function PlanAiBox({
               onChange={(e) => onText(e.target.value)}
             />
           </Field>
-          <div className="acts">
+          <div className="p-acts">
             <Button size="sm" disabled={busy} onClick={onTextGo}>
               Leer el texto
             </Button>
@@ -123,7 +123,7 @@ export function LapsAiBox({ ai, busy, note, onFiles }: { ai: AiLimits | null; bu
   return (
     <div className="p-ai">
       <p className="p-dr-p">Subí las capturas de la pestaña «Intervalos» de Garmin Connect (hasta 24) y completo las etapas. Después revisá los números.</p>
-      <div className="acts">
+      <div className="p-acts">
         <PickFiles ai={ai} busy={busy} label="Leer desde capturas" onFiles={onFiles} />
       </div>
       {note ? (

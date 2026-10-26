@@ -16,7 +16,7 @@
   .p-phd h1 { font-size: 84px; padding-top: calc(8px + .06em); }
   .p-phd p { padding-top: 12px; color: var(--ink-2); font-size: 15px; line-height: 1.5; max-width: 62ch; }
   .p-phd p b { color: var(--ink); font-weight: 600; }
-  .p-phd .acts { display: flex; gap: 8px; align-items: center; }
+  .p-phd .p-acts { display: flex; gap: 8px; align-items: center; }
 
   .p-panel { background: var(--surface); border: 1px solid var(--line); border-radius: var(--r-lg); min-width: 0; font-size: 14px; line-height: 1.5; }
   .p-panel-h { display: flex; align-items: center; gap: 12px; min-height: 52px; padding: 0 20px; border-bottom: 1px solid var(--line); }
@@ -102,7 +102,7 @@
     .p-grid > * { grid-column: 1 / -1; }
     .p-phd { flex-direction: column; align-items: stretch; gap: 16px; }
     .p-phd h1 { font-size: 60px; }
-    .p-phd .acts { flex-wrap: wrap; }
+    .p-phd .p-acts { flex-wrap: wrap; }
     .p-panel-h { flex-wrap: wrap; padding-top: 10px; padding-bottom: 10px; }
     .p-panel-h .r { flex-wrap: wrap; row-gap: 6px; }
     .p-panel-h .hide-s { display: none; }

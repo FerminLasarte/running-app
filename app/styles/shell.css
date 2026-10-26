@@ -58,6 +58,7 @@
   .crumbs { display: flex; align-items: center; gap: 8px; font-weight: 500; min-width: 0; white-space: nowrap; }
   .crumbs .sep { color: var(--ink-4); }
   .crumbs .mut { overflow: hidden; text-overflow: ellipsis; }
+  .crumbs .end { overflow: hidden; text-overflow: ellipsis; }
   .crumbs a { color: var(--ink-3); }
   .crumbs a:hover { color: var(--ink); }
   .wk { display: flex; align-items: center; gap: 2px; }
@@ -128,7 +129,7 @@
     .nav a[aria-current="page"] { background: transparent; color: var(--ink); }
     .nav a[aria-current="page"]::after { left: 30%; right: 30%; top: -7px; bottom: auto; width: auto; height: 3px; border-radius: 0; }
     .top { padding: 0 12px; gap: 6px; padding-top: env(safe-area-inset-top); height: calc(56px + env(safe-area-inset-top)); }
-    .crumbs .sep, .crumbs .mut, .wk b span, .tb-btn.pri kbd { display: none; }
+    .crumbs .sep, .crumbs .mut, .crumbs a, .wk b span, .tb-btn.pri kbd { display: none; }
     .me-s { display: block; }
     .tb-search { width: 34px; padding: 0; justify-content: center; }
     .tb-search span, .tb-search kbd { display: none; }

@@ -51,6 +51,12 @@ export interface StreamsPayload {
   heart_rate?: number[];
   velocity_smooth?: number[];
   moving?: boolean[];
+  /** metros desde la largada */
+  distance?: number[];
+  /** metros sobre el nivel del mar */
+  altitude?: number[];
+  /** [lat, lng] */
+  latlng?: [number, number][];
 }
 
 export class StravaError extends Error {
@@ -63,7 +69,7 @@ export class StravaError extends Error {
 
 export async function svCall(tool: 'list_activities', input: { first?: number; after?: string | null; ordering?: string; include_polyline?: boolean }): Promise<ListActivitiesPayload>;
 export async function svCall(tool: 'get_activity_performance', input: { activity_id: string }): Promise<PerformancePayload>;
-export async function svCall(tool: 'get_activity_streams', input: { activity_id: string; streams?: string[] }): Promise<StreamsPayload>;
+export async function svCall(tool: 'get_activity_streams', input: { activity_id: string; streams?: (keyof StreamsPayload)[] }): Promise<StreamsPayload>;
 export async function svCall(tool: StravaTool, input: Record<string, unknown>): Promise<unknown> {
   let res: Response;
   try {

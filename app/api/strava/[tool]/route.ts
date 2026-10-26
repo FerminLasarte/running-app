@@ -19,6 +19,9 @@ interface DetailedActivity {
   laps?: { distance: number; moving_time: number; elapsed_time: number; average_heartrate?: number; max_heartrate?: number }[];
 }
 type Streams = Record<string, { data: unknown[] } | undefined>;
+/* series que se pueden pedir: el nombre que usa la app → la clave de Strava. Sin pedir nada, las de la deriva */
+const STREAM_KEYS: Record<string, string> = { time: 'time', heart_rate: 'heartrate', velocity_smooth: 'velocity_smooth', moving: 'moving', distance: 'distance', altitude: 'altitude', latlng: 'latlng' };
+const STREAMS_DEF = ['time', 'heart_rate', 'velocity_smooth', 'moving'];
 
 const idOf = (v: unknown) => {
   const s = String(v ?? '');
@@ -58,8 +61,10 @@ export async function POST(request: NextRequest, ctx: RouteContext<'/api/strava/
       });
     }
     if (tool === 'get_activity_streams') {
-      const s = await stravaGet<Streams>(sb, user.id, `/activities/${idOf(input.activity_id)}/streams?keys=time,heartrate,velocity_smooth,moving&key_by_type=true`);
-      return NextResponse.json({ time: s.time?.data, heart_rate: s.heartrate?.data, velocity_smooth: s.velocity_smooth?.data, moving: s.moving?.data });
+      const asked = Array.isArray(input.streams) ? input.streams.filter((k): k is string => typeof k === 'string' && k in STREAM_KEYS) : [];
+      const want = asked.length ? asked : STREAMS_DEF;
+      const s = await stravaGet<Streams>(sb, user.id, `/activities/${idOf(input.activity_id)}/streams?keys=${want.map((k) => STREAM_KEYS[k]).join(',')}&key_by_type=true`);
+      return NextResponse.json(Object.fromEntries(want.map((k) => [k, s[STREAM_KEYS[k]]?.data])));
     }
     throw new SvErr('tool_error', 'herramienta desconocida', 404);
   } catch (e) {

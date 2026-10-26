@@ -84,9 +84,9 @@
   .p-found .nums { display: grid; grid-template-columns: repeat(4, auto); justify-content: start; gap: 22px; margin-top: 12px; }
   .p-found .nums .disp { display: block; margin-top: 6px; font-size: 26px; }
   .p-found .nums .p-u { color: var(--hero-mut); }
-  .p-found .note { margin-top: 10px; font-size: 12.5px; color: var(--hero-mut); }
-  .p-found .acts { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 12px; }
-  .p-found .acts button[aria-pressed="true"] { border-color: var(--hero-ink); background: rgb(255 255 255 / .08); }
+  .p-found .p-note { margin-top: 10px; font-size: 12.5px; color: var(--hero-mut); }
+  .p-found .p-acts { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 12px; }
+  .p-found .p-acts button[aria-pressed="true"] { border-color: var(--hero-ink); background: rgb(255 255 255 / .08); }
   .p-found + .p-dr-g2 { margin-top: 18px; }
 
   /* el ritmo que la app calcula, con la opción de escribirlo */
@@ -152,7 +152,7 @@
   .p-ptpl { display: grid; gap: 8px; margin-bottom: 16px; }
   .p-pprev { padding: 14px; background: var(--bg); border-radius: var(--r-md); }
   .p-ai { margin-bottom: 16px; padding: 14px; border: 1px dashed var(--line-2); border-radius: var(--r-md); display: grid; gap: 10px; }
-  .p-ai .acts { display: flex; flex-wrap: wrap; gap: 8px; }
+  .p-ai .p-acts { display: flex; flex-wrap: wrap; gap: 8px; }
 
   /* tramos: cada uno en una fila; el abierto se edita ahí mismo */
   .p-steps { margin: 12px 0 0; padding: 0; list-style: none; display: grid; gap: 6px; }
@@ -170,10 +170,12 @@
   .p-st .mv .ib { width: 26px; height: 26px; }
   .p-st.ed { display: block; padding: 14px; border-color: var(--ink); }
   .p-st.ed .p-fld + .p-fld, .p-st.ed .p-seg + .p-fld { margin-top: 14px; }
+  /* los que van lado a lado no se separan hacia abajo */
+  .p-st.ed .p-dr-g2 > .p-fld { margin-top: 0; }
   .p-st.ed .row { display: flex; align-items: center; gap: 6px; }
   .p-st.ed .row .p-in { width: 72px; text-align: center; font-family: var(--f-mono); }
   .p-st.ed .row span { color: var(--ink-3); font-size: 12px; }
-  .p-st.ed .acts { display: flex; gap: 8px; margin-top: 14px; }
+  .p-st.ed .p-acts { display: flex; gap: 8px; margin-top: 14px; }
   .p-st.ed .p-choices { margin-top: 8px; }
   .p-rep { border: 1.5px solid var(--t-series); border-radius: var(--r-md); padding: 10px; display: grid; gap: 6px; background: color-mix(in oklab, var(--t-series) 5%, var(--surface)); }
   .p-rep-h { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
