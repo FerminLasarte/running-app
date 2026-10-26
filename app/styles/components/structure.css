@@ -37,6 +37,18 @@
   .p-up { color: var(--pos); }
   .p-dn { color: var(--neg); }
 
+  /* lista de marcas: nombre y origen a la izquierda, el número grande e itálico a la derecha */
+  .p-marks { list-style: none; padding: 0; margin: 0; }
+  .p-marks li { border-top: 1px solid var(--line); font-size: 13px; }
+  .p-marks li:first-child { border-top: 0; }
+  .p-marks .mrow { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; padding: 11px 0; }
+  .p-marks li:first-child .mrow { padding-top: 0; }
+  .p-marks li:last-child .mrow { padding-bottom: 0; }
+  .p-marks a { color: inherit; text-decoration: none; border-radius: 2px; }
+  .p-marks a:hover .disp { color: var(--acc); }
+  .p-marks small { display: block; color: var(--ink-3); font-size: 11.5px; margin-top: 2px; }
+  .p-marks .disp { font-size: 24px; font-style: italic; white-space: nowrap; display: inline-flex; align-items: center; gap: 6px; }
+
   /* unidad chica al lado de un número grande */
   .p-u { font-family: var(--f-ui); font-stretch: 100%; font-style: normal; font-weight: 500; font-size: .34em; letter-spacing: .02em; color: var(--ink-3); margin-left: .22em; text-transform: none; }
 

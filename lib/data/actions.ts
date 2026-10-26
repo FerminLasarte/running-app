@@ -127,8 +127,7 @@ export function goRace(v = 'race', scrollToPlan = false) {
   });
 }
 export function goForm() {
-  setS({ sumSub: 'forma' });
-  navigate('/analisis', () => jumpTo(0));
+  navigate('/analisis/forma', () => jumpTo(0));
 }
 export function goChar() {
   setUi('logSub', 'pj');

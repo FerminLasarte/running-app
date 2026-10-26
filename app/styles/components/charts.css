@@ -21,4 +21,10 @@
   .p-key i { width: 12px; height: 2px; background: var(--kc); }
   .p-key i.dash { background: repeating-linear-gradient(90deg, var(--kc) 0 3px, transparent 3px 5px); }
   .p-key i.sq { width: 8px; height: 8px; transform: skewX(-14deg); }
+
+  /* columnas chicas (km por mes) */
+  .p-mbars .b { display: grid; grid-template-columns: repeat(var(--n), minmax(0, 1fr)); gap: 4px; align-items: end; height: var(--h, 72px); }
+  .p-mbars .b i { display: block; min-height: 1px; background: var(--ink-4); transform-origin: bottom; animation: p-grow .7s var(--ease) both; animation-delay: calc(200ms + var(--j, 0) * 30ms); }
+  .p-mbars .b i.cur { background: var(--acc); }
+  .p-mbars .l { display: grid; grid-template-columns: repeat(var(--n), minmax(0, 1fr)); gap: 4px; margin-top: 6px; font: 500 9.5px/1.2 var(--f-mono); color: var(--ink-3); text-align: center; text-transform: uppercase; }
 }

@@ -1,5 +1,5 @@
 /* Medidores del rediseño «Pista» (estilos en app/styles/components/meters.css): marcas de puntaje, contador de
-   vueltas, barra de estructura y barra de zonas. Con `label` se leen como imagen; sin, quedan fuera del lector
+   vueltas, barra de estructura, barra de zonas y barras de reparto. Con `label` se leen como imagen; sin, quedan fuera del lector
    (cuando el número ya está escrito al lado). */
 import type { ReactNode } from 'react';
 import { clamp } from '@/lib/domain/util';
@@ -97,5 +97,39 @@ export function ZoneBar({ zones, height, label }: { zones: number[]; height?: nu
     <div className="p-zones" style={cssVars({ '--h': height && height + 'px' })} {...a11y(label)}>
       {zones.map((v, j) => (v > 0 ? <i key={j} style={cssVars({ flex: v, '--zc': `var(--z${j + 1})`, '--j': j })} /> : null))}
     </div>
+  );
+}
+
+/** una fila del reparto: `v` da el largo de la barra (contra la más larga); con `parts`, la barra va apilada */
+export interface ShareItem {
+  key: string;
+  label: ReactNode;
+  v: number;
+  /** color de la barra (sin `parts`) */
+  color?: string;
+  parts?: { v: number; c: string }[];
+  /** el dato, a la derecha (km) */
+  value?: ReactNode;
+  /** el porcentaje, en gris */
+  pct?: ReactNode;
+}
+/** reparto en barras horizontales: los km por tipo, para qué usás cada par de zapatillas */
+export function ShareBars({ items, label }: { items: ShareItem[]; label: string }) {
+  const max = Math.max(0, ...items.map((i) => i.v)) || 1;
+  return (
+    <ul className="p-share" aria-label={label}>
+      {items.map((it, j) => (
+        <li key={it.key} style={cssVars({ '--tc': it.color, '--j': j })}>
+          <span className="nm">{it.label}</span>
+          <span className="bar" aria-hidden="true">
+            <span style={cssVars({ width: (it.v / max) * 100 + '%' })}>
+              {(it.parts || [{ v: 1, c: it.color || 'var(--ink-3)' }]).map((p, k) => (p.v > 0 ? <i key={k} style={cssVars({ flex: p.v, background: p.c })} /> : null))}
+            </span>
+          </span>
+          <span className="r">{it.value}</span>
+          <span className="r p">{it.pct}</span>
+        </li>
+      ))}
+    </ul>
   );
 }

@@ -14,6 +14,17 @@ export function vdotOf(sec: number, km: number) {
     pct = 0.8 + 0.1894393 * Math.exp(-0.012778 * t) + 0.2989558 * Math.exp(-0.1932605 * t);
   return vo2 / pct;
 }
+/** tiempo (s) para `km` con el VDOT `vd`: la inversa de vdotOf, por bisección (vdotOf baja cuando el tiempo sube) */
+export function vdotTime(vd: number, km: number) {
+  let lo = km * 100,
+    hi = km * 1200;
+  for (let i = 0; i < 60; i++) {
+    const m = (lo + hi) / 2;
+    if (vdotOf(m, km) > vd) lo = m;
+    else hi = m;
+  }
+  return (lo + hi) / 2;
+}
 /** ritmo (s/km) que corresponde a la fracción `f` del VDOT `vd` */
 export function paceAtV(vd: number, f: number) {
   const need = f * vd + 4.6,

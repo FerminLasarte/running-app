@@ -16,6 +16,15 @@ export interface ReadyItem {
   x: string;
 }
 
+/** puntos de cada chequeo para el puntaje de preparación (decidido: todos pesan igual y los grises no cuentan) */
+export const READY_PTS: Record<Exclude<ReadyKind, 'na'>, number> = { good: 100, warn: 50, crit: 0 };
+export const readyPts = (i: ReadyItem) => (i.k === 'na' ? null : READY_PTS[i.k]);
+/** preparación de 0 a 100: el promedio de los chequeos que tienen datos; null si todos están en gris */
+export function readyScore(I: ReadyItem[]) {
+  const v = I.map(readyPts).filter((p): p is number => p != null);
+  return v.length ? Math.round(sum(v) / v.length) : null;
+}
+
 export function readyItems(race: Race): ReadyItem[] {
   const today = sod(new Date()),
     tS = ymd(today),
