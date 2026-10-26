@@ -37,7 +37,7 @@ export default function AppShell({ children }: { children: ReactNode }) {
   const router = useRouter();
   const pathname = usePathname();
   const section = sectionOf(pathname);
-  const S0 = useApp(useShallow((s) => ({ logSub: s.ui.logSub, cSub: s.ui.cSub, sumSub: s.sumSub, loaded: s.loaded, demo: s.demo })));
+  const S0 = useApp(useShallow((s) => ({ logSub: s.ui.logSub, sumSub: s.sumSub, loaded: s.loaded, demo: s.demo })));
   const [, setTick] = useState(0);
   const viewRef = useRef<HTMLElement>(null);
   useShortcuts();
@@ -103,7 +103,7 @@ export default function AppShell({ children }: { children: ReactNode }) {
   }, [pathname]);
 
   /* «play»: animaciones de entrada solo al entrar a una pantalla (página o subpestaña nueva) */
-  const screenKey = pathname + '|' + String(S0.logSub ?? '') + '|' + String(S0.cSub ?? '') + '|' + S0.sumSub;
+  const screenKey = pathname + '|' + String(S0.logSub ?? '') + '|' + S0.sumSub;
   const [play, setPlay] = useState(false);
   const lastKey = useRef<string | null>(null);
   useLayoutEffect(() => {

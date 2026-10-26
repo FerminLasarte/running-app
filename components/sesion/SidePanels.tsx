@@ -14,7 +14,7 @@ import { Laps, ZoneBar } from '@/components/pista/meters';
 import { Tag } from '@/components/pista/controls';
 import { cssVars, cx } from '@/components/pista/util';
 import { MovedNote } from '@/components/detail/MovedNote';
-import { RecalNote } from '@/components/race/RecalNote';
+import { RecalNote } from '@/components/carreras/RecalNote';
 
 /* ---- recorrido ---- */
 const RW = 300,

@@ -1,10 +1,11 @@
-/* Estimación de carrera, escenarios y reparto de ritmos, y la lista de pendientes del día de carrera
-   (líneas 1932–1948 y 3062–3124 del original). */
+/* Estimación de carrera, escenarios y reparto de ritmos, la estrategia por tramos, la pulsera y la lista de pendientes
+   del día de carrera (líneas 1932–1948 y 3062–3124 del original). */
 import type { Race } from './types';
-import { isLong } from './config';
+import { isLong, mainShoe, pastRaces } from './config';
 import { riegel } from './score';
 import { doneList, type DoneSession } from './stats';
-import { addDays, dayDiff, dShort, pd, sod, sum, ymd } from './util';
+import { shoeLife } from './shoes';
+import { addDays, dateLabel, dayDiff, dShort, fmt, nf, pad, pd, sod, sum, todayS, ymd } from './util';
 import { lvCandAll, type LvCand } from './level';
 import { medOf } from './analysis';
 
@@ -165,4 +166,160 @@ export function rcItems(race: Race): RcItem[] {
     );
   else I.push([3, 'Comé lo de siempre pero con un poco más de carbohidratos y tomá agua durante todo el día.', 'i4']);
   return I.sort((a, b) => b[0] - a[0]);
+}
+
+/* ---- estrategia por tramos: los tres tramos del reparto (controlá, sostené, apretá) y el último km aparte ---- */
+export interface RaceLeg {
+  /** primer y último km (el último puede ser parcial: 21,1) */
+  from: number;
+  to: number;
+  /** ritmo medio del tramo (s/km) */
+  pace: number;
+  /** FC de control: tope ([null, tope]) o rango; null = libre */
+  hr: [number | null, number] | null;
+  x: string;
+}
+export interface RaceStrategy {
+  /** cada km: dónde termina y cuánto tarda, en segundos enteros (como se leen en la pulsera) */
+  splits: { km: number; sec: number }[];
+  legs: RaceLeg[];
+  /** la suma de los parciales: el tiempo pedido, redondeado al segundo */
+  total: number;
+}
+/** la FC de control de los dos primeros tramos, como fracción de la FC máxima (la del texto viejo del plan de ritmos) */
+const hrFrac = (km: number): [[null, number], [number, number]] => (km <= 10.5 ? [[null, 0.87], [0.88, 0.92]] : km <= 21.2 ? [[null, 0.85], [0.85, 0.89]] : [[null, 0.8], [0.8, 0.86]]);
+export function raceStrategy(race: Race, sec: number, hrMax: number): RaceStrategy {
+  const km = race.km,
+    sp = raceSplits(sec, km);
+  /* se redondea el acumulado y no cada parcial, así la suma da el tiempo pedido */
+  let prev = 0;
+  const splits = sp.map((r) => {
+    const c = Math.round(r.cum),
+      t = c - prev;
+    prev = c;
+    return { km: r.km, sec: t };
+  });
+  const ph = racePhases(km),
+    long = isLong(race),
+    hf = hrFrac(km),
+    z = (f: number | null) => (f == null ? null : Math.round(hrMax * f));
+  /* el último tramo es el último km entero (con lo que sobra, si la distancia no es redonda) */
+  const lastFrom = Math.max(ph.b + 1, splits.findIndex((r) => r.km > km - 1 + 1e-6) + 1);
+  const L: Omit<RaceLeg, 'pace'>[] = [
+    { from: 1, to: ph.a, hr: [z(hf[0][0]), z(hf[0][1])!], x: 'Controlado. Que te pasen.' },
+    { from: ph.a + 1, to: ph.b, hr: [z(hf[1][0]), z(hf[1][1])!], x: 'Ritmo objetivo, respiración armada.' },
+    { from: ph.b + 1, to: lastFrom - 1, hr: null, x: long ? 'Si quedan piernas, apretá.' : 'Apretá.' },
+    { from: lastFrom, to: splits.length, hr: null, x: 'Todo.' },
+  ];
+  const legs = L.filter((l) => l.to >= l.from).map((l) => {
+    const rows = splits.slice(l.from - 1, l.to),
+      dist = rows[rows.length - 1].km - (l.from > 1 ? splits[l.from - 2].km : 0);
+    return { ...l, to: rows[rows.length - 1].km, pace: sum(rows.map((r) => r.sec)) / dist };
+  });
+  return { splits, legs, total: sum(splits.map((r) => r.sec)) };
+}
+/** la pulsera en pantalla: en distancias largas, de a `step` km (y la llegada) para que entre al costado del estadio */
+export function bandRows(splits: RaceStrategy['splits'], step: number) {
+  if (step <= 1) return splits;
+  const out: { km: number; sec: number }[] = [];
+  let acc = 0;
+  splits.forEach((r, i) => {
+    acc += r.sec;
+    if (Math.round(r.km) % step === 0 || i === splits.length - 1) {
+      out.push({ km: r.km, sec: acc });
+      acc = 0;
+    }
+  });
+  return out;
+}
+
+/**
+ * el reloj de largada en días de calendario, para que los días sean los mismos del dorsal y la cinta de Semana
+ * (`daysTo`): antes del día de la carrera, horas, minutos y segundos cuentan hasta la medianoche; ese día, hasta la
+ * hora de largada (sin hora, ya está en 0). Devuelve [días, horas, minutos, segundos].
+ */
+export function raceClock(race: Pick<Race, 'date' | 'time'>, now: number): [number, number, number, number] {
+  const n = new Date(now),
+    days = Math.max(0, dayDiff(n, pd(race.date))),
+    tm = (race.time || '0:00').split(':'),
+    start = pd(race.date).getTime() + (+tm[0] * 60 + +tm[1]) * 6e4,
+    end = days > 0 ? addDays(sod(n), 1).getTime() : start,
+    s = Math.max(0, Math.floor((end - now) / 1000));
+  return [days, Math.floor(s / 3600), Math.floor((s % 3600) / 60), s % 60];
+}
+
+/* ---- el día de la carrera, hora por hora: minutos respecto de la largada y qué hacer ---- */
+export function raceTimeline(race: Race): [number, string][] {
+  const long = isLong(race),
+    ph = racePhases(race.km);
+  return [
+    [long ? -210 : -285, long ? 'Desayuno o comida rica en carbohidratos, conocida.' : 'Última comida liviana y conocida.'],
+    [-150, 'Agua en pequeños sorbos. Nada nuevo.'],
+    [-75, 'Llegá al lugar, retirá lo que falte y andá al baño.'],
+    [-40, long ? 'Entrada en calor corta: 5 a 10 minutos de trote muy suave y movilidad. El maratón se encarga del resto.' : 'Entrada en calor: 10 minutos de trote muy suave, movilidad y 4 aceleraciones de 15 a 20 segundos.'],
+    [-10, 'Al corral. Respirá y mantené el plan de los primeros ' + ph.a + ' km.'],
+    [0, 'Largada.'],
+  ];
+}
+/** la hora del día a `min` minutos de la largada «08:00» */
+export const clockAt = (time: string, min: number) => {
+  const tm = time.split(':'),
+    m = ((((+tm[0] * 60 + +tm[1] + min) % 1440) + 1440) % 1440) as number;
+  return pad(Math.floor(m / 60)) + ':' + pad(m % 60);
+};
+
+/* ---- lista para el día: los pendientes que tildás, el horario del día y dos chequeos que se hacen solos ---- */
+export interface RcRow {
+  id: string;
+  t: string;
+  /** días antes de la carrera en que toca */
+  d: number;
+  /** a la derecha: la hora, el test que hiciste, los km de las zapatillas */
+  note?: string;
+  /** chequeo automático: no se tilda, sale de tus datos */
+  auto?: { ok: boolean; warn?: boolean };
+}
+/**
+ * Con hora de largada, el horario del día reemplaza a los dos pendientes generales del día (comer 3 o 4 horas antes y
+ * llegar con tiempo), que dicen lo mismo sin la hora.
+ */
+export function raceDayList(race: Race): RcRow[] {
+  const T = race.time || '',
+    L: RcRow[] = rcItems(race)
+      .filter((x) => !(T && (x[2] === 'i8' || x[2] === 'i9')))
+      .map((x) => ({ id: x[2], t: x[1], d: x[0] }));
+  if (T)
+    raceTimeline(race)
+      .filter((e) => e[0] < 0)
+      .forEach((e, i) => L.push({ id: 't' + i, t: e[1], d: 0, note: clockAt(T, e[0]) }));
+  /* un test en las 12 semanas antes de la carrera */
+  const tS = todayS(),
+    from = ymd(addDays(pd(race.date), -84)),
+    test = doneList()
+      .filter((s) => s.type === 'test' && s.result.distKm >= 3 && s.result.date >= from && s.result.date <= race.date)
+      .pop();
+  L.push({
+    id: 'a-test',
+    t: 'Hacer un test',
+    d: isLong(race) ? 28 : 14,
+    note: test ? fmt(test.result.distKm, test.result.distKm % 1 ? 1 : 0) + ' km · ' + dateLabel(test.result.date) : 'Tres o cuatro semanas antes',
+    auto: { ok: !!test },
+  });
+  /* la principal tiene que llegar a la largada antes del límite, al ritmo de uso de las últimas semanas */
+  const z = mainShoe();
+  if (z) {
+    const life = shoeLife(z),
+      atRace = life.km + (life.perWk * Math.max(0, daysBetween(tS, race.date))) / 7,
+      ok = atRace < z.limitKm;
+    L.push({ id: 'a-shoe', t: 'Zapatillas con menos de ' + nf(z.limitKm) + ' km', d: 7, note: 'Van ' + nf(life.km), auto: { ok, warn: !ok || life.km >= z.limitKm * 0.85 } });
+  }
+  return L.sort((a, b) => b.d - a.d);
+}
+const daysBetween = (a: string, b: string) => dayDiff(pd(a), pd(b));
+
+/** fue tu mejor marca: la más rápida de tus carreras de esa distancia (con al menos dos) */
+export function racePr(r: Race) {
+  const rs = r.resultSec || 0,
+    all = pastRaces().filter((q) => (q.resultSec || 0) > 0 && Math.abs(q.km - r.km) < 0.3);
+  return rs > 0 && all.length > 1 && all.every((q) => q.resultSec! >= rs);
 }

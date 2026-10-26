@@ -123,14 +123,31 @@ export function Bib({ band, num, numLabel, meta, tear, notch, children }: { band
 
 /* ---- pulsera de ritmos ---- */
 /**
- * parcial y acumulado por km. `splits`: segundos de cada km. `breaks`: en qué km empieza cada tramo de la estrategia
- * (los tramos se alternan con fondo más oscuro, empezando por el primero).
+ * parcial y acumulado por km. `splits`: segundos de cada fila. `breaks`: en qué fila empieza cada tramo de la estrategia
+ * (los tramos se alternan con fondo más oscuro, empezando por el primero). `kms`: el km donde termina cada fila, si no
+ * van de a uno (de a 5 en un maratón, o 21,1 al final de una media).
  */
-export function PaceBand({ title, sub, splits, breaks = [], finish = 'Meta' }: { title: ReactNode; sub?: ReactNode; splits: number[]; breaks?: number[]; finish?: string }) {
+export function PaceBand({
+  title,
+  sub,
+  splits,
+  breaks = [],
+  kms,
+  finish = 'Meta',
+  className,
+}: {
+  title: ReactNode;
+  sub?: ReactNode;
+  splits: number[];
+  breaks?: number[];
+  kms?: number[];
+  finish?: string;
+  className?: string;
+}) {
   const rows = splits.map((p, k) => ({ k, p, acc: splits.slice(0, k + 1).reduce((a, v) => a + v, 0), sh: breaks.filter((b) => b <= k).length % 2 === 0 })),
     total = rows.length ? rows[rows.length - 1].acc : 0;
   return (
-    <div className="p-band">
+    <div className={cx('p-band', className)}>
       <div className="p-band-h">
         <b>{title}</b>
         {sub ? <small>{sub}</small> : null}
@@ -146,7 +163,7 @@ export function PaceBand({ title, sub, splits, breaks = [], finish = 'Meta' }: {
         <tbody>
           {rows.map((r) => (
             <tr key={r.k} className={r.sh ? 'sh' : undefined}>
-              <td>{r.k + 1}</td>
+              <td>{kms ? fmt(kms[r.k], kms[r.k] % 1 ? 1 : 0) : r.k + 1}</td>
               <td>{fmtDur(r.p)}</td>
               <td>{fmtDur(r.acc)}</td>
             </tr>
@@ -216,13 +233,16 @@ const onSecond = (cb: () => void) => {
 const nowSec = () => Math.floor(Date.now() / 1000);
 const CLOCK_L = ['Días', 'Horas', 'Min', 'Seg'];
 
-/** `to`: la largada (fecha y hora) */
-export function Countdown({ to }: { to: Date }) {
+const exact = (to: Date) => (now: number) => {
+  const s = Math.max(0, Math.floor(to.getTime() / 1000 - now / 1000));
+  return [Math.floor(s / 86400), Math.floor((s % 86400) / 3600), Math.floor((s % 3600) / 60), s % 60];
+};
+/** `to`: la largada (fecha y hora). `parts`: otra forma de contar ([días, horas, min, seg] para un instante en ms) */
+export function Countdown({ to, parts }: { to?: Date; parts?: (now: number) => number[] }) {
   const now = useSyncExternalStore(onSecond, nowSec, () => null);
-  const s = now == null ? null : Math.max(0, Math.floor(to.getTime() / 1000) - now);
-  const v = s == null ? null : [Math.floor(s / 86400), Math.floor((s % 86400) / 3600), Math.floor((s % 3600) / 60), s % 60];
+  const v = now == null ? null : (parts || exact(to || new Date()))(now * 1000);
   return (
-    <div className="p-clock" role="timer" aria-label={v ? `Faltan ${v[0]} días y ${v[1]} horas` : undefined}>
+    <div className="p-clock" role="timer" aria-label={v ? (v[0] > 0 ? `Faltan ${v[0]} días` : `Faltan ${v[1]} horas y ${v[2]} minutos`) : undefined}>
       {CLOCK_L.map((l, k) => (
         <Fragment key={l}>
           {k ? (

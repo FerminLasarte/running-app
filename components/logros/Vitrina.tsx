@@ -7,7 +7,7 @@ import { pastRaces } from '@/lib/domain/config';
 import { raceTheme } from '@/lib/domain/raceTheme';
 import { CAT_N, RARITY, markTrophiesSeen, rarOf, trophies, trophyProg, trophyXp, type Trophy } from '@/lib/domain/trophies';
 import { dateLabel, dShort, fmtDur, nf, pd, sum } from '@/lib/domain/util';
-import { RaceMedalSvg } from '@/components/race/RaceMedalSvg';
+import { RaceMedalSvg } from '@/components/carreras/RaceMedalSvg';
 import { MedalSvg } from './MedalSvg';
 
 const cssVars = (o: Record<string, string | number>) => o as CSSProperties;

@@ -5,8 +5,8 @@ import { useS } from '@/lib/store';
 import type { SessionType } from '@/lib/domain/types';
 import { TYPES, nextRace, upcomingRaces, zoneRange } from '@/lib/domain/config';
 import { anFrom, anWeeks, fondoHrFit, intensitySplit, yearKm } from '@/lib/domain/analysis';
-import { vdotOf, vdotTime } from '@/lib/domain/daniels';
-import { lvPace } from '@/lib/domain/level';
+import { vdotOf } from '@/lib/domain/daniels';
+import { lvPace, lvTimeAt } from '@/lib/domain/level';
 import { bestMarks } from '@/lib/domain/marks';
 import { doneList, kmBetween, kmByType, monthNow, streakInfo, weekSeries, type WeekRow } from '@/lib/domain/stats';
 import { weekTotalKm } from '@/lib/domain/week';
@@ -216,7 +216,7 @@ function PredPanel() {
     <Panel className="p-c8 p-rise" style={cssVars({ '--i': 5 })} title="Si corrieras hoy" sub={'VDOT ' + fmt(vd, 1)} flush>
       <div className="an-pred">
         {DISTS.map(([km, n]) => {
-          const t = Math.round(km === 10 ? lv.sec : vdotTime(vd, km)),
+          const t = lvTimeAt(lv, km),
             r = up.find((x) => Math.abs(x.km - km) / km < 0.02 && x.targetSec > 0),
             gap = r ? t - r.targetSec : 0;
           return (

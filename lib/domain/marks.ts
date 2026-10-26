@@ -45,21 +45,31 @@ export interface Mark {
   x: string;
   id?: string;
 }
+/** tu mejor tiempo en una distancia: carreras con tiempo cargado y tests llevados a la distancia exacta */
+export interface Best {
+  sec: number;
+  src: string;
+  id?: string;
+}
+export function bestAt(km: number, d: DoneSession[] = doneList()): Best | null {
+  let best: Best | null = null;
+  for (const r of S.cfg.races)
+    if (r.resultSec! > 0 && Math.abs(r.km - km) / km < 0.02 && (!best || r.resultSec! < best.sec)) best = { sec: r.resultSec!, src: r.name + ' · ' + raceDateLabel(r) };
+  for (const x of d) {
+    const r = x.result;
+    if (x.type === 'test' && r.timeSec > 0 && r.distKm >= km * 0.98 && r.distKm <= km * 1.05) {
+      const sec = (r.timeSec / r.distKm) * km;
+      if (!best || sec < best.sec) best = { sec, src: 'Test · ' + dateLabel(r.date), id: x.id };
+    }
+  }
+  return best;
+}
 export function bestMarks(): Mark[] {
   const M: Mark[] = [],
     d = doneList();
   MARK_DISTS.forEach((q) => {
-    const km = q[0];
-    let best: { sec: number; src: string; id?: string } | null = null;
-    for (const r of S.cfg.races)
-      if (r.resultSec! > 0 && Math.abs(r.km - km) / km < 0.02 && (!best || r.resultSec! < best.sec)) best = { sec: r.resultSec!, src: r.name + ' · ' + raceDateLabel(r) };
-    for (const x of d) {
-      const r = x.result;
-      if (x.type === 'test' && r.timeSec > 0 && r.distKm >= km * 0.98 && r.distKm <= km * 1.05) {
-        const sec = (r.timeSec / r.distKm) * km;
-        if (!best || sec < best.sec) best = { sec, src: 'Test · ' + dateLabel(r.date), id: x.id };
-      }
-    }
+    const km = q[0],
+      best = bestAt(km, d);
     if (best) M.push({ n: 'Mejor ' + q[1], v: fmtDur(best.sec), x: fmtPace(best.sec / km) + '/km · ' + best.src, id: best.id });
   });
   if (d.length) {

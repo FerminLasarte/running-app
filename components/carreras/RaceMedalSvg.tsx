@@ -9,10 +9,13 @@ const FONT = { fontFamily: 'Barlow Condensed,Arial Narrow,sans-serif', fontWeigh
 const cx = 60,
   cy = 106;
 
+/** la distancia como va grabada en la medalla: «10K», «21K», «42K» */
+export const medalDist = (r: Pick<Race, 'km'>) => (r.km > 21 && r.km < 21.2 ? '21K' : r.km > 42 && r.km < 42.3 ? '42K' : Math.round(r.km) + 'K');
+
 export function RaceMedalSvg({ r }: { r: Pick<Race, 'name' | 'km'> }) {
   const n = 'rm' + useId().replace(/[^a-zA-Z0-9_-]/g, '');
   const t = raceTheme(r),
-    km = r.km > 21 && r.km < 21.2 ? '21K' : r.km > 42 && r.km < 42.3 ? '42K' : Math.round(r.km) + 'K';
+    km = medalDist(r);
   const url = (id: string) => 'url(#' + n + id + ')';
   const grad = (id: string, a: string, b: string, c: string) => (
     <linearGradient id={n + id} x1="0" y1="0" x2="1" y2="1">

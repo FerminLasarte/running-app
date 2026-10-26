@@ -30,6 +30,7 @@ export function PageHead({ eyebrow, title, actions, children }: { eyebrow?: Reac
 
 /** panel con encabezado. `flush`: el contenido va sin el margen interno (tablas, filas de números, gráficos a lo ancho) */
 export function Panel({
+  id,
   title,
   sub,
   actions,
@@ -38,6 +39,7 @@ export function Panel({
   style,
   children,
 }: {
+  id?: string;
   title?: ReactNode;
   sub?: ReactNode;
   actions?: ReactNode;
@@ -47,7 +49,7 @@ export function Panel({
   children?: ReactNode;
 }) {
   return (
-    <article className={cx('p-panel', className)} style={style}>
+    <article id={id} className={cx('p-panel', className)} style={style}>
       {title ? (
         <div className="p-panel-h">
           <h2>{title}</h2>

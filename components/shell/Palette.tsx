@@ -13,9 +13,11 @@ import {
   DownloadSimple,
   FlagCheckered,
   Gauge,
+  ListChecks,
   MagnifyingGlass,
   Medal,
   Plus,
+  Printer,
   SquaresFour,
   Trophy,
   type Icon,
@@ -24,7 +26,8 @@ import { S, setUi, useApp } from '@/lib/store';
 import { openSheet } from '@/lib/sheets';
 import { navigate, goSession } from '@/lib/nav';
 import { doExport } from '@/lib/data/backup';
-import { TYPES, TYPE_KEYS, easyActive } from '@/lib/domain/config';
+import { TYPES, TYPE_KEYS, easyActive, nextRace } from '@/lib/domain/config';
+import { longRace } from '@/lib/domain/blocks';
 import { LG_INIT, lgRows } from '@/lib/domain/log';
 import { openRecal } from '@/lib/domain/recal';
 import { palIndex, palMark, palSearch, type PalItem } from '@/lib/domain/palette';
@@ -34,6 +37,7 @@ import { briefOf } from '@/components/pista/session';
 import { cssVars, cx, typeColor } from '@/components/pista/util';
 import { registroHref } from '@/components/registro/filters';
 import { AN_TABS } from '@/components/analisis/period';
+import { PRINT_BTN_ID } from '@/components/carreras/PrintBand';
 import { SECTIONS } from './sections';
 import { useStravaStatus } from './useStravaStatus';
 
@@ -55,6 +59,16 @@ function Mark({ t, q }: { t: string; q: string }) {
 const AN_ICON = SECTIONS.find((s) => s.id === 'analisis')!.Icon;
 const AN_ROWS: Row[] = AN_TABS.map((t) => ({ g: 'Análisis', key: 'an:' + t.value, t: t.label, sub: 'En Análisis', more: t.more, icon: AN_ICON, run: () => navigate(t.path) }));
 
+/* las partes de Carreras: se buscan por su nombre o por lo que tienen, y llevan hasta ahí */
+const CAR_ICON = SECTIONS.find((s) => s.id === 'carreras')!.Icon;
+const toCarreras = (id: string) => () => navigate('/carreras', () => document.getElementById(id)?.scrollIntoView({ block: 'start' }));
+const CAR_PARTS: { id: string; t: string; more: string; when?: () => boolean }[] = [
+  { id: 'car-plan', t: 'Plan por bloques', more: 'semanas fases base desarrollo específico puesta a punto km planificados tirada larga', when: () => !!longRace() },
+  { id: 'car-estrategia', t: 'Estrategia y pulsera', more: 'tramos ritmos parciales pace band meta realista seguro frecuencia cardíaca', when: () => !!nextRace() },
+  { id: 'car-dia', t: 'Para el día', more: 'lista pendientes kit horario largada corral checklist', when: () => !!nextRace() },
+  { id: 'car-medallero', t: 'Medallero', more: 'medallas carreras corridas tiempos marcas pr' },
+];
+
 function PaletteBox() {
   const [q, setQ] = useState('');
   const [act, setAct] = useState(0);
@@ -74,6 +88,7 @@ function PaletteBox() {
       a('a:t', 'Cambiar entre claro y oscuro', CircleHalf, toggleTheme),
       ...(easyActive(todayS()) ? [] : [a('a:e', 'No me siento al 100%', Bandaids, () => openSheet('easy'))]),
       a('a:rc', 'Recalibrar ritmos', Gauge, () => openRecal()),
+      a('a:lv', 'Test de nivel', ListChecks, () => openSheet('level')),
       a('a:ch', 'Nuevo desafío', Trophy, () => openSheet('challenge')),
       a('a:x', 'Exportar respaldo', DownloadSimple, () => doExport('json')),
       ...SECTIONS.map((s, i): Row => ({ g: 'Ir a', key: 'n:' + s.id, t: s.label, icon: s.Icon, run: () => navigate(s.href), k: i < 6 ? String(i + 1) : undefined })),
@@ -85,6 +100,10 @@ function PaletteBox() {
     return {
       sessions: ix.sessions.map((x): Row => ({ g: x.g, key: x.key, t: x.t, sub: x.sub, more: x.more, color: typeColor(x.type), done: !!x.s.result, run: () => goSession(x.s.id) })),
       races: ix.races.map((x): Row => ({ g: x.g, key: x.key, t: x.t, sub: x.sub, more: x.more, icon: x.past ? Medal : FlagCheckered, run: () => (x.past && x.r.resultSec ? openSheet('raceMedal', { id: x.r.id }) : navigate('/carreras')) })),
+      carreras: [
+        ...(nextRace() ? [{ g: 'Acciones', key: 'a:pb', t: 'Imprimir la pulsera', sub: 'De la próxima carrera', more: 'pace band ritmos', icon: Printer, run: () => navigate('/carreras', () => document.getElementById(PRINT_BTN_ID)?.click()) } as Row] : []),
+        ...CAR_PARTS.filter((x) => !x.when || x.when()).map((x): Row => ({ g: 'Carreras', key: x.id, t: x.t, sub: 'En Carreras', more: x.more, icon: CAR_ICON, run: toCarreras(x.id) })),
+      ],
       /* el Registro filtrado por cada tipo que tenés */
       registro: TYPE_KEYS.filter((k) => sessions.some((s) => s.type === k)).map(
         (k): Row => ({ g: 'Registro', key: 'reg:' + k, t: TYPES[k].label, sub: 'Todas las de este tipo, en el Registro', color: typeColor(k), run: () => navigate(registroHref({ tipo: k })) }),
@@ -97,7 +116,7 @@ function PaletteBox() {
   const list = useMemo<Row[]>(() => {
     const q0 = q.trim();
     if (!q0) return [...fixed, ...index.sessions.filter((x) => x.done).slice(0, 3).map((x) => ({ ...x, g: 'Recientes' }))];
-    const found = palSearch([...fixed, ...AN_ROWS, ...index.sessions, ...index.races, ...index.registro], q);
+    const found = palSearch([...fixed, ...AN_ROWS, ...index.carreras, ...index.sessions, ...index.races, ...index.registro], q);
     /* la paleta muestra pocas sesiones: al final, todas las que encuentra el Registro con lo mismo */
     const n = lgRows({ ...LG_INIT, q: q0, st: 'all' }).length;
     if (!n) return found;
