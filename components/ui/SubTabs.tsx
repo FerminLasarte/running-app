@@ -1,6 +1,6 @@
-/* Subpestañas de Resumen, Carrera y Logros: un control segmentado con la gota de vidrio encima de la elegida.
-   Cada opción es una pestaña accesible (role="tab" + aria-selected); aria-pressed queda porque la gota y el CSS del
-   original marcan la elegida con él. */
+/* Subpestañas de Resumen, Carrera y Logros: un control segmentado.
+   Cada opción es una pestaña accesible (role="tab" + aria-selected); aria-pressed queda porque el CSS del
+   original marca la elegida con él. */
 import type { ReactNode } from 'react';
 
 export function SubTabs({ label, value, items, onPick, act }: { label: string; value: string; items: [string, ReactNode][]; onPick: (v: string) => void; act: string }) {

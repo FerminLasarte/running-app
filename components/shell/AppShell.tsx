@@ -19,7 +19,6 @@ import { Banners, Header, SettingsButton, TAB_C } from './Header';
 import { SheetHost } from './SheetHost';
 import { Toast } from './Toast';
 import CelebrateHost from '@/components/logros/CelebrateHost';
-import { pillInit } from './pill';
 import { TABS, TITLES } from './tabs';
 
 /* Semana viene con la app; las demás pestañas viajan cada una en su archivo y se bajan solas al rato de arrancar */
@@ -71,7 +70,7 @@ function TabButtons() {
     <>
       {TABS.map((t) => (
         <button key={t.v} className="tab" data-a="tab" data-v={t.v} aria-current={tab === t.v ? 'page' : undefined} onClick={() => goTab(t.v)}>
-          <svg className="ic ph" viewBox="0 0 256 256" aria-hidden="true" dangerouslySetInnerHTML={{ __html: t.svg }} />
+          <t.Icon className="ic ph" weight={tab === t.v ? 'fill' : 'regular'} aria-hidden="true" />
           {t.label}
         </button>
       ))}
@@ -132,13 +131,12 @@ export default function AppShell() {
   const [play, setPlay] = useState(false);
   const lastKey = useRef<string | null>(null);
 
-  /* arranque: datos, gestos de la gota y atajos */
+  /* arranque: datos y atajos */
   useEffect(() => {
     setNotifier(toast);
     boot();
     /* que la app instalada abra sin señal (public/sw.js); en desarrollo no, para no pelear con la recarga en vivo */
     if (process.env.NODE_ENV === 'production' && 'serviceWorker' in navigator) navigator.serviceWorker.register('/sw.js').catch(() => {});
-    const off = pillInit();
     const pre = setTimeout(preloadAll, 1200);
     /* si la app queda abierta y pasa la medianoche, «hoy» cambia en todas las vistas (el saludo tiene su propio reloj) */
     let day = todayS();
@@ -223,7 +221,6 @@ export default function AppShell() {
     document.addEventListener('touchstart', ts, { passive: true });
     document.addEventListener('touchend', te, { passive: true });
     return () => {
-      off();
       clearTimeout(pre);
       clearInterval(iv);
       window.removeEventListener('scroll', onScroll);
@@ -266,7 +263,7 @@ export default function AppShell() {
     [],
   );
   const viewEl = useMemo(() => (S0.loaded ? <View /> : skel), [S0.loaded, View]);
-  /* en la barra de abajo no va Ajustes (está arriba, en el engranaje): la gota se mueve entre las otras seis */
+  /* en la barra de abajo no va Ajustes (está arriba, en el engranaje) */
   const vis = TABS.filter((t) => t.v !== 'set').length;
   return (
     <>
