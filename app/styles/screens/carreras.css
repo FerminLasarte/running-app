@@ -46,12 +46,16 @@
   .car-weeks .phl { position: absolute; top: 12px; left: 10px; z-index: 1; font: 700 9.5px/1 var(--f-ui); letter-spacing: .1em; text-transform: uppercase; color: color-mix(in oklab, var(--pc) 80%, var(--ink)); white-space: nowrap; }
   .car-weeks .hd { display: flex; justify-content: space-between; align-items: baseline; padding: 30px 10px 0; }
   .car-weeks .now { font: italic 900 13px/1 var(--f-disp); font-stretch: 70%; color: var(--acc); text-transform: uppercase; letter-spacing: .04em; }
+  .car-weeks .dt { padding: 4px 10px 0; font: 500 10.5px/1 var(--f-mono); color: var(--ink-3); }
   .car-weeks .bars { height: 120px; display: flex; align-items: flex-end; justify-content: center; padding: 10px 10px 0; position: relative; }
   .car-weeks .bars .p { position: absolute; bottom: 0; left: 26%; right: 26%; border: 1px dashed var(--ink-4); border-bottom: 0; }
   .car-weeks .bars .d { position: absolute; bottom: 0; left: 26%; right: 26%; background: var(--pc); transform-origin: bottom; animation: p-grow .8s var(--ease) both; animation-delay: calc(250ms + var(--j, 0) * 30ms); }
   .car-weeks .ft { padding: 8px 6px 12px; border-top: 1px solid var(--line); font: 500 10.5px/1.35 var(--f-mono); color: var(--ink-3); text-align: center; }
   .car-weeks .ft b { display: block; color: var(--ink); font-weight: 600; font-size: 12px; }
   .car-weeks .ft span { display: block; color: var(--ink-4); }
+  /* el nombre de la semana (de las notas de tus sesiones) y, más marcado, la de descarga */
+  .car-weeks .ft .nm { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--ink-3); }
+  .car-weeks .dl .ft .nm { color: color-mix(in oklab, var(--pc) 80%, var(--ink)); font-weight: 600; }
   .car-weeks .cur { background: color-mix(in oklab, var(--acc) 6%, transparent); }
   .car-weeks .race .bars { align-items: center; }
   .car-weeks .flag { width: 36px; height: 36px; display: grid; place-items: center; background: var(--ink); color: var(--bg); transform: skewX(-8deg); }

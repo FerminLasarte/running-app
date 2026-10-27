@@ -31,12 +31,14 @@ export default function RecalPanel({ srcId }: { srcId?: string }) {
       </PanelFrame>
     );
   }
-  /* la marca escrita a mano reemplaza a la referencia */
-  const readRef = (f: RecalForm): RecalForm => {
-    const t = readHms(hms);
-    return t != null && t > 0 && Math.round(t) !== Math.round(f.ref.sec) ? { ...f, ref: { ...f.ref, sec: t, label: 'la marca que cargaste' } } : f;
+  /* la marca escrita a mano reemplaza a la referencia en cada cambio, como en el original: así la vista previa y
+     «Aplicar» usan siempre lo que está escrito */
+  const setRef = (h: Hms) => {
+    setHms(h);
+    const t = readHms(h);
+    if (t != null && t > 0 && Math.round(t) !== Math.round(F.ref.sec)) setF({ ...F, ref: { ...F.ref, sec: t, label: 'la marca que cargaste' } });
   };
-  const upd = (fn: (f: RecalForm) => RecalForm) => setF(fn(readRef(F)));
+  const upd = (fn: (f: RecalForm) => RecalForm) => setF(fn(F));
 
   const d = rcDelta(F),
     vT = vdotOf(F.src.sec, F.src.km),
@@ -63,7 +65,7 @@ export default function RecalPanel({ srcId }: { srcId?: string }) {
     if (rows.length < 14) rows.push({ id: x.id, t: dateLabel(x.plan.date) + ' · ' + planTitle(x), c: rcChanges(x, r.steps).join(' · ') });
   });
   const big = Math.abs(d) >= 2.5;
-  const apply = () => tot && applyRecal(readRef(F));
+  const apply = () => tot && applyRecal(F);
 
   return (
     <PanelFrame
@@ -93,9 +95,9 @@ export default function RecalPanel({ srcId }: { srcId?: string }) {
             options={RACE_PRESETS.slice(0, 3).map((q) => ({ value: q[1], label: q[1] }))}
           />
         </div>
-        <div style={{ marginTop: 14 }} onBlur={() => setF(readRef(F))}>
+        <div style={{ marginTop: 14 }}>
           <Field id="rc-ref" label="Tiempo de esa marca" group>
-            <HmsInput id="rc-ref" value={hms} onChange={setHms} />
+            <HmsInput id="rc-ref" value={hms} onChange={setRef} />
           </Field>
         </div>
         <Advice ok={!big}>

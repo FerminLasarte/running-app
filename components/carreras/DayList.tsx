@@ -1,13 +1,14 @@
 'use client';
 /* Para el día: los pendientes de las semanas previas y del día (con la hora, si cargaste la de largada), agrupados por
-   cuándo tocan. Los que tildás se guardan en cfg.rcs[carrera]; el test y las zapatillas se chequean solos. */
+   cuándo tocan, y el consejo de calor y agua al pie del día de la carrera. Los que tildás se guardan en
+   cfg.rcs[carrera]; el test y las zapatillas se chequean solos. Sin hora de largada, el aviso para cargarla. */
 import { Check } from '@phosphor-icons/react';
 import { S, useS } from '@/lib/store';
-import { blockDemo, saveCfg } from '@/lib/data/actions';
+import { blockDemo, editRace, saveCfg } from '@/lib/data/actions';
 import type { Race } from '@/lib/domain/types';
 import { raceDayList, type RcRow } from '@/lib/domain/race';
 import { cleanObj, daysTo } from '@/lib/domain/util';
-import { Tag } from '@/components/pista/controls';
+import { Button, Tag } from '@/components/pista/controls';
 import { Panel } from '@/components/pista/structure';
 import { cssVars, cx } from '@/components/pista/util';
 
@@ -84,6 +85,11 @@ export function DayList({ race }: { race: Race }) {
             <Row key={x.id} x={x} race={race} rc={rc} days={days} />
           ))}
         </ul>
+        {g.d === 0 ? (
+          <p className="car-note">
+            {race.time ? 'Mirá el pronóstico para las ' + race.time + '. ' : ''}Si hay calor o humedad, sumá unos segundos por km desde el principio, no cuando ya se complicó. Tomá agua en los puestos aunque no tengas sed.
+          </p>
+        ) : null}
       </section>
     );
   const rest = G.slice(cut);
@@ -98,6 +104,16 @@ export function DayList({ race }: { race: Race }) {
           {rest.map(group)}
         </details>
       ) : null}
+      {race.time ? null : (
+        <>
+          <p className="car-note">Cargá la hora de largada en Ajustes y te armo el horario del día.</p>
+          <div className="car-acts">
+            <Button size="sm" onClick={() => editRace(race.id, 'time')}>
+              Cargar la hora
+            </Button>
+          </div>
+        </>
+      )}
       <p className="car-foot">Esta guía es general. Para la semana previa y el volumen, seguí lo que te indique tu entrenador.</p>
     </Panel>
   );

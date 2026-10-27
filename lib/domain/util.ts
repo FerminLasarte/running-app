@@ -43,9 +43,12 @@ export const DF_D = new Intl.DateTimeFormat('es-AR', { day: 'numeric', month: 's
 export const DF_M = new Intl.DateTimeFormat('es-AR', { month: 'short' });
 export const DF_MY = new Intl.DateTimeFormat('es-AR', { month: 'long', year: 'numeric' });
 export const DF_LONG = new Intl.DateTimeFormat('es-AR', { weekday: 'long', day: 'numeric', month: 'long' });
+const DF_LONG_Y = new Intl.DateTimeFormat('es-AR', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
 const DF_MON = new Intl.DateTimeFormat('es-AR', { month: 'long' });
 /** «junio», o «junio de 2025» si no es de este año */
 export const monthOf = (d: Date) => (d.getFullYear() === new Date().getFullYear() ? DF_MON : DF_MY).format(d);
+/** «Domingo 9 de noviembre», o «Domingo 9 de noviembre de 2027» si no es de este año */
+export const dayLong = (d: Date) => cap((d.getFullYear() === new Date().getFullYear() ? DF_LONG : DF_LONG_Y).format(d).replace(',', ''));
 
 export const dateLabel = (s: string) => DF_WD.format(pd(s)).replace(/[.,]/g, '');
 export const dShort = (d: Date) => DF_D.format(d).replace(/\./g, '');

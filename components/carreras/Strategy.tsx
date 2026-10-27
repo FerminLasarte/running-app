@@ -1,12 +1,13 @@
 'use client';
 /* Estrategia: el escenario (meta, realista o seguro, en la URL), los tramos con su ritmo y su FC de control, de dónde
-   sale el ritmo realista, y la pulsera para imprimir o copiar. */
+   sale el ritmo realista (con la cuenta: Riegel desde el test, o la tendencia de tus entrenamientos con su tope), y la
+   pulsera para imprimir o copiar. */
 import { useCallback, useState } from 'react';
 import { Copy, Printer } from '@phosphor-icons/react';
 import type { Race } from '@/lib/domain/types';
 import { isLong } from '@/lib/domain/config';
-import type { RaceLeg, RaceScen, RaceStrategy, TrainEst } from '@/lib/domain/race';
-import { dShort, dateLabel, fmtDur, fmtPace, pd } from '@/lib/domain/util';
+import type { Prediction, RaceEst, RaceLeg, RaceScen, RaceStrategy, TrainEst } from '@/lib/domain/race';
+import { cap, dShort, dateLabel, fmt, fmtDur, fmtPace, pd } from '@/lib/domain/util';
 import { editRace, toast } from '@/lib/data/actions';
 import { Button, Segmented } from '@/components/pista/controls';
 import { Panel } from '@/components/pista/structure';
@@ -48,9 +49,28 @@ function copyPlan(race: Race, sel: RaceScen, st: RaceStrategy) {
   }
 }
 
+/** «tu test del sáb 4 oct (5 km en 21:30)» */
+const testTxt = (pr: Prediction) => 'tu test del ' + dateLabel(pr.s.result.date) + ' (' + fmt(pr.s.result.distKm, pr.s.result.distKm % 1 ? 1 : 0) + ' km en ' + fmtDur(pr.s.result.timeSec) + ')';
+
+/** de dónde sale el ritmo realista cuando lo da el test: Riegel, y en distancias largas el rango con 1,10 */
+function RealFromTest({ pr }: { pr: Prediction }) {
+  return (
+    <p className="car-foot">
+      Sale de {testTxt(pr)} con la fórmula de Riegel: tu tiempo por (distancia de la carrera ÷ distancia del test) elevado a 1,06. Sirve si el test fue a máximo esfuerzo y llegaste descansado.
+      {pr.lo ? (
+        <>
+          {' '}
+          Para una distancia larga desde un test corto suele dar tiempos demasiado rápidos si no tenés mucho volumen: Riegel da <b>{fmtDur(pr.lo)}</b> y con un exponente de 1,10, el caso prudente, <b>{fmtDur(pr.t)}</b>. El realista va en el medio.
+        </>
+      ) : null}{' '}
+      Es una estimación, no una promesa.
+    </p>
+  );
+}
+
 const KN = { series: 'Series', tempo: 'Tempo', test: 'Test' } as const;
 /** de dónde sale el ritmo realista cuando lo dan los entrenamientos, con las sesiones en un desplegable */
-function RealFrom({ te, race }: { te: TrainEst; race: Race }) {
+function RealFrom({ te, pr, race }: { te: TrainEst; pr: Prediction | null; race: Race }) {
   const wk = Math.round(-te.slope * 7);
   return (
     <>
@@ -68,7 +88,12 @@ function RealFrom({ te, race }: { te: TrainEst; race: Race }) {
           ''
         )}
         . Para el {dShort(pd(race.date))} proyecto <b>{fmtDur(te.proj)}</b>
-        {te.capped ? ' (tu tendencia da más, pero la limito a una mejora prudente de 3% por mes)' : ''}.
+        {te.capped ? ' (tu tendencia da más, pero la limito a una mejora prudente de 3% por mes)' : wk > 0 ? ' siguiendo esa tendencia, con un tope prudente de 3% de mejora por mes' : ''}.
+      </p>
+      <p className="car-foot">
+        {race.km !== 10 ? 'Cada sesión se pasa a un 10K equivalente y de ahí a ' + kmLabel(race.km) + ' km con la fórmula de Riegel (exponente 1,06' + (race.km > 21.2 ? ' y un 3% más por ser maratón' : '') + '). ' : ''}
+        {pr ? cap(testTxt(pr)) + ' daba ' + fmtDur(pr.lo || pr.t) + (pr.lo ? ' a ' + fmtDur(pr.t) : '') + ', pero es anterior a tus últimas series y tempos, así que ya no refleja cómo estás. ' : ''}
+        Un test nuevo a esfuerzo máximo pasa a mandar sobre esta cuenta. Es una estimación, no una promesa.
       </p>
       <details className="car-more">
         <summary>Ver las sesiones</summary>
@@ -97,6 +122,9 @@ function RealFrom({ te, race }: { te: TrainEst; race: Race }) {
     </>
   );
 }
+
+/** de dónde sale el ritmo realista: del test o de los entrenamientos */
+const RealHow = ({ e, race }: { e: RaceEst; race: Race }) => (e.src === 'train' ? <RealFrom te={e.te} pr={e.pr} race={race} /> : <RealFromTest pr={e.pr} />);
 
 export function Strategy({ race, sc, sel, st, onPick }: { race: Race; sc: RaceScen[]; sel: RaceScen | null; st: RaceStrategy | null; onPick: (id: RaceScen['id']) => void }) {
   const [printing, setPrinting] = useState(false);
@@ -133,7 +161,7 @@ export function Strategy({ race, sc, sel, st, onPick }: { race: Race; sc: RaceSc
       <p className="car-note">
         {sel.x} Parciales parejos o en negativo: si cada tramo sale como está, llegás en <b>{fmtDur(st.total)}</b>. La pulsera de arriba se imprime en tamaño real.
       </p>
-      {sel.te ? <RealFrom te={sel.te} race={race} /> : null}
+      {sel.est ? <RealHow e={sel.est} race={race} /> : null}
       <p className="car-foot">
         La FC es orientativa: si el ritmo y la FC no coinciden, mandá la FC en los primeros km y el ritmo después.
         {long ? ' Es normal que la FC suba sola al final aunque mantengas el ritmo (deriva): desde el 30, mandá el ritmo. Tomá un gel o carbohidratos cada 30 a 45 minutos desde el km 8 a 10, como lo hayas practicado en las tiradas largas, y agua en los puestos.' : ''}

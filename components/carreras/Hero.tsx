@@ -8,7 +8,7 @@ import { racePaceSec } from '@/lib/domain/config';
 import { lvPace, lvTimeAt } from '@/lib/domain/level';
 import { bestAt, MARK_DISTS } from '@/lib/domain/marks';
 import { bandRows, raceClock, type RaceScen, type RaceStrategy } from '@/lib/domain/race';
-import { cap, DF_LONG, fmtDur, fmtPace, pd } from '@/lib/domain/util';
+import { dayLong, fmtDur, fmtPace, pd } from '@/lib/domain/util';
 import { Countdown, PaceBand } from '@/components/pista/sport';
 import { BrandTitle, Stadium } from '@/components/pista/structure';
 import { Chip } from '@/components/pista/controls';
@@ -50,7 +50,7 @@ function Goal({ race }: { race: Race }) {
 }
 
 export function Hero({ race, sel, st }: { race: Race; sel: RaceScen | null; st: RaceStrategy | null }) {
-  const day = cap(DF_LONG.format(pd(race.date)).replace(',', '')) + (race.time ? ' · ' + race.time : '');
+  const day = dayLong(pd(race.date)) + (race.time ? ' · ' + race.time : '');
   const rows = st ? bandRows(st.splits, race.km > 21.2 ? 5 : 1) : null;
   return (
     <Stadium
