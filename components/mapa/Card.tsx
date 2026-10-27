@@ -64,7 +64,7 @@ export function Card({ o, L, onClose }: { o: MapOpts; L: Route[]; onClose: () =>
     );
   }
   /* sin salida elegida: el barrio, la leyenda de los tipos o cómo se pinta */
-  const bz = o.hb ? mapBarrios(L, o.period)?.list.find((e) => e.b.n === o.hb) : null;
+  const bz = o.hb ? mapBarrios(L, o.period).list.find((e) => e.b.n === o.hb) : null;
   /* la escala de las zonas pintadas: de 1 a las veces que más pasaste por una misma cuadrícula */
   const zmax = o.zones && L.length ? mapCells(L, o.period).max : 0;
   const seen = new Set<SessionType>();

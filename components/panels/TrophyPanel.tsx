@@ -4,11 +4,14 @@
    desde la vitrina, la vidriera de Logros y ⌘K. */
 import '@/app/styles/screens/logros.css';
 import { usePathname } from 'next/navigation';
-import { useS } from '@/lib/store';
+import { ArrowsClockwise } from '@phosphor-icons/react';
+import { S, useS, useUi } from '@/lib/store';
 import { closeSheet, requestClose } from '@/lib/sheets';
 import { goVitrina } from '@/lib/data/actions';
 import { CAT_N, trophies, trophyLeft, trophyNote, trophyProg, trophyTier, trophyXp } from '@/lib/domain/trophies';
-import { cap, dateLabel, nf, pd } from '@/lib/domain/util';
+import { DEC_UI0, decBackfill, decEligible, type DecUi } from '@/lib/domain/dec';
+import { cap, dateLabel, nf, pd, plural } from '@/lib/domain/util';
+import { EX_UI0, exBackfill, exPending, type ExUi } from '@/lib/strava/extra';
 import { Button } from '@/components/pista/controls';
 import { Laps } from '@/components/pista/meters';
 import { Kpis, MarkList } from '@/components/pista/structure';
@@ -17,6 +20,32 @@ import { cssVars } from '@/components/pista/util';
 import { trophyIcon } from '@/components/logros/util';
 import { TrophyPiece } from '@/components/logros/Piece';
 import { PanelFrame } from './PanelFrame';
+
+/** los trofeos que salen de datos de Strava que pueden faltar (la deriva de los fondos; el desnivel y las mitades de
+    cada salida): cuántas salidas no los tienen y el botón para completarlos */
+function Fill({ cat }: { cat: string }) {
+  const [E] = useUi<ExUi>('ex', EX_UI0),
+    [Dc] = useUi<DecUi>('dec', DEC_UI0);
+  const dec = cat === 'dec';
+  if (S.demo || (!dec && cat !== 'up' && cat !== 'ns')) return null;
+  const M = dec ? Dc : E,
+    n = dec ? S.sessions.filter((q) => decEligible(q) && !q.result.dec).length : exPending().length;
+  if (!n && !M.msg) return null;
+  return (
+    <div className="lo-tp-fill">
+      <p>
+        {dec ? 'La deriva sale de las series de Strava de cada fondo.' : 'El desnivel y las mitades salen del detalle de cada salida en Strava.'}
+        {n ? ' ' + (dec ? plural(n, 'fondo', 'fondos') : plural(n, 'salida', 'salidas')) + ' todavía no ' + (n === 1 ? 'lo tiene.' : 'lo tienen.') : ''}
+      </p>
+      <div className="lo-tp-fill-a">
+        <Button size="sm" icon={ArrowsClockwise} disabled={M.busy} onClick={() => void (dec ? decBackfill() : exBackfill())}>
+          {M.busy ? 'Completando…' : 'Completar con Strava'}
+        </Button>
+        <span role="status">{M.msg}</span>
+      </div>
+    </div>
+  );
+}
 
 export default function TrophyPanel({ id }: { id: string }) {
   useS();
@@ -67,6 +96,7 @@ export default function TrophyPanel({ id }: { id: string }) {
             {left ? <p>{left}</p> : null}
           </div>
         ) : null}
+        <Fill cat={t.cat} />
         {ladder.length > 1 ? (
           <section className="lo-tp-ladder" aria-labelledby="lo-tp-lh">
             <h3 id="lo-tp-lh" className="lbl">

@@ -2,7 +2,7 @@
    la distancia, y las vueltas del reloj. `Series` es lo que se guarda en la tabla `streams` (lib/data/streams.ts la
    llena). */
 import type { PerformancePayload, StreamsPayload } from '@/lib/strava/client';
-import type { Session, Step, StepKind } from './types';
+import type { RunExtra, Session, Step, StepKind } from './types';
 import { zoneIdx } from './config';
 import { expand } from './stages';
 import { stepKm } from './stats';
@@ -136,6 +136,14 @@ export const watchLaps = (pf: PerformancePayload | null): Split[] =>
     .map((l) => ({ km: (l.distance || 0) / 1000, sec: Math.round(l.moving_time || l.elapsed_time || 0), hr: l.avg_hr! > 0 ? Math.round(l.avg_hr!) : 0 }))
     .filter((l) => l.km > 0.05 && l.sec > 0);
 
+/** lo que se guarda del detalle de la actividad para los trofeos (null si Strava no trajo el desnivel: una respuesta
+    vieja, que no se guarda para volver a pedirla) */
+export function runExtra(pf: Partial<PerformancePayload> | null): RunExtra | null {
+  if (!pf || pf.elev == null) return null;
+  const h = halves((pf.splits || []).map((l) => ({ km: (l.distance || 0) / 1000, sec: Math.round(l.moving_time || 0), hr: 0 })).filter((l) => l.km > 0.05 && l.sec > 0));
+  return h ? { up: Math.round(pf.elev), half: Math.round(h.d * 10) / 10 } : { up: Math.round(pf.elev) };
+}
+
 /** las vueltas que marcó el corredor; null si el reloj no marcó (una sola, o todas iguales: las automáticas de 1 km o
     de 1 milla), y entonces van los parciales por km */
 export function markedLaps(se: Series): Split[] | null {
@@ -145,16 +153,25 @@ export function markedLaps(se: Series): Split[] | null {
   return L.slice(0, -1).every((l) => Math.abs(l.km - k) <= k * 0.03) && L[L.length - 1].km <= k * 1.03 ? null : L;
 }
 
-/** primera mitad contra segunda, si casi todos los parciales son de 1 km (lo que era «Vuelta por vuelta») */
-export function halfSplit(L: Split[]): string | null {
+/** el ritmo de la primera mitad y de la segunda, y cuánto más lenta fue la segunda (%; negativo: más rápida). Solo si
+    casi todos los parciales son de 1 km y son 4 o más */
+export function halves(L: Split[]): { a: number; b: number; d: number } | null {
   const U = L.filter((l) => l.km >= 0.9 && l.km <= 1.1);
   if (U.length < 4 || U.length < L.length * 0.8) return null;
   const pc = (l: Split) => l.sec / l.km,
     m = Math.floor(U.length / 2),
     a = sum(U.slice(0, m).map(pc)) / m,
-    b = sum(U.slice(-m).map(pc)) / m,
-    d = (b / a - 1) * 100;
-  return 'Primera mitad a ' + fmtPace(a) + ' y segunda a ' + fmtPace(b) + ' /km: ' + (d < -1 ? 'negative split (' + fmt(-d, 1) + '% más rápido al final).' : d <= 1.5 ? 'ritmo parejo.' : 'segunda mitad ' + fmt(d, 1) + '% más lenta.');
+    b = sum(U.slice(-m).map(pc)) / m;
+  return { a, b, d: (b / a - 1) * 100 };
+}
+/** cuánto más rápida tiene que ser la segunda mitad para que sea negative split (%) */
+export const NEG_SPLIT = -1;
+/** primera mitad contra segunda, en una frase (lo que era «Vuelta por vuelta») */
+export function halfSplit(L: Split[]): string | null {
+  const h = halves(L);
+  if (!h) return null;
+  const { a, b, d } = h;
+  return 'Primera mitad a ' + fmtPace(a) + ' y segunda a ' + fmtPace(b) + ' /km: ' + (d < NEG_SPLIT ? 'negative split (' + fmt(-d, 1) + '% más rápido al final).' : d <= 1.5 ? 'ritmo parejo.' : 'segunda mitad ' + fmt(d, 1) + '% más lenta.');
 }
 
 /** segundos en cada zona de FC (Z1 a Z5), en movimiento; null sin FC. Debajo de Z1 cuenta como Z1 */

@@ -1,6 +1,6 @@
 /* Convierte el mapa de fondo del artifact original (reference/mapa-ba2.js, que hace `window.__BA = {b, o}`) en
-   public/map/ba.json, que la pestaña Mapa baja recién cuando se abre. Se corre a mano una sola vez:
-   node scripts/build-map-data.mjs */
+   public/map/ba.json (las capas, que la pestaña Mapa baja recién cuando se abre) y lib/domain/barrios.json (los límites
+   de los barrios, que van con la app). Se corre a mano una sola vez: node scripts/build-map-data.mjs */
 import { readFileSync, writeFileSync, mkdirSync } from 'node:fs';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -17,5 +17,6 @@ if (!ba || !Array.isArray(ba.b) || !ba.o) throw new Error('mapa-ba2.js no defini
 
 const out = resolve(root, 'public/map/ba.json');
 mkdirSync(dirname(out), { recursive: true });
-writeFileSync(out, JSON.stringify({ b: ba.b, o: ba.o }));
+writeFileSync(out, JSON.stringify({ o: ba.o }));
+writeFileSync(resolve(root, 'lib/domain/barrios.json'), JSON.stringify(ba.b));
 console.log('public/map/ba.json: ' + ba.b.length + ' barrios, capas ' + Object.keys(ba.o).join(' '));

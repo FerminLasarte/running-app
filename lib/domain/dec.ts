@@ -1,7 +1,8 @@
 /* Deriva cardíaca (decoupling) con los streams de Strava (líneas 5709–5778 del original). */
 import { S, getUi, setUi } from '@/lib/store';
 import { blockDemo, saveSessions } from '@/lib/data/actions';
-import { runActs, svCall, stravaErrMsg, type RunAct, type StreamsPayload } from '@/lib/strava/client';
+import { svCall, stravaErrMsg, type StreamsPayload } from '@/lib/strava/client';
+import { SV_FATAL, matchRuns } from '@/lib/strava/match';
 import type { Decoupling, Session } from './types';
 import type { DoneSession } from './stats';
 import { fmt, fmtPace, sum } from './util';
@@ -85,9 +86,6 @@ export interface DecUi {
 export const DEC_UI0: DecUi = { busy: false, msg: '' };
 const decSet = (p: Partial<DecUi>) => setUi<DecUi>('dec', (v) => ({ ...(v || DEC_UI0), ...p }));
 
-/* errores con los que no tiene sentido seguir probando con el resto de las actividades */
-const FATAL = new Set(['needs_reauth', 'not_connected', 'not_configured', 'unauthorized', 'server_not_connected', 'approval_required', 'not_in_manifest', 'consent_required']);
-
 /** calcula la deriva de los fondos que todavía no la tienen, buscando su corrida en Strava (hasta 40 por vez) */
 export async function decBackfill() {
   if (blockDemo()) return;
@@ -103,33 +101,7 @@ export async function decBackfill() {
       decSet({ busy: false, msg: 'No hay fondos pendientes de calcular.' });
       return;
     }
-    note('Buscando tus corridas en Strava…');
-    const runs: RunAct[] = [];
-    let after: string | null = null;
-    for (let page = 0; page < 8; page++) {
-      const input: { first: number; ordering: string; after?: string } = { first: 100, ordering: 'StartDateLocalDesc' };
-      if (after) input.after = after;
-      const pl = await svCall('list_activities', input);
-      runs.push(...runActs(pl));
-      const minD = runs.length ? runs[runs.length - 1].date : '9999';
-      if (!pl || !pl.has_next_page || !pl.end_cursor || minD < todo.map((q) => q.result.date).sort()[0]) break;
-      after = pl.end_cursor;
-    }
-    const used = new Set(S.sessions.filter((q) => q.result && q.result.sid).map((q) => String(q.result!.sid)));
-    const jobs: [DoneSession, { id: string; date: string; km: number }][] = [];
-    todo
-      .sort((a, b) => b.result.date.localeCompare(a.result.date))
-      .forEach((q) => {
-        const c = q.result.sid
-          ? runs.find((r) => r.id === String(q.result.sid))
-          : runs
-              .filter((r) => r.date === q.result.date && !used.has(r.id) && Math.abs(r.km - q.result.distKm) <= Math.max(0.6, q.result.distKm * 0.08))
-              .sort((a, b) => Math.abs(a.km - q.result.distKm) - Math.abs(b.km - q.result.distKm))[0];
-        if (c) {
-          used.add(c.id);
-          jobs.push([q, c]);
-        }
-      });
+    const jobs = await matchRuns(todo, () => note('Buscando tus corridas en Strava…'));
     if (!jobs.length) {
       decSet({ busy: false, msg: 'No encontré en Strava corridas que coincidan con tus fondos.' });
       return;
@@ -146,7 +118,7 @@ export async function decBackfill() {
           else fail++;
         } catch (e) {
           const code = e && typeof e === 'object' && 'code' in e ? String((e as { code: unknown }).code) : '';
-          if (FATAL.has(code)) throw e;
+          if (SV_FATAL.has(code)) throw e;
           fail++;
         }
       }
