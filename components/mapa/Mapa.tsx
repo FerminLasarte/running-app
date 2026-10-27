@@ -8,8 +8,7 @@ import { ArrowsIn, ArrowsOut, FrameCorners, Minus, Play, Plus, Stop } from '@pho
 import { useS, useUi } from '@/lib/store';
 import { barrioFit, baRings, baseMapReady, mapRoutes, mapUiInit, onBaseMap, setMapUi, type MapUi } from '@/lib/domain/geo';
 import type { Route } from '@/lib/domain/types';
-import { dShort, pd } from '@/lib/domain/util';
-import { plural } from '@/components/analisis/util';
+import { dShort, pd, plural } from '@/lib/domain/util';
 import MapaCanvas, { type MapApi } from './MapaCanvas';
 import { useMapParams } from './params';
 import { Card } from './Card';

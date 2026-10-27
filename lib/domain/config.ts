@@ -15,11 +15,11 @@ export interface TypeDef {
 }
 
 export const TYPES: Record<SessionType, TypeDef> = {
-  fondo: { label: 'Fondo', t: 'var(--t1)', ctl: 'hr', wVol: 40, wInt: 60, hint: 'Largo y fácil. Se guía por frecuencia cardíaca.' },
-  series: { label: 'Series', t: 'var(--t2)', ctl: 'pace', wVol: 40, wInt: 60, hint: 'Repeticiones rápidas con pausas. Se guía por ritmo.' },
-  tempo: { label: 'Tempo', t: 'var(--t3)', ctl: 'pace', wVol: 35, wInt: 65, hint: 'Tramo sostenido a ritmo exigente pero controlado.' },
-  regen: { label: 'Regenerativo', t: 'var(--t4)', ctl: 'hr', wVol: 30, wInt: 70, hint: 'Muy suave para recuperar. Se guía por frecuencia cardíaca.' },
-  test: { label: 'Test / carrera', t: 'var(--t5)', ctl: 'pace', wVol: 40, wInt: 60, hint: 'Esfuerzo máximo para medir tu nivel.' },
+  fondo: { label: 'Fondo', t: 'var(--t-fondo)', ctl: 'hr', wVol: 40, wInt: 60, hint: 'Largo y fácil. Se guía por frecuencia cardíaca.' },
+  series: { label: 'Series', t: 'var(--t-series)', ctl: 'pace', wVol: 40, wInt: 60, hint: 'Repeticiones rápidas con pausas. Se guía por ritmo.' },
+  tempo: { label: 'Tempo', t: 'var(--t-tempo)', ctl: 'pace', wVol: 35, wInt: 65, hint: 'Tramo sostenido a ritmo exigente pero controlado.' },
+  regen: { label: 'Regenerativo', t: 'var(--t-regen)', ctl: 'hr', wVol: 30, wInt: 70, hint: 'Muy suave para recuperar. Se guía por frecuencia cardíaca.' },
+  test: { label: 'Test / carrera', t: 'var(--t-test)', ctl: 'pace', wVol: 40, wInt: 60, hint: 'Esfuerzo máximo para medir tu nivel.' },
 };
 export const TYPE_KEYS = Object.keys(TYPES) as SessionType[];
 export const isType = (k: unknown): k is SessionType => typeof k === 'string' && k in TYPES;

@@ -1,11 +1,16 @@
-/* Base de los bocetos: elementos y tipografía. La unidad chica de los bocetos (.u) es .p-u, en las piezas: los
-   formularios viejos usan .u con otro tamaño. */
+/* Base de los bocetos: elementos y tipografía. Los títulos, párrafos y listas van sin margen: los espacios los ponen
+   las piezas y las pantallas, con padding o gap. El cuerpo va en 16 px (el boceto, en 14): la barra lateral, la de
+   arriba y el Mapa quedan así; los paneles y las pantallas fijan sus 14 px. */
 @layer base {
   *, *::before, *::after { box-sizing: border-box; }
-  html { -webkit-text-size-adjust: 100%; }
+  [hidden] { display: none !important; }
+  html { -webkit-text-size-adjust: 100%; scroll-behavior: smooth; }
+  /* nada decorativo puede empujar la página de costado en el celu */
+  html, body { overflow-x: clip; }
+  h1, h2, h3, p, ul { margin: 0; }
   body {
     margin: 0; background: var(--bg); color: var(--ink);
-    font: 400 14px/1.5 var(--f-ui);
+    font: 400 16px/1.45 var(--f-ui);
     -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale;
     text-rendering: optimizeLegibility;
     transition: background-color .3s var(--ease), color .3s var(--ease);
@@ -39,6 +44,7 @@
 
   /* «reducir movimiento»: nada se anima. Gana sobre las capas de después por ser !important en una capa anterior */
   @media (prefers-reduced-motion: reduce) {
+    html { scroll-behavior: auto; }
     *, *::before, *::after { animation: none !important; transition: none !important; }
   }
 }

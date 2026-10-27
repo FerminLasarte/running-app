@@ -11,13 +11,13 @@ import { PZ, paceAtV, vdotOf, vdotTime, type PaceZone } from '@/lib/domain/danie
 import { DEC_UI0, decBackfill, decBand, decEligible, type DecUi } from '@/lib/domain/dec';
 import { lvHistory, lvPace } from '@/lib/domain/level';
 import { doneList, type DoneSession } from '@/lib/domain/stats';
-import { addDays, dShort, dateLabel, dayDiff, fmt, fmtDur, fmtPace, isoWeek, pd, sod, sum, ymd } from '@/lib/domain/util';
+import { addDays, dShort, dateLabel, dayDiff, fmt, fmtDur, fmtPace, isoWeek, monthOf, pd, plural, sod, sum, ymd } from '@/lib/domain/util';
 import { Button, Segmented, deltaTxt } from '@/components/pista/controls';
 import { Kpis, Panel } from '@/components/pista/structure';
 import { Chart, Dots, GridY, Guide, Key, LabelsX, Line, Tip, lin, useCursor, type Pt } from '@/components/pista/charts';
 import { cssVars, typeColor } from '@/components/pista/util';
 import { useAnPeriod, usePaceBase } from './period';
-import { monthOf, niceTicks, paceTicks, plural } from './util';
+import { niceTicks, paceTicks } from './util';
 
 const DAY = 864e5;
 const up = (d: number, better: 'lower' | 'higher' = 'lower') => (Math.round(d) === 0 ? undefined : (better === 'lower' ? d < 0 : d > 0) ? 'p-up' : 'p-dn');

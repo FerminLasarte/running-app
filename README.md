@@ -2,16 +2,21 @@
 
 Registro y progreso de entrenamientos de running: fondos guiados por frecuencia cardíaca, series y tempos por ritmo.
 Es el port a web del artifact original de claude.ai, con Next.js 16 (App Router, TypeScript), Supabase (login y base de
-datos) y Strava (recorridos, parciales y deriva cardíaca). Se instala en el iPhone como app (PWA) y usa un estilo
-de vidrio líquido tipo iOS 27, con transparencia regulable en Ajustes → Apariencia.
+datos) y Strava (recorridos, parciales, series y deriva cardíaca). La interfaz es el rediseño «Pista»: estilo de marca
+deportiva, pensado primero para la compu y que también anda en el celu, en claro u oscuro (o como el sistema). Se
+instala como app (PWA).
 
 ## Puesta en marcha
 
 ### 1. Supabase
 
-1. En el proyecto de Supabase: **SQL Editor → New query**, pegá el contenido de
-   `supabase/migrations/20261024000000_init.sql` y ejecutalo. Crea las tablas `settings`, `sessions`, `routes` y
-   `strava_tokens`, con RLS (cada usuario ve solo lo suyo), y activa el tiempo real para sesiones y ajustes.
+1. En el proyecto de Supabase: **SQL Editor → New query**, pegá el contenido de cada archivo de
+   `supabase/migrations/`, en orden, y ejecutalo:
+   - `20261024000000_init.sql` crea las tablas `settings`, `sessions`, `routes` y `strava_tokens`, con RLS (cada
+     usuario ve solo lo suyo), y activa el tiempo real para sesiones y ajustes;
+   - `20261025000000_streams.sql` crea `streams`, donde se guardan las series de Strava de cada salida (el gráfico de
+     ritmo y FC del detalle), para no pedírselas de nuevo cada vez.
+
    (Alternativa con la CLI: `supabase link --project-ref <ref>` y `supabase db push`.)
 2. **Authentication → URL Configuration**:
    - *Site URL*: la URL de producción de Vercel (por ejemplo `https://running-app.vercel.app`).
@@ -44,7 +49,7 @@ conectar a la cuenta que las creó). En https://www.strava.com/settings/api:
 - *Authorization Callback Domain*: solo el dominio, sin `https://` (por ejemplo `running-app.vercel.app`). Para probar
   en tu compu, `localhost` también sirve.
 
-Con `STRAVA_CLIENT_ID` y `STRAVA_CLIENT_SECRET` cargados, en la app: **Ajustes → Strava → Conectar con Strava**.
+Con `STRAVA_CLIENT_ID` y `STRAVA_CLIENT_SECRET` cargados, en la app: **Ajustes → Conexiones → Conectar con Strava**.
 
 ### 4. Vercel
 
@@ -54,13 +59,15 @@ Con `STRAVA_CLIENT_ID` y `STRAVA_CLIENT_SECRET` cargados, en la app: **Ajustes �
 
 ### 5. Pasar los datos del artifact
 
-En el artifact de claude.ai: **Ajustes → Respaldo → Exportar respaldo (JSON)**. En la app nueva: **Ajustes → Respaldo →
-Importar archivo o texto** y elegí ese archivo. Se suman todas las sesiones y se copian la configuración, carreras y zapatillas. Los
+En el artifact de claude.ai: **Ajustes → Respaldo → Exportar respaldo (JSON)**. En la app nueva: **Ajustes → Cuenta y datos →
+Respaldo → Importar** y elegí ese archivo. Se suman todas las sesiones y se copian la configuración, carreras y zapatillas. Los
 recorridos del mapa no viajan en el respaldo: se vuelven a traer con **Mapa → Traer de Strava**.
 
-### 6. Instalar en el iPhone
+### 6. Instalar como app
 
-Abrí la URL en Safari → Compartir → **Agregar a inicio**. Abre a pantalla completa, con su ícono.
+En el iPhone: abrí la URL en Safari → Compartir → **Agregar a inicio**. En la compu (Chrome o Edge): el botón
+**Instalar** de la barra de direcciones. Abre en su propia ventana, con el ícono de la marca, y sin señal muestra lo
+último que tenía.
 
 ## Lectura de capturas con Claude (opcional)
 
@@ -79,9 +86,15 @@ npm run dev
 Sin las variables de Supabase la app funciona igual, guardando solo en el navegador (útil para probar con «Ver la app
 con datos de ejemplo»).
 
-- `app/`: páginas (`/`, `/login`), rutas de API (`/api/strava/*`, `/api/ai/*`), manifest e íconos.
-- `components/shell/`: estructura, encabezado, barra de pestañas con la gota de vidrio, hojas y avisos.
-- `components/views/`: una vista por pestaña; `components/sheets/`: formularios y detalles.
+- `app/(app)/`: una carpeta por sección (`/semana`, `/registro`, `/analisis`, `/carreras`, `/mapa`, `/logros`,
+  `/ajustes`) y el detalle de cada salida (`/sesion/[id]`), todas adentro del shell. Además, `/login`, las rutas de API
+  (`/api/strava/*`, `/api/ai/*`), el manifest y los íconos (`icon.tsx`, `apple-icon.tsx`, `pwa-icon/`).
+- `app/styles/`: el CSS, por capas: tokens (colores, letras, medidas), base, shell, piezas y una hoja por pantalla.
+- `components/shell/`: barra lateral (abajo en el celu), barra de arriba, avisos, paneles, paleta ⌘K y atajos.
+- `components/pista/`: las piezas del sistema de diseño. En desarrollo se ven juntas en `/sistema`.
+- `components/<sección>/`: cada pantalla; `components/panels/`: los paneles (cargar, planificar, puntaje…).
 - `lib/domain/`: cálculos (puntaje, estadísticas, plan, VDOT, deriva, logros…), sin interfaz.
 - `lib/data/`: acciones, sincronización con Supabase (con caché local y reintentos), respaldo, modo ejemplo.
-- `docs/PORTING.md`: cómo se pasó el artifact a React, por si hay que comparar con el original.
+- `docs/PORTING.md`: cómo está armado el código y qué viene del artifact original.
+- `docs/REDISENO.md` y `docs/REDISENO-PLAN.md`: el rediseño «Pista», qué se decidió y cómo se hizo. Los bocetos están
+  en `design/bocetos/` (se sirven con la configuración `bocetos` de `.claude/launch.json`).

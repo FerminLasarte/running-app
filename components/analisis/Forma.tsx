@@ -13,7 +13,7 @@ import { formProjection } from '@/lib/domain/projection';
 import { readyItems, readyPts, readyScore, type ReadyKind } from '@/lib/domain/readiness';
 import { deloadInfo, doneList, kmByType, loadInfo } from '@/lib/domain/stats';
 import { raceDateLabel } from '@/lib/domain/week';
-import { DF_WD, addDays, clamp, daysTo, fmt, sod, ymd } from '@/lib/domain/util';
+import { DF_WD, addDays, clamp, daysTo, fmt, plural, sod, ymd } from '@/lib/domain/util';
 import { goRaces } from '@/lib/data/actions';
 import { Button } from '@/components/pista/controls';
 import { Panel } from '@/components/pista/structure';
@@ -23,7 +23,7 @@ import { Chart, GridY, Key, LabelsX, StackedBars, Tip, lin, useCursor, type Bar 
 import { FormChart, FormKpis, weeklyOf, type FormPhase } from '@/components/pista/form';
 import { PHASE_C, cssVars, typeColor } from '@/components/pista/util';
 import { useAnPeriod } from './period';
-import { niceTicks, plural } from './util';
+import { niceTicks } from './util';
 
 const STACK: SessionType[] = ['regen', 'fondo', 'tempo', 'series', 'test'];
 const PTS_C: Record<Exclude<ReadyKind, 'na'>, string | undefined> = { good: undefined, warn: 'var(--t-tempo)', crit: 'var(--neg)' };

@@ -10,7 +10,7 @@ import { demoOn } from '@/lib/data/actions';
 import { AN_PERIODS } from '@/lib/domain/analysis';
 import { doneList } from '@/lib/domain/stats';
 import { Button, SelectButton, Tabs } from '@/components/pista/controls';
-import { BrandTitle, PageHead, Panel } from '@/components/pista/structure';
+import { EmptyPanel, PageHead } from '@/components/pista/structure';
 import { Laps } from '@/components/pista/meters';
 import { cssVars } from '@/components/pista/util';
 import { AN_TABS, analisisHref, tabOf, useAnPeriod } from './period';
@@ -20,10 +20,7 @@ const AN_MIN = 3;
 
 function Empty({ n, demo }: { n: number; demo: boolean }) {
   return (
-    <Panel className="an-empty p-rise" style={cssVars({ '--i': 1 })}>
-      <ChartLineUp className="ic" aria-hidden="true" />
-      <BrandTitle as="h2">Análisis</BrandTitle>
-      <p>Con 3 salidas aparecen tus primeros gráficos; con un test, tus ritmos y tu predicción.</p>
+    <EmptyPanel icon={ChartLineUp} title="Análisis" text="Con 3 salidas aparecen tus primeros gráficos; con un test, tus ritmos y tu predicción." className="an-empty" style={cssVars({ '--i': 1 })}>
       <Laps value={n / AN_MIN} n={AN_MIN} gap={4} label={n + ' de ' + AN_MIN + ' salidas'} />
       <small>
         {n} de {AN_MIN} salidas
@@ -33,7 +30,7 @@ function Empty({ n, demo }: { n: number; demo: boolean }) {
           Ver con datos de ejemplo
         </Button>
       )}
-    </Panel>
+    </EmptyPanel>
   );
 }
 

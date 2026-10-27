@@ -83,37 +83,6 @@ export const medOf = (a: number[]): number | null => {
   return n ? (n % 2 ? s[(n - 1) / 2] : (s[n / 2 - 1] + s[n / 2]) / 2) : null;
 };
 
-export interface EasyRun {
-  x: DoneSession;
-  /** fecha 'AAAA-MM-DD' */
-  d: string;
-  t: number;
-  /** ritmo, s/km */
-  p: number;
-  /** FC media */
-  h: number;
-  /** eficiencia: metros por minuto ÷ FC */
-  ef: number;
-}
-export function easyHrRuns(): EasyRun[] {
-  /* sin salidas con caminatas en el medio (bajan la FC y ensucian la comparación) */
-  const R = doneList()
-    .filter((x) => (x.type === 'fondo' || x.type === 'regen') && x.result.hrAvg! >= 110 && x.result.distKm >= 3 && x.result.timeSec > 0 && !/camin/i.test(x.result.notes || ''))
-    .map((x) => {
-      const r = x.result,
-        p = r.timeSec / r.distKm;
-      return { x, d: r.date, t: pd(r.date).getTime(), p, h: r.hrAvg!, ef: 60000 / p / r.hrAvg! };
-    })
-    .filter((q) => q.p >= 240 && q.p <= 570);
-  /* fuera los valores muy raros (por ejemplo un sensor que marcó mal) */
-  if (R.length < 6) return R;
-  const s = R.map((q) => q.ef).sort((a, b) => a - b),
-    q1 = s[Math.floor(s.length * 0.25)],
-    q3 = s[Math.floor(s.length * 0.75)],
-    iq = q3 - q1;
-  return R.filter((q) => q.ef >= q1 - 1.5 * iq && q.ef <= q3 + 1.5 * iq);
-}
-
 /* tendencia robusta (Theil–Sen): la mediana de las pendientes entre todos los pares de salidas */
 export function efTrend(R: { t: number; ef: number }[]): (d: number) => number {
   const sl: number[] = [];

@@ -1,7 +1,6 @@
 /* Paneles disponibles: la clave es la que se pasa a openSheet(kind, props). Cada uno viaja en su propio archivo de JS
-   y se baja solo un rato después de arrancar (preloadPanels), así abrir un panel no espera a la red.
-   El de components/sheets/ (el puntaje) tiene todavía el contenido viejo adentro del marco nuevo. */
-import { preloadable } from '@/components/ui/preloadable';
+   y se baja solo un rato después de arrancar (preloadPanels), así abrir un panel no espera a la red. */
+import { preloadable } from './preloadable';
 
 const wait = <div className="p-dr-wait" aria-hidden="true" />;
 export const PANELS = {
@@ -12,7 +11,7 @@ export const PANELS = {
   easy: preloadable(() => import('./EasyPanel'), wait),
   recal: preloadable(() => import('./RecalPanel'), wait),
   challenge: preloadable(() => import('./ChallengePanel'), wait),
-  score: preloadable(() => import('@/components/sheets/ScoreSheet'), wait),
+  score: preloadable(() => import('./ScorePanel'), wait),
   trophy: preloadable(() => import('./TrophyPanel'), wait),
   raceMedal: preloadable(() => import('./RaceMedalPanel'), wait),
   level: preloadable(() => import('./LevelPanel'), wait),

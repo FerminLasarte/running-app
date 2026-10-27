@@ -1,7 +1,6 @@
-/* Mapa (boceto «Mapa» y su estado vacío en «Primera vez»), con el prefijo mapa- (`map-` choca con .map-grid,
-   .map-side y .map-gl de globals.css). La ciudad va de noche en los dos temas, como el estadio: el lienzo toma sus
+/* Mapa (boceto «Mapa» y su estado vacío en «Primera vez»), con el prefijo mapa-. La ciudad va de noche en los dos temas, como el estadio: el lienzo toma sus
    colores de las variables de .mapa-map (components/mapa/draw.ts).
-   Ojo: globals.css (sin capa) pone h1, h2, h3, p y ul en margin 0; los espacios van con padding o gap. */
+   Ojo: base.css pone h1, h2, h3, p y ul en margin 0; los espacios van con padding o gap. */
 @layer screens {
   .mapa { display: grid; grid-template-columns: minmax(0, 1fr) 380px; height: 100%; font-size: 14px; }
 
@@ -17,8 +16,8 @@
   }
   .mapa-map canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; cursor: grab; }
   .mapa-map canvas:active { cursor: grabbing; }
-  /* el borde del foco va por dentro (afuera lo recorta el mapa); globals.css lo pone sin capa */
-  .mapa-map canvas:focus-visible { outline: 2px solid var(--m-acc) !important; outline-offset: -2px !important; border-radius: 0 !important; }
+  /* el borde del foco va por dentro (afuera lo recorta el mapa) */
+  .mapa-map canvas:focus-visible { outline: 2px solid var(--m-acc); outline-offset: -2px; }
   .mapa-map.fs { position: fixed; inset: 0; z-index: 90; --sat: env(safe-area-inset-top, 0px); }
   body.mapa-fs { overflow: hidden; }
 
@@ -97,10 +96,7 @@
   /* ---- sin recorridos ---- */
   .mapa-emptyw { max-width: 1260px; margin: 0 auto; padding: 32px 40px 96px; }
   .mapa-empty { max-width: 640px; background: var(--hero); border-color: var(--hero-line); color: var(--hero-ink); }
-  .mapa-empty .p-panel-b { display: grid; gap: 10px; justify-items: start; padding: 22px 22px 24px; }
-  .mapa-empty .ic { width: 26px; height: 26px; color: var(--hero-mut); }
-  .mapa-empty h2 { font-size: 34px; }
-  .mapa-empty p { color: var(--hero-mut); font-size: 13.5px; max-width: 52ch; }
+  .mapa-empty .ic, .mapa-empty p { color: var(--hero-mut); }
 
   @media (max-width: 1240px) {
     .mapa { grid-template-columns: minmax(0, 1fr) 340px; }

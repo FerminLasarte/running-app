@@ -10,8 +10,8 @@ import { blockDemo, saveCfg, saveSessions, toast } from '@/lib/data/actions';
 import { parseImport, type Parsed } from '@/lib/domain/csv';
 import { defaultCfgRaw, normCfg } from '@/lib/domain/config';
 import { TextArea } from '@/components/pista/fields';
-import { plural } from '@/components/analisis/util';
 import { Advice, PanelActions, PanelFrame, PanelSection } from './PanelFrame';
+import { plural } from '@/lib/domain/util';
 
 /** Las sesiones con el mismo id se actualizan y las demás se suman; los ajustes del respaldo reemplazan a los actuales. */
 function doImport(p: Parsed) {

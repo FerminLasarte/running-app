@@ -9,22 +9,18 @@ export interface SectionDef {
   href: string;
   label: string;
   Icon: Icon;
-  /** color de la sección en las pantallas viejas (encabezado y subpestañas) */
-  c: string;
-  /** pantalla rehecha: trae su propio comienzo y no lleva el encabezado viejo */
-  redone?: boolean;
   /** ocupa todo el ancho y el alto, sin los márgenes de la página (el Mapa) */
   full?: boolean;
 }
 
 export const SECTIONS: SectionDef[] = [
-  { id: 'semana', href: '/semana', label: 'Semana', Icon: CalendarBlank, c: 'var(--t2)', redone: true },
-  { id: 'registro', href: '/registro', label: 'Registro', Icon: Rows, c: 'var(--t3)', redone: true },
-  { id: 'analisis', href: '/analisis', label: 'Análisis', Icon: ChartLineUp, c: 'var(--info)', redone: true },
-  { id: 'carreras', href: '/carreras', label: 'Carreras', Icon: FlagCheckered, c: 'var(--accent)', redone: true },
-  { id: 'mapa', href: '/mapa', label: 'Mapa', Icon: MapTrifold, c: 'var(--t5)', redone: true, full: true },
-  { id: 'logros', href: '/logros', label: 'Logros', Icon: Medal, c: 'var(--warn)', redone: true },
-  { id: 'ajustes', href: '/ajustes', label: 'Ajustes', Icon: SlidersHorizontal, c: 'var(--ink2)', redone: true },
+  { id: 'semana', href: '/semana', label: 'Semana', Icon: CalendarBlank },
+  { id: 'registro', href: '/registro', label: 'Registro', Icon: Rows },
+  { id: 'analisis', href: '/analisis', label: 'Análisis', Icon: ChartLineUp },
+  { id: 'carreras', href: '/carreras', label: 'Carreras', Icon: FlagCheckered },
+  { id: 'mapa', href: '/mapa', label: 'Mapa', Icon: MapTrifold, full: true },
+  { id: 'logros', href: '/logros', label: 'Logros', Icon: Medal },
+  { id: 'ajustes', href: '/ajustes', label: 'Ajustes', Icon: SlidersHorizontal },
 ];
 /** las de la barra (sin Ajustes) */
 export const NAV = SECTIONS.slice(0, 6);

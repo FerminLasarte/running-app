@@ -92,9 +92,6 @@ export interface ResultDraft {
 export interface ResultProps {
   id?: string | null;
   free?: boolean;
-  /** tipo sugerido para una sesión libre (desde la Semana, por el nombre de la corrida de Strava) */
-  type?: SessionType;
-  sv?: { list: SvItem[]; pick?: string };
   draft?: ResultDraft | null;
 }
 
@@ -104,7 +101,7 @@ const FLAT0: FlatV = { dist: '', t: { h: '', m: '', s: '' }, pace: { m: '', s: '
 export const paceLabel = (t: SessionType) => (t === 'series' ? 'Ritmo promedio de las series' : t === 'tempo' ? 'Ritmo promedio del tempo (parte principal)' : 'Ritmo promedio');
 /* sensación: de rojo a verde, con una palabra */
 export const FEEL_C = (n: number) =>
-  n <= 2 ? 'var(--crit)' : n <= 4 ? 'var(--serious)' : n <= 6 ? 'var(--warn)' : n <= 8 ? 'color-mix(in srgb,var(--good) 70%,var(--warn))' : 'var(--good)';
+  n <= 2 ? 'var(--neg)' : n <= 4 ? 'var(--z4)' : n <= 6 ? 'var(--t-tempo)' : n <= 8 ? 'color-mix(in srgb,var(--pos) 70%,var(--t-tempo))' : 'var(--pos)';
 export const FEEL_T = (n: number) => (n <= 2 ? 'Muy mal' : n <= 4 ? 'Mal' : n <= 6 ? 'Normal' : n <= 8 ? 'Bien' : 'Excelente');
 
 /* ---- filas ---- */
@@ -308,10 +305,8 @@ export function resultInit(o: ResultProps): ResF {
     notes: editing ? r.notes || '' : '',
     stravaId: null,
     dec: null,
-    sv: o.sv ? { ...SV0, list: o.sv.list } : SV0,
+    sv: SV0,
   };
-  /* desde la Semana sin sesión planificada que coincida: el tipo que sugiere el nombre de la corrida */
-  if (o.free && o.type && !s) f.type = o.type;
   if (!d) return setMode(f, s);
   /* borrador: lo que estabas cargando antes de recargar la página */
   const ds = d.sid ? S.sessions.find((x) => x.id === d.sid) || null : null;

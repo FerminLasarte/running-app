@@ -61,11 +61,14 @@ export function saveSessions(list: Session[]): Promise<void> {
   persistLocal();
   return writeSessions(ns);
 }
-export function deleteSession(id: string) {
+/** Borra una sesión (ya confirmado) y avisa. `onDone`: lo que sigue, como cerrar el panel o salir del detalle. */
+export function deleteSession(id: string, onDone: () => void) {
   if (blockDemo()) return;
   setS({ sessions: S.sessions.filter((x) => x.id !== id) });
   persistLocal();
   writeDelete(id);
+  onDone();
+  toast('Sesión eliminada');
 }
 /** Guarda la configuración nueva (pasala ya normalizada con normCfg si cambiaste carreras, zonas o zapatillas). */
 export function saveCfg(cfg: Cfg) {
@@ -91,11 +94,11 @@ export { retryFailed, reduceMotion, afterPaint };
 /* ---- modo ejemplo ---- */
 export function demoOn() {
   const sessions = demoSessions();
-  setS({ realSessions: S.sessions, realCfg: S.cfg, realRoutes: S.routes, demo: true, sessions, routes: demoRoutes(sessions), weekOff: 0, paceType: null });
+  setS({ realSessions: S.sessions, realCfg: S.cfg, realRoutes: S.routes, demo: true, sessions, routes: demoRoutes(sessions), weekOff: 0 });
   navigate('/semana', () => jumpTo(0));
 }
 export function demoOff() {
-  setS({ demo: false, sessions: S.realSessions || [], cfg: S.realCfg || S.cfg, routes: S.realRoutes || [], realSessions: null, realCfg: null, realRoutes: null, paceType: null });
+  setS({ demo: false, sessions: S.realSessions || [], cfg: S.realCfg || S.cfg, routes: S.realRoutes || [], realSessions: null, realCfg: null, realRoutes: null });
 }
 
 /* ---- navegación ---- */
@@ -113,14 +116,11 @@ export function weekGo(d: number) {
   afterPaint(() => {
     document.querySelectorAll<HTMLElement>('.sem-wsum,.sem-days').forEach((el) => {
       el.style.setProperty('--d', String(dir));
-      el.classList.remove('wkslide');
+      el.classList.remove('sem-slide');
       void el.offsetWidth;
-      el.classList.add('wkslide');
+      el.classList.add('sem-slide');
     });
   });
-}
-export function goForm() {
-  navigate('/analisis/forma', () => jumpTo(0));
 }
 /** a Logros, arriba de todo o bajando hasta una parte (por su id) */
 export function goLogros(part?: string) {

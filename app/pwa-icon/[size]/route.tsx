@@ -6,5 +6,5 @@ export async function GET(_req: Request, ctx: RouteContext<'/pwa-icon/[size]'>) 
   const mask = size.endsWith('m'),
     n = parseInt(size, 10);
   if (n !== 192 && n !== 512) return new Response('no', { status: 404 });
-  return appIcon(n, { pad: mask ? 0.26 : 0.2 });
+  return appIcon(n, { pad: mask ? 0.1 : 0 });
 }

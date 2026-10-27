@@ -13,8 +13,6 @@
   .p-ck-in > svg { width: 20px; height: 20px; flex: none; color: var(--ink-3); }
   .p-ck-in input { flex: 1; min-width: 0; border: 0; outline: 0; background: transparent; font: 500 17px/1 var(--f-ui); color: var(--ink); }
   .p-ck-in input::placeholder { color: var(--ink-3); }
-  /* el campo es toda la paleta: sin el anillo de foco de globals.css (sin capa; solo !important desde una capa le gana) */
-  .p-ck-in input:focus-visible { outline: none !important; }
   .p-ck-l { max-height: min(440px, 56vh); overflow-y: auto; overscroll-behavior: contain; padding: 6px 8px 10px; }
   .p-ck-g { padding: 12px 10px 6px; }
   .p-ck-i {

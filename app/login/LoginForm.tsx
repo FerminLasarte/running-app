@@ -4,6 +4,10 @@ import { useState } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { supabaseBrowser } from '@/lib/supabase/client';
 import { supabaseConfigured } from '@/lib/supabase/env';
+import { BrandMark } from '@/components/shell/BrandMark';
+import { Button, Segmented } from '@/components/pista/controls';
+import { Field, Input } from '@/components/pista/fields';
+import { BrandTitle } from '@/components/pista/structure';
 
 type Mode = 'link' | 'pass';
 
@@ -38,46 +42,39 @@ export default function LoginForm() {
   }
 
   return (
-    <form className="login-card glass" onSubmit={submit}>
-      <div className="login-brand">
-        <span className="mk-logo">
-          <svg className="ic" viewBox="0 0 24 24" aria-hidden="true">
-            <circle className="b" cx="12" cy="13.5" r="8.5" />
-            <rect className="f" x="9.8" y="1.6" width="4.4" height="3.2" rx="1.4" />
-            <path className="f" d="M12 5a8.5 8.5 0 0 1 0 17z" />
-            <circle className="h" cx="12" cy="13.5" r="2.6" />
-          </svg>
-        </span>
-        <div>
+    <form className="login-card" onSubmit={submit}>
+      <div className="brand">
+        <BrandMark />
+        <span>
           <b>My Running App</b>
-          <span>Registro y progreso</span>
-        </div>
+          <small>Registro y progreso</small>
+        </span>
       </div>
-      <div className="seg subtabs" role="tablist" aria-label="Forma de entrar">
-        <button type="button" className="chip" aria-pressed={mode === 'link'} onClick={() => setMode('link')}>
-          Link por mail
-        </button>
-        <button type="button" className="chip" aria-pressed={mode === 'pass'} onClick={() => setMode('pass')}>
-          Contraseña
-        </button>
-      </div>
-      <div className="field">
-        <label htmlFor="lg-email">Mail</label>
-        <input className="in l" id="lg-email" type="email" autoComplete="email" inputMode="email" value={email} onChange={(e) => setEmail(e.target.value)} />
-      </div>
+      <BrandTitle>Entrar</BrandTitle>
+      <Segmented
+        label="Forma de entrar"
+        fill
+        value={mode}
+        onChange={setMode}
+        options={[
+          { value: 'link', label: 'Link por mail' },
+          { value: 'pass', label: 'Contraseña' },
+        ]}
+      />
+      <Field id="lg-email" label="Mail">
+        <Input id="lg-email" type="email" autoComplete="email" inputMode="email" value={email} onChange={(e) => setEmail(e.target.value)} />
+      </Field>
       {mode === 'pass' ? (
-        <div className="field">
-          <label htmlFor="lg-pass">Contraseña</label>
-          <input className="in l" id="lg-pass" type="password" autoComplete="current-password" value={pass} onChange={(e) => setPass(e.target.value)} />
-          <p className="hint">¿No tenés o te la olvidaste? Entrá con el link por mail y creala en Ajustes → Cuenta.</p>
-        </div>
+        <Field id="lg-pass" label="Contraseña" help="¿No tenés o te la olvidaste? Entrá con el link por mail y creala en Ajustes → Cuenta.">
+          <Input id="lg-pass" type="password" autoComplete="current-password" hasHelp value={pass} onChange={(e) => setPass(e.target.value)} />
+        </Field>
       ) : (
-        <p className="hint">Te llega un link al mail y entrás con un toque, sin contraseña.</p>
+        <p className="login-hint">Te llega un link al mail y entrás con un toque, sin contraseña.</p>
       )}
-      <button className="btn pri blk" disabled={busy}>
+      <Button type="submit" variant="pri" size="lg" disabled={busy}>
         {busy ? 'Un momento…' : mode === 'link' ? 'Mandarme el link' : 'Entrar'}
-      </button>
-      <p className={'hint login-msg' + (msg?.bad ? ' bad' : '')} role="status">
+      </Button>
+      <p className={'login-msg' + (msg?.bad ? ' bad' : '')} role="status">
         {msg?.t}
       </p>
     </form>

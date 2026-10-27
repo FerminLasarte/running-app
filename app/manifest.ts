@@ -10,8 +10,9 @@ export default function manifest(): MetadataRoute.Manifest {
     scope: '/',
     display: 'standalone',
     orientation: 'portrait',
-    background_color: '#080B10',
-    theme_color: '#080B10',
+    /* el estadio (--hero): la marca en tartán se ve bien encima con los dos temas */
+    background_color: '#151515',
+    theme_color: '#151515',
     icons: [
       { src: '/pwa-icon/192', sizes: '192x192', type: 'image/png', purpose: 'any' },
       { src: '/pwa-icon/512', sizes: '512x512', type: 'image/png', purpose: 'any' },

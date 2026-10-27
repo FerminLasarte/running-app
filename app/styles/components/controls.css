@@ -1,6 +1,6 @@
 /* Controles de los bocetos: botón, chip de tipo, etiqueta, Δ contra el objetivo, PR, selector segmentado,
-   interruptor, stepper y pestañas. Todas las piezas nuevas llevan el prefijo p- (de «Pista»): globals.css va sin capa y
-   pisaría cualquier clase que se llame como una vieja (.btn, .chip, .seg…). */
+   interruptor, stepper y pestañas. Todas las piezas llevan el prefijo p- (de «Pista»), para distinguirlas de lo que es
+   de una pantalla (sem-, car-…). */
 @layer components {
   /* botones: rectos, en mayúsculas, como una etiqueta de producto. Uno primario por pantalla */
   .p-btn {
@@ -72,11 +72,11 @@
   .p-seg.fill { display: flex; }
   .p-seg.fill button { flex: 1; justify-content: center; }
 
-  /* lista que se despliega con forma de botón (el período): el select, invisible, cubre todo el botón.
-     globals.css pone un contorno a todo :focus-visible sin capa; acá el foco lo muestra el botón entero */
+  /* lista que se despliega con forma de botón (el período): el select, invisible, cubre todo el botón. El foco lo
+     muestra el botón entero */
   .p-selb { position: relative; }
   .p-selb select { position: absolute; inset: 0; width: 100%; opacity: 0; cursor: pointer; font-size: 16px; }
-  .p-selb select:focus-visible { outline: none !important; }
+  .p-selb select:focus-visible { outline: none; }
   .p-selb:has(select:focus-visible) { outline: 2px solid var(--acc); outline-offset: 2px; }
   .p-selb:has(select:hover) { border-color: var(--ink); }
   .p-selb .cd { width: 12px; height: 12px; color: var(--ink-3); }

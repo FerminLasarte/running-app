@@ -10,7 +10,7 @@ import { lvPace, lvTimeAt } from '@/lib/domain/level';
 import { bestMarks } from '@/lib/domain/marks';
 import { doneList, kmBetween, kmByType, monthNow, streakInfo, weekSeries, type WeekRow } from '@/lib/domain/stats';
 import { weekTotalKm } from '@/lib/domain/week';
-import { addDays, cap, dShort, fmt, fmtDur, fmtPace, isoWeek, mondayOf, nf, pd, sod, sum } from '@/lib/domain/util';
+import { addDays, cap, dShort, fmt, fmtDur, fmtPace, isoWeek, mondayOf, nf, pd, plural, sod, sum } from '@/lib/domain/util';
 import { sessionHref } from '@/lib/nav';
 import { Chip, Delta } from '@/components/pista/controls';
 import { Kpis, MarkList, Panel } from '@/components/pista/structure';
@@ -18,7 +18,7 @@ import { ShareBars } from '@/components/pista/meters';
 import { Chart, GridY, Key, LabelsX, Line, StackedBars, Tip, lin, useCursor, type Bar, type Pt } from '@/components/pista/charts';
 import { cssVars, typeColor } from '@/components/pista/util';
 import { periodLabel, useAnPeriod } from './period';
-import { niceTicks, plural } from './util';
+import { niceTicks } from './util';
 
 /** de abajo hacia arriba: de lo más suave a lo más fuerte */
 const STACK: SessionType[] = ['regen', 'fondo', 'tempo', 'series', 'test'];

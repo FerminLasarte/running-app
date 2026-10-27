@@ -1,7 +1,7 @@
 /* Detalle de sesión (boceto «Detalle de sesión»): encabezado con los datos del día, los seis números, el gráfico de
    ritmo y FC, los tramos, el puntaje y la columna del costado (recorrido, zonas, sensación y zapatillas). Las piezas
    tienen su CSS en app/styles/components/; acá va lo que es de esta pantalla, con el prefijo ses-.
-   Ojo: globals.css (sin capa) pone h1, h2, h3, p y ul en margin 0; los espacios van con padding o gap. */
+   Ojo: base.css pone h1, h2, h3, p y ul en margin 0; los espacios van con padding o gap. */
 @layer screens {
   .ses { padding-top: 32px; }
   .ses-col { display: grid; grid-template-columns: minmax(0, 1fr); gap: 20px; align-content: start; min-width: 0; }
@@ -96,7 +96,7 @@
   .ses-note { color: var(--ink-2); font-size: 13.5px; line-height: 1.55; }
   .ses-note.mut { color: var(--ink-3); font-size: 12.5px; }
   .p-panel-b > .ses-note { padding-top: 12px; }
-  .ses-parts + .ses-note { padding-top: 14px; border-top: 1px solid var(--line); margin-top: 14px; }
+  .ses-parts + .ses-note { padding-top: 14px; border-top: 1px solid var(--line); }
   .ses-note + .ses-note { padding-top: 8px; }
 
   /* sin sesión */

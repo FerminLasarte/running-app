@@ -1,20 +1,15 @@
 /* Semana: carreras de la franja, sesiones pendientes, mover sesiones de día, planificar la semana entera y las
    corridas nuevas de Strava. Sin HTML: los componentes viven en components/semana/*. */
-import { S, getUi, setUi } from '@/lib/store';
+import { S } from '@/lib/store';
 import { buzz, saveSession, toast, toastUndo } from '@/lib/data/actions';
-import { openSheet } from '@/lib/sheets';
-import { runActs, svCall, stravaErrMsg, type ListActivitiesPayload } from '@/lib/strava/client';
+import { runActs, type ListActivitiesPayload } from '@/lib/strava/client';
 import type { Plan, PlanStep, Race, Session, SessionType } from './types';
-import { TYPES, nextRace, racePaceSec } from './config';
+import { TYPES, nextRace } from './config';
 import { expand, planTotals } from './stages';
 import { planKmOf, sdate, weekStats } from './stats';
-import { WD, addDays, cap, dateLabel, dayDiff, fmt, fmtDur, fmtPace, pd, sum, todayS, ymd } from './util';
+import { WD, addDays, cap, dateLabel, dayDiff, pd, sum, todayS, ymd } from './util';
 
 /* ---- carreras ---- */
-export function raceGoalTxt(r: Race) {
-  if (!(r.targetSec > 0)) return fmt(r.km, r.km % 1 ? 1 : 0) + ' km · sin objetivo de tiempo';
-  return 'Objetivo ' + (r.lt ? 'menos de ' : '') + fmtDur(r.targetSec) + ' · ' + fmtPace(racePaceSec(r)) + '/km' + (r.lt ? ' o más rápido' : '');
-}
 export function raceDateLabel(r: Pick<Race, 'date'>) {
   const d = pd(r.date);
   return cap(dateLabel(r.date)) + (d.getFullYear() !== new Date().getFullYear() ? ' ' + d.getFullYear() : '');
@@ -133,20 +128,8 @@ export function toastMoveUndo(msg: string, U: MoveUndo[]) {
   });
 }
 
-/* ---- Strava desde la Semana ---- */
+/* ---- corridas de Strava para el panel de carga ---- */
 export const SV_DAYS = 21;
-export function svType(n: unknown): SessionType | null {
-  const t = String(n || '');
-  return /serie|interval|\d\s*x\s*\d|×/i.test(t)
-    ? 'series'
-    : /tempo|umbral/i.test(t)
-      ? 'tempo'
-      : /fondo|larg|long/i.test(t)
-        ? 'fondo'
-        : /regen|suave|recup|transic|easy/i.test(t)
-          ? 'regen'
-          : null;
-}
 /** ids de Strava ya cargados (menos el de la sesión `exceptId`, la que se está editando) */
 export function svLinked(exceptId?: string | null) {
   const ids = new Set<string>();
@@ -167,43 +150,4 @@ export interface SvItem {
   name: string;
   km: number;
   tsec: number;
-}
-export interface SvwState {
-  list: SvItem[] | null;
-  busy: boolean;
-  msg: string;
-}
-export const SVW0: SvwState = { list: null, busy: false, msg: '' };
-
-export async function svwLoad() {
-  if (getUi('svw', SVW0).busy) return;
-  const set = (p: Partial<SvwState>) => setUi<SvwState>('svw', (v) => ({ ...(v || SVW0), ...p }));
-  set({ busy: true, msg: '' });
-  try {
-    const pl = await svCall('list_activities', { first: 30, ordering: 'StartDateLocalDesc' });
-    const have = S.sessions.filter((x) => x.result);
-    /* además de las ya vinculadas, se esconden las que parecen cargadas a mano (mismo día y casi la misma distancia) */
-    const list = svActs(pl, null).filter((a) => a.km >= 0.5 && !have.some((x) => x.result!.date === a.date && Math.abs(x.result!.distKm - a.km) < 0.3));
-    set({ list, msg: list.length ? '' : 'No hay corridas nuevas en los últimos ' + SV_DAYS + ' días.', busy: false });
-  } catch (e) {
-    set({ msg: stravaErrMsg(e), busy: false });
-  }
-}
-/* abre el registro con la corrida elegida y la sesión planificada que mejor le corresponde (misma fecha, o el
-   mismo tipo a 3 días como mucho); si no hay ninguna, como sesión libre con el tipo que sugiere el nombre */
-export function svGo(id: string) {
-  const a = (getUi('svw', SVW0).list || []).find((x) => x.id === id);
-  if (!a) return;
-  const g = svType(a.name),
-    tS = todayS(),
-    pend = S.sessions.filter((x) => x.plan && !x.result && !x.missed && sdate(x) <= tS);
-  const dd = (x: Session) => Math.abs(dayDiff(pd(sdate(x)), pd(a.date)));
-  let m: Session | null =
-    pend.find((x) => sdate(x) === a.date) ||
-    pend
-      .filter((x) => !g || x.type === g)
-      .sort((x, y) => dd(x) - dd(y))[0] ||
-    null;
-  if (m && dd(m) > 3) m = null;
-  openSheet('result', { id: m ? m.id : null, free: !m, type: !m && g ? g : undefined, sv: { list: [a], pick: a.id } });
 }

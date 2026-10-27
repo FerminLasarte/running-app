@@ -1,7 +1,7 @@
 /* Carreras (boceto «Carreras» y su estado vacío en «Primera vez») y sus paneles (la medalla y el test de nivel): lo
    que es de esta pantalla, con el prefijo car-. Las piezas (estadio, reloj, pulsera, medalla, marcas) tienen su CSS en
    app/styles/components/.
-   Ojo: globals.css (sin capa) pone h1, h2, h3, p y ul en margin 0; los espacios van con padding o gap. */
+   Ojo: base.css pone h1, h2, h3, p y ul en margin 0; los espacios van con padding o gap. */
 @layer screens {
   .car { padding-top: 32px; }
   /* los links de la paleta bajan hasta cada panel sin que lo tape la barra de arriba */
@@ -56,7 +56,7 @@
   .car-weeks .race .bars { align-items: center; }
   .car-weeks .flag { width: 36px; height: 36px; display: grid; place-items: center; background: var(--ink); color: var(--bg); transform: skewX(-8deg); }
   .car-weeks .flag svg { width: 18px; height: 18px; transform: skewX(8deg); }
-  .car-phases { list-style: none; margin: 10px 0 0; padding: 0; display: grid; gap: 6px; color: var(--ink-2); }
+  .car-phases { list-style: none; padding: 0; display: grid; gap: 6px; color: var(--ink-2); }
   .car-phases li { padding-left: 14px; position: relative; }
   .car-phases li::before { content: ""; position: absolute; left: 0; top: .45em; width: 7px; height: 7px; background: var(--pc); transform: skewX(-14deg); }
   .car-phases b { color: var(--ink); font-weight: 600; }
@@ -102,10 +102,6 @@
   .car-notime { color: var(--ink-3); }
 
   /* sin carrera */
-  .car-empty .p-panel-b { display: grid; gap: 10px; justify-items: start; padding: 22px 22px 24px; }
-  .car-empty .ic { width: 26px; height: 26px; color: var(--ink-3); }
-  .car-empty h2 { font-size: 34px; }
-  .car-empty p { color: var(--ink-2); font-size: 13.5px; max-width: 52ch; }
   .car-dists { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 4px; }
   .car-dists button { height: 32px; padding: 0 12px; border-radius: var(--r-sm); border: 1px solid var(--line-2); font-size: 13px; color: var(--ink-2); transition: border-color .15s var(--ease), color .15s var(--ease); }
   .car-dists button:hover { border-color: var(--ink-4); color: var(--ink); }
@@ -133,9 +129,9 @@
   .car-lv-l .r small { color: var(--ink-3); font-weight: 400; font-size: 12px; }
   .car-lv-l .disp { font-size: 26px; font-style: italic; color: var(--lc); }
   .car-lv-l .p-laps i.on { background: var(--lc); }
-  .car-lv-l p { margin-top: 8px; font-size: 13px; color: var(--ink); }
+  .car-lv-l p { font-size: 13px; color: var(--ink); }
   .car-lv-l li > small { display: block; margin-top: 3px; font-size: 12px; color: var(--ink-3); line-height: 1.45; }
-  .car-lv-src { margin: 10px 0 0; padding-left: 16px; font-size: 12px; line-height: 1.7; }
+  .car-lv-src { padding-left: 16px; font-size: 12px; line-height: 1.7; }
   .car-lv-src a { color: var(--ink-2); }
 
   /* la pulsera que se imprime: solo existe mientras se imprime */

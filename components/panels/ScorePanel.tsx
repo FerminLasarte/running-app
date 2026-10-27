@@ -14,10 +14,10 @@ import { cap, dateLabel, todayS } from '@/lib/domain/util';
 import { openRecal } from '@/lib/domain/recal';
 import { goSession, sessionHref } from '@/lib/nav';
 import { Button } from '@/components/pista/controls';
-import { PanelFrame } from '@/components/panels/PanelFrame';
+import { PanelFrame } from './PanelFrame';
 import { ScoreHead, ScoreParts } from '@/components/sesion/ScoreBreakdown';
 
-export default function ScoreSheet({ id, fresh = false }: { id: string; fresh?: boolean }) {
+export default function ScorePanel({ id, fresh = false }: { id: string; fresh?: boolean }) {
   const s = useApp((st) => st.sessions.find((x) => x.id === id));
   const here = usePathname() === sessionHref(id);
   const title = fresh ? 'Tu puntaje' : 'Puntaje';

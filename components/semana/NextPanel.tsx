@@ -8,12 +8,10 @@ import { hrRangeOf, planKmOf, sdate } from '@/lib/domain/stats';
 import { nextSession } from '@/lib/domain/week';
 import { DF_LONG, addDays, cap, daysTo, fmt, fmtPace, mondayOf, pd, sod, ymd } from '@/lib/domain/util';
 import { openSheet } from '@/lib/sheets';
-import { MovedNote } from '@/components/detail/MovedNote';
-import { RecalNote } from '@/components/carreras/RecalNote';
 import { BrandTitle, Panel } from '@/components/pista/structure';
 import { Button, Chip } from '@/components/pista/controls';
 import { StructureBar } from '@/components/pista/meters';
-import { briefOf, segsOf } from '@/components/pista/session';
+import { MovedNote, RecalNote, briefOf, segsOf } from '@/components/pista/session';
 import { cssVars, typeColor } from '@/components/pista/util';
 
 /* «8 km suaves», «14 km de fondo»; con repeticiones, «6 × 800 m» */
@@ -93,8 +91,8 @@ export function NextPanel({ easyOn }: { easyOn: boolean }) {
           ))}
         </ul>
       ) : null}
-      <RecalNote p={p} />
-      <MovedNote p={p} />
+      <RecalNote p={p} className="sem-next-note" />
+      <MovedNote p={p} className="sem-next-note" />
       <div className="sem-next-acts">
         <Button icon={ArrowsLeftRight} onClick={() => openSheet('move', { id: s.id })}>
           Mover

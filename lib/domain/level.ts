@@ -49,14 +49,14 @@ export function lvCdf(z: number) {
 export const lvClamp = (x: number) => Math.max(1, Math.min(10, x));
 export function lvTag(v: number): { t: string; c: string } {
   return v >= 9
-    ? { t: 'Sobresaliente', c: 'var(--good)' }
+    ? { t: 'Sobresaliente', c: 'var(--pos)' }
     : v >= 7.5
-      ? { t: 'Muy bueno', c: 'var(--good)' }
+      ? { t: 'Muy bueno', c: 'var(--pos)' }
       : v >= 6
-        ? { t: 'Bueno', c: 'var(--info)' }
+        ? { t: 'Bueno', c: 'var(--t-fondo)' }
         : v >= 4.5
-          ? { t: 'En desarrollo', c: 'var(--warn)' }
-          : { t: 'Arrancando', c: 'var(--serious)' };
+          ? { t: 'En desarrollo', c: 'var(--t-tempo)' }
+          : { t: 'Arrancando', c: 'var(--z4)' };
 }
 export function lvMonths() {
   const today = sod(new Date());

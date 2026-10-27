@@ -12,7 +12,6 @@ import './styles/components/sport.css';
 import './styles/components/charts.css';
 import './styles/components/panels.css';
 import './styles/components/palette.css';
-import './globals.css';
 
 /* Archivo variable con su eje de ancho: angosta para números y títulos de marca, itálica para la voz de marca */
 const archivo = Archivo({ variable: '--font-archivo', subsets: ['latin'], style: ['normal', 'italic'], axes: ['wdth'], display: 'swap' });

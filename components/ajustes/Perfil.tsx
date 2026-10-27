@@ -11,10 +11,10 @@ import { Field, Input, UnitInput } from '@/components/pista/fields';
 import { Panel } from '@/components/pista/structure';
 import { cssVars } from '@/components/pista/util';
 import { Avatar } from '@/components/shell/Rail';
-import { plural } from '@/components/analisis/util';
 import { avatarDel, commitCfg, setAvatar, setGoal } from './actions';
 import { Row } from './Row';
 import { useAuto } from './useAuto';
+import { plural } from '@/lib/domain/util';
 
 function Photo() {
   const has = useS().cfg.avatar;
