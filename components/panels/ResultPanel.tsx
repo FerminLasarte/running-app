@@ -54,7 +54,7 @@ import { Advice, PanelActions, PanelFrame, PanelSection } from './PanelFrame';
 import { LapsAiBox, useAi } from './AiBox';
 import { StageRows } from './StageRows';
 
-const svPickStart = (g: ResF, id: string): ResF => ({ ...g, sv: { ...g.sv, busy: true, pick: id, msg: 'Leyendo el detalle de la corrida…' } });
+const svPickStart = (g: ResF, id: string): ResF => ({ ...g, sv: { ...g.sv, busy: true, pick: id, choose: false, msg: 'Leyendo el detalle de la corrida…' } });
 
 /* cada campo, su id (para enfocar el primero con error al guardar) */
 const FID: Record<FlatKey, string> = { dist: 'rf-dist', t: 'rf-t-h', pace: 'rf-pace-m', hr: 'rf-hr', hrmax: 'rf-hrmax' };
@@ -137,7 +137,7 @@ function StravaFound({ f, onLoad, onPick }: { f: ResF; onLoad: () => void; onPic
           </div>
         </div>
       ) : null}
-      {sv.list && sv.list.length && !used ? (
+      {sv.list && sv.list.length && (!used || sv.choose) ? (
         <div className="p-acts" role="group" aria-label="Salidas de Strava">
           {sv.list.map((x) => (
             <Button key={x.id} size="sm" variant="on-dark" aria-pressed={sv.pick === x.id} disabled={sv.busy} onClick={() => onPick(x.id)}>
@@ -243,14 +243,16 @@ export default function ResultPanel(props: ResultProps & { svLoad?: boolean }) {
       if (!alive.current) return;
       const cur = fRef.current,
         list = svActs(pl, cur.sid),
-        same = list.filter((a) => a.date === cur.date);
-      if (same.length === 1) {
+        same = list.filter((a) => a.date === cur.date),
+        /* con una ya cargada, el botón es «Otra salida»: se elige de la lista, sin volver a la del día */
+        again = !!cur.stravaId;
+      if (same.length === 1 && !again) {
         setF((g) => svPickStart({ ...g, sv: { ...g.sv, list, busy: false } }, same[0].id));
         await svPickRun(same[0].id, same[0]);
         return;
       }
       const msg = list.length ? 'Elegí la corrida que corresponde.' : 'No encontré corridas nuevas en los últimos ' + SV_DAYS + ' días.';
-      setF((g) => ({ ...g, sv: { ...g.sv, list, busy: false, msg } }));
+      setF((g) => ({ ...g, sv: { ...g.sv, list, busy: false, choose: again, msg } }));
     } catch (e) {
       if (!alive.current) return;
       setF((g) => ({ ...g, sv: { ...g.sv, busy: false, msg: stravaErrMsg(e) } }));
@@ -329,6 +331,18 @@ export default function ResultPanel(props: ResultProps & { svLoad?: boolean }) {
   const paceTxt = f.flat.pace.m || f.flat.pace.s ? (f.flat.pace.m || '0') + ':' + (f.flat.pace.s || '0').padStart(2, '0') + ' /km' : '–';
   const shoes = (cfg.shoes || []).filter((z) => !z.retired || z.id === f.shoe);
   const svShown = !!(strava && strava.connected) || !!f.sv.list || !!f.stravaId;
+  /* sin plan, el tipo se elige (también al editar: una libre arranca como fondo y se puede corregir) */
+  const typePick =
+    !s || !s.plan ? (
+      <Segmented
+        label="Tipo de sesión"
+        value={f.type}
+        onChange={(k: SessionType) => setF((g) => ({ ...g, type: k }))}
+        options={TYPE_KEYS.map((k) => ({ value: k, label: TYPES[k].label, color: typeColor(k) }))}
+      />
+    ) : null;
+  /* al editar no se elige la sesión: la sección 01 queda solo si hay tipo para elegir */
+  const first = !f.editing || !!typePick;
 
   return (
     <PanelFrame
@@ -339,28 +353,23 @@ export default function ResultPanel(props: ResultProps & { svLoad?: boolean }) {
       note={f.editing ? null : 'Si recargás la página, lo cargado vuelve.'}
       foot={<PanelActions label="Guardar y ver puntaje" onSave={save} />}
     >
-      {!f.editing ? (
+      {first ? (
         <PanelSection no="01" title="¿Qué sesión fue?">
-          <SessionPick
-            pend={f.pend}
-            sid={f.sid}
-            onPick={(id) => {
-              setF((g) => rfPick(g, id));
-              setAiNote('');
-            }}
-          />
-          {!s || !s.plan ? (
-            <Segmented
-              label="Tipo de sesión"
-              value={f.type}
-              onChange={(k: SessionType) => setF((g) => ({ ...g, type: k }))}
-              options={TYPE_KEYS.map((k) => ({ value: k, label: TYPES[k].label, color: typeColor(k) }))}
+          {!f.editing ? (
+            <SessionPick
+              pend={f.pend}
+              sid={f.sid}
+              onPick={(id) => {
+                setF((g) => rfPick(g, id));
+                setAiNote('');
+              }}
             />
           ) : null}
+          {typePick}
         </PanelSection>
       ) : null}
 
-      <PanelSection no={f.editing ? '01' : '02'} title="Datos de la salida">
+      <PanelSection no={first ? '02' : '01'} title="Datos de la salida">
         {svShown ? (
           <StravaFound f={f} onLoad={svLoad} onPick={svPick} />
         ) : strava && strava.configured !== false ? (
@@ -454,7 +463,7 @@ export default function ResultPanel(props: ResultProps & { svLoad?: boolean }) {
         ) : null}
       </PanelSection>
 
-      <PanelSection no={f.editing ? '02' : '03'} title="¿Cómo te sentiste?">
+      <PanelSection no={first ? '03' : '02'} title="¿Cómo te sentiste?">
         <div className="p-feel" role="group" aria-label="Sensación de 1 a 10">
           {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((n) => (
             <button key={n} id={'rf-feel-' + n} type="button" aria-label={n + ' de 10: ' + FEEL_T(n)} aria-pressed={f.feel === n} style={cssVars({ '--fc': FEEL_C(n) })} onClick={() => setF((g) => ({ ...g, feel: n }))}>

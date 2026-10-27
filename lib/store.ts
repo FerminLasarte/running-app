@@ -34,6 +34,8 @@ export interface AppState {
   /* guardado */
   mode: 'boot' | 'cloud' | 'local';
   loaded: boolean;
+  /** ya se leyó lo último de la nube (o no hay nube): recién ahí se festeja, que guarda la configuración */
+  fresh: boolean;
   saving: number;
   /** claves con escrituras fallidas pendientes de reintento: id de sesión, 'cfg', 'routes' o 'del_<id>' */
   failed: Record<string, true>;
@@ -60,6 +62,7 @@ export const useApp = create<AppState>()(() => ({
   email: null,
   mode: 'boot',
   loaded: false,
+  fresh: false,
   saving: 0,
   failed: {},
   cloudLost: false,
@@ -75,7 +78,7 @@ export const useApp = create<AppState>()(() => ({
 
 /* lo que cambia seguido y solo lo dibujan el shell, la hoja, el aviso o el estado de guardado (que se suscriben con
    un selector propio): que no redibuje las vistas. El estado que devuelve useS() puede tener estos campos viejos. */
-const VOLATILE = new Set<keyof AppState>(['saving', 'toast', 'sheet', 'failed', 'cloudLost']);
+const VOLATILE = new Set<keyof AppState>(['saving', 'toast', 'sheet', 'failed', 'cloudLost', 'fresh']);
 const VOLATILE_UI = new Set(['sheetClosing', 'sheetConfirm', 'celebrate', 'palette']);
 function sameForViews(a: AppState, b: AppState) {
   if (a === b) return true;

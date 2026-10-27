@@ -290,6 +290,10 @@ async function pull() {
 
 /** Al volver a la app: compara ids y fechas con la nube y trae solo lo nuevo o cambiado. */
 async function refresh() {
+  await readCloud();
+  if (!S.fresh) setS({ fresh: true });
+}
+async function readCloud() {
   if (!synced) return pull();
   const t0 = Date.now();
   const [cfgIdx, idx, rIdx] = await Promise.all([
@@ -420,7 +424,7 @@ export async function boot() {
   }
   if (!uid) {
     /* sin Supabase configurado (desarrollo): todo queda en este navegador */
-    setS({ mode: 'local', loaded: true, uid: null, email: null });
+    setS({ mode: 'local', loaded: true, fresh: true, uid: null, email: null });
     return;
   }
   /* lo que quedó sin confirmar la última vez se reintenta; mientras tanto, ninguna lectura lo pisa */

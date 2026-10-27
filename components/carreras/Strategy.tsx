@@ -7,7 +7,7 @@ import type { Race } from '@/lib/domain/types';
 import { isLong } from '@/lib/domain/config';
 import type { RaceLeg, RaceScen, RaceStrategy, TrainEst } from '@/lib/domain/race';
 import { dShort, dateLabel, fmtDur, fmtPace, pd } from '@/lib/domain/util';
-import { goRaces, toast } from '@/lib/data/actions';
+import { editRace, toast } from '@/lib/data/actions';
 import { Button, Segmented } from '@/components/pista/controls';
 import { Panel } from '@/components/pista/structure';
 import { cssVars, typeColor } from '@/components/pista/util';
@@ -107,7 +107,7 @@ export function Strategy({ race, sc, sel, st, onPick }: { race: Race; sc: RaceSc
       <Panel id="car-estrategia" className="p-c7 p-rise" style={cssVars({ '--i': 2 })} title="Estrategia">
         <p className="car-note">Cargá un tiempo objetivo para esta carrera en Ajustes, o registrá un test, y acá armo los tramos y la pulsera de ritmos.</p>
         <div className="car-acts">
-          <Button size="sm" onClick={goRaces}>
+          <Button size="sm" onClick={() => editRace(race.id)}>
             Cargar el objetivo
           </Button>
         </div>

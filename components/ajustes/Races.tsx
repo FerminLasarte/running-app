@@ -4,7 +4,7 @@
 import { useState } from 'react';
 import { Plus } from '@phosphor-icons/react';
 import { useS } from '@/lib/store';
-import { AJ_PARTS, addRace, ajNameId, setAjEdit } from '@/lib/data/actions';
+import { AJ_PARTS, addRace, ajId, ajNameId, setAjEdit } from '@/lib/data/actions';
 import type { Race } from '@/lib/domain/types';
 import { RACE_PRESETS, nextRace, pastRaces, upcomingRaces } from '@/lib/domain/config';
 import { applyRace, raceDraft, raceErrs, type RaceDraft } from '@/lib/domain/settings';
@@ -23,7 +23,7 @@ const presetOf = (km: number) => RACE_PRESETS.find((q) => Math.abs(km - q[0]) < 
 
 function RaceEdit({ r }: { r: Race }) {
   const past = isPast(r),
-    p = 'aj-r-' + r.id;
+    p = ajId('r', r.id);
   const { draft: d, edit, now, bind } = useAuto(
     r,
     () => raceDraft(r),

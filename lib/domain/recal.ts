@@ -3,7 +3,7 @@
    Cada etapa con ritmo se mueve lo que indica la diferencia de VDOT a la intensidad de su tipo,
    así se conserva la progresión del plan (no se pisa todo con el mismo ritmo). (Líneas 3457–3569 del original.) */
 import { S, getUi, setUi } from '@/lib/store';
-import { blockDemo, saveCfg, saveSessions, toast } from '@/lib/data/actions';
+import { blockDemo, saveCfg, saveSessions, toast, toastUndo } from '@/lib/data/actions';
 import { closeSheet, openSheet } from '@/lib/sheets';
 import type { PaceRef, PlanStep, Session, Step } from './types';
 import { racePaceSec, refRace } from './config';
@@ -140,7 +140,7 @@ export function applyRecal(F: RecalForm) {
   c.recals = (c.recals || []).concat([{ id, at: todayS(), src: F.src.label, d: Math.round(d * 10) / 10, n, prevRef: F.ref }]).slice(-10);
   saveCfg(c);
   closeSheet();
-  toast('Recalibré ' + n + (n === 1 ? ' sesión' : ' sesiones'), 4000);
+  toastUndo('Recalibré ' + n + (n === 1 ? ' sesión' : ' sesiones'), undoRecal);
 }
 export function undoRecal() {
   if (blockDemo()) return;

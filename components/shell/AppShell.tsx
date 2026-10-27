@@ -9,6 +9,7 @@ import { useShallow } from 'zustand/react/shallow';
 import { S, setS, useApp } from '@/lib/store';
 import { setNotifier, boot } from '@/lib/data/sync';
 import { draftRestore } from '@/lib/data/draft';
+import { stravaReturn } from '@/lib/strava/sync';
 import { buzz, toast, weekGo } from '@/lib/data/actions';
 import { runPending, setRouter } from '@/lib/nav';
 import { todayS } from '@/lib/domain/util';
@@ -119,6 +120,11 @@ export default function AppShell({ children }: { children: ReactNode }) {
     draftTried.current = true;
     draftRestore();
   }, [S0.loaded, S0.demo]);
+
+  /* al volver de conectar Strava: cómo salió (con los datos cargados, para saber qué recorridos ya están) */
+  useEffect(() => {
+    if (S0.loaded) stravaReturn();
+  }, [S0.loaded]);
 
   /* las piezas se suscriben solas: cuando el shell se redibuja (por ejemplo, para prender o apagar la animación de
      entrada) reuso los mismos elementos y React no las vuelve a dibujar */

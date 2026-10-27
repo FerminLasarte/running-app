@@ -137,6 +137,7 @@ export function WeekBoard({ fresh }: { fresh?: boolean }) {
     a = weekStats(mon),
     live = wk.filter((s) => s.result || !s.missed),
     total = weekTotalKm(mon),
+    st = streakInfo(),
     maxKm = Math.max(1, ...wk.map(kmOf)),
     empty = !wk.length;
 
@@ -197,9 +198,13 @@ export function WeekBoard({ fresh }: { fresh?: boolean }) {
               <div>
                 <span className="lbl">Racha</span>
                 <span className="disp">
-                  {streakInfo().cur}
+                  {st.cur}
                   <span className="p-u">sem</span>
                 </span>
+                {/* el objetivo de salidas de Ajustes: la semana cuenta para la racha cuando se cumple */}
+                <small className="sem-goal">
+                  {a.done} de {st.goal} {st.goal === 1 ? 'salida' : 'salidas'}
+                </small>
               </div>
               <div>
                 <span className="lbl">Puntaje</span>

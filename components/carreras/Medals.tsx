@@ -4,7 +4,7 @@
    tiempo lo pide. Desde acá se abre el test de nivel y se agrega una carrera. */
 import { Plus } from '@phosphor-icons/react';
 import { useS } from '@/lib/store';
-import { addRace, buzz, goRaces } from '@/lib/data/actions';
+import { addRace, buzz, editRace } from '@/lib/data/actions';
 import { openSheet } from '@/lib/sheets';
 import type { Race } from '@/lib/domain/types';
 import { pastRaces } from '@/lib/domain/config';
@@ -48,7 +48,7 @@ function Item({ r }: { r: Race }) {
       {rs ? (
         <button type="button" className="car-medal-go" aria-label={'Ver la medalla de ' + r.name} onClick={() => openRaceMedal(r.id)} />
       ) : (
-        <Button size="sm" onClick={goRaces}>
+        <Button size="sm" onClick={() => editRace(r.id)}>
           Cargar tiempo
         </Button>
       )}

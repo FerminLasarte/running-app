@@ -2,7 +2,7 @@
    vieja; lo que está mal escrito queda como estaba y el aviso dice qué revisar. */
 import { S } from '@/lib/store';
 import { afterPaint } from '@/lib/nav';
-import { blockDemo, buzz, focusField, ajNameId, saveCfg, setAjEdit, toast } from '@/lib/data/actions';
+import { blockDemo, buzz, focusField, ajId, ajNameId, saveCfg, setAjEdit, toast } from '@/lib/data/actions';
 import type { Cfg } from '@/lib/domain/types';
 import { activeShoes, normCfg, normShoe } from '@/lib/domain/config';
 import { cleanObj } from '@/lib/domain/util';
@@ -31,7 +31,7 @@ function quiet(fn: (c: Cfg) => void) {
 }
 
 /* ---- carreras y zapatillas abiertas para editar: al cerrarse, el foco vuelve a su botón ---- */
-export const editBtnId = (kind: 'r' | 'z', id: string) => 'aj-' + kind + '-' + id + '-ed';
+export const editBtnId = (kind: 'r' | 'z', id: string) => ajId(kind, id) + '-ed';
 export const addBtnId = (kind: 'r' | 'z') => 'aj-' + kind + '-add';
 const focusLater = (id: string) => afterPaint(() => document.getElementById(id)?.focus());
 export function closeEdit(kind: 'r' | 'z', id: string) {

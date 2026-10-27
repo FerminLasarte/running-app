@@ -1,7 +1,7 @@
 /* Trae los recorridos de Strava para el mapa (stravaSync, líneas 4864–4900 del original). Lee de a 100 actividades,
    de la más nueva a la más vieja, y corta cuando encuentra una que ya tenía. */
 import { S } from '@/lib/store';
-import { blockDemo, saveRoutes } from '@/lib/data/actions';
+import { blockDemo, saveRoutes, toast } from '@/lib/data/actions';
 import { getMapUi, setMapUi } from '@/lib/domain/geo';
 import type { Route } from '@/lib/domain/types';
 import { runActs, stravaErrMsg, svCall } from './client';
@@ -64,4 +64,23 @@ export async function stravaSync() {
     if (added === 0 && c) console.error(e);
   }
   setMapUi({ syncing: false });
+}
+
+const RETURN_MSG: Record<string, string> = {
+  denied: 'Strava quedó sin conectar: no diste el permiso.',
+  scope: 'Strava quedó sin conectar: hace falta el permiso para ver tus actividades. Probá de nuevo y dejalo tildado.',
+  not_configured: stravaErrMsg({ code: 'not_configured' }),
+  error: 'No pude conectar Strava. Probá de nuevo desde Ajustes.',
+};
+/** La vuelta de conectar Strava (`?strava=` en la URL): avisa cómo salió y, si se conectó, trae los recorridos al
+    mapa, como el original, que conectaba y traía en el mismo paso. */
+export function stravaReturn() {
+  const u = new URL(window.location.href),
+    st = u.searchParams.get('strava');
+  if (!st) return;
+  u.searchParams.delete('strava');
+  window.history.replaceState(null, '', u.pathname + u.search + u.hash);
+  if (st !== 'ok') return toast(RETURN_MSG[st] || RETURN_MSG.error, 6000);
+  toast('Strava conectado. Traigo tus recorridos al mapa.', 4000);
+  void stravaSync();
 }

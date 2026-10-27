@@ -4,12 +4,13 @@ import { ArrowsClockwise } from '@phosphor-icons/react';
 import { MAP_PERIODS, barrioCount, cellArea, mapBarrios, mapCells, type MapPeriod } from '@/lib/domain/geo';
 import type { Route } from '@/lib/domain/types';
 import { DF_M, dShort, fmt, kmByMonth, nf, pd, plural, sum } from '@/lib/domain/util';
-import { stravaLast, stravaSync } from '@/lib/strava/sync';
+import { stravaLast } from '@/lib/strava/sync';
 import { Button, Segmented, Switch } from '@/components/pista/controls';
 import { MiniBars } from '@/components/pista/charts';
 import { ShareBars, type ShareItem } from '@/components/pista/meters';
 import { BrandTitle, Kpis } from '@/components/pista/structure';
 import type { useMapParams } from './params';
+import { useStravaGo } from './useStravaGo';
 
 /** barrios a la vista; el resto, plegado */
 const TOP = 8;
@@ -23,6 +24,7 @@ const H2 = ({ t, sub }: { t: string; sub?: string }) => (
 
 export function Side({ P, routes, L, msg, syncing, baseErr, onBarrio }: { P: ReturnType<typeof useMapParams>; routes: Route[]; L: Route[]; msg: string; syncing: boolean; baseErr: boolean; onBarrio: (n: string | null) => void }) {
   const { o } = P;
+  const sv = useStravaGo();
   const all = o.period === 'todo',
     km = sum(L.map((r) => r.km || 0)),
     cells = L.length ? mapCells(L, o.period).m.size : 0,
@@ -107,8 +109,8 @@ export function Side({ P, routes, L, msg, syncing, baseErr, onBarrio }: { P: Ret
       </div>
 
       <H2 t="Strava" sub={last ? 'Actualizado el ' + dShort(new Date(last)) : undefined} />
-      <Button className="mapa-sync" icon={ArrowsClockwise} disabled={syncing} onClick={() => void stravaSync()}>
-        {syncing ? 'Trayendo…' : 'Traer recorridos nuevos'}
+      <Button className="mapa-sync" icon={ArrowsClockwise} disabled={syncing} onClick={sv.go}>
+        {syncing ? 'Trayendo…' : sv.connect ? 'Conectar con Strava' : 'Traer recorridos nuevos'}
       </Button>
       <p className="mapa-foot" role="status">
         {msg}
