@@ -11,10 +11,7 @@ const nextConfig: NextConfig = {
        validación de navegación instantánea pueda dibujar. Valida solo los segmentos que exporten `instant` */
     instantInsights: { validationLevel: 'manual-warning' },
   },
-  /* la app arranca en la semana */
-  async redirects() {
-    return [{ source: '/', destination: '/semana', permanent: false }];
-  },
+  /* «/» es la portada; con sesión, el proxy lleva a la semana */
   /* el service worker siempre se pide de nuevo: así una versión nueva de la app se instala sola */
   async headers() {
     return [{ source: '/sw.js', headers: [{ key: 'Cache-Control', value: 'no-cache, no-store, must-revalidate' }] }];

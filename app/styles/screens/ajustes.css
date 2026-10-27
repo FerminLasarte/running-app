@@ -95,6 +95,10 @@
   .aj-ed-f { display: flex; flex-wrap: wrap; align-items: center; justify-content: flex-end; gap: 8px; margin-top: 18px; padding-top: 14px; border-top: 1px solid var(--line); }
   .aj-ed-f > :first-child { margin-right: auto; }
   .aj-del { display: inline-flex; flex-wrap: wrap; align-items: center; gap: 8px; font-size: 13px; }
+  /* la contraseña nueva, en la misma fila */
+  .aj-pass { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; width: 100%; }
+  .aj-pass .p-in { flex: 0 1 240px; min-width: 0; }
+  .aj-pass .aj-err { flex-basis: 100%; max-width: none; }
 
   /* conexiones */
   .aj-conns { display: grid; gap: 10px; }

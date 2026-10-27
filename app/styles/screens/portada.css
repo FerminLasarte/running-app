@@ -1,0 +1,89 @@
+/* Portada: la marca y las cuentas arriba, el estadio con qué es la app y los dos caminos (con el dorsal al costado), lo
+   que hace en seis tarjetas con una pieza de la Pista cada una, el cierre en otro estadio y el pie. Fuera del shell: la
+   marca usa el .brand de la barra lateral (shell.css), que en el celu se esconde; acá se ve siempre. */
+@layer screens {
+  .po { min-height: 100dvh; font-size: 14px; line-height: 1.5; }
+  .po .brand { display: flex; padding: 0; }
+  .po-top, .po main { max-width: 1260px; margin: 0 auto; padding-left: 40px; padding-right: 40px; }
+  .po-top { display: flex; align-items: center; justify-content: space-between; gap: 16px; height: 76px; padding-top: env(safe-area-inset-top, 0px); }
+  .po-nav { display: flex; align-items: center; gap: 8px; }
+  .po main { display: grid; gap: 80px; padding-top: 4px; }
+
+  /* el estadio de arriba: la voz de marca en grande */
+  .po-hero { padding: 54px 56px 52px; gap: 72px; align-items: center; }
+  .po-h1 { font-size: 150px; padding-top: calc(24px + .05em); }
+  .po-lead { max-width: 54ch; margin-top: 24px; font-size: 17px; line-height: 1.5; color: color-mix(in oklab, var(--hero-ink) 82%, transparent); }
+  .po-ctas { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 30px; }
+  .po-note { margin-top: 16px; font-size: 13px; color: var(--hero-mut); }
+  .po-note a { color: var(--hero-ink); text-decoration: underline; text-underline-offset: 2px; }
+  .po-note a:hover { color: var(--acc); }
+
+  /* qué hace */
+  .po-feats { display: grid; gap: 28px; }
+  .po-sh { display: grid; gap: 4px; }
+  .po-sh h2 { font-size: 76px; padding-top: calc(8px + .06em); }
+  .po-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 20px; }
+  .po-f { display: grid; grid-template-rows: 252px auto; overflow: hidden; background: var(--surface); border: 1px solid var(--line); border-radius: var(--r-lg); }
+  .po-f-v { position: relative; display: grid; place-items: center; padding: 22px 28px; overflow: hidden; background: var(--sunk); border-bottom: 1px solid var(--line); }
+  .po-f-t { display: grid; align-content: start; gap: 8px; padding: 20px 22px 24px; }
+  .po-f h3 { font: italic 900 28px/.95 var(--f-disp); font-stretch: 64%; text-transform: uppercase; letter-spacing: .005em; padding-top: 4px; }
+  .po-f p { color: var(--ink-2); max-width: 46ch; }
+
+  /* las piezas de cada tarjeta */
+  .po-oval { width: min(100%, 300px); }
+  .po-sess { list-style: none; padding: 0; width: 100%; display: grid; gap: 14px; }
+  .po-sess span { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; font-size: 13px; }
+  .po-sess b { font-weight: 600; }
+  .po-sess small { margin-left: auto; color: var(--ink-3); font-size: 12px; }
+  .po-vol { width: 100%; }
+  /* la pulsera asoma desde arriba de la tarjeta y se pierde abajo */
+  .po-f-v:has(.po-band) { place-items: start center; padding-top: 22px; }
+  .po-band { width: 200px; -webkit-mask-image: linear-gradient(#000 62%, transparent 96%); mask-image: linear-gradient(#000 62%, transparent 96%); }
+  .po-f-v:has(.po-map) { padding: 0; }
+  .po-map { width: 100%; height: 100%; display: block; }
+  .po-tro { display: grid; justify-items: center; gap: 24px; width: 100%; }
+  .po-shields { display: flex; gap: 14px; }
+  .po-lvl { width: min(100%, 240px); }
+  .po-lvl > div { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 8px; }
+  .po-lvl b { font: italic 900 20px/1 var(--f-disp); font-stretch: 64%; text-transform: uppercase; }
+  .po-lvl .disp { font-size: 30px; font-style: italic; }
+
+  /* el cierre */
+  .po-end { padding: 52px 56px; }
+  .po-end h2 { font-size: 112px; padding-top: calc(10px + .05em); }
+
+  /* el pie, del ancho del contenido (la raya no pasa de las tarjetas) */
+  .po-foot { display: flex; align-items: center; justify-content: space-between; gap: 20px; width: min(1180px, calc(100% - 80px)); margin: 80px auto 0; padding: 28px 0 calc(40px + env(safe-area-inset-bottom, 0px)); border-top: 1px solid var(--line); }
+  .po-foot nav { display: flex; flex-wrap: wrap; gap: 8px 22px; font-size: 13px; }
+  .po-foot nav a { color: var(--ink-2); }
+  .po-foot nav a:hover { color: var(--ink); text-decoration: underline; text-underline-offset: 2px; }
+
+  @media (max-width: 1240px) {
+    .po-h1 { font-size: 124px; }
+    .po-hero { gap: 48px; }
+  }
+  @media (max-width: 1080px) {
+    .po-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  }
+  /* celu: todo apilado, el dorsal debajo del texto */
+  @media (max-width: 900px) {
+    .po-top, .po main { padding-left: 16px; padding-right: 16px; }
+    .po-foot { width: calc(100% - 32px); }
+    .po-top { height: calc(64px + env(safe-area-inset-top, 0px)); }
+    .po-hide-s { display: none; }
+    .po main { gap: 56px; }
+    .po-hero { padding: 28px 20px 36px; gap: 36px; }
+    .po-h1 { font-size: 84px; padding-top: calc(16px + .05em); }
+    .po-lead { font-size: 16px; margin-top: 18px; }
+    .po-ctas { margin-top: 24px; }
+    .po-ctas .p-btn { flex: 1 1 auto; }
+    .po-hero .p-bib-wrap { width: min(100%, 300px); justify-self: center; }
+    .po-sh h2 { font-size: 50px; }
+    .po-grid { grid-template-columns: minmax(0, 1fr); gap: 14px; }
+    .po-f { grid-template-rows: 240px auto; }
+    .po-f-v { padding-left: 20px; padding-right: 20px; }
+    .po-end { padding: 32px 20px; }
+    .po-end h2 { font-size: 68px; }
+    .po-foot { flex-direction: column; align-items: flex-start; margin-top: 56px; }
+  }
+}

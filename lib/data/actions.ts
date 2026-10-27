@@ -7,7 +7,7 @@ import type { Cfg, Route, Session } from '@/lib/domain/types';
 import { normCfg, normRace } from '@/lib/domain/defaults';
 import { resultOpen } from '@/lib/domain/config';
 import { addDays, cleanObj, ymd } from '@/lib/domain/util';
-import { demoCfg, demoRoutes, demoSessions } from './demo';
+import { demoData } from './demo';
 import { persistLocal, retryFailed, writeCfg, writeDelete, writeRoutes, writeSession, writeSessions } from './sync';
 
 /* ---- avisos ---- */
@@ -27,12 +27,17 @@ export const buzz = (ms?: number) => {
 };
 
 /* ---- datos ---- */
+/** a crear la cuenta (desde el aviso de quien prueba sin cuenta), con una recarga completa: los datos de ejemplo
+    quedan atrás */
+export function goSignup() {
+  // eslint-disable-next-line @next/next/no-location-assign-relative-destination
+  window.location.assign('/login?modo=crear');
+}
 export function blockDemo() {
-  if (S.demo) {
-    toast('Estás viendo datos de ejemplo. Salí del modo ejemplo para guardar.');
-    return true;
-  }
-  return false;
+  if (!S.demo) return false;
+  if (S.mode === 'guest') toast('Estás probando con datos de ejemplo. Creá tu cuenta para guardar lo tuyo.', 6000, { label: 'Crear cuenta', run: goSignup });
+  else toast('Estás viendo datos de ejemplo. Salí del modo ejemplo para guardar.');
+  return true;
 }
 const upsert = (list: Session[], s: Session) => {
   const i = list.findIndex((x) => x.id === s.id);
@@ -103,9 +108,7 @@ export { retryFailed, reduceMotion, afterPaint };
 /* ---- modo ejemplo ---- */
 /* el ejemplo trae su propia configuración (una cuenta nueva no tiene carreras ni FC); la tuya vuelve al salir */
 export function demoOn() {
-  const cfg = demoCfg(),
-    sessions = demoSessions(cfg.hrMax);
-  setS({ realSessions: S.sessions, realCfg: S.cfg, realRoutes: S.routes, demo: true, cfg, sessions, routes: demoRoutes(sessions), weekOff: 0 });
+  setS({ realSessions: S.sessions, realCfg: S.cfg, realRoutes: S.routes, ...demoData(), weekOff: 0 });
   navigate('/semana', () => jumpTo(0));
 }
 export function demoOff() {

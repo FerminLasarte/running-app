@@ -13,6 +13,9 @@ import { normSession } from '@/lib/domain/stages';
 import { sdate } from '@/lib/domain/stats';
 import type { Cfg, Route, Session } from '@/lib/domain/types';
 import { cleanObj } from '@/lib/domain/util';
+import { hasGuestCookie } from '@/lib/guest';
+import { rememberTheme } from '@/lib/theme';
+import { demoData } from './demo';
 
 const LS_KEY = 'rr1';
 /* claves con cambios locales que la nube todavía no confirmó (en camino o fallidos): sobreviven a cerrar la app,
@@ -385,6 +388,14 @@ function onSettings(p: RealtimePostgresChangesPayload<{ cfg: unknown; updated_at
   putData({ cfg: mergeCfg(n.cfg) });
 }
 
+/** Probar sin cuenta: los datos de ejemplo, como en el modo ejemplo, pero sin datos propios esperando al costado. Nada
+    llega a la nube ni al navegador: no hay usuario, `persistLocal`, el borrador, los festejos y los trofeos miran `demo`,
+    y el tema y las capas del mapa no se recuerdan. */
+function bootGuest() {
+  rememberTheme(false);
+  setS({ mode: 'guest', uid: null, email: null, loaded: true, fresh: true, ...demoData() });
+}
+
 /** Arranque: sesión del usuario, caché local al instante y después la nube. */
 export async function boot() {
   /* una sola vez aunque el efecto que lo llama corra dos veces (modo estricto de React en desarrollo) */
@@ -408,16 +419,18 @@ export async function boot() {
     }
     if (!uid) {
       /* la página puede venir del service worker sin pasar por el login: sin señal sigo con lo de este navegador
-         (se sube cuando vuelva); con señal y sin sesión, al login */
+         (se sube cuando vuelva); con señal y sin sesión, al login, salvo que esté probando sin cuenta */
       if ((netErr || !navigator.onLine) && cache?.uid) {
         uid = cache.uid;
         setS({ cloudLost: true });
-      } else {
+      } else if (!hasGuestCookie()) {
         location.replace('/login');
         return;
       }
     }
   }
+  /* probando sin cuenta (también sin Supabase, en desarrollo): lo de este navegador no se usa */
+  if (!uid && hasGuestCookie()) return bootGuest();
   const mine = !!cache && (!uid || cache.uid === uid);
   if (cache && mine) {
     setS({ cfg: mergeCfg(cache.cfg), sessions: (cache.sessions || []).map((x) => normSession(x)), routes: cache.routes || [] });

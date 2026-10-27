@@ -14,7 +14,16 @@ declare global {
 
 export const THEME_SCRIPT = `(function(){var d=document.documentElement,m=matchMedia('(prefers-color-scheme: dark)');function a(){var t=null;try{t=localStorage.getItem('${KEY}')}catch(e){}d.setAttribute('data-theme',t==='dark'||t==='light'?t:m.matches?'dark':'light')}a();m.addEventListener('change',a);window.__applyTheme=a})()`;
 
+/* quien prueba sin cuenta no guarda nada en el navegador: el tema que elige dura hasta recargar */
+let remember = true,
+  held: ThemeMode = 'system';
+export function rememberTheme(on: boolean) {
+  held = themeMode();
+  remember = on;
+}
+
 export function themeMode(): ThemeMode {
+  if (!remember) return held;
   try {
     const t = localStorage.getItem(KEY);
     return t === 'dark' || t === 'light' ? t : 'system';
@@ -24,14 +33,18 @@ export function themeMode(): ThemeMode {
 }
 
 export function setThemeMode(m: ThemeMode) {
-  try {
-    if (m === 'system') localStorage.removeItem(KEY);
-    else localStorage.setItem(KEY, m);
-  } catch {
-    /* sin almacenamiento: el cambio dura hasta recargar */
+  held = m;
+  if (remember) {
+    try {
+      if (m === 'system') localStorage.removeItem(KEY);
+      else localStorage.setItem(KEY, m);
+    } catch {
+      /* sin almacenamiento: el cambio dura hasta recargar */
+    }
+    window.__applyTheme?.();
   }
-  window.__applyTheme?.();
   if (m !== 'system') document.documentElement.setAttribute('data-theme', m);
+  else if (!remember) document.documentElement.setAttribute('data-theme', matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
   window.dispatchEvent(new Event(EVENT));
 }
 

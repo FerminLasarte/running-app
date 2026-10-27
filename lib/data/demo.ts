@@ -187,3 +187,10 @@ export function demoRoutes(sessions: Session[]): Route[] {
       return { id: 'demo_rt_' + s.id, sid: '', date: r.date, name, km: r.distKm, tsec: r.timeSec, poly: encodePoly(out) };
     });
 }
+
+/** todo el ejemplo junto, listo para el estado: el modo ejemplo y quien prueba sin cuenta */
+export function demoData() {
+  const cfg = demoCfg(),
+    sessions = demoSessions(cfg.hrMax);
+  return { demo: true, cfg, sessions, routes: demoRoutes(sessions) };
+}

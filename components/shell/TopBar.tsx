@@ -86,7 +86,8 @@ function Crumbs({ section, pathname }: { section: SectionDef | null; pathname: s
 /* guardado: solo se ve si hay algo que avisar o si estás en la nube y está todo bien */
 function SaveState() {
   const S = useApp(useShallow((s) => ({ mode: s.mode, saving: s.saving, cloudLost: s.cloudLost, nf: Object.keys(s.failed).length })));
-  if (S.mode === 'boot') return null;
+  /* probando sin cuenta: lo dice el aviso de arriba */
+  if (S.mode === 'boot' || S.mode === 'guest') return null;
   const [t, c] = S.cloudLost
     ? ['Sin conexión', 'bad']
     : S.nf

@@ -36,7 +36,8 @@ export default function Privacidad() {
           <h2>Qué se guarda</h2>
           <ul>
             <li>
-              <b>Tu cuenta:</b> el mail con el que entrás (y la contraseña, si creás una, guardada cifrada).
+              <b>Tu cuenta:</b> el mail con el que entrás y la contraseña, guardada cifrada. Si entrás con Google, Google le
+              pasa a la app tu mail, tu nombre y tu foto de perfil: se guardan con la cuenta y no se usan para nada más.
             </li>
             <li>
               <b>Tus sesiones:</b> lo que planificás y lo que corrés (distancias, tiempos, ritmos, frecuencia cardíaca, cómo te
@@ -54,15 +55,18 @@ export default function Privacidad() {
               <b>Cuántas capturas leíste este mes,</b> para el tope mensual de esa función. Las capturas no se guardan.
             </li>
           </ul>
-          <p>Además, la app guarda una copia de tus datos en este navegador, para abrir rápido y andar sin señal.</p>
+          <p>
+            Además, la app guarda una copia de tus datos en este navegador, para abrir rápido y andar sin señal. Si la probás
+            sin cuenta, no se guarda nada: ni en la nube ni en el navegador.
+          </p>
         </section>
 
         <section>
           <h2>Dónde</h2>
           <p>
-            La base de datos está en <a href="https://supabase.com">Supabase</a>, que también maneja las cuentas y manda el
-            mail del link de entrada. La app corre en <a href="https://vercel.com">Vercel</a>. Cada cuenta ve solo lo suyo:
-            la base no le deja leer a nadie los datos de otro.
+            La base de datos está en <a href="https://supabase.com">Supabase</a>, que también maneja las cuentas. La app corre
+            en <a href="https://vercel.com">Vercel</a>. Cada cuenta ve solo lo suyo: la base no le deja leer a nadie los
+            datos de otro.
           </p>
         </section>
 
@@ -124,7 +128,7 @@ export default function Privacidad() {
         </section>
 
         <p className="priv-back">
-          <Link href="/">Volver a la app</Link>
+          <Link href="/">Volver a Lane One</Link>
         </p>
       </article>
     </main>

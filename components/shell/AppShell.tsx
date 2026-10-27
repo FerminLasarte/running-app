@@ -12,6 +12,7 @@ import { draftRestore } from '@/lib/data/draft';
 import { stravaReturn } from '@/lib/strava/sync';
 import { buzz, toast, weekGo } from '@/lib/data/actions';
 import { runPending, setRouter } from '@/lib/nav';
+import { hasGuestCookie } from '@/lib/guest';
 import { todayS } from '@/lib/domain/util';
 import { preloadPanels } from '@/components/panels/registry';
 import Celebration from '@/components/logros/Celebration';
@@ -45,8 +46,9 @@ export default function AppShell({ children }: { children: ReactNode }) {
   useEffect(() => {
     setNotifier(toast);
     boot();
-    /* que la app instalada abra sin señal (public/sw.js); en desarrollo no, para no pelear con la recarga en vivo */
-    if (process.env.NODE_ENV === 'production' && 'serviceWorker' in navigator) navigator.serviceWorker.register('/sw.js').catch(() => {});
+    /* que la app instalada abra sin señal (public/sw.js); en desarrollo no, para no pelear con la recarga en vivo, ni a
+       quien prueba sin cuenta, que no se lleva nada guardado */
+    if (process.env.NODE_ENV === 'production' && 'serviceWorker' in navigator && !hasGuestCookie()) navigator.serviceWorker.register('/sw.js').catch(() => {});
     /* los paneles, en un rato libre (así también quedan guardados para abrir sin señal) */
     const pre = setTimeout(() => preloadPanels().catch(() => {}), 1200);
     /* si la app queda abierta y pasa la medianoche, «hoy» cambia en todas las vistas (el saludo tiene su propio reloj) */

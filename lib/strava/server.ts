@@ -92,13 +92,17 @@ export async function forgetStrava(sb: SupabaseClient, userId: string) {
   }
 }
 
-/** Desconecta Strava: revoca el permiso allá (si Strava no responde, se borra igual) y borra lo que vino de ahí. */
+/** Desconecta Strava: revoca el permiso allá (si Strava no responde, se borra igual) y borra lo que vino de ahí.
+    `oauth/revoke` (el único desde el 1 de junio de 2027, cuando Strava retira `oauth/deauthorize`) va con las
+    credenciales de la app en Basic y el token en el cuerpo. Se revoca el refresh token, que no vence: con él caen
+    también sus access tokens. */
 export async function stravaDisconnect(sb: SupabaseClient, userId: string) {
   const row = await getTokenRow(sb, userId);
-  if (row)
-    await fetch('https://www.strava.com/oauth/deauthorize', {
+  if (row && stravaConfigured())
+    await fetch('https://www.strava.com/oauth/revoke', {
       method: 'POST',
-      headers: { authorization: 'Bearer ' + row.access_token },
+      headers: { authorization: 'Basic ' + btoa(process.env.STRAVA_CLIENT_ID + ':' + process.env.STRAVA_CLIENT_SECRET), 'content-type': 'application/x-www-form-urlencoded' },
+      body: new URLSearchParams({ token: row.refresh_token, token_type_hint: 'refresh_token' }),
       cache: 'no-store',
     }).catch(() => null);
   await forgetStrava(sb, userId);
