@@ -131,11 +131,10 @@
   .bnr-i.bad::before { background: var(--neg); }
   .bnr-i b { color: var(--ink-2); font-weight: 600; }
   .bnr-i .p-btn { margin-left: auto; }
-  /* probando sin cuenta: el único aviso que es tarjeta, porque es lo que sigue (crear la cuenta) */
+  /* probando sin cuenta: el único aviso que es tarjeta, para que se note que nada se guarda */
   .bnr-i.guest { gap: 8px 10px; padding: 8px 8px 8px 14px; background: var(--surface); border: 1px solid var(--line); border-left: 3px solid var(--acc); border-radius: var(--r-md); color: var(--ink-2); }
   .bnr-i.guest::before { display: none; }
   .bnr-i.guest b { color: var(--ink); }
-  .bnr-i.guest .p-btn + .p-btn { margin-left: 0; }
 
   /* mientras cargan los datos */
   .skel {

@@ -1,5 +1,12 @@
 # Plan de apertura: dejar la app lista para el público
 
+> **Abandonado el 27 de octubre de 2026.** La app queda para dos personas (el corredor y el responsable). Las tandas A
+> y B se hicieron; después se sacó lo que solo servía para abrirla: el alta de cuentas, Google, «Olvidé mi contraseña»,
+> la política de privacidad, eliminar la cuenta, el webhook de Strava y el tope de la lectura de capturas (con la
+> migración `20261027000200_dos_usuarios.sql`). Quedaron la portada, probar sin cuenta, la vista previa del link, el
+> nombre, los datos de fábrica neutros, «Desconectar» borrando lo de Strava y el ahorro de pedidos a Strava. Lo de abajo
+> queda como registro.
+
 Hoy la app es para un solo corredor. Este plan deja hecho todo lo que hace falta para abrirla a más gente, **sin
 activarlo**: la app de Strava propia (con la revisión de Strava para sumar atletas) y la lectura de capturas con IA
 quedan para después. Lo que se hace acá funciona igual con un solo usuario y queda listo para el día que se abra.

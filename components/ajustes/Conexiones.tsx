@@ -10,7 +10,7 @@ import { getMapUi } from '@/lib/domain/geo';
 import { agoTxt } from '@/lib/domain/util';
 import { stravaConnect } from '@/lib/strava/client';
 import { stravaForget, stravaLast, stravaSync } from '@/lib/strava/sync';
-import { aiStatus, type AiQuota } from '@/lib/ai/client';
+import { aiStatus } from '@/lib/ai/client';
 import { Button, Tag } from '@/components/pista/controls';
 import { Panel } from '@/components/pista/structure';
 import { cssVars, cx } from '@/components/pista/util';
@@ -107,27 +107,18 @@ function Strava() {
 
 function Shots() {
   const cloud = useS().mode === 'cloud';
-  /* null mientras pregunta; se pide de nuevo al entrar, así las que quedan están al día */
-  const [st, setSt] = useState<{ on: boolean; quota?: AiQuota } | null>(null);
+  /* null mientras pregunta */
+  const [on, setOn] = useState<boolean | null>(null);
   useEffect(() => {
     let live = true;
-    aiStatus().then((j) => live && setSt({ on: !!j?.enabled, quota: j?.quota }));
+    aiStatus().then((j) => live && setOn(!!j?.enabled));
     return () => {
       live = false;
     };
   }, [cloud]);
-  const q = st?.quota,
-    left = q ? Math.max(0, q.limit - q.used) : null;
-  const more = !st?.on
-    ? ' La activa quien administra la app.'
-    : !q
-      ? ''
-      : left
-        ? ' ' + (left === 1 ? 'Te queda 1' : 'Te quedan ' + left) + ' de ' + q.limit + ' lecturas este mes.'
-        : ' Ya usaste las ' + q.limit + ' lecturas de este mes: se renuevan el 1.';
   return (
-    <Conn logo={<Camera />} ink name="Leer capturas del reloj" acts={st == null ? null : <Tag warn={left === 0}>{st.on ? 'Activada' : 'Desactivada'}</Tag>}>
-      Cargá un plan o los parciales desde una foto.{more}
+    <Conn logo={<Camera />} ink name="Leer capturas del reloj" acts={on == null ? null : <Tag>{on ? 'Activada' : 'Desactivada'}</Tag>}>
+      Cargá un plan o los parciales desde una foto.{on === false ? ' La activa quien administra la app.' : ''}
     </Conn>
   );
 }

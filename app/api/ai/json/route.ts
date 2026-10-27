@@ -1,8 +1,7 @@
-/* Lee capturas o texto con Claude y devuelve el JSON que pide el prompt (plan de una sesión o parciales). Cada pedido
-   cuenta para el tope del mes (AI_MONTHLY_LIMIT): pasado el tope, responde `quota` sin llamar a Claude. */
+/* Lee capturas o texto con Claude y devuelve el JSON que pide el prompt (plan de una sesión o parciales). */
 import { NextResponse, type NextRequest } from 'next/server';
 import Anthropic from '@anthropic-ai/sdk';
-import { AI_LIMITS, AI_MODEL, aiConfigured, aiMonthlyLimit } from '@/lib/ai/server';
+import { AI_LIMITS, AI_MODEL, aiConfigured } from '@/lib/ai/server';
 import { requireUser, svError } from '@/lib/strava/server';
 
 type MediaType = 'image/jpeg' | 'image/png' | 'image/webp' | 'image/gif';
@@ -23,7 +22,7 @@ function parseJson(text: string): unknown {
 
 export async function POST(request: NextRequest) {
   try {
-    const { sb } = await requireUser();
+    await requireUser();
     if (!aiConfigured()) return fail('not_configured', 'Falta ANTHROPIC_API_KEY en el servidor.', 503);
     const fd = await request.formData();
     const prompt = String(fd.get('prompt') || '').slice(0, 20000);
@@ -38,12 +37,6 @@ export async function POST(request: NextRequest) {
       content.push({ type: 'image', source: { type: 'base64', media_type: f.type as MediaType, data } });
     }
     content.push({ type: 'text', text: prompt + '\n\nRespondé solo con el JSON, sin texto antes ni después.' });
-
-    /* se cuenta recién con el pedido armado, y en un solo paso en la base: dos pedidos a la vez no pasan el tope */
-    const limit = aiMonthlyLimit();
-    const { data: n, error } = await sb.rpc('ai_take', { lim: limit });
-    if (error) throw error;
-    if (n == null) return NextResponse.json({ code: 'quota', message: 'Se usaron las ' + limit + ' lecturas del mes.', limit }, { status: 429 });
 
     const client = new Anthropic();
     const res = await client.beta.messages.create({

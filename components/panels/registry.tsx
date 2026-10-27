@@ -17,7 +17,6 @@ export const PANELS = {
   level: preloadable(() => import('./LevelPanel'), wait),
   import: preloadable(() => import('./ImportPanel'), wait),
   exportCopy: preloadable(() => import('./ExportCopyPanel'), wait),
-  deleteAccount: preloadable(() => import('./DeleteAccountPanel'), wait),
 } as Record<string, ReturnType<typeof preloadable>>;
 
 export const preloadPanels = () => Promise.all(Object.values(PANELS).map((c) => c.preload()));

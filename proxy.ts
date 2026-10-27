@@ -5,7 +5,7 @@ import { createServerClient } from '@supabase/ssr';
 import { SUPABASE_KEY, SUPABASE_URL, isAllowed, supabaseConfigured } from '@/lib/supabase/env';
 import { GUEST_COOKIE } from '@/lib/guest';
 
-const PUBLIC = ['/', '/login', '/auth', '/privacidad', '/manifest.webmanifest', '/pwa-icon', '/sw.js'];
+const PUBLIC = ['/', '/login', '/manifest.webmanifest', '/pwa-icon', '/sw.js'];
 
 export async function proxy(request: NextRequest) {
   let response = NextResponse.next({ request });

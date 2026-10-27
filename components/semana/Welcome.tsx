@@ -35,10 +35,10 @@ export function Welcome() {
     cur = steps.find((s) => !s.done)?.k;
 
   const TEXT: Record<FirstStepKey, { t: string; todo: string; done: ReactNode; go?: () => void; href?: string }> = {
-    account: { t: 'Crear tu cuenta', todo: 'Para guardar todo en la nube y conectar Strava', done: 'Listo', href: '/login' },
+    account: { t: 'Entrar con tu cuenta', todo: 'Para guardar todo en la nube y conectar Strava', done: 'Listo', href: '/login' },
     strava: {
       t: 'Conectar Strava',
-      todo: svOk ? 'Tus salidas se cargan solas, con parciales y recorrido' : cloud ? 'No está disponible en este servidor' : 'Primero creá tu cuenta',
+      todo: svOk ? 'Tus salidas se cargan solas, con parciales y recorrido' : cloud ? 'No está disponible en este servidor' : 'Con tu cuenta, entrando',
       done: sv?.athlete ? 'Conectado como ' + sv.athlete : 'Conectado',
       go: svOk ? () => stravaConnect() : undefined,
     },

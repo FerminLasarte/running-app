@@ -51,10 +51,6 @@ export function aiErr(e: unknown) {
   if (c === 'refusal') return 'Claude no quiso leer este pedido. Probá con otra captura o armalo a mano.';
   if (c === 'api_error') return 'Claude no responde ahora. Probá de nuevo en unos minutos o armalo a mano.';
   if (c === 'unauthorized') return 'Se cerró tu sesión. Volvé a entrar a la app.';
-  if (c === 'quota') {
-    const lim = (e as { limit?: number }).limit;
-    return 'Ya usaste ' + (lim ? 'las ' + lim : 'todas las') + ' lecturas de este mes. Se renuevan el 1.';
-  }
   return 'No pude leerlo ahora. Probá de nuevo o armalo a mano.';
 }
 export function planPrompt0(text: string | null) {

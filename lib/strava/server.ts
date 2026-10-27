@@ -85,7 +85,7 @@ export async function getTokenRow(sb: SupabaseClient, userId: string): Promise<T
 
 /** Borra lo que vino de Strava: los recorridos, las series de cada salida y, al final, la conexión (así, si algo falla
     a mitad de camino, se puede volver a probar). Las sesiones quedan como están. */
-export async function forgetStrava(sb: SupabaseClient, userId: string) {
+async function forgetStrava(sb: SupabaseClient, userId: string) {
   for (const table of ['streams', 'routes', 'strava_tokens']) {
     const { error } = await sb.from(table).delete().eq('user_id', userId);
     if (error) throw error;
