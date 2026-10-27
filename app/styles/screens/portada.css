@@ -94,6 +94,19 @@
   .po-end { padding: 52px 56px; }
   .po-end h2 { font-size: 112px; padding-top: calc(10px + .05em); }
 
+  /* easter eggs (eggs.tsx). El dorsal se toca (cinco veces, modo maratón) sin cambiar el armado del estadio */
+  .po-bibtap { display: contents; }
+  /* «En sus marcas.» da la largada: el título es un botón que no lo parece, y guarda el alto de dos renglones para que
+     «Listos.» y «¡Ya!» no muevan nada */
+  .po-gun-h { min-height: 1.7em; }
+  .po-gun { font: inherit; color: inherit; text-transform: inherit; letter-spacing: inherit; text-align: left; cursor: pointer; }
+  .po-gun:focus-visible { outline: 2px solid var(--acc); outline-offset: 6px; border-radius: 4px; }
+  .po-clock { position: absolute; top: 52px; right: 56px; display: grid; justify-items: end; gap: 6px; opacity: 0; transform: translateY(8px); transition: opacity .3s var(--ease), transform .3s var(--ease); pointer-events: none; }
+  .po-clock.on { opacity: 1; transform: none; }
+  .po-clock b { font: italic 900 96px/.9 var(--f-disp); font-stretch: 64%; color: var(--acc); font-variant-numeric: tabular-nums; }
+  .po-clock small { font: 600 11px/1 var(--f-ui); letter-spacing: .14em; text-transform: uppercase; color: var(--hero-mut); }
+  .po-end.go .po-lap rect { stroke-dasharray: 8 92; animation: po-lap 1.4s cubic-bezier(.3, 0, .2, 1) 1 both; }
+
   /* los andariveles de los estadios se dibujan; por el de tartán corre una vuelta, contra el reloj */
   .po-hero .p-lanes:not(.po-lap) rect, .po-end .p-lanes:not(.po-lap) rect { --len: 2700; animation: po-draw 1.8s var(--ease) both; }
   .po-hero .p-lanes rect.a, .po-end .p-lanes rect.a { animation-delay: .25s; }
@@ -136,7 +149,7 @@
     .po-top-in { display: flex; height: 64px; padding: 0 16px; gap: 12px; }
     .po-top.stuck .po-top-in { height: 56px; }
     .po-top-in .brand { margin-right: auto; }
-    .po-top .brand small, .po-links, .po-hide-s, .po-top.cta .po-enter { display: none; }
+    .po-top .brand small, .po-links, .po-top.cta .po-enter { display: none; }
     .po main { gap: 56px; }
     .po-hero { padding: 28px 20px 36px; gap: 36px; }
     .po-h1 { font-size: 84px; padding-top: calc(16px + .05em); }
@@ -150,6 +163,8 @@
     .po-f-v { padding-left: 20px; padding-right: 20px; }
     .po-end { padding: 32px 20px; }
     .po-end h2 { font-size: 68px; }
+    .po-clock { top: 24px; right: 20px; }
+    .po-clock b { font-size: 52px; }
     .po-foot { flex-direction: column; align-items: flex-start; margin-top: 56px; }
   }
 }
