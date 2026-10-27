@@ -12,6 +12,12 @@
   .p-oval-c { position: absolute; inset: 0; display: grid; place-items: center; text-align: center; pointer-events: none; }
   .p-oval-c .disp { font-size: 30px; font-style: italic; }
   .p-oval-c small { display: block; font-size: 11px; color: var(--ink-3); margin-top: 2px; }
+  /* una vuelta de luces de ritmo (el easter egg «kipchoge»): verdes como el láser de Viena, con el reloj en el medio */
+  .p-oval { --p-laser: #23B85C; }
+  [data-theme="dark"] .p-oval { --p-laser: #3BE67B; }
+  .p-oval-lights circle { fill: var(--p-laser); filter: drop-shadow(0 0 3px var(--p-laser)); }
+  .p-oval-lap .disp { font-size: 30px; font-style: italic; }
+  .p-oval-lap small b { color: var(--p-laser); font-weight: 600; }
 
   /* dorsal: papel, cuatro alfileres y el talón troquelado. Torcido como prendido; se endereza al pasar */
   .p-bib-wrap { align-self: center; }

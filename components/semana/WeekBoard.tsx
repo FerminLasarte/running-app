@@ -19,6 +19,7 @@ import { S, useApp } from '@/lib/store';
 import { Button, Dlt } from '@/components/pista/controls';
 import { Panel } from '@/components/pista/structure';
 import { Oval } from '@/components/pista/sport';
+import { useKipLap } from './kipchoge';
 import { SessionBar, briefOf, kmOf } from '@/components/pista/session';
 import { PHASE_C, cssVars, cx, typeColor } from '@/components/pista/util';
 
@@ -130,6 +131,7 @@ function DaySession({ s, tS, dragging, onDragStart, onDragEnd }: { s: Session; t
 /** `fresh`: primera vez; los días que pasaron no son descansos y todos quedan listos para planificar */
 export function WeekBoard({ fresh }: { fresh?: boolean }) {
   const off = useApp((s) => s.weekOff);
+  const lap = useKipLap();
   const [drag, setDrag] = useState<string | null>(null);
   const [over, setOver] = useState<string | null>(null);
 
@@ -181,11 +183,11 @@ export function WeekBoard({ fresh }: { fresh?: boolean }) {
               objetivo de Ajustes */}
           <div>
             {a.planKm > 0 || empty ? (
-              <Oval done={a.km} total={a.planKm}>
+              <Oval done={a.km} total={a.planKm} lap={lap}>
                 {empty ? <span className="disp sem-zero">0</span> : undefined}
               </Oval>
             ) : (
-              <Oval done={a.done} total={st.goal} unit={st.goal === 1 ? 'salida' : 'salidas'}>
+              <Oval done={a.done} total={st.goal} unit={st.goal === 1 ? 'salida' : 'salidas'} lap={lap}>
                 <div>
                   <span className="disp">{fmt(a.km)}</span>
                   <small>

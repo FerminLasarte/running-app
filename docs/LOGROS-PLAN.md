@@ -154,6 +154,30 @@ olímpica (`cat: 'egg'`, solo cuando se ganan). Cada categoría nueva necesita s
   Semana y un grupo de luces da la vuelta a la pista (`Oval`) al ritmo del 1:59:40 (2:50/km), con un aviso «1:59:40 ·
   Viena, 2019». Con «reducir movimiento», solo el aviso.
 
+**Hecho.** Decisiones al pasarlo:
+
+- **Boceto aprobado:** `design/bocetos/easter-eggs.html` (`#404` y `#kipchoge`; `?tema=`, `?sesion=no`, `?quieto`).
+- **Sin sesión, las direcciones desconocidas llegan al 404** (lo eligió el usuario). El proxy manda al login solo las
+  páginas de la app (`APP_PATHS` en `lib/routes.ts`); lo demás pasa y Next responde 404. Una página nueva de la app se
+  suma a esa lista. Una dirección inexistente adentro de una sección (`/logros/xyz`) sigue pidiendo entrar.
+- **El 404 es estático.** Con `cacheComponents`, leer cookies en el servidor rompía el build de producción. Por eso, si
+  podés volver a la app se mira en el navegador: modo local, cookie de invitado o sesión de Supabase. Mientras tanto,
+  los botones esperan ocultos.
+  - Con sesión: «Volver a tu semana».
+  - Sin sesión: «Ir a la portada» y «Entrar».
+  - Se sacó «Buscar con ⌘K» del boceto, porque fuera del shell no hay paleta.
+- **La pista del 404:** el corredor se mueve con SMIL (`animateMotion`) y la estela se descubre con una máscara.
+  - Con «reducir movimiento», el corredor ya está afuera.
+  - En el celu se ven la salida y el corredor que se va. El «404» pintado queda afuera, porque ya lo dice el título.
+- **Kipchoge, a ritmo real** (lo eligió el usuario):
+  - Escribir la palabra (sin importar mayúsculas ni tildes) cierra la paleta, vuelve a la semana de hoy y la pista de
+    Semana da una vuelta de luces (`lap` en `Oval`, `components/semana/kipchoge.ts`).
+  - Son siete luces verdes. Salen juntas de la llegada y cada una arranca un sesentavo de vuelta después de la
+    anterior.
+  - La de adelante tarda 1:08, con el reloj de la vuelta en el medio. Al llegar la última, sale el aviso «1:59:40 ·
+    Viena, 2019» con el aviso común de la app, no con el del boceto.
+  - Si te vas de Semana a mitad de vuelta, la vuelta se pierde.
+
 ## Tanda 4 · Las actualizaciones, al instante
 
 Hoy el service worker (`public/sw.js`) muestra la página guardada al instante y baja la nueva por detrás: después de

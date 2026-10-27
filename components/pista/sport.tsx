@@ -2,9 +2,9 @@
 /* Piezas de deporte del rediseño «Pista» (estilos en app/styles/components/sport.css): la pista ovalada, el dorsal,
    la pulsera de ritmos, el escudo de trofeo, las piezas de la vitrina (copa, medalla colgada, escudo con pie y caja
    de secreto), la medalla, el reloj de cuenta regresiva y el cronógrafo. */
-import { Fragment, useId, useSyncExternalStore, type ReactNode } from 'react';
+import { Fragment, useEffect, useId, useLayoutEffect, useRef, useState, useSyncExternalStore, type ReactNode, type RefObject } from 'react';
 import type { Icon } from '@phosphor-icons/react';
-import { clamp, fmt, fmtDur, pad } from '@/lib/domain/util';
+import { clamp, fmt, fmtDur, fmtPace, pad } from '@/lib/domain/util';
 import { cssVars, cx } from './util';
 import { Pr } from './controls';
 
@@ -30,14 +30,65 @@ function lanePoint(f: number): [number, number] {
   return [200 - px, py];
 }
 
-/** volumen de la semana contra el plan; `children` reemplaza el número del centro */
-export function Oval({ done, total, unit = 'km', children }: { done: number; total: number; unit?: string; children?: ReactNode }) {
+/* el andarivel 1 en sentido antihorario desde la línea de llegada (arriba, x 58): el camino de las luces de ritmo */
+const L1_PATH = `M58 ${L1.y} A${L1.r} ${L1.r} 0 0 0 58 ${L1.y + L1.h} L${L1.x + L1.w - L1.r} ${L1.y + L1.h} A${L1.r} ${L1.r} 0 0 0 ${L1.x + L1.w - L1.r} ${L1.y} Z`;
+const LIGHTS = 7;
+/** una vuelta de luces de ritmo por el andarivel 1: `sec` lo que tarda; mientras, en el medio corre el reloj.
+    `onEnd` tiene que ser siempre la misma función */
+export interface OvalLap {
+  key: number;
+  sec: number;
+  onEnd: () => void;
+}
+/* las luces salen juntas de la línea de llegada y cada una arranca un sesentavo de vuelta después de la anterior:
+   el grupo con su estela. Todas tardan `sec` en dar la vuelta; la última llega `LAG` después */
+const GAP = 1 / 60,
+  LAG = (LIGHTS - 1) * GAP;
+const lightTimes = (i: number) => {
+  const a = (i * GAP) / (1 + LAG),
+    b = (i * GAP + 1) / (1 + LAG);
+  return i ? { keyTimes: `0;${a};${b};1`, keyPoints: '0;0;1;1' } : { keyTimes: `0;${b};1`, keyPoints: '0;1;1' };
+};
+function LapClock({ lap, svg }: { lap: OvalLap; svg: RefObject<SVGSVGElement | null> }) {
+  const [t, setT] = useState(0);
+  const { key, sec, onEnd } = lap;
+  /* antes de dibujar: si no, las luces se verían un instante en la esquina */
+  useLayoutEffect(() => {
+    svg.current?.querySelectorAll<SVGAnimationElement>('.p-oval-lights animateMotion').forEach((m) => m.beginElement());
+  }, [key, svg]);
+  useEffect(() => {
+    const t0 = performance.now(),
+      tick = setInterval(() => {
+        const s = (performance.now() - t0) / 1000;
+        setT(Math.min(sec, s));
+        if (s >= sec * (1 + LAG)) {
+          clearInterval(tick);
+          onEnd();
+        }
+      }, 100);
+    return () => clearInterval(tick);
+  }, [key, sec, onEnd]);
+  return (
+    <div className="p-oval-lap">
+      <span className="disp">
+        {Math.floor(t / 60)}:{pad(Math.floor(t % 60))},{Math.floor((t * 10) % 10)}
+      </span>
+      <small>
+        <b>{fmtPace((sec / 400) * 1000)}/km</b> · 400 m
+      </small>
+    </div>
+  );
+}
+
+/** volumen de la semana contra el plan; `children` reemplaza el número del centro. Con `lap`, una vuelta de luces */
+export function Oval({ done, total, unit = 'km', lap, children }: { done: number; total: number; unit?: string; lap?: OvalLap; children?: ReactNode }) {
+  const svg = useRef<SVGSVGElement>(null);
   const chk = useId(),
     pct = total > 0 ? clamp((done / total) * 100, 0, 100) : 0,
     [rx, ry] = lanePoint(pct / 100);
   return (
     <div className="p-oval">
-      <svg viewBox="0 0 200 116" role="img" aria-label={`${fmt(done)} de ${fmt(total)} ${unit}`}>
+      <svg ref={svg} viewBox="0 0 200 116" role="img" aria-label={`${fmt(done)} de ${fmt(total)} ${unit}`}>
         <defs>
           <pattern id={chk} width="4" height="4" patternUnits="userSpaceOnUse">
             <rect width="4" height="4" fill="#fff" />
@@ -58,9 +109,18 @@ export function Oval({ done, total, unit = 'km', children }: { done: number; tot
             <circle className="runner" cx={rx} cy={ry} r="4.2" fill="var(--surface)" stroke="var(--acc)" strokeWidth="2.4" />
           </>
         ) : null}
+        {lap ? (
+          <g className="p-oval-lights" key={lap.key}>
+            {Array.from({ length: LIGHTS }, (_, i) => (
+              <circle key={i} r={i ? 3 : 3.6} opacity={1 - i * 0.11}>
+                <animateMotion dur={lap.sec * (1 + LAG) + 's'} begin="indefinite" fill="freeze" path={L1_PATH} calcMode="linear" {...lightTimes(i)} />
+              </circle>
+            ))}
+          </g>
+        ) : null}
       </svg>
       <div className="p-oval-c" aria-hidden="true">
-        {children ?? (
+        {lap ? <LapClock key={lap.key} lap={lap} svg={svg} /> : children ?? (
           <div>
             <span className="disp">{fmt(done)}</span>
             <small>

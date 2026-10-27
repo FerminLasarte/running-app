@@ -54,6 +54,7 @@ import { shoeAdd } from '@/components/ajustes/actions';
 import { openImport } from '@/components/ajustes/Datos';
 import { SECTIONS, goSection, lastQuery } from './sections';
 import { useStravaStatus } from './useStravaStatus';
+import { isKip, kipchoge } from '@/components/semana/kipchoge';
 
 export const openPalette = () => setUi('palette', true);
 export const closePalette = () => setUi('palette', false);
@@ -257,6 +258,12 @@ function PaletteBox() {
           autoFocus
           value={q}
           onChange={(e) => {
+            /* el easter egg: la palabra sola cierra la paleta y larga las luces en la semana */
+            if (isKip(e.target.value)) {
+              closePalette();
+              kipchoge();
+              return;
+            }
             setQ(e.target.value);
             setAct(0);
           }}
