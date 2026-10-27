@@ -2,7 +2,8 @@
 /* Gráficos del rediseño «Pista» en SVG (estilos en app/styles/components/charts.css). Se arman por piezas dentro de
    un `Chart`: grilla y eje Y, marcas del eje X, líneas, barras apiladas, puntos y la lectura del punto elegido.
    Todo en las coordenadas del viewBox: las escalas (`lin`) pasan de datos a esas coordenadas.
-   Con `useCursor` el gráfico se recorre con el mouse o, con el foco, con las flechas. */
+   Con `useCursor` el gráfico se recorre con el mouse o, con el foco, con las flechas; con `table`, «Ver tabla» abre
+   los mismos datos en una tabla. */
 import { useId, useState, type KeyboardEvent, type PointerEvent, type ReactNode } from 'react';
 import { cssVars, cx } from './util';
 
@@ -42,11 +43,59 @@ export function useCursor(xs: number[], w: number) {
 }
 export type Cursor = ReturnType<typeof useCursor>['cursor'];
 
+/** los datos de un gráfico en filas: la primera columna es el rótulo (semana, fecha) y el resto, números */
+export interface ChartTable {
+  head: string[];
+  rows: ReactNode[][];
+}
+
+/** «Ver tabla» debajo del gráfico: la tabla se arma recién al abrirla (hay gráficos con cientos de puntos) */
+function ChartTableView({ t, label }: { t: ChartTable; label: string }) {
+  const [open, setOpen] = useState(false);
+  return (
+    <details className="p-chart-tbl" onToggle={(e) => setOpen(e.currentTarget.open)}>
+      <summary>Ver tabla</summary>
+      {open ? (
+        <div className="tw">
+          <table aria-label={label}>
+            <thead>
+              <tr>
+                {t.head.map((h, j) => (
+                  <th key={j} scope="col" className={j ? 'r' : undefined}>
+                    {h}
+                  </th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {t.rows.map((r, i) => (
+                <tr key={i}>
+                  {r.map((c, j) =>
+                    j ? (
+                      <td key={j} className="r">
+                        {c}
+                      </td>
+                    ) : (
+                      <th key={j} scope="row">
+                        {c}
+                      </th>
+                    ),
+                  )}
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      ) : null}
+    </details>
+  );
+}
+
 /**
  * el lienzo: `w`×`h` es el viewBox. `label` describe el gráfico; con `cursor`, se recorre y `live` (el texto del punto
- * elegido) se anuncia a los lectores de pantalla.
+ * elegido) se anuncia a los lectores de pantalla. Con `table`, abajo va «Ver tabla» con los mismos datos.
  */
-export function Chart({ w, h, label, cursor, live, className, children }: { w: number; h: number; label: string; cursor?: Cursor; live?: string; className?: string; children: ReactNode }) {
+export function Chart({ w, h, label, cursor, live, table, className, children }: { w: number; h: number; label: string; cursor?: Cursor; live?: string; table?: ChartTable; className?: string; children: ReactNode }) {
   return (
     <div className={cx('p-chart', className)}>
       <svg viewBox={`0 0 ${w} ${h}`} role={cursor ? 'group' : 'img'} aria-label={label} aria-roledescription={cursor ? 'gráfico' : undefined} {...cursor}>
@@ -57,6 +106,7 @@ export function Chart({ w, h, label, cursor, live, className, children }: { w: n
           {live}
         </span>
       ) : null}
+      {table && table.rows.length ? <ChartTableView t={table} label={label} /> : null}
     </div>
   );
 }

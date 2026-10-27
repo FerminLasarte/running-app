@@ -2,15 +2,13 @@
 /* Estado físico, fatiga y forma (la serie de formSeries): los tres números y el gráfico que se recorre con el mouse o
    con las flechas. Los usan Semana (12 semanas) y Análisis → Forma y carga (el período, con las fases del plan y la
    proyección hasta la carrera): salen de la misma serie, así que dan lo mismo en las dos pantallas. */
-import type { FormPoint } from '@/lib/domain/analysis';
+import { formState, type FormPoint } from '@/lib/domain/analysis';
 import { isoWeek } from '@/lib/domain/util';
 import { Kpis } from './structure';
 import { Chart, GridY, Guide, LabelsX, Line, Tip, lin, useCursor, type Pt } from './charts';
 
 const sign = (v: number) => (v > 0 ? '+' : v < 0 ? '−' : '±') + Math.abs(v);
 const tsbColor = (v: number) => (v >= 0 ? 'var(--pos)' : 'var(--t-tempo)');
-/** cómo está la forma según el balance de carga (TSB) */
-const formLabel = (t: number) => (t < -20 ? 'Muy cargado' : t < -8 ? 'Cargado' : t < 6 ? 'Equilibrado' : t < 18 ? 'Fresco' : 'Muy descansado');
 
 /** una muestra por semana de la serie diaria, la última es `F[end]` (hoy, si no se dice otra cosa) */
 export function weeklyOf(F: FormPoint[], n: number, end = F.length - 1) {
@@ -39,7 +37,7 @@ export function FormKpis({ F, pts }: { F: FormPoint[]; pts: FormPoint[] }) {
           ),
         },
         { label: 'Fatiga', value: Math.round(L.atl), note: sign(dAtl) + ' en 7 días' },
-        { label: 'Forma', value: sign(tsb), color: tsb < 0 ? 'var(--t-tempo)' : 'var(--pos)', note: formLabel(L.tsb) },
+        { label: 'Forma', value: sign(tsb), color: tsb < 0 ? 'var(--t-tempo)' : 'var(--pos)', note: formState(L.tsb).t },
       ]}
     />
   );
@@ -111,12 +109,30 @@ export function FormChart({
   /* la proyección arranca en hoy, para que la línea siga sin cortes */
   const pl = P.length ? [L, ...P] : [];
   const every = Math.max(1, Math.ceil(all.length / labels));
+  /* el rótulo de la muestra k: una semana (de la proyección, si viene después de hoy) o el día de la carrera */
+  const raceAt = (k: number) => !!race && P.length > 0 && k === all.length - 1,
+    headOf = (k: number) => (raceAt(k) ? race!.name + ' · el día' : 'Semana ' + isoWeek(all[k].d) + (k >= n ? ' · proyección' : ''));
   const isProj = c >= n,
-    isRace = !!race && P.length > 0 && c === all.length - 1,
-    head = isRace ? race!.name + ' · el día' : 'Semana ' + isoWeek(S.d) + (isProj ? ' · proyección' : '');
+    isRace = raceAt(c),
+    head = headOf(c);
   const live = `${head}: estado ${Math.round(S.ctl)}, fatiga ${Math.round(S.atl)}, forma ${sign(Math.round(S.tsb))}`;
   return (
-    <Chart w={w} h={h} label={label} cursor={cursor} live={sel != null ? live : undefined}>
+    <Chart
+      w={w}
+      h={h}
+      label={label}
+      cursor={cursor}
+      live={sel != null ? live : undefined}
+      table={{
+        head: ['Semana', 'Estado', 'Fatiga', 'Forma'],
+        rows: all.map((p, k) => [
+          headOf(k),
+          Math.round(p.ctl),
+          Math.round(p.atl),
+          sign(Math.round(p.tsb)),
+        ]),
+      }}
+    >
       {phases?.map((ph) => {
         const a = Math.max(M.l, X(ph.t0)),
           b = Math.min(w - M.r, X(ph.t1));

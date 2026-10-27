@@ -58,6 +58,19 @@ export const formSeries = memoData(function formSeries(): FormPoint[] | null {
   return out;
 });
 
+/** cómo está la forma (frescura) según su valor, con el rótulo y la frase del original (línea 4223) */
+export function formState(tsb: number) {
+  return tsb < -20
+    ? { t: 'Muy cargado', x: 'Venís acumulando más de lo que asimilás. Una semana más liviana te haría bien.' }
+    : tsb < -8
+      ? { t: 'Cargado', x: 'Zona normal de bloque de entrenamiento: cansado pero productivo.' }
+      : tsb < 6
+        ? { t: 'Equilibrado', x: 'Buen punto para entrenar bien sin acumular fatiga de más.' }
+        : tsb < 18
+          ? { t: 'Fresco', x: 'Descansado: el estado ideal para competir.' }
+          : { t: 'Muy descansado', x: 'Hace varios días que entrenás poco; la forma empieza a bajar.' };
+}
+
 /** km a ritmo fuerte de una sesión de calidad: «8x600 m» en la nota, o el 40% de la sesión */
 export function hardKm(x: DoneSession) {
   const r = x.result;
@@ -82,6 +95,23 @@ export const medOf = (a: number[]): number | null => {
     n = s.length;
   return n ? (n % 2 ? s[(n - 1) / 2] : (s[n / 2 - 1] + s[n / 2]) / 2) : null;
 };
+
+/** las salidas que sirven para medir tu corazón (línea 4241 del original): fondos y regenerativos con FC media de 110 o
+    más, de 3 km o más, a un ritmo entre 4:00 y 9:30/km y sin caminatas (bajan la FC y ensucian la comparación). Con 6
+    o más, sin los valores muy raros (fuera de 1,5 veces el rango intercuartil: por ejemplo, un sensor que marcó mal) */
+export function easyHrRuns() {
+  const R = effPoints().filter((e) => {
+    const r = e.s.result,
+      p = r.timeSec / r.distKm;
+    return r.hrAvg! >= 110 && r.distKm >= 3 && p >= 240 && p <= 570 && !/camin/i.test(r.notes || '');
+  });
+  if (R.length < 6) return R;
+  const s = R.map((q) => q.v).sort((a, b) => a - b),
+    q1 = s[Math.floor(s.length * 0.25)],
+    q3 = s[Math.floor(s.length * 0.75)],
+    iq = q3 - q1;
+  return R.filter((q) => q.v >= q1 - 1.5 * iq && q.v <= q3 + 1.5 * iq);
+}
 
 /* tendencia robusta (Theil–Sen): la mediana de las pendientes entre todos los pares de salidas */
 export function efTrend(R: { t: number; ef: number }[]): (d: number) => number {
@@ -144,8 +174,8 @@ export const paceTrends = memoData(function paceTrends(from: string): PaceTrend[
   }).filter((q) => q.pts.length);
 });
 
-/** FC de referencia: la mediana de la FC de tus fondos y regenerativos, redondeada a 5 */
-export function refHr(P = effPoints()) {
+/** FC de referencia: la mediana de la FC de tus fondos y regenerativos (los de easyHrRuns), redondeada a 5 */
+export function refHr(P = easyHrRuns()) {
   const m = medOf(P.map((e) => e.s.result.hrAvg!));
   return m == null ? null : Math.round(m / 5) * 5;
 }
@@ -159,10 +189,10 @@ export interface HrPace {
   first: number;
   last: number;
 }
-/** tu corazón: el ritmo que te sale a tu FC habitual, desde la primera salida con FC (sale de effPoints: metros por
+/** tu corazón: el ritmo que te sale a tu FC habitual, desde la primera salida con FC (sale de easyHrRuns: metros por
     minuto por latido). Con menos de 4 salidas, null */
 export const hrPace = memoData(function hrPace(): HrPace | null {
-  const P = effPoints(),
+  const P = easyHrRuns(),
     hr = refHr(P);
   if (hr == null || P.length < 4) return null;
   const pace = (ef: number) => 60000 / (ef * hr);

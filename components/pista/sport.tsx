@@ -261,11 +261,12 @@ export function Countdown({ to, parts }: { to?: Date; parts?: (now: number) => n
 }
 
 /* ---- cronógrafo de 60 marcas ---- */
-/** de 0 a 100; las marcas en tartán llegan hasta el valor. `children` va debajo del número (de 100 · faltan…) */
-export function Chrono({ value, children }: { value: number; children?: ReactNode }) {
-  const on = Math.round((clamp(value, 0, 100) / 100) * 60);
+/** de 0 a 100 (null: sin puntaje, con una raya); las marcas en tartán llegan hasta el valor. `children` va debajo del
+    número (de 100 · faltan…) */
+export function Chrono({ value, children }: { value: number | null; children?: ReactNode }) {
+  const on = Math.round((clamp(value ?? 0, 0, 100) / 100) * 60);
   return (
-    <div className="p-chrono" role="img" aria-label={`${Math.round(value)} de 100`}>
+    <div className="p-chrono" role="img" aria-label={value == null ? 'Sin puntaje' : `${Math.round(value)} de 100`}>
       <svg viewBox="0 0 200 200" aria-hidden="true">
         {Array.from({ length: 60 }, (_, k) => {
           const a = (k / 60) * Math.PI * 2 - Math.PI / 2,
@@ -287,7 +288,7 @@ export function Chrono({ value, children }: { value: number; children?: ReactNod
       </svg>
       <div className="c" aria-hidden="true">
         <div>
-          <span className="disp">{Math.round(value)}</span>
+          <span className="disp">{value == null ? '–' : Math.round(value)}</span>
           {children ? <small>{children}</small> : null}
         </div>
       </div>
