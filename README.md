@@ -100,3 +100,4 @@ con datos de ejemplo»).
 - `docs/REDISENO.md` y `docs/REDISENO-PLAN.md`: el rediseño «Pista», qué se decidió y cómo se hizo. Los bocetos están
   en `design/bocetos/` (se sirven con la configuración `bocetos` de `.claude/launch.json`).
 - `docs/ARREGLOS-PLAN.md`: lo que se perdió del original al rehacer las pantallas, ordenado en tandas.
+- `docs/APERTURA-PLAN.md`: lo que hace falta para abrir la app al público, sin activar Strava ni la IA.
