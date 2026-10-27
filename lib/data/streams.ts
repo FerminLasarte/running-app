@@ -1,10 +1,11 @@
-/* Las series de Strava de una sesión hecha, para el gráfico del detalle: se leen de la tabla `streams` y, la primera
-   vez, se piden a Strava (get_activity_streams) y se guardan ahí. Mientras la app está abierta quedan en memoria.
+/* Las series de Strava de una sesión hecha, para el gráfico del detalle, con las vueltas del reloj: se leen de la tabla
+   `streams` y, la primera vez, se piden a Strava (get_activity_streams y get_activity_performance) y se guardan ahí.
+   Mientras la app está abierta quedan en memoria.
    Sin cuenta en la nube (modo local) o con los datos de ejemplo no hay a quién pedírselas. */
 import { S, getUi, setUi, type AppState } from '@/lib/store';
 import { supabaseBrowser } from '@/lib/supabase/client';
 import { runActs, svCall, stravaErrMsg, type ListActivitiesPayload, type RunAct } from '@/lib/strava/client';
-import { compactStreams, type Series } from '@/lib/domain/streams';
+import { compactStreams, watchLaps, type Series, type Split } from '@/lib/domain/streams';
 import type { Session } from '@/lib/domain/types';
 
 export type StreamsState =
@@ -42,6 +43,24 @@ async function findRun(date: string, km: number): Promise<RunAct | null> {
   return null;
 }
 
+/** suma las vueltas del reloj a las series y las guarda. Si Strava no las da, quedan las series solas y las vueltas se
+    piden la próxima vez; `saved`: las series ya estaban en la tabla */
+async function saveWithLaps(s: Session, key: string, sid: string, se: Series, saved: boolean) {
+  let laps: Split[] | null = null;
+  try {
+    laps = watchLaps(await svCall('get_activity_performance', { activity_id: sid }));
+    put(key, { k: 'ok', se: { ...se, laps } });
+  } catch (e) {
+    console.warn('No se trajeron las vueltas de Strava:', stravaErrMsg(e));
+  }
+  if (saved && !laps) return;
+  /* si no se puede guardar (por ejemplo, la sesión todavía no llegó a la nube), se vuelve a pedir la próxima vez */
+  const { error } = await supabaseBrowser()
+    .from('streams')
+    .upsert({ user_id: S.uid, session_id: s.id, strava_id: sid, data: laps ? { ...se, laps } : se });
+  if (error) console.warn('No se guardaron las series de Strava:', error.message);
+}
+
 /** trae las series de una sesión hecha (de la tabla o de Strava) y deja el estado en memoria; `retry` vuelve a probar */
 export async function loadStreams(s: Session, retry = false) {
   const key = keyOf(s),
@@ -54,15 +73,19 @@ export async function loadStreams(s: Session, retry = false) {
   try {
     const sb = supabaseBrowser();
     const { data: row } = await sb.from('streams').select('strava_id,data').eq('session_id', s.id).maybeSingle();
-    if (row && (!r.sid || String(r.sid) === row.strava_id)) return put(key, { k: 'ok', se: row.data as Series });
+    if (row && (!r.sid || String(r.sid) === row.strava_id)) {
+      const se = row.data as Series;
+      put(key, { k: 'ok', se });
+      /* las guardadas antes de que se pidieran las vueltas se completan una vez */
+      if (!se.laps) await saveWithLaps(s, key, row.strava_id, se, true);
+      return;
+    }
     const sid = r.sid ? String(r.sid) : (await findRun(r.date, r.distKm))?.id;
     if (!sid) return put(key, { k: 'off', why: 'missing' });
     const se = compactStreams(await svCall('get_activity_streams', { activity_id: sid, streams: [...KEYS] }));
     if (!se) return put(key, { k: 'off', why: 'empty' });
     put(key, { k: 'ok', se });
-    /* si no se puede guardar (por ejemplo, la sesión todavía no llegó a la nube), se vuelve a pedir la próxima vez */
-    const { error } = await sb.from('streams').upsert({ user_id: S.uid, session_id: s.id, strava_id: sid, data: se });
-    if (error) console.warn('No se guardaron las series de Strava:', error.message);
+    await saveWithLaps(s, key, sid, se, false);
   } catch (e) {
     const code = e && typeof e === 'object' && 'code' in e ? String((e as { code: unknown }).code) : 'error';
     put(key, { k: 'err', code, msg: stravaErrMsg(e) });

@@ -30,8 +30,11 @@ import { LapsPanel } from './LapsPanel';
 import { FeelPanel, RoutePanel, ZonesPanel } from './SidePanels';
 import { ScoreHead, ScoreParts } from './ScoreBreakdown';
 
-/** el título: las repeticiones («3 × 3 km») o la distancia */
-const titleOf = (s: Session) => ((s.plan?.steps || []).some(isRep) && briefOf(s)) || fmt(kmOf(s), 1) + ' km';
+/** el título: las repeticiones («3 × 3 km»), la distancia o, en un plan solo por tiempo, los minutos */
+function titleOf(s: Session) {
+  const km = kmOf(s);
+  return ((s.plan?.steps || []).some(isRep) && briefOf(s)) || (!km && s.plan?.durMin ? fmt(s.plan.durMin, 0) + ' min' : fmt(km, 1) + ' km');
+}
 const longDate = (d: string) => cap(DF_LONG.format(pd(d)).replace(',', ''));
 
 /** el ritmo objetivo del trabajo: el del primer tramo con ritmo, o el del plan */
@@ -48,17 +51,18 @@ function doneKpis(s: Session): Kpi[] {
     planKm = planKmOf(s),
     main = !!(r.mainPaceSec && p?.steps),
     tgt = paceTgt(s),
-    sc = scoreSession(s)?.score;
+    sc = scoreSession(s)?.score,
+    avg = 'promedio ' + fmtPace(r.paceSec);
   const dec: Kpi =
     r.dec?.p != null
       ? { label: 'Deriva cardíaca', value: fmt(r.dec.p, 1), unit: '%', note: decBand({ p: r.dec.p }).t }
       : decEligible(s)
-        ? { label: 'Deriva cardíaca', value: '–', note: 'Sin medir: se calcula en Análisis' }
+        ? { label: 'Deriva cardíaca', value: '–', note: r.dec?.na ? 'No se pudo medir' : 'Sin medir: se calcula en Análisis' }
         : { label: 'Sensación', value: r.feel || '–', unit: r.feel ? '/10' : undefined, note: r.pain ? 'Con molestia' : 'Sin molestias' };
   return [
     { label: 'Distancia', value: fmt(r.distKm, 2), unit: 'km', note: planKm ? 'Plan ' + fmt(planKm, 1) + ' km' : undefined },
     { label: 'Tiempo', value: fmtDur(r.timeSec), note: p?.durMin ? 'Plan ' + fmt(p.durMin, 0) + ' min' : undefined },
-    { label: main ? 'Ritmo en tramos' : 'Ritmo', value: fmtPace(main ? r.mainPaceSec! : r.paceSec), unit: '/km', note: tgt ? 'Objetivo ' + tgt : main ? 'Promedio ' + fmtPace(r.paceSec) : undefined },
+    { label: main ? 'Ritmo en tramos' : 'Ritmo', value: fmtPace(main ? r.mainPaceSec! : r.paceSec), unit: '/km', note: tgt ? 'Objetivo ' + tgt + (main ? ' · ' + avg : '') : main ? cap(avg) : undefined },
     { label: 'FC media', value: r.hrAvg || '–', unit: r.hrAvg ? 'lpm' : undefined, note: r.hrAvg ? zoneOf(r.hrAvg) + (r.hrMax ? ' · máx ' + r.hrMax : '') : undefined },
     dec,
     {
@@ -70,6 +74,8 @@ function doneKpis(s: Session): Kpi[] {
             <Ticks value={sc} />
             {bandOf(sc).t}
           </span>
+        ) : p ? (
+          'Nada que medir en el plan'
         ) : (
           'Sin plan para comparar'
         ),
@@ -183,9 +189,9 @@ function Done({ s }: { s: Session }) {
         <div className="p-rise" style={cssVars({ '--i': 3 })}>
           <LapsPanel s={s} se={se} />
         </div>
-        {sc?.score != null ? (
+        {sc ? (
           <div className="p-rise" style={cssVars({ '--i': 4 })}>
-            <Panel title="Puntaje" sub="Contra el plan">
+            <Panel title="Puntaje" sub={s.plan ? 'Contra el plan' : undefined}>
               <ScoreHead sc={sc} />
               <ScoreParts sc={sc} />
             </Panel>

@@ -158,6 +158,43 @@ Decidido por el usuario: SES-01 vuelve a las vueltas del reloj.
 - **SES-10 · Color del Δ.** Ir más rápido que el rango sale en verde aunque el puntaje lo penalice
   (`components/pista/controls.tsx:58-61`, usado en `LapsPanel.tsx:31`). Que el Δ fuera de rango no sea «bueno».
 
+Hecho. Decisiones al pasarlo:
+
+- **SES-01.** Las vueltas van en el JSON de `streams`, en `Series.laps` (sin migración): `saveWithLaps`
+  (`lib/data/streams.ts`) pide `get_activity_performance` después de las series y guarda todo junto. Las filas que ya
+  estaban guardadas sin `laps` se completan una vez al abrir la sesión; si Strava no da las vueltas, quedan las series
+  solas y se vuelven a pedir la próxima vez (`laps: []` quiere decir «ya se pidieron y no hay»). Se piden también en
+  las sesiones con etapas, aunque ahí sigue la tabla plan contra real. `watchLaps` (`lib/domain/streams.ts`) usa la
+  misma forma que los parciales por km (`Split`) y deja afuera las vueltas de menos de 50 m, como el original.
+  `markedLaps` decide si el reloj marcó: con una sola vuelta, o todas iguales (±3 %, la última puede ser más corta:
+  las automáticas de 1 km o de 1 milla), quedan los parciales por km. El panel se llama «Vueltas · Las que marcó tu
+  reloj», con distancia, tiempo, ritmo y FC; la más rápida de 500 m o más va resaltada, las más cortas en gris, hasta
+  40, y abajo primera mitad contra segunda si casi todas son de 1 km.
+- **SES-02.** La columna «Objetivo» pasó a ser «Plan»: la distancia o el tiempo del tramo (`stepDesc`) y, abajo y
+  más chico, el objetivo (`stepTgt`), como en el original. La FC máxima va debajo de la media, en la misma celda: con
+  dos columnas más la tabla no entraba a 1440 px. En el celu, la línea chica no va. La tabla ya se pasaba unos 20 px
+  en el celu antes del cambio (por «Calentamiento»), y sigue igual.
+- **SES-03.** La nota dice «Objetivo 4:10–4:20 · promedio 5:12»; sin objetivo, «Promedio 5:12» como antes.
+- **SES-04.** Con `dec.na`: «No se pudo medir». Sin `dec`, sigue «Sin medir: se calcula en Análisis», que es cierto
+  (`decBackfill` toma los fondos sin `dec`).
+- **SES-05.** El panel «Puntaje» sale siempre que `scoreSession` da algo: sin número, con las notas. El número dice
+  «Sin plan para comparar» en una libre y «Nada que medir en el plan» si hay plan. Una series con etapas en el plan
+  cargada como total (sin etapas) cae acá: el puntaje sale de `scoreFlat`, como en el original.
+- **SES-06.** Una sesión sin plan con repeticiones en las notas muestra el panel «Repeticiones · Los tiempos de tus
+  notas».
+- **SES-09.** Si no hay km y el plan tiene `durMin`, el título dice «45 min». Los planes por tramos de tiempo ya
+  daban km estimados y no cambian.
+- **SES-10.** `Delta` no se tocó: es para tiempos donde menos es mejor (carreras, Análisis → Volumen), y ahí está
+  bien. El Δ del detalle (`deltaOf` en `LapsPanel.tsx`) se pinta como lo cuenta el puntaje: dentro del rango en gris,
+  afuera en rojo para los dos lados, el de ritmo y el de FC. En modo «No me siento al 100%», ir más lento o con la FC
+  más baja no resta y queda en gris.
+- Probado en local con datos de prueba y Strava simulado (`/api/strava/*` reemplazado en la página y, solo para la
+  prueba, `loadStreams` pidiendo a Strava sin pasar por Supabase): una series de 6×800 cargada como total muestra 13
+  vueltas con ritmo y FC (la pausa parada de 10 m no aparece); unas vueltas automáticas de 1 km dejan los parciales
+  por km; el resto con sesiones armadas a mano, en escritorio y celu, y sin datos. **Para tildar después del deploy:**
+  abrir con Strava de verdad una series cargada como total (que se vean las vueltas), una salida vieja que ya tenía
+  las series guardadas (que se completen las vueltas una sola vez) y un fondo con vueltas automáticas.
+
 ### Tanda 4 · Análisis y Registro
 
 Decidido por el usuario: ANA-01 y ANA-02 se arreglan.

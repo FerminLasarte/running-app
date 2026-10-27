@@ -45,6 +45,8 @@
   .ses-lap.main { font-weight: 600; }
   .ses-sub { padding-left: 18px; font-size: 12px; }
   .ses-strong { color: var(--ink); font-weight: 600; }
+  .ses-two { display: inline-grid; justify-items: end; gap: 3px; line-height: 1.1; }
+  .ses-two small { color: var(--ink-3); font-size: 11px; }
   .ses-rep { font: italic 900 16px/1 var(--f-disp); font-stretch: 64%; text-transform: uppercase; letter-spacing: .02em; }
   .ses .p-tbl tr.grp td { padding-top: 14px; }
   .ses-foot { display: grid; gap: 6px; padding: 14px 16px 16px; border-top: 1px solid var(--line); color: var(--ink-2); font-size: 13px; line-height: 1.55; }
