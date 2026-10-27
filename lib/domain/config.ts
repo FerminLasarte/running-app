@@ -56,17 +56,26 @@ export const racePaceSec = (r: Pick<Race, 'targetSec' | 'km' | 'lt'>) => {
 
 /* ---- carreras: la app siempre trabaja con la próxima ---- */
 export const racesSorted = () => S.cfg.races.slice().sort((a, b) => a.date.localeCompare(b.date));
+/** «ya corrida»: pasó el día, o es hoy y ya cargaste tu tiempo (así la de hoy pasa al medallero esa misma noche) */
+export const raceRun = (r: Race, t = todayS()) => r.date < t || (r.date === t && (r.resultSec || 0) > 0);
 export const upcomingRaces = () => {
   const t = todayS();
-  return racesSorted().filter((r) => r.date >= t);
+  return racesSorted().filter((r) => !raceRun(r, t));
 };
 export const nextRace = (): Race | null => upcomingRaces()[0] || null;
 export const pastRaces = () => {
   const t = todayS();
   return racesSorted()
-    .filter((r) => r.date < t)
+    .filter((r) => raceRun(r, t))
     .reverse();
 };
+/** la largada en ms (sin hora, el arranque del día) */
+export const raceStart = (r: Pick<Race, 'date' | 'time'>) => {
+  const tm = (r.time || '0:00').split(':');
+  return pd(r.date).getTime() + (+tm[0] * 60 + +tm[1]) * 6e4;
+};
+/** se puede cargar tu tiempo: ya corrida, o es hoy y ya largó (sin hora, todo el día) */
+export const resultOpen = (r: Race, now = Date.now()) => raceRun(r) || (r.date === todayS() && now >= raceStart(r));
 /* ritmo de referencia para plantillas y ritmos: la próxima carrera corta, o el 10K más cercano en el tiempo */
 export function refRace(): Race {
   const up = upcomingRaces(),

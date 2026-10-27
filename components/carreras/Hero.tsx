@@ -1,17 +1,18 @@
 'use client';
 /* El estadio de Carreras: la próxima con su reloj de largada (en días de calendario, como el dorsal de Semana), el
    objetivo, lo que darías hoy (lo mismo que Análisis → «Si corrieras hoy»), tu mejor marca en la distancia y, al
-   costado, la pulsera de ritmos del escenario elegido. */
+   costado, la pulsera de ritmos del escenario elegido. El día de la carrera, desde la largada, «Cargar mi tiempo». */
 import { MapPin, Ruler } from '@phosphor-icons/react';
+import { editRace } from '@/lib/data/actions';
 import type { Race } from '@/lib/domain/types';
-import { racePaceSec } from '@/lib/domain/config';
+import { racePaceSec, resultOpen } from '@/lib/domain/config';
 import { lvPace, lvTimeAt } from '@/lib/domain/level';
 import { bestAt, MARK_DISTS } from '@/lib/domain/marks';
 import { bandRows, raceClock, type RaceScen, type RaceStrategy } from '@/lib/domain/race';
 import { dayLong, fmtDur, fmtPace, pd } from '@/lib/domain/util';
-import { Countdown, PaceBand } from '@/components/pista/sport';
+import { Countdown, PaceBand, useNowSec } from '@/components/pista/sport';
 import { BrandTitle, Stadium } from '@/components/pista/structure';
-import { Chip } from '@/components/pista/controls';
+import { Button, Chip } from '@/components/pista/controls';
 import { fitWords } from '@/components/pista/util';
 import { bandProps, gapTxt, kmLabel } from './util';
 
@@ -49,6 +50,20 @@ function Goal({ race }: { race: Race }) {
   );
 }
 
+/** aparece sola al llegar la hora de largada (sin hora, todo el día); con tu tiempo cargado la carrera pasa al
+    medallero y el estadio, a la siguiente */
+function ResultBtn({ race }: { race: Race }) {
+  const now = useNowSec();
+  if (now == null || !resultOpen(race, now * 1000)) return null;
+  return (
+    <div className="car-res">
+      <Button variant="acc" arrow onClick={() => editRace(race.id)}>
+        Cargar mi tiempo
+      </Button>
+    </div>
+  );
+}
+
 export function Hero({ race, sel, st }: { race: Race; sel: RaceScen | null; st: RaceStrategy | null }) {
   const day = dayLong(pd(race.date)) + (race.time ? ' · ' + race.time : '');
   const rows = st ? bandRows(st.splits, race.km > 21.2 ? 5 : 1) : null;
@@ -80,6 +95,7 @@ export function Hero({ race, sel, st }: { race: Race; sel: RaceScen | null; st: 
         </span>
       </div>
       <Countdown parts={(now) => raceClock(race, now)} />
+      <ResultBtn race={race} />
       <Goal race={race} />
     </Stadium>
   );

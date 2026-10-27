@@ -3,7 +3,7 @@
    salidas, el estado vacío del boceto «Primera vez». Lo dibuja el layout, así que al cambiar de pestaña queda igual. */
 import '@/app/styles/screens/analisis.css';
 import type { ReactNode } from 'react';
-import { usePathname } from 'next/navigation';
+import { usePathname, useSearchParams } from 'next/navigation';
 import { CalendarBlank, ChartLineUp } from '@phosphor-icons/react';
 import { useS } from '@/lib/store';
 import { demoOn } from '@/lib/data/actions';
@@ -37,6 +37,7 @@ function Empty({ n, demo }: { n: number; demo: boolean }) {
 export default function Frame({ children }: { children: ReactNode }) {
   const st = useS();
   const pathname = usePathname();
+  const qs = useSearchParams().toString();
   const [per, setPer] = useAnPeriod();
   const n = doneList().length;
   const ok = n >= AN_MIN;
@@ -50,7 +51,7 @@ export default function Frame({ children }: { children: ReactNode }) {
       {ok ? (
         <>
           <div className="an-tabs p-rise" style={cssVars({ '--i': 1 })}>
-            <Tabs items={AN_TABS.map((t) => ({ value: t.value, label: t.label, href: analisisHref(t.value, per) }))} value={tabOf(pathname)} label="Secciones de Análisis" />
+            <Tabs items={AN_TABS.map((t) => ({ value: t.value, label: t.label, href: analisisHref(t.value, qs) }))} value={tabOf(pathname)} label="Secciones de Análisis" />
           </div>
           {children}
         </>

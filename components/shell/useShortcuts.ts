@@ -2,11 +2,11 @@
 /* Atajos de teclado (compu): 1–6 secciones, ← → semana (en Semana), R registrar, P planificar, ⌘K (Ctrl+K) la paleta y
    Esc cierra lo que esté arriba de todo. «/» busca en Registro: está en components/registro/FilterBar.tsx. */
 import { useEffect, useRef } from 'react';
-import { usePathname, useRouter } from 'next/navigation';
+import { usePathname } from 'next/navigation';
 import { S, setS } from '@/lib/store';
 import { openSheet, requestClose } from '@/lib/sheets';
 import { weekGo } from '@/lib/data/actions';
-import { NAV } from './sections';
+import { NAV, goSection } from './sections';
 import { closePalette, openPalette } from './Palette';
 
 /** si la tecla cae en un campo de texto (ahí las letras se escriben, no son atajos) */
@@ -16,7 +16,6 @@ export const typingIn = (t: EventTarget | null) => {
 };
 
 export function useShortcuts() {
-  const router = useRouter();
   const pathname = usePathname();
   const path = useRef(pathname);
   useEffect(() => {
@@ -44,7 +43,7 @@ export function useShortcuts() {
       }
       if (e.ctrlKey || e.metaKey || e.altKey || S.sheet || S.ui.palette || S.ui.celebrate || (map && map.fs) || typingIn(e.target)) return;
       const k = e.key.toLowerCase();
-      if (/^[1-6]$/.test(k)) router.push(NAV[+k - 1].href);
+      if (/^[1-6]$/.test(k)) goSection(NAV[+k - 1]);
       else if (path.current === '/semana' && (k === 'arrowleft' || k === 'arrowright')) weekGo(k === 'arrowleft' ? -1 : 1);
       else if (k === 'r') openSheet('result', { id: null });
       else if (k === 'p') openSheet('plan', {});
@@ -53,5 +52,5 @@ export function useShortcuts() {
     };
     document.addEventListener('keydown', onKey);
     return () => document.removeEventListener('keydown', onKey);
-  }, [router]);
+  }, []);
 }
