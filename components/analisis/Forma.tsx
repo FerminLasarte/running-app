@@ -6,11 +6,11 @@
 import { useS } from '@/lib/store';
 import type { SessionType } from '@/lib/domain/types';
 import { isLong, longTarget, nextRace } from '@/lib/domain/config';
-import { anWeeks, formSeries, type FormPoint } from '@/lib/domain/analysis';
+import { anWeeks, formSeries, formState, type FormPoint } from '@/lib/domain/analysis';
 import { PHASES, blockPlan, longRace } from '@/lib/domain/blocks';
 import { MARK_DISTS } from '@/lib/domain/marks';
 import { formProjection } from '@/lib/domain/projection';
-import { readyItems, readyPts, readyScore, type ReadyKind } from '@/lib/domain/readiness';
+import { READY_MIN, readyItems, readyPts, readyScore, type ReadyKind } from '@/lib/domain/readiness';
 import { deloadInfo, doneList, kmByType, loadInfo } from '@/lib/domain/stats';
 import { raceDateLabel } from '@/lib/domain/week';
 import { DF_WD, addDays, clamp, daysTo, fmt, plural, sod, ymd } from '@/lib/domain/util';
@@ -49,11 +49,12 @@ function ReadyPanel() {
     wks = Math.floor(days / 7),
     I = readyItems(race),
     sc = readyScore(I),
+    withData = I.filter((i) => i.k !== 'na').length,
     when = days === 0 ? 'es hoy' : wks > 0 ? 'faltan ' + plural(wks, 'semana', 'semanas') : 'faltan ' + plural(days, 'día', 'días');
   return (
     <Panel className="p-c5 p-rise" style={cssVars({ '--i': 2 })} title="Preparación" sub={'Para el ' + race.name}>
       <div className="an-ready">
-        <Chrono value={sc ?? 0}>{sc == null ? 'faltan datos' : 'de 100 · ' + when}</Chrono>
+        <Chrono value={sc}>{sc == null ? 'faltan datos · ' + withData + ' de ' + I.length + ' con datos' : 'de 100 · ' + when}</Chrono>
         <ul className="an-factors">
           {I.map((i) => {
             const v = readyPts(i);
@@ -74,7 +75,7 @@ function ReadyPanel() {
       </div>
       <p className="an-foot">
         {days <= 14 && days > 0 ? 'Recta final: no busques más ritmo ni más km. ' : ''}
-        {raceDateLabel(race)}. Cada chequeo en verde suma 100, en amarillo 50 y en rojo 0; el puntaje es el promedio. Los que todavía no tienen datos no cuentan. Son reglas simples sobre tus datos, no una predicción de tu tiempo:{' '}
+        {raceDateLabel(race)}. Cada chequeo en verde suma 100, en amarillo 50 y en rojo 0; el puntaje es el promedio. Los que todavía no tienen datos no cuentan, y el puntaje sale con {READY_MIN} o más con datos. Son reglas simples sobre tus datos, no una predicción de tu tiempo:{' '}
         {isLong(race) ? 'volumen de unos ' + (race.km > 30 ? 45 : 30) + ' km por semana' : 'series cerca del ritmo de carrera'}, tirada larga de al menos {fmt(longTarget(race.km), 0)} km, cumplimiento de 85% o más, carga entre 0,8 y 1,3 y
         deriva bajo 5%.
       </p>
@@ -117,7 +118,14 @@ function DaysChart({ avg }: { avg: number }) {
   const name = (d: Date) => DF_DAYN.format(d).replace('.', '') + ' ' + d.getDate();
   const bars: Bar[] = D.map((q, k) => ({ x: M.l + k * bw + bw * 0.22, w: bw * 0.56, parts: STACK.map((t) => ({ v: q.bt[t] || 0, c: typeColor(t) })) }));
   return (
-    <Chart w={w} h={h} label="Kilómetros de cada uno de los últimos 7 días, contra tu promedio diario de 4 semanas" cursor={cursor} live={Q ? DF_WD.format(Q.d) + ': ' + (Q.km ? fmt(Q.km, 1) + ' km' : 'descanso') : undefined}>
+    <Chart
+      w={w}
+      h={h}
+      label="Kilómetros de cada uno de los últimos 7 días, contra tu promedio diario de 4 semanas"
+      cursor={cursor}
+      live={Q ? DF_WD.format(Q.d) + ': ' + (Q.km ? fmt(Q.km, 1) + ' km' : 'descanso') : undefined}
+      table={{ head: ['Día', 'Km'], rows: D.map((q) => [DF_WD.format(q.d), q.km ? fmt(q.km, 1) : 'descanso']) }}
+    >
       <GridY ticks={ticks} y={Y} x0={M.l} x1={w - M.r} zero />
       <StackedBars bars={bars} y={Y} sel={sel} />
       {D.map((q, k) =>
@@ -222,7 +230,8 @@ function FormFull() {
     if (last && last.n === PHASES[w.ph].n) last.t1 = t0 + 7 * 864e5;
     else phases.push({ t0, t1: t0 + 7 * 864e5, n: PHASES[w.ph].n, c: PHASE_C[w.ph] });
   });
-  const E = proj?.[proj.length - 1];
+  const E = proj?.[proj.length - 1],
+    st = formState(F[F.length - 1].tsb);
   return (
     <Panel
       className="p-c12 p-rise"
@@ -249,6 +258,9 @@ function FormFull() {
     >
       <FormKpis F={F} pts={pts} />
       <div className="p-panel-b">
+        <p className="an-note">
+          <b>{st.t}.</b> {st.x}
+        </p>
         <div className="an-wide">
           <FormChart
           pts={pts}

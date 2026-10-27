@@ -1,7 +1,7 @@
 /* Una sesión real en las piezas «Pista»: su barra de estructura, su descripción corta, las columnas de la tabla de
    sesiones (la misma en Semana y en Registro) y los avisos de una sesión planificada (movida, ritmos recalibrados). */
 import type { Plan, Session, SessionType } from '@/lib/domain/types';
-import { scoreSession } from '@/lib/domain/score';
+import { keyPace, scoreSession } from '@/lib/domain/score';
 import { decBand } from '@/lib/domain/dec';
 import { expand, isRep, stepsBrief } from '@/lib/domain/stages';
 import { hrRangeOf, planKmOf, sdate, stepKm } from '@/lib/domain/stats';
@@ -91,7 +91,7 @@ export const SESSION_COLS: Col<Session>[] = [
   { key: 'sb', label: 'Estructura', hideS: true, className: 'sbc', cell: (s) => <SessionBar s={s} height={16} /> },
   { key: 'km', label: 'Km', num: true, cell: (s) => fmt(kmOf(s), 2) },
   { key: 'tm', label: 'Tiempo', num: true, hideS: true, cell: (s) => (s.result?.timeSec ? fmtDur(s.result.timeSec) : DASH) },
-  { key: 'p', label: 'Ritmo', num: true, cell: (s) => (s.result ? fmtPace(s.result.mainPaceSec || s.result.paceSec) : DASH) },
+  { key: 'p', label: 'Ritmo', num: true, cell: (s) => (s.result ? fmtPace(keyPace(s)) : DASH) },
   { key: 'hr', label: 'FC', num: true, hideS: true, cell: (s) => s.result?.hrAvg || DASH },
   { key: 'f', label: 'Sens.', num: true, hideS: true, cell: (s) => (s.result?.feel ? s.result.feel + '/10' : DASH) },
   { key: 'sc', label: 'Puntaje', num: true, cell: (s) => <ScoreCell s={s} /> },

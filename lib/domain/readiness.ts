@@ -19,10 +19,12 @@ export interface ReadyItem {
 /** puntos de cada chequeo para el puntaje de preparación (decidido: todos pesan igual y los grises no cuentan) */
 export const READY_PTS: Record<Exclude<ReadyKind, 'na'>, number> = { good: 100, warn: 50, crit: 0 };
 export const readyPts = (i: ReadyItem) => (i.k === 'na' ? null : READY_PTS[i.k]);
-/** preparación de 0 a 100: el promedio de los chequeos que tienen datos; null si todos están en gris */
+/** cuántos chequeos con datos hacen falta para dar un puntaje: con uno o dos, el promedio no dice nada */
+export const READY_MIN = 3;
+/** preparación de 0 a 100: el promedio de los chequeos que tienen datos; null con menos de READY_MIN */
 export function readyScore(I: ReadyItem[]) {
   const v = I.map(readyPts).filter((p): p is number => p != null);
-  return v.length ? Math.round(sum(v) / v.length) : null;
+  return v.length >= READY_MIN ? Math.round(sum(v) / v.length) : null;
 }
 
 export function readyItems(race: Race): ReadyItem[] {

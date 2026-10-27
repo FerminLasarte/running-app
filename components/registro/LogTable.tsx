@@ -4,7 +4,7 @@
 import { useMemo, useState } from 'react';
 import { CaretDown } from '@phosphor-icons/react';
 import type { Session } from '@/lib/domain/types';
-import { LG_PAGE, LG_SORTS, lgHm, lgTotals, type LgInfo, type LgSortKey } from '@/lib/domain/log';
+import { LG_PAGE, LG_SORTS, lgHm, lgTotals, lgTxt, type LgInfo, type LgSortKey } from '@/lib/domain/log';
 import { DF_MY, cap, fmt, pd, plural } from '@/lib/domain/util';
 import { sessionHref } from '@/lib/nav';
 import { Button } from '@/components/pista/controls';
@@ -14,7 +14,30 @@ import type { RegFilters } from './filters';
 
 /* las columnas que ordenan, con su clave de orden */
 const SORT_OF: Record<string, LgSortKey> = { d: 'date', km: 'km', tm: 'time', p: 'pace', hr: 'hr', f: 'feel', sc: 'score' };
-const COLS: Col<Session>[] = SESSION_COLS_FULL.map((c) => (SORT_OF[c.key] ? { ...c, sort: SORT_OF[c.key] } : c));
+
+/** la nota de la sesión (o el resumen del plan), recortada en una línea debajo del tipo */
+function Txt({ s }: { s: Session }) {
+  const t = lgTxt(s);
+  return t ? (
+    <small className="reg-txt" title={t}>
+      {t}
+    </small>
+  ) : null;
+}
+const COLS: Col<Session>[] = SESSION_COLS_FULL.map((c) => {
+  const col = SORT_OF[c.key] ? { ...c, sort: SORT_OF[c.key] } : c;
+  return c.key === 't'
+    ? {
+        ...col,
+        cell: (s: Session) => (
+          <>
+            {c.cell(s)}
+            <Txt s={s} />
+          </>
+        ),
+      }
+    : col;
+});
 
 const monthName = (m: string) => cap(DF_MY.format(pd(m + '-15')).replace(' de ', ' '));
 

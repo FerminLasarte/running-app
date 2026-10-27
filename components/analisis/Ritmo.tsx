@@ -4,8 +4,8 @@
    deriva de cada fondo con la línea del 5%. Los números de arriba no dependen del período; los gráficos, sí. */
 import { ArrowsClockwise } from '@phosphor-icons/react';
 import { S, useS, useUi } from '@/lib/store';
-import type { SessionType } from '@/lib/domain/types';
-import { TYPES, refRace } from '@/lib/domain/config';
+import type { Race, SessionType } from '@/lib/domain/types';
+import { TYPES, nextRace, racePaceSec, refRace } from '@/lib/domain/config';
 import { anFrom, hrPace, paceTrends, type HrPace, type PaceTrend } from '@/lib/domain/analysis';
 import { PZ, paceAtV, vdotOf, vdotTime, type PaceZone } from '@/lib/domain/daniels';
 import { DEC_UI0, decBackfill, decBand, decEligible, type DecUi } from '@/lib/domain/dec';
@@ -101,7 +101,13 @@ function Big() {
 }
 
 /* ---- evolución del ritmo ---- */
-function PaceChart({ T, from }: { T: PaceTrend[]; from: string }) {
+/** la carrera de la línea del objetivo, como el original: la próxima si tiene tiempo objetivo, si no la de referencia */
+const goalRace = () => {
+  const nr = nextRace();
+  return nr && nr.targetSec > 0 ? nr : refRace();
+};
+
+function PaceChart({ T, from, race }: { T: PaceTrend[]; from: string; race: Race }) {
   const w = 760,
     h = 420,
     M = { l: 40, r: 48, t: 18, b: 28 },
@@ -109,7 +115,9 @@ function PaceChart({ T, from }: { T: PaceTrend[]; from: string }) {
     t1 = sod(new Date()).getTime(),
     X = lin(t0, t1, M.l, w - M.r),
     all = T.flatMap((q) => q.pts).sort((a, b) => a.t - b.t),
-    { lo, hi, ticks } = paceTicks(Math.min(...all.map((p) => p.v)) - 5, Math.max(...all.map((p) => p.v)) + 5),
+    /* el ritmo objetivo entra siempre en el gráfico (el original lo dibujaba solo si caía entre los puntos) */
+    goal = racePaceSec(race),
+    { lo, hi, ticks } = paceTicks(Math.min(goal, ...all.map((p) => p.v)) - 5, Math.max(goal, ...all.map((p) => p.v)) + 5),
     /* más rápido arriba */
     Y = lin(lo, hi, M.t, h - M.b),
     { sel, cursor } = useCursor(
@@ -126,8 +134,19 @@ function PaceChart({ T, from }: { T: PaceTrend[]; from: string }) {
   const P = sel != null ? all[sel] : null;
   const read = (p: (typeof all)[number]) => dateLabel(p.s.result.date) + ' · ' + TYPES[p.s.type].label + ': ' + fmtPace(p.v) + ' /km · ' + fmt(p.s.result.distKm, 1) + ' km';
   return (
-    <Chart w={w} h={h} label="Ritmo principal de cada sesión, por tipo, con su tendencia" cursor={cursor} live={P ? read(P) : undefined}>
+    <Chart
+      w={w}
+      h={h}
+      label={'Ritmo principal de cada sesión, por tipo, con su tendencia y el ritmo objetivo del ' + race.name + ' (' + fmtPace(goal) + ' /km)'}
+      cursor={cursor}
+      live={P ? read(P) : undefined}
+      table={{ head: ['Sesión', 'Ritmo', 'Km'], rows: all.map((p) => [dateLabel(p.s.result.date) + ' · ' + TYPES[p.s.type].label, fmtPace(p.v) + ' /km', fmt(p.s.result.distKm, 1)]) }}
+    >
       <GridY ticks={ticks} y={Y} x0={M.l} x1={w - M.r} fmt={fmtPace} />
+      <line x1={M.l} x2={w - M.r} y1={Y(goal)} y2={Y(goal)} stroke="var(--ink)" strokeDasharray="4 3" />
+      <text className="an-halo" x={M.l + 6} y={Y(goal) - 6} style={{ font: '600 10.5px var(--f-mono)', fill: 'var(--ink)' }}>
+        OBJETIVO {race.name.toUpperCase()} · {fmtPace(goal)}
+      </text>
       <text className="p-ax" x={M.l} y={M.t - 6}>
         ↑ MÁS RÁPIDO
       </text>
@@ -158,7 +177,8 @@ function PaceChart({ T, from }: { T: PaceTrend[]; from: string }) {
 }
 
 function PacePanel({ from }: { from: string }) {
-  const T = paceTrends(from);
+  const T = paceTrends(from),
+    race = goalRace();
   return (
     <Panel
       className="p-c8 p-rise"
@@ -174,8 +194,11 @@ function PacePanel({ from }: { from: string }) {
         </span>
       }
     >
-      {T.length ? <PaceChart T={T} from={from} /> : <p className="an-note">No hay sesiones con ritmo en este período.</p>}
-      <p className="an-foot">Cada punto es el ritmo principal de una sesión, en el color de su tipo; la recta es su tendencia (con 3 sesiones o más). En series y tempos cuenta el ritmo de la parte principal.</p>
+      {T.length ? <PaceChart T={T} from={from} race={race} /> : <p className="an-note">No hay sesiones con ritmo en este período.</p>}
+      <p className="an-foot">
+        Cada punto es el ritmo principal de una sesión, en el color de su tipo; la recta es su tendencia (con 3 sesiones o más). En series y tempos cuenta el ritmo de la parte principal. La línea cortada es el ritmo
+        objetivo del {race.name}.
+      </p>
     </Panel>
   );
 }
@@ -237,6 +260,9 @@ function ZonesPanel() {
             <li key={z.k} style={cssVars({ '--a': P(b) + '%', '--w': Math.max(1.5, P(a) - P(b)) + '%', '--dc': typeColor(PZ_TYPE[z.k]), '--j': j })}>
               <span>
                 <b>{z.n}</b>
+                <span className="z" title="Zona de FC">
+                  {z.z}
+                </span>
                 <small>{z.u}</small>
               </span>
               <span className="disp">{z.f[0] !== z.f[1] ? fmtPace(a) + '–' + fmtPace(b) : fmtPace(b)}</span>
@@ -246,8 +272,8 @@ function ZonesPanel() {
         })}
       </ul>
       <p className="an-foot">
-        {goal ? 'Como si ya corrieras el ' + race.name + ' en ' + fmtDur(race.targetSec) + '.' : 'Desde ' + cur!.txt + '.'} Con la fórmula de Jack Daniels: son una guía; si la FC o las piernas dicen otra cosa, mandan
-        ellas.
+        {goal ? 'Como si ya corrieras el ' + race.name + ' en ' + fmtDur(race.targetSec) + '.' : 'Desde ' + cur!.txt + '.'} Con la fórmula de Jack Daniels, y al lado de cada nombre la zona de FC que le
+        corresponde: son una guía; si la FC o las piernas dicen otra cosa, mandan ellas.
         {gap != null ? (gap > 5 ? ' Para ese objetivo hoy te faltan unos ' + fmtDur(gap) + ' en el 10K.' : ' Tu forma de hoy ya alcanza para ese objetivo.') : ''}
         {foAvg != null ? ' Tus fondos de las últimas 4 semanas van a ' + fmtPace(foAvg) + '/km' + (foAvg > p(PZ[0], 1) + 20 ? ': más lentos que el rango fácil, y está bien (en los fondos manda la FC).' : ', dentro del rango fácil.') : ''}
       </p>
@@ -280,7 +306,14 @@ function HeartChart({ hp, from }: { hp: HrPace; from: string }) {
     Q = sel != null ? W[sel] : null;
   const read = (q: (typeof W)[number]) => 'Semana ' + isoWeek(q.mon) + ': ' + fmtPace(q.v) + ' /km a ' + hp.hr + ' lpm, ' + plural(q.n, 'salida', 'salidas');
   return (
-    <Chart w={w} h={h} label={'Ritmo a ' + hp.hr + ' lpm, semana a semana'} cursor={cursor} live={Q ? read(Q) : undefined}>
+    <Chart
+      w={w}
+      h={h}
+      label={'Ritmo a ' + hp.hr + ' lpm, semana a semana'}
+      cursor={cursor}
+      live={Q ? read(Q) : undefined}
+      table={{ head: ['Semana', 'Ritmo a ' + hp.hr + ' lpm', 'Salidas'], rows: W.map((q) => ['S' + isoWeek(q.mon) + ' · ' + dShort(q.mon), fmtPace(q.v) + ' /km', q.n]) }}
+    >
       <GridY ticks={ticks} y={Y} x0={M.l} x1={w - M.r} fmt={fmtPace} />
       <Line pts={pts} color="var(--hr)" width={1.4} area={h - M.b} opacity={0.75} />
       <line x1={xa} y1={Y(a)} x2={xb} y2={Y(b)} stroke="var(--hr)" strokeWidth="2.4" strokeLinecap="round" />
@@ -311,11 +344,11 @@ function HeartPanel({ from }: { from: string }) {
       {hp && has ? (
         <HeartChart hp={hp} from={from} />
       ) : (
-        <p className="an-note">{hp ? 'No hay fondos ni regenerativos con FC en este período.' : 'Necesito al menos 4 fondos o regenerativos con frecuencia cardíaca para medir cómo cambia tu corazón.'}</p>
+        <p className="an-note">{hp ? 'No hay fondos ni regenerativos con FC en este período.' : 'Necesito al menos 4 fondos o regenerativos con frecuencia cardíaca, de 3 km o más y sin caminatas, para medir cómo cambia tu corazón.'}</p>
       )}
       <p className="an-foot">
-        Más arriba es más rápido con la misma FC. Sale de tus fondos y regenerativos con FC: los metros por minuto que avanzás por cada latido, llevados a {hp ? hp.hr : 'tu FC habitual'} lpm (la mediana de esas salidas). La recta es la
-        tendencia desde tu primera salida, con un método robusto. El calor, las subidas o el cansancio suben la FC: mirá la tendencia, no una semana.
+        Más arriba es más rápido con la misma FC. Sale de tus fondos y regenerativos con FC: los metros por minuto que avanzás por cada latido, llevados a {hp ? hp.hr + ' lpm' : 'tu FC habitual'} (la mediana de esas salidas). La recta es la
+        tendencia desde tu primera salida, con un método robusto. Dejo afuera las salidas con caminatas y los valores fuera de lo normal. El calor, las subidas o el cansancio suben la FC: mirá la tendencia, no una semana.
       </p>
     </Panel>
   );
@@ -339,7 +372,14 @@ function DriftChart({ L }: { L: DoneSession[] }) {
     Q = sel != null ? L[sel] : null;
   const read = (q: DoneSession) => dateLabel(q.result.date) + ': deriva ' + fmt(q.result.dec!.p!, 1) + '% en ' + fmt(q.result.distKm, 1) + ' km';
   return (
-    <Chart w={w} h={h} label="Deriva cardíaca de cada fondo, con la línea del 5%" cursor={cursor} live={Q ? read(Q) : undefined}>
+    <Chart
+      w={w}
+      h={h}
+      label="Deriva cardíaca de cada fondo, con la línea del 5%"
+      cursor={cursor}
+      live={Q ? read(Q) : undefined}
+      table={{ head: ['Fondo', 'Deriva', 'Km'], rows: L.map((q) => [dateLabel(q.result.date), fmt(q.result.dec!.p!, 1) + '%', fmt(q.result.distKm, 1)]) }}
+    >
       <GridY ticks={ticks} y={Y} x0={M.l} x1={w - M.r} fmt={(v) => v + '%'} zero />
       {L.map((q, k) => {
         const v = q.result.dec!.p!;

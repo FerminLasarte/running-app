@@ -88,7 +88,14 @@ function VolumeChart() {
   const head = `SEMANA ${18 + k}` + (cur ? ' · EN CURSO' : '');
   const val = cur ? `${fmt(wk.tot)} de 54,5 km` : `${fmt(wk.tot)} km`;
   return (
-    <Chart w={w} h={h} label="Kilómetros por semana, apilados por tipo, con el promedio de 4 semanas" cursor={cursor} live={`Semana ${18 + k}: ${val}`}>
+    <Chart
+      w={w}
+      h={h}
+      label="Kilómetros por semana, apilados por tipo, con el promedio de 4 semanas"
+      cursor={cursor}
+      live={`Semana ${18 + k}: ${val}`}
+      table={{ head: ['Semana', 'Km'], rows: weeks.map((q) => ['S' + (18 + q.k), fmt(q.tot)]) }}
+    >
       <GridY ticks={[0, 20, 40, 60]} y={y} x0={m.l} x1={w - m.r} zero />
       <StackedBars bars={bars} y={y} sel={sel} />
       <Line pts={avg} color="var(--ink)" />

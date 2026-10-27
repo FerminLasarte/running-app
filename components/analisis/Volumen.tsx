@@ -87,7 +87,22 @@ function VolChart({ W }: { W: WeekRow[] }) {
   const read = (q: WeekRow, k: number) =>
     'Semana ' + isoWeek(q.start) + (q.cur ? ', en curso' : '') + ': ' + fmt(q.km, 1) + (q.cur && target > q.km ? ' de ' + fmt(target, 1) : '') + ' km en ' + plural(q.count, 'salida', 'salidas') + (avg[k] != null ? ', promedio de 4 semanas ' + fmt(avg[k]!, 1) : '');
   return (
-    <Chart w={w} h={h} label={'Kilómetros por semana de las últimas ' + N + ' semanas, por tipo de sesión'} cursor={cursor} live={S ? read(S, sel!) : undefined}>
+    <Chart
+      w={w}
+      h={h}
+      label={'Kilómetros por semana de las últimas ' + N + ' semanas, por tipo de sesión'}
+      cursor={cursor}
+      live={S ? read(S, sel!) : undefined}
+      table={{
+        head: ['Semana', 'Km', 'Salidas', 'Prom. 4 sem'],
+        rows: W.map((q, k) => [
+          'S' + isoWeek(q.start) + ' · ' + dShort(q.start) + (q.cur ? ' (en curso)' : ''),
+          fmt(q.km, 1) + (q.cur && target > q.km ? ' de ' + fmt(target, 1) : ''),
+          q.count,
+          avg[k] != null ? fmt(avg[k]!, 1) : '–',
+        ]),
+      }}
+    >
       <GridY ticks={ticks} y={Y} x0={M.l} x1={w - M.r} zero />
       <StackedBars bars={bars} y={Y} sel={sel} />
       <Line pts={ap} color="var(--ink)" width={2} />

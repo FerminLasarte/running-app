@@ -230,6 +230,49 @@ Decidido por el usuario: ANA-01 y ANA-02 se arreglan.
 - **ANA-15 · «Ver tabla».** Opcional: los gráficos no tienen tabla ni lectura con teclado (`components/pista/charts.tsx`).
   Si va, que sea en la pieza, para todos los gráficos a la vez.
 
+Hecho. Decisiones al pasarlo:
+
+- **ANA-01.** `easyHrRuns` volvió a `lib/domain/analysis.ts` con su nombre y los filtros del original; parte de
+  `effPoints()` (que ya deja solo fondos y regenerativos con FC). `hrPace()` y `refHr()` la usan; `lvAero` (Nivel)
+  sigue con `effPoints()`, como en el original. Al pie de «Tu corazón» va «Dejo afuera las salidas con caminatas y
+  los valores fuera de lo normal», y el aviso de «necesito al menos 4» dice ahora «de 3 km o más y sin caminatas»,
+  porque podés tener 4 con FC y que no alcancen. De paso: el pie decía «llevados a tu FC habitual lpm» sin datos.
+- **ANA-02.** `readyScore` da puntaje con 3 chequeos con datos o más (`READY_MIN`). Con menos, el cronógrafo muestra
+  una raya y «faltan datos · 2 de 5 con datos». `Chrono` (la pieza) acepta `null` para eso; antes mostraba un 0
+  grande. Molestias sigue contando siempre como un chequeo con datos.
+- **ANA-06.** Rótulo y frase salen de `formState(tsb)` en `lib/domain/analysis.ts` (antes el rótulo estaba en la
+  pieza `form.tsx`). La frase va solo en Análisis → Forma y fatiga, arriba del gráfico («Equilibrado. Buen punto
+  para…»), como en el original; en Semana quedan los números con el rótulo.
+- **ANA-07.** La línea cortada del objetivo es de la próxima carrera con tiempo objetivo o, si no hay, la de
+  referencia (`refRace`), como el original. El original la dibujaba solo si caía entre los puntos; acá el ritmo
+  objetivo siempre entra en la escala del gráfico, así que se ve siempre. El rótulo va a la izquierda para no
+  pisar los números del final de las rectas, y el pie la explica.
+- **ANA-16.** La zona (`Z2`, `Z4–Z5`…) va chica al lado del nombre de cada ritmo, como la columna del original, y
+  el pie lo dice. Sin las lpm.
+- **REG-01.** La nota va en una línea chica debajo del tipo, recortada con «…» y entera en el `title`, solo en el
+  Registro (la columna «Sesión» de Semana no cambia). El texto sale de `lgTxt` (`log.ts`), que usan la fila y el
+  CSV. En una planificada sin notas repite el resumen del plan, como el original.
+- **REG-02.** Un solo ritmo para la tabla, el orden y el CSV: `keyPace` (el principal o, sin él, el promedio), que
+  ahora también usa la columna de `components/pista/session.tsx`. El CSV suma `ritmo_medio_min_km` con el promedio
+  de toda la salida; `ritmo_min_km` es el de la tabla.
+- **REG-03.** No se reproduce, no se cambió. El puntaje (`scoreSession`) mira solo el plan y el resultado de cada
+  sesión, no la configuración (Ajustes lo dice: «cada sesión se evalúa con su propio rango planificado»). Probado:
+  con una sesión con rango de FC, cambiar la FC máxima de 203 a 170 deja el puntaje y el puntaje medio en 82, sin
+  recargar y recargando.
+- **ANA-15.** Decidido por el usuario: va. La lectura con teclado ya estaba: todos los gráficos con `useCursor` se
+  recorren con el foco y las flechas y anuncian el punto elegido. Lo que faltaba era la tabla: `Chart` acepta
+  `table` (`ChartTable`: encabezados y filas, la primera columna es el rótulo y el resto va en mono a la derecha) y
+  dibuja abajo «Ver tabla», un `details` que arma la tabla recién al abrirlo, con su propio scroll. La tienen
+  Volumen (km por semana), Ritmo (evolución, tu corazón, deriva), Forma y carga (los 7 días) y el gráfico de forma
+  (Semana y Análisis, con la proyección y el día de la carrera); en `/sistema`, el de km por semana. El rótulo de
+  cada semana del gráfico de forma (`headOf`) es el mismo para la lectura y la tabla. El gráfico de ritmo y FC del
+  detalle de sesión no la tiene: son cientos de muestras, y al lado ya están las vueltas o los parciales por km.
+  `MiniBars` (Zapatillas, Mapa) no es un `Chart` y queda como estaba.
+- Probado en local sin `.env.local`: sin datos (Análisis y Registro vacíos), con pocas salidas cargadas a mano
+  (preparación con 2 de 5, un fondo con «Caminé» que queda afuera de «Tu corazón», notas recortadas, CSV con los dos
+  ritmos) y con los datos de ejemplo (línea del objetivo, zonas, frase de la forma, Registro en escritorio y celu,
+  «Ver tabla» abierto con Enter, las flechas sobre el gráfico y las tablas en el celu sin correr la página).
+
 ### Tanda 5 · Carreras
 
 - **CAR-03 · Sin hora de largada, avisar** «Cargá la hora de largada en Ajustes y te armo el horario del día», con un
