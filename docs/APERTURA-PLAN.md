@@ -155,3 +155,65 @@ demás) **y** se le pasa al usuario el SQL para pegar en el SQL Editor. Nunca `s
   prueba; desconectar Strava y ver que el Mapa queda vacío y que las sesiones siguen; con `ANTHROPIC_API_KEY`, ver
   cuántas lecturas quedan en Conexiones y el aviso al pasar el tope (por ejemplo con `AI_MONTHLY_LIMIT=1`); abrir una
   sesión cargada a mano, recargar la app, volver a abrirla y ver que no le pide nada a Strava.
+
+## Tanda B · La entrada pública
+
+Decidida por el usuario el 27 de octubre de 2026, pensando en compartir la app en LinkedIn. Hoy cualquier link manda
+directo al login (`proxy.ts`): quien llega no ve qué es la app, tiene que dejar el mail y abrir el link en el mismo
+dispositivo, y recién ahí entra a una app vacía. Además, entrar depende de que Supabase mande un mail, y el servicio que
+trae de fábrica es para pruebas: manda pocos mails por hora y, según varias guías, solo a las direcciones del equipo
+del proyecto. Esta tanda deja una entrada que se entiende sin cuenta y que no depende de mandar mails.
+
+Lo que necesita configuración en Supabase o en Google Cloud no se puede activar desde el código: va como pasos en el
+README y como lista para el usuario al cerrar, y la interfaz no muestra lo que todavía no está configurado.
+
+- **AP-09 · Portada pública en `/`.**
+  - Hoy: `/` redirige a `/semana` (`next.config.ts`) y sin sesión todo va al login.
+  - Hacer: sin sesión, `/` es la portada de Lane One. Arriba, qué es en una frase y los dos botones: «Probar sin cuenta»
+    (AP-10) y «Crear cuenta» (o «Entrar» si ya tenés). Abajo, lo que hace la app: la semana con la pista, cargar y
+    planificar, Análisis, Carreras con la pulsera, el Mapa y Logros. Usá las piezas de la Pista (la pista, el dorsal, la
+    pulsera) con datos de ejemplo en vez de capturas pegadas. Pie con «Privacidad». Con sesión, `/` sigue yendo a
+    `/semana`.
+  - El estilo es el de la app (`docs/REDISENO.md`): marca deportiva, compu primero, y que en el celu se vea bien,
+    porque desde LinkedIn la mayoría llega desde el teléfono.
+  - Listo cuando: sin sesión, `/` muestra la portada en claro y oscuro, a 1440 y a 375 px; con sesión, va a la semana.
+- **AP-10 · Probar sin cuenta.**
+  - «Probar sin cuenta» entra a la app con los datos de ejemplo (`demoSessions`, `demoRoutes`, `demoCfg`), sin login y
+    sin guardar nada: ni en la nube ni en `localStorage.rr1`. Se recorren todas las pantallas; lo que guardaría avisa y
+    ofrece crear la cuenta (como hoy `blockDemo`). Strava, la IA, importar, exportar y eliminar la cuenta no se ofrecen.
+  - Arriba, un aviso fijo: «Estás probando Lane One con datos de ejemplo. Creá tu cuenta para guardar lo tuyo.», con el
+    botón. Al crear la cuenta se arranca de cero, sin los datos de ejemplo.
+  - Cómo pasar el `proxy.ts`: una cookie de invitado que pone la portada (por ejemplo `lo_guest=1`), que deja pasar las
+    páginas de la app pero **no** las rutas `/api/`. El arranque (`boot` en `lib/data/sync.ts`) con esa cookie y sin
+    sesión entra en modo invitado. Cuidar que ningún camino escriba en la nube o en el navegador: `persistLocal`, el
+    borrador, la celebración (`cfg.cel`), los trofeos vistos, las capas del mapa.
+  - Listo cuando: desde la portada se entra, se recorren Semana, Registro, Análisis, Carreras, Mapa y Logros con datos,
+    se abre el panel de carga y al guardar ofrece crear la cuenta; al cerrar el navegador no quedó nada guardado.
+- **AP-11 · Entrar con Google.**
+  - `signInWithOAuth({ provider: 'google' })` con la vuelta por `/auth/callback`, que ya existe. El botón va primero en
+    el login y en «Crear cuenta», y solo aparece si `NEXT_PUBLIC_AUTH_GOOGLE=1`: así no se ve roto antes de configurarlo.
+  - README: cómo crear el cliente OAuth en Google Cloud (pantalla de consentimiento, orígenes y la URL de vuelta de
+    Supabase) y cómo prenderlo en Supabase → Authentication → Sign In / Providers → Google.
+- **AP-12 · Entrar sin depender de mandar mails.**
+  - Decidido: se saca el link por mail. Se entra con Google (AP-11) o con mail y contraseña.
+  - «Crear cuenta» con mail y contraseña (`signUp`), sin mail de confirmación: en Supabase se apaga *Confirm email*
+    (paso del README). Contraseña de 8 caracteres o más, y errores claros (mail ya usado, contraseña corta).
+  - **Quien ya tiene cuenta con el link por mail no tiene contraseña.** En Ajustes → Cuenta y datos, «Poner contraseña»
+    o «Cambiar contraseña» (`updateUser`). La guía de la mudanza del amigo hay que actualizarla con el flujo nuevo.
+  - «Olvidé mi contraseña» manda un mail, así que solo aparece si `NEXT_PUBLIC_AUTH_EMAIL=1` (cuando haya un SMTP
+    propio). Sin eso, el login dice «Si no te acordás, entrá con Google si usás el mismo mail, o escribile a
+    fermin.lasarte@icloud.com».
+  - Revisá qué pasa si alguien entra con Google con el mismo mail de una cuenta que ya existe: probá cómo lo resuelve
+    Supabase y, si quedan dos cuentas separadas, avisame antes de seguir.
+  - README: el SMTP propio queda como opcional (para recuperar la contraseña), con un ejemplo (Resend) y sus límites.
+- **AP-13 · La vista previa del link.**
+  - Para cuando se pegue en LinkedIn, WhatsApp o X: título, descripción e imagen. `metadata.openGraph` y `twitter` en
+    `app/layout.tsx`, con `metadataBase` (la URL de producción de Vercel o una variable) y una imagen de 1200×630 con
+    `opengraph-image.tsx` y la marca, como `app/icon.tsx`. Las guías de Next están en `node_modules/next/dist/docs/`.
+  - Listo cuando: el HTML de `/` tiene las etiquetas `og:` y `twitter:` con una imagen que se puede abrir.
+- **AP-14 · De `oauth/deauthorize` a `oauth/revoke`.**
+  - Strava retira `oauth/deauthorize` el 1 de junio de 2027. Hoy lo usa `stravaDisconnect` (`lib/strava/server.ts`),
+    que comparten «Desconectar», eliminar la cuenta y el webhook.
+  - Hacer: pasarlo a `POST https://www.strava.com/oauth/revoke` **según la documentación oficial vigente**
+    (developers.strava.com): qué parámetros pide y qué responde. Revisar de paso que todos los pedidos a Strava manden
+    el token en el encabezado `Authorization`, que también es obligatorio desde esa fecha.
