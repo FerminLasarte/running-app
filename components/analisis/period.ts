@@ -1,7 +1,7 @@
 'use client';
 /* El estado de Análisis vive en la URL, como los filtros del Registro: la pestaña es la ruta (`/analisis/ritmo`) y el
    período (`?periodo=52s`) y la base de tus ritmos (`?ritmos=objetivo`) van como parámetros. Se comparten, sobreviven
-   a recargar y el período sigue al pasar de una pestaña a otra. Se leen con useSearchParams y se escriben con
+   a recargar y el período y la base de tus ritmos siguen al pasar de una pestaña a otra. Se leen con useSearchParams y se escriben con
    history.replaceState; los valores por defecto no se escriben. */
 import { AN_PERIODS, anWeeks, type AnPeriod } from '@/lib/domain/analysis';
 import { weekSeries } from '@/lib/domain/stats';
@@ -21,8 +21,9 @@ export const AN_TABS: { value: AnTab; label: string; path: string; more: string 
 ];
 export const tabOf = (pathname: string) => AN_TABS.find((t) => t.path === pathname)?.value || 'vol';
 
-/** link a una pestaña con un período (para las pestañas y la paleta) */
-export const analisisHref = (tab: AnTab, per: AnPeriod = AN_INIT) => AN_TABS.find((t) => t.value === tab)!.path + (per !== AN_INIT ? '?periodo=' + per : '');
+/** link a una pestaña con los parámetros que traés (`qs`: «periodo=52s&ritmos=objetivo», sin el «?»; para las
+    pestañas y la paleta) */
+export const analisisHref = (tab: AnTab, qs = '') => AN_TABS.find((t) => t.value === tab)!.path + (qs ? '?' + qs : '');
 
 /** lo que abarca el período, para los rótulos de los paneles: «26 semanas» (menos si tu historial es más corto) */
 export const periodLabel = (p: AnPeriod) => plural(weekSeries(anWeeks(p)).length, 'semana', 'semanas');

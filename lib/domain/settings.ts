@@ -76,16 +76,23 @@ const badTime = (h: Hms) => {
   const t = readHms(h);
   return t !== null && !(t > 0);
 };
-/** `past`: la carrera ya fue (se carga tu tiempo en vez del objetivo y el inicio del plan) */
-export function raceErrs(v: RaceDraft, past: boolean): RaceErr {
+/** qué se carga de una carrera: el objetivo y el plan (`goal`, hasta el día de la carrera) y tu tiempo (`res`, desde
+    la largada). El día de la carrera, los dos */
+export interface RaceFields {
+  goal: boolean;
+  res: boolean;
+}
+const BAD_TIME = 'Revisá el tiempo: los minutos y los segundos van de 0 a 59.';
+export function raceErrs(v: RaceDraft, f: RaceFields): RaceErr {
   const e: RaceErr = {};
   if (outOf(v.km, 0.4, 250)) e.km = 'Entre 0,4 y 250 km.';
-  if (past ? badTime(v.res) : badTime(v.tgt)) e[past ? 'res' : 'tgt'] = 'Revisá el tiempo: los minutos y los segundos van de 0 a 59.';
+  if (f.goal && badTime(v.tgt)) e.tgt = BAD_TIME;
+  if (f.res && badTime(v.res)) e.res = BAD_TIME;
   return e;
 }
-export function applyRace(r: Race, v: RaceDraft, past: boolean): string[] {
+export function applyRace(r: Race, v: RaceDraft, f: RaceFields): string[] {
   const bad: string[] = [],
-    err = raceErrs(v, past);
+    err = raceErrs(v, f);
   r.name = v.name.trim() || r.name;
   const km = num(v.km.trim());
   if (err.km) bad.push(r.name + ': la distancia');
@@ -94,13 +101,14 @@ export function applyRace(r: Race, v: RaceDraft, past: boolean): string[] {
   const tm = v.time.trim();
   r.time = /^\d{1,2}:\d{2}$/.test(tm) ? tm : '';
   r.place = v.place.trim();
-  if (!past) {
+  if (f.goal) {
     r.planStart = v.start.trim();
     r.lt = v.lt;
     const t = readHms(v.tgt);
     if (err.tgt) bad.push(r.name + ': el tiempo objetivo');
     else r.targetSec = t === null ? 0 : Math.round(t);
-  } else {
+  }
+  if (f.res) {
     const t = readHms(v.res);
     if (err.res) bad.push(r.name + ': tu tiempo');
     else if (t === null) delete r.resultSec;

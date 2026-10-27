@@ -45,14 +45,14 @@ import { toggleTheme } from '@/lib/theme';
 import { briefOf } from '@/components/pista/session';
 import { cssVars, cx, typeColor } from '@/components/pista/util';
 import { registroHref } from '@/components/registro/filters';
-import { AN_TABS } from '@/components/analisis/period';
+import { AN_TABS, analisisHref } from '@/components/analisis/period';
 import { PRINT_BTN_ID } from '@/components/carreras/PrintBand';
 import { mapaHref } from '@/components/mapa/params';
 import { TIER_NAME } from '@/components/pista/sport';
 import { LO_PARTS, openTrophy, trophyIcon } from '@/components/logros/util';
 import { shoeAdd } from '@/components/ajustes/actions';
 import { openImport } from '@/components/ajustes/Datos';
-import { SECTIONS } from './sections';
+import { SECTIONS, goSection, lastQuery } from './sections';
 import { useStravaStatus } from './useStravaStatus';
 
 export const openPalette = () => setUi('palette', true);
@@ -71,7 +71,7 @@ function Mark({ t, q }: { t: string; q: string }) {
 
 /* las pestañas de Análisis: se buscan por su nombre o por lo que muestran */
 const AN_ICON = SECTIONS.find((s) => s.id === 'analisis')!.Icon;
-const AN_ROWS: Row[] = AN_TABS.map((t) => ({ g: 'Análisis', key: 'an:' + t.value, t: t.label, sub: 'En Análisis', more: t.more, icon: AN_ICON, run: () => navigate(t.path) }));
+const AN_ROWS: Row[] = AN_TABS.map((t) => ({ g: 'Análisis', key: 'an:' + t.value, t: t.label, sub: 'En Análisis', more: t.more, icon: AN_ICON, run: () => navigate(analisisHref(t.value, lastQuery('analisis'))) }));
 
 /* las partes de Carreras: se buscan por su nombre o por lo que tienen, y llevan hasta ahí */
 const CAR_ICON = SECTIONS.find((s) => s.id === 'carreras')!.Icon;
@@ -151,7 +151,7 @@ function PaletteBox() {
       a('a:lv', 'Test de nivel', ListChecks, () => openSheet('level')),
       a('a:ch', 'Nuevo desafío', Trophy, () => openSheet('challenge')),
       a('a:x', 'Exportar respaldo', DownloadSimple, () => doExport('json')),
-      ...SECTIONS.map((s, i): Row => ({ g: 'Ir a', key: 'n:' + s.id, t: s.label, icon: s.Icon, run: () => navigate(s.href), k: i < 6 ? String(i + 1) : undefined })),
+      ...SECTIONS.map((s, i): Row => ({ g: 'Ir a', key: 'n:' + s.id, t: s.label, icon: s.Icon, run: () => goSection(s), k: i < 6 ? String(i + 1) : undefined })),
     ];
   }, [strava, lastRecal]);
   /* sesiones y carreras: el índice se arma de nuevo si cambian */

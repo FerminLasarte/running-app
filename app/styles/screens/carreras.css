@@ -29,6 +29,7 @@
   .car-meta span { display: inline-flex; align-items: center; gap: 6px; }
   .car-meta svg { width: 15px; height: 15px; }
   .car-hero .p-clock { margin-top: 30px; }
+  .car-res { margin-top: 22px; }
   .car-goal { display: flex; margin-top: 30px; border-top: 1px solid var(--hero-line); padding-top: 18px; }
   .car-goal > div { padding: 0 28px; border-left: 1px solid var(--hero-line); min-width: 0; }
   .car-goal > div:first-child { padding-left: 0; border-left: 0; }

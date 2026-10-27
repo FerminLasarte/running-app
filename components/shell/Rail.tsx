@@ -1,6 +1,9 @@
 'use client';
-/* Barra lateral (compu): marca, secciones con su atajo, nivel y la cuenta. En el celu, las secciones van abajo. */
+/* Barra lateral (compu): marca, secciones con su atajo, nivel y la cuenta. En el celu, las secciones van abajo.
+   Registro y Análisis llevan a la última URL que tuvieron (sus filtros, su pestaña y su período). */
+import { useEffect } from 'react';
 import Link from 'next/link';
+import { usePathname, useSearchParams } from 'next/navigation';
 import { GearSix, User } from '@phosphor-icons/react';
 import { useApp, useS } from '@/lib/store';
 import { doneList } from '@/lib/domain/stats';
@@ -8,7 +11,7 @@ import { xpState } from '@/lib/domain/xp';
 import { nf } from '@/lib/domain/util';
 import { Laps } from '@/components/pista/meters';
 import { BrandMark } from './BrandMark';
-import { NAV, type SectionDef } from './sections';
+import { NAV, rememberUrl, sectionHref, type SectionDef } from './sections';
 
 /** tu foto, tus iniciales o, sin nombre, el ícono de persona */
 export function Avatar() {
@@ -51,6 +54,9 @@ function Level() {
 export function Rail({ section }: { section: SectionDef | null }) {
   const name = useApp((s) => s.cfg.name);
   const loaded = useApp((s) => s.loaded);
+  const pathname = usePathname(),
+    qs = useSearchParams().toString();
+  useEffect(() => rememberUrl(pathname, qs), [pathname, qs]);
   return (
     <aside className="rail" aria-label="Navegación principal">
       <Link className="brand" href="/semana">
@@ -62,7 +68,8 @@ export function Rail({ section }: { section: SectionDef | null }) {
       </Link>
       <nav className="nav" aria-label="Secciones">
         {NAV.map((s, i) => (
-          <Link key={s.id} href={s.href} aria-current={section?.id === s.id ? 'page' : undefined}>
+          /* la sección en la que estás lleva a donde ya estás: tocarla no cambia nada */
+          <Link key={s.id} href={section?.id === s.id ? pathname + (qs ? '?' + qs : '') : sectionHref(s)} aria-current={section?.id === s.id ? 'page' : undefined}>
             <s.Icon weight={section?.id === s.id ? 'fill' : 'regular'} aria-hidden="true" />
             {s.label}
             <kbd>{i + 1}</kbd>

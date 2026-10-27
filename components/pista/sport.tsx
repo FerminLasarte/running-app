@@ -231,6 +231,8 @@ const onSecond = (cb: () => void) => {
   return () => clearInterval(t);
 };
 const nowSec = () => Math.floor(Date.now() / 1000);
+/** la hora en segundos, que avanza sola (null hasta dibujar en el navegador) */
+export const useNowSec = () => useSyncExternalStore(onSecond, nowSec, () => null);
 const CLOCK_L = ['Días', 'Horas', 'Min', 'Seg'];
 
 const exact = (to: Date) => (now: number) => {
@@ -239,7 +241,7 @@ const exact = (to: Date) => (now: number) => {
 };
 /** `to`: la largada (fecha y hora). `parts`: otra forma de contar ([días, horas, min, seg] para un instante en ms) */
 export function Countdown({ to, parts }: { to?: Date; parts?: (now: number) => number[] }) {
-  const now = useSyncExternalStore(onSecond, nowSec, () => null);
+  const now = useNowSec();
   const v = now == null ? null : (parts || exact(to || new Date()))(now * 1000);
   return (
     <div className="p-clock" role="timer" aria-label={v ? (v[0] > 0 ? `Faltan ${v[0]} días` : `Faltan ${v[1]} horas y ${v[2]} minutos`) : undefined}>

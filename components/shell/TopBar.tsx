@@ -15,7 +15,7 @@ import { toggleTheme } from '@/lib/theme';
 import { Avatar } from './Rail';
 import { useStravaStatus } from './useStravaStatus';
 import { openPalette } from './Palette';
-import type { SectionDef } from './sections';
+import { NAV, sectionHref, type SectionDef } from './sections';
 
 function WeekCrumb() {
   const off = useApp((s) => s.weekOff);
@@ -45,11 +45,14 @@ function WeekCrumb() {
   );
 }
 
+const REG = NAV.find((s) => s.id === 'registro')!;
+
 function SessionCrumb({ id }: { id: string }) {
   const s = useApp((st) => st.sessions.find((x) => x.id === id));
   return (
     <>
-      <Link href="/registro">Registro</Link>
+      {/* vuelve al Registro como lo dejaste */}
+      <Link href={sectionHref(REG)}>Registro</Link>
       <span className="sep">/</span>
       <span className="end">{s ? TYPES[s.type].label + ' · ' + dateLabel(sdate(s)) : 'Sesión'}</span>
     </>
