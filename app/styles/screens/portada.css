@@ -70,8 +70,9 @@
   .po-vol path { --len: 400; animation: po-draw 1.2s var(--ease) .75s both; }
   /* la pulsera asoma desde arriba de la tarjeta y se desvanece antes del borde: la ventana es la del recuadro, no la de la
      pulsera (si no, el borde la corta a mitad de una fila) */
-  .po-f-v:has(.po-band) { place-items: stretch center; padding: 22px 0 0; }
-  .po-band { width: 236px; padding: 0 18px; overflow: hidden; -webkit-mask-image: linear-gradient(#000 38%, transparent 92%); mask-image: linear-gradient(#000 38%, transparent 92%); }
+  .po-f-v:has(.po-band) { place-items: stretch center; padding: 0; }
+  /* el margen de arriba va adentro de la ventana: la pulsera está girada y su esquina sube unos px sobre su borde */
+  .po-band { width: 236px; padding: 22px 18px 0; overflow: hidden; -webkit-mask-image: linear-gradient(#000 38%, transparent 92%); mask-image: linear-gradient(#000 38%, transparent 92%); }
   .po-band .p-band { animation: po-band 1s var(--ease) .1s backwards; }
   .po-f:hover .p-band { transform: none; }
   .po-f-v:has(.po-map) { padding: 0; }
