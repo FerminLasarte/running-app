@@ -83,6 +83,27 @@ export async function getTokenRow(sb: SupabaseClient, userId: string): Promise<T
   return data as TokenRow | null;
 }
 
+/** Borra lo que vino de Strava: los recorridos, las series de cada salida y, al final, la conexión (así, si algo falla
+    a mitad de camino, se puede volver a probar). Las sesiones quedan como están. */
+export async function forgetStrava(sb: SupabaseClient, userId: string) {
+  for (const table of ['streams', 'routes', 'strava_tokens']) {
+    const { error } = await sb.from(table).delete().eq('user_id', userId);
+    if (error) throw error;
+  }
+}
+
+/** Desconecta Strava: revoca el permiso allá (si Strava no responde, se borra igual) y borra lo que vino de ahí. */
+export async function stravaDisconnect(sb: SupabaseClient, userId: string) {
+  const row = await getTokenRow(sb, userId);
+  if (row)
+    await fetch('https://www.strava.com/oauth/deauthorize', {
+      method: 'POST',
+      headers: { authorization: 'Bearer ' + row.access_token },
+      cache: 'no-store',
+    }).catch(() => null);
+  await forgetStrava(sb, userId);
+}
+
 /** Token vigente (lo renueva si vence en menos de un minuto). */
 async function accessToken(sb: SupabaseClient, userId: string, force = false) {
   if (!stravaConfigured()) throw new SvErr('not_configured', '', 503);

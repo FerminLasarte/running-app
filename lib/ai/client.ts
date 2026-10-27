@@ -10,24 +10,40 @@ export interface AiLimits {
   mediaTypes: string[];
 }
 
-let cached: Promise<AiLimits | null> | null = null;
+/** las lecturas de este mes y el tope */
+export interface AiQuota {
+  used: number;
+  limit: number;
+}
+interface AiStatus {
+  enabled: boolean;
+  limits?: AiLimits;
+  quota?: AiQuota;
+}
 
-export function aiAvailable(): Promise<AiLimits | null> {
-  /* sin cuenta (modo local de desarrollo) las rutas de IA no atienden: ni pregunto */
+/** el estado recién pedido (cambia con cada lectura). Sin cuenta (modo local de desarrollo) las rutas de IA no
+    atienden: ni pregunto */
+export function aiStatus(): Promise<AiStatus | null> {
   if (!supabaseConfigured()) return Promise.resolve(null);
-  if (!cached)
-    cached = fetch('/api/ai/status')
-      .then((r) => (r.ok ? r.json() : null))
-      .then((j) => (j && j.enabled ? (j.limits as AiLimits) : null))
-      .catch(() => null);
+  return fetch('/api/ai/status')
+    .then((r) => (r.ok ? r.json() : null))
+    .catch(() => null);
+}
+
+let cached: Promise<AiLimits | null> | null = null;
+export function aiAvailable(): Promise<AiLimits | null> {
+  if (!cached) cached = aiStatus().then((j) => (j && j.enabled ? j.limits || null : null));
   return cached;
 }
 
 export class AiError extends Error {
   code: string;
-  constructor(code: string, message = '') {
+  /** el tope del mes, si el error es `quota` */
+  limit?: number;
+  constructor(code: string, message = '', limit?: number) {
     super(message || code);
     this.code = code;
+    this.limit = limit;
   }
 }
 
@@ -61,6 +77,6 @@ export async function aiJson<T = unknown>(prompt: string, opts: { images?: File[
     throw new AiError('network');
   }
   const body = await res.json().catch(() => null);
-  if (!res.ok) throw new AiError((body && body.code) || 'error', (body && body.message) || '');
+  if (!res.ok) throw new AiError((body && body.code) || 'error', (body && body.message) || '', body && body.limit);
   return body as T;
 }

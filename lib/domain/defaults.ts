@@ -2,9 +2,19 @@
 import type { Cfg, PhaseKey, Race, Shoe } from './types';
 import { addDays, cleanObj, ymd } from './util';
 
-/** Configuración de fábrica, sin normalizar (las carreras completan hora, lugar e inicio de plan en `normRace`).
-    Usala siempre a través de `defaultCfg()`. */
+/** Configuración de fábrica de una cuenta nueva, sin normalizar: sin carreras ni perfil, y sin FC máxima (`normCfg` le
+    pone una provisoria hasta que la cargues). Usala siempre a través de `defaultCfg()`. */
 const DEF_CFG = {
+  weeklyGoal: 3,
+  planStart: '',
+  age: 0,
+  since: '',
+  races: [],
+  easy: null,
+};
+/** La de fábrica del artifact original (la de su corredor): completa lo que le falte a un respaldo de allá, como lo
+    hacía él. Los respaldos viejos sin `races` traen el 10K de `rc` y dependen de esto (y de `normRace` para `r10`). */
+const ARTIFACT_CFG = {
   hrMax: 203,
   weeklyGoal: 3,
   planStart: '2026-08-31',
@@ -19,6 +29,11 @@ const DEF_CFG = {
 /** Copia nueva de la configuración de fábrica, sin normalizar: mezclala con lo guardado y pasala por `normCfg`. */
 export const defaultCfgRaw = (): Record<string, unknown> => cleanObj(DEF_CFG);
 export const defaultCfg = (): Cfg => normCfg(defaultCfgRaw());
+/** Igual, pero la del artifact: para importar respaldos. */
+export const importCfgRaw = (): Record<string, unknown> => cleanObj(ARTIFACT_CFG);
+
+/** FC máxima provisoria mientras no cargues la tuya: la fórmula de siempre (220 − edad) o, sin edad, la de 30 años */
+const hrGuess = (age: number) => 220 - (age > 0 ? age : 30);
 
 export const PHASE_KEYS: PhaseKey[] = ['base', 'dev', 'spec', 'taper'];
 export const RACE_PRESETS: [number, string][] = [[5, '5K'], [10, '10K'], [21.0975, 'Media maratón'], [42.195, 'Maratón']];
@@ -66,6 +81,9 @@ export function normShoe(x: any): Shoe {
 /** Normaliza una configuración (también la que llega de un respaldo o de la base). Muta y devuelve `c`. */
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function normCfg(c: any): Cfg {
+  /* lo guardado antes de que existiera `hrSet` (y los respaldos del artifact) traen la FC máxima de la persona */
+  if (typeof c.hrSet !== 'boolean') c.hrSet = Number(c.hrMax) > 0;
+  if (!c.hrSet) c.hrMax = hrGuess(Number(c.age) || 0);
   c.races = (Array.isArray(c.races) ? c.races : []).map((r: unknown) => normRace(r, c)).sort((a: Race, b: Race) => a.date.localeCompare(b.date));
   c.rcs = c.rcs && typeof c.rcs === 'object' ? c.rcs : {};
   c.shoes = (Array.isArray(c.shoes) ? c.shoes : []).map(normShoe);

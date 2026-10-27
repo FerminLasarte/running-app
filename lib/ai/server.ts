@@ -5,3 +5,11 @@ export const AI_MODEL = 'claude-opus-5-5';
 /* tope por pedido: el cuerpo de una función de Vercel no puede pasar de 4,5 MB, y el navegador achica cada captura */
 export const AI_LIMITS = { images: true, maxCount: 6, mediaTypes: ['image/jpeg', 'image/png', 'image/webp', 'image/gif'] };
 export const aiConfigured = () => !!process.env.ANTHROPIC_API_KEY;
+
+/** tope de lecturas por usuario por mes (AI_MONTHLY_LIMIT; 30 si no está). Cada pedido cuenta una, traiga las imágenes
+    que traiga */
+export function aiMonthlyLimit() {
+  const v = process.env.AI_MONTHLY_LIMIT?.trim(),
+    n = v ? Math.floor(Number(v)) : 30;
+  return Number.isFinite(n) && n >= 0 ? n : 30;
+}

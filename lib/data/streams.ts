@@ -1,6 +1,8 @@
 /* Las series de Strava de una sesión hecha, para el gráfico del detalle, con las vueltas del reloj: se leen de la tabla
    `streams` y, la primera vez, se piden a Strava (get_activity_streams y get_activity_performance) y se guardan ahí.
-   Mientras la app está abierta quedan en memoria.
+   Si Strava no tiene la salida (o no tiene sus series), también queda anotado en la tabla, para no buscarla en cada
+   apertura (el límite de pedidos a Strava es de la app y lo comparten todos): se vuelve a buscar si cambia el resultado
+   o si se pide a mano. Mientras la app está abierta quedan en memoria.
    Sin cuenta en la nube (modo local) o con los datos de ejemplo no hay a quién pedírselas. */
 import { S, getUi, setUi, type AppState } from '@/lib/store';
 import { supabaseBrowser } from '@/lib/supabase/client';
@@ -22,12 +24,24 @@ const PAGES = 5;
 /* pedidos en curso: React puede montar dos veces la misma página */
 const inflight = new Set<string>();
 
+/** en la tabla, en vez de las series: Strava no tiene la salida (`missing`) o no tiene sus series (`empty`), para este
+    resultado (`of`) */
+interface NoStreams {
+  none: 'missing' | 'empty';
+  of: string;
+}
+const isNone = (d: unknown): d is NoStreams => !!d && typeof d === 'object' && 'none' in d;
+/** de qué corrida es un resultado: su actividad de Strava o, sin ella, la fecha y la distancia (con las que se busca) */
+const runOf = (r: NonNullable<Session['result']>) => (r.sid ? 'sid:' + r.sid : r.date + '|' + r.distKm);
+
 /** la clave en memoria: la sesión y la actividad de la que salen (si cambia el resultado, se vuelven a buscar) */
 const keyOf = (s: Session) => s.id + '|' + (s.result?.sid || '');
 const streamsOf = (s: Session) => getUi<Record<string, StreamsState>>(UI_KEY, {})[keyOf(s)];
 /** para suscribirse: `useApp(streamsSel(s))` */
 export const streamsSel = (s: Session) => (st: AppState) => (st.ui[UI_KEY] as Record<string, StreamsState> | undefined)?.[keyOf(s)];
 const put = (key: string, v: StreamsState) => setUi<Record<string, StreamsState>>(UI_KEY, (m) => ({ ...m, [key]: v }));
+/** olvida las series en memoria (al desconectar Strava, que las borró de la tabla) */
+export const forgetStreams = () => setUi(UI_KEY, {});
 
 /** la corrida de Strava de un resultado sin id: la misma fecha y una distancia parecida */
 async function findRun(date: string, km: number): Promise<RunAct | null> {
@@ -61,7 +75,16 @@ async function saveWithLaps(s: Session, key: string, sid: string, se: Series, sa
   if (error) console.warn('No se guardaron las series de Strava:', error.message);
 }
 
-/** trae las series de una sesión hecha (de la tabla o de Strava) y deja el estado en memoria; `retry` vuelve a probar */
+/** anota que no hay series (si no se puede, por ejemplo porque la sesión todavía no llegó a la nube, se busca de nuevo
+    la próxima vez) */
+async function saveNone(s: Session, sid: string, none: NoStreams['none']) {
+  const data: NoStreams = { none, of: runOf(s.result!) };
+  const { error } = await supabaseBrowser().from('streams').upsert({ user_id: S.uid, session_id: s.id, strava_id: sid, data });
+  if (error) console.warn('No se anotó que faltan las series de Strava:', error.message);
+}
+
+/** trae las series de una sesión hecha (de la tabla o de Strava) y deja el estado en memoria; `retry` vuelve a probar,
+    aunque esté anotado que Strava no la tiene */
 export async function loadStreams(s: Session, retry = false) {
   const key = keyOf(s),
     r = s.result;
@@ -73,7 +96,9 @@ export async function loadStreams(s: Session, retry = false) {
   try {
     const sb = supabaseBrowser();
     const { data: row } = await sb.from('streams').select('strava_id,data').eq('session_id', s.id).maybeSingle();
-    if (row && (!r.sid || String(r.sid) === row.strava_id)) {
+    if (row && isNone(row.data)) {
+      if (!retry && row.data.of === runOf(r)) return put(key, { k: 'off', why: row.data.none });
+    } else if (row && (!r.sid || String(r.sid) === row.strava_id)) {
       const se = row.data as Series;
       put(key, { k: 'ok', se });
       /* las guardadas antes de que se pidieran las vueltas se completan una vez */
@@ -81,9 +106,15 @@ export async function loadStreams(s: Session, retry = false) {
       return;
     }
     const sid = r.sid ? String(r.sid) : (await findRun(r.date, r.distKm))?.id;
-    if (!sid) return put(key, { k: 'off', why: 'missing' });
+    if (!sid) {
+      put(key, { k: 'off', why: 'missing' });
+      return saveNone(s, '', 'missing');
+    }
     const se = compactStreams(await svCall('get_activity_streams', { activity_id: sid, streams: [...KEYS] }));
-    if (!se) return put(key, { k: 'off', why: 'empty' });
+    if (!se) {
+      put(key, { k: 'off', why: 'empty' });
+      return saveNone(s, sid, 'empty');
+    }
     put(key, { k: 'ok', se });
     await saveWithLaps(s, key, sid, se, false);
   } catch (e) {

@@ -1,7 +1,8 @@
 /* Trae los recorridos de Strava para el mapa (stravaSync, líneas 4864–4900 del original). Lee de a 100 actividades,
    de la más nueva a la más vieja, y corta cuando encuentra una que ya tenía. */
 import { S } from '@/lib/store';
-import { blockDemo, saveRoutes, toast } from '@/lib/data/actions';
+import { blockDemo, clearRoutes, saveRoutes, toast } from '@/lib/data/actions';
+import { forgetStreams } from '@/lib/data/streams';
 import { getMapUi, setMapUi } from '@/lib/domain/geo';
 import type { Route } from '@/lib/domain/types';
 import { runActs, stravaErrMsg, svCall } from './client';
@@ -14,6 +15,17 @@ export function stravaLast() {
     return +(localStorage.getItem(LAST_KEY) || 0) || 0;
   } catch {
     return 0;
+  }
+}
+
+/** al desconectar: lo que vino de Strava se va también de este navegador (la nube ya lo borró) */
+export function stravaForget() {
+  clearRoutes();
+  forgetStreams();
+  try {
+    localStorage.removeItem(LAST_KEY);
+  } catch {
+    /* sin localStorage */
   }
 }
 

@@ -129,7 +129,7 @@ function Empty({ s, st }: { s: Session; st: StreamsState | undefined }) {
         : st.why === 'local'
           ? ['Sin series', 'El ritmo y la FC a lo largo de la salida vienen de Strava. Entrá con tu cuenta y conectá Strava para verlos.']
           : st.why === 'missing'
-            ? ['No está en Strava', 'No encontré esta salida en Strava (la misma fecha y una distancia parecida). Si la cargaste a mano, no hay series para dibujar.']
+            ? ['No está en Strava', 'No encontré esta salida en Strava (la misma fecha y una distancia parecida). Si la cargaste a mano, no hay series para dibujar; si la subiste a Strava después, buscala de nuevo.']
             : ['Sin distancia', 'Strava no tiene la distancia de esta salida a lo largo del recorrido, así que no hay gráfico.'];
   const reauth = st.k === 'err' && (st.code === 'not_connected' || st.code === 'needs_reauth');
   return (
@@ -146,6 +146,11 @@ function Empty({ s, st }: { s: Session; st: StreamsState | undefined }) {
             Probar de nuevo
           </Button>
         )
+      ) : st.why === 'missing' ? (
+        /* queda anotado que no está: si la subiste a Strava después, se busca de nuevo a mano */
+        <Button size="sm" onClick={() => loadStreams(s, true)}>
+          Buscar de nuevo
+        </Button>
       ) : null}
     </div>
   );

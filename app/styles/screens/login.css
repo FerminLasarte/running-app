@@ -10,6 +10,7 @@
   .login-card .brand-t { font-size: 46px; padding: 6px 0 2px; }
   .login-card .p-btn { width: 100%; }
   .login-hint { font-size: 13px; color: var(--ink-3); }
+  .login-hint a { color: inherit; text-decoration: underline; text-underline-offset: 2px; }
   .login-msg { min-height: 1.2em; font-size: 13px; color: var(--ink-2); }
   .login-msg.bad { color: var(--neg); }
 }
