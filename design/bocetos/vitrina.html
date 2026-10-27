@@ -1,0 +1,580 @@
+<!doctype html>
+<html lang="es-AR" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Pista · boceto de la vitrina</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:ital,wdth,wght@0,62..125,400..900;1,62..125,400..900&family=Geist:wght@400..700&family=Geist+Mono:wght@400..600&display=swap" rel="stylesheet">
+<script src="https://unpkg.com/@phosphor-icons/web@2.1.1"></script>
+<style>
+/* ============================================================
+   Boceto VIT-01 (docs/LOGROS-PLAN.md, tanda 1): la vitrina como un estante de verdad.
+   Dos vistas: #vitrina (la página nueva, /logros/vitrina) y #logros (la vidriera chica que queda en Logros).
+   ?tema=claro u ?tema=oscuro para revisar. Los tokens son los de la app (app/styles/tokens.css).
+   ============================================================ */
+:root {
+  --bg: #F2F1ED; --surface: #FFFFFF; --sunk: #EAE9E4; --line: #E0DED7; --line-2: #CFCCC3;
+  --ink: #141414; --ink-2: #4A4843; --ink-3: #6C6963; --ink-4: #B0ADA5;
+  --acc: #DC4520; --acc-ink: #FFFFFF; --acc-soft: #F8E2DA;
+  --hero: #151515;
+  --pos: #23804F;
+  --r-sm: 3px; --r-md: 4px; --r-lg: 6px;
+  --sh-pop: 0 1px 2px rgb(20 20 20 / .06), 0 14px 34px -12px rgb(20 20 20 / .22);
+  --f-ui: "Geist", ui-sans-serif, system-ui, sans-serif;
+  --f-disp: "Archivo", "Geist", ui-sans-serif, sans-serif;
+  --f-mono: "Geist Mono", ui-monospace, "SF Mono", monospace;
+  --ease: cubic-bezier(.2, 0, 0, 1);
+  --rail: 236px;
+
+  /* el mueble: fondo iluminado desde arriba, repisa negra laqueada y placa de aluminio */
+  --case-top: #FFFFFF; --case-bot: #E7E5DF; --spot: rgb(255 249 235 / 1); --led: #FFFDF6; --led-glow: rgb(255 240 205 / .9);
+  --ledge-top: #3A3835; --ledge: #1D1C1A; --ledge-2: #121211;
+  --plaque-1: #F1EFEA; --plaque-2: #B9B5AC; --plaque-ink: #1D1C1A;
+  --plinth: #1D1C1A; --plinth-hi: #3A3835;
+  --floor: rgb(20 20 20 / .32);
+  --sil: #BDB9AF; --sil-fill: rgb(20 20 20 / .025);
+  --box: #1D1C1A; --box-hi: #34322F; --lock: #CFCBC2;
+  --glass: rgb(255 255 255 / .55);
+  color-scheme: light;
+}
+[data-theme="dark"] {
+  --bg: #0E0E0F; --surface: #171718; --sunk: #131314; --line: #262628; --line-2: #343437;
+  --ink: #F0EEE9; --ink-2: #B9B6AE; --ink-3: #85827B; --ink-4: #5B5955;
+  --acc: #F2552F; --acc-soft: #2C1A14; --hero: #1A1A1B; --pos: #5CBB86;
+  --sh-pop: 0 1px 2px rgb(0 0 0 / .3), 0 16px 40px -12px rgb(0 0 0 / .6);
+  --case-top: #29292B; --case-bot: #111112; --spot: rgb(255 228 186 / .2); --led: #FFF1D6; --led-glow: rgb(255 214 150 / .35);
+  --ledge-top: #4A4A4E; --ledge: #2A2A2D; --ledge-2: #1C1C1E;
+  --plaque-1: #D9D5CD; --plaque-2: #8F8B83; --plaque-ink: #141414;
+  --plinth: #0B0B0C; --plinth-hi: #323235;
+  --floor: rgb(0 0 0 / .7);
+  --sil: #48484D; --sil-fill: rgb(255 255 255 / .02);
+  --box: #242427; --box-hi: #38383C; --lock: #A9A59C;
+  --glass: rgb(255 255 255 / .05);
+  color-scheme: dark;
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+body { margin: 0; background: var(--bg); color: var(--ink); font: 400 14px/1.5 var(--f-ui); -webkit-font-smoothing: antialiased; }
+button { font: inherit; color: inherit; background: none; border: 0; padding: 0; cursor: pointer; }
+a { color: inherit; text-decoration: none; }
+:focus-visible { outline: 2px solid var(--acc); outline-offset: 2px; }
+.disp { font-family: var(--f-disp); font-stretch: 70%; font-weight: 800; letter-spacing: -.012em; line-height: .92; font-variant-numeric: tabular-nums; }
+.brand-t { font-family: var(--f-disp); font-stretch: 62%; font-weight: 900; font-style: italic; text-transform: uppercase; letter-spacing: -.008em; line-height: .86; }
+.brand-t em { font-style: inherit; color: var(--acc); }
+.lbl { font: 600 10.5px/1.2 var(--f-ui); letter-spacing: .1em; text-transform: uppercase; color: var(--ink-3); }
+kbd { font: 500 10.5px/1 var(--f-mono); color: var(--ink-3); border: 1px solid var(--line-2); border-bottom-width: 2px; border-radius: 3px; padding: 2px 5px; background: var(--surface); }
+.sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+
+/* ============================================================ shell (como la app) */
+.app { display: grid; grid-template-columns: var(--rail) minmax(0, 1fr); min-height: 100dvh; }
+.rail { position: sticky; top: 0; height: 100dvh; display: flex; flex-direction: column; border-right: 1px solid var(--line); padding: 16px 12px 12px; background: var(--bg); }
+.brand { display: flex; align-items: center; gap: 10px; padding: 2px 8px 22px; }
+.brand svg { width: 30px; height: 30px; flex: none; }
+.brand b { display: block; font: italic 900 17px/1 var(--f-disp); font-stretch: 66%; text-transform: uppercase; }
+.brand small { display: block; font-size: 11px; color: var(--ink-3); margin-top: 3px; }
+.nav { display: grid; gap: 2px; }
+.nav a { position: relative; display: flex; align-items: center; gap: 11px; height: 36px; padding: 0 10px; border-radius: var(--r-sm); color: var(--ink-2); font-weight: 500; }
+.nav a i { font-size: 18px; }
+.nav a:hover { background: var(--sunk); color: var(--ink); }
+.nav a[aria-current="page"] { background: var(--ink); color: var(--bg); }
+.nav a[aria-current="page"]::after { content: ""; position: absolute; right: 0; top: 0; bottom: 0; width: 4px; background: var(--acc); border-radius: 0 var(--r-sm) var(--r-sm) 0; }
+.nav-sep { height: 1px; background: var(--line); margin: 14px 8px; }
+.nav-h { padding: 0 10px 6px; }
+.top { position: sticky; top: 0; z-index: 20; height: 56px; display: flex; align-items: center; gap: 10px; padding: 0 32px; border-bottom: 1px solid var(--line); background: color-mix(in oklab, var(--bg) 88%, transparent); backdrop-filter: saturate(1.3) blur(12px); -webkit-backdrop-filter: saturate(1.3) blur(12px); }
+.crumbs { display: flex; align-items: center; gap: 8px; font-weight: 500; white-space: nowrap; }
+.crumbs a { color: var(--ink-3); display: inline-flex; align-items: center; gap: 6px; }
+.crumbs a:hover { color: var(--ink); }
+.crumbs .sep { color: var(--ink-4); }
+.spacer { flex: 1; }
+.search { display: flex; align-items: center; gap: 8px; height: 32px; width: 300px; padding: 0 8px 0 10px; border: 1px solid var(--line); border-radius: var(--r-sm); background: var(--surface); color: var(--ink-3); }
+.search span { flex: 1; text-align: left; font-size: 13px; }
+.ib { width: 30px; height: 30px; display: grid; place-items: center; border-radius: var(--r-sm); color: var(--ink-2); }
+.ib:hover { background: var(--sunk); color: var(--ink); }
+.ib i { font-size: 16px; }
+.btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; height: 34px; padding: 0 14px; border-radius: var(--r-sm); font: 600 11.5px/1 var(--f-ui); letter-spacing: .07em; text-transform: uppercase; white-space: nowrap; border: 1px solid var(--line-2); background: var(--surface); color: var(--ink); transition: border-color .15s var(--ease); }
+.btn:hover { border-color: var(--ink); }
+.btn i { font-size: 15px; }
+.btn .ar { transition: transform .2s var(--ease); }
+.btn:hover .ar { transform: translateX(3px); }
+.btn.pri { background: var(--ink); border-color: var(--ink); color: var(--bg); }
+.btn.pri kbd { background: transparent; color: color-mix(in oklab, var(--bg) 70%, transparent); border-color: color-mix(in oklab, var(--bg) 35%, transparent); }
+.btn.sm { height: 28px; padding: 0 10px; font-size: 11px; }
+.page { max-width: 1260px; margin: 0 auto; padding: 32px 40px 96px; }
+.screen { display: none; }
+.screen.on { display: block; }
+.panel { background: var(--surface); border: 1px solid var(--line); border-radius: var(--r-lg); min-width: 0; }
+.panel-h { display: flex; align-items: center; gap: 12px; min-height: 52px; padding: 0 20px; border-bottom: 1px solid var(--line); }
+.panel-h h2 { margin: 0; font: 800 17px/1 var(--f-disp); font-stretch: 72%; text-transform: uppercase; letter-spacing: .015em; }
+.panel-h .sub { font: 500 12px/1 var(--f-mono); color: var(--ink-3); }
+.panel-h .r { margin-left: auto; display: flex; gap: 6px; align-items: center; }
+.seg { display: inline-flex; padding: 3px; gap: 2px; background: var(--sunk); border-radius: var(--r-md); max-width: 100%; }
+.seg button { display: inline-flex; align-items: center; gap: 7px; height: 28px; padding: 0 11px; border-radius: var(--r-sm); font: 600 11px/1 var(--f-ui); letter-spacing: .07em; text-transform: uppercase; color: var(--ink-3); white-space: nowrap; }
+.seg button:hover { color: var(--ink); }
+.seg button[aria-checked="true"] { background: var(--surface); color: var(--ink); box-shadow: 0 1px 2px rgb(0 0 0 / .08), 0 0 0 1px var(--line); }
+.seg .n { font: 500 10.5px/1 var(--f-mono); color: var(--ink-3); letter-spacing: 0; }
+.laps { display: grid; grid-template-columns: repeat(10, 1fr); gap: 2px; }
+.laps i { height: 4px; background: var(--line); }
+.laps i.on { background: var(--ink-3); }
+.toast { position: fixed; left: 50%; bottom: 28px; z-index: 50; transform: translate(-50%, 20px); opacity: 0; pointer-events: none; padding: 10px 14px; border-radius: var(--r-md); background: var(--ink); color: var(--bg); font-size: 13px; box-shadow: var(--sh-pop); transition: opacity .2s var(--ease), transform .2s var(--ease); }
+.toast.on { opacity: 1; transform: translate(-50%, 0); }
+
+/* ============================================================ la página de la vitrina */
+.vh { display: flex; align-items: flex-end; justify-content: space-between; gap: 32px; margin-bottom: 28px; }
+.vh h1 { margin: 8px 0 0; font-size: 84px; padding-top: .06em; }
+.vh p { margin: 12px 0 0; color: var(--ink-2); font-size: 15px; max-width: 58ch; }
+.vh p b { color: var(--ink); font-weight: 600; }
+.vh-r { display: grid; justify-items: end; gap: 16px; }
+/* el conteo por metal: cuatro monedas */
+.tally { display: flex; gap: 18px; }
+.tally > div { display: flex; align-items: center; gap: 8px; }
+.tally svg { width: 22px; height: 22px; display: block; }
+.tally .disp { font-size: 26px; }
+.tally small { display: block; font: 600 9.5px/1 var(--f-ui); letter-spacing: .1em; text-transform: uppercase; color: var(--ink-3); margin-top: 2px; }
+.tally .z { opacity: .45; }
+
+/* el mueble: estantes en una grilla de 12; las categorías chicas comparten fila */
+.case { display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); gap: 20px; }
+.case > .shelf { grid-column: span 6; }
+.case > .shelf.wide { grid-column: span 12; }
+
+/* un estante: el fondo con la luz de arriba, la repisa con su placa y debajo las etiquetas */
+.shelf { --hh: 168px; --lh: 40px; position: relative; isolation: isolate; border-radius: var(--r-lg); overflow: hidden; background: var(--surface); border: 1px solid var(--line); }
+.shelf-x { position: relative; overflow-x: auto; scrollbar-width: none; overscroll-behavior-x: contain; }
+.shelf-x::-webkit-scrollbar { display: none; }
+.shelf-row { position: relative; display: flex; justify-content: center; gap: 4px; min-width: 100%; padding: 0 16px; }
+/* el fondo del compartimento: luz cálida de arriba, una tira de LED y un reflejo del vidrio */
+.shelf-row::before { content: ""; position: absolute; z-index: -2; left: 0; right: 0; top: 0; height: var(--hh);
+  background:
+    radial-gradient(60% 120% at 50% -18%, var(--spot), transparent 72%),
+    linear-gradient(var(--case-top), var(--case-bot)); }
+.shelf-led { position: absolute; z-index: 2; left: 6%; right: 6%; top: 0; height: 2px; border-radius: 0 0 2px 2px; background: var(--led); box-shadow: 0 0 14px 3px var(--led-glow), 0 0 40px 10px var(--led-glow); pointer-events: none; }
+.shelf-glass { position: absolute; z-index: 3; left: 0; right: 0; top: 0; height: var(--hh); pointer-events: none; background: linear-gradient(112deg, transparent 38%, var(--glass) 46%, transparent 47.5%, transparent 58%, var(--glass) 60%, transparent 61%); opacity: .7; }
+/* la repisa: la tapa iluminada y el frente laqueado */
+.shelf-row::after { content: ""; position: absolute; z-index: -1; left: 0; right: 0; top: var(--hh); height: var(--lh);
+  background: linear-gradient(var(--ledge-top), var(--ledge) 5px, var(--ledge) 60%, var(--ledge-2)); box-shadow: 0 -1px 0 rgb(255 255 255 / .06) inset; }
+/* la placa del estante: aluminio cepillado, el nombre grabado y cuántos tenés */
+.plaque { position: absolute; z-index: 4; left: 50%; top: calc(var(--hh) + 9px); transform: translateX(-50%); display: flex; align-items: center; gap: 10px; height: 23px; padding: 0 11px; border-radius: 2px; white-space: nowrap; pointer-events: none;
+  background: linear-gradient(180deg, var(--plaque-1), var(--plaque-2)); color: var(--plaque-ink);
+  box-shadow: 0 1px 0 rgb(255 255 255 / .35) inset, 0 -1px 0 rgb(0 0 0 / .25) inset, 0 1px 2px rgb(0 0 0 / .5); }
+.plaque::before, .plaque::after { content: ""; width: 3px; height: 3px; border-radius: 50%; background: rgb(0 0 0 / .35); box-shadow: 0 1px 0 rgb(255 255 255 / .5); }
+.plaque b { font: italic 900 12.5px/1 var(--f-disp); font-stretch: 66%; text-transform: uppercase; letter-spacing: .04em; }
+.plaque span { font: 500 10.5px/1 var(--f-mono); letter-spacing: -.01em; opacity: .75; }
+.shelf.done .plaque { background: linear-gradient(180deg, #F6DE8A, #C3962A); }
+/* la barra de las medallas: de acá cuelgan las cintas */
+.shelf.hang .shelf-row > .rod { position: absolute; z-index: 1; left: 18px; right: 18px; top: 16px; height: 5px; border-radius: 3px; background: linear-gradient(#E9E7E2, #8F8B83 70%, #5E5B55); box-shadow: 0 2px 3px rgb(0 0 0 / .25); }
+
+/* cada objeto es un botón: la pieza arriba de la repisa y la etiqueta abajo */
+.obj { position: relative; flex: 1 0 0; min-width: 92px; max-width: 148px; display: grid; grid-template-rows: var(--hh) var(--lh) auto; text-align: center; padding: 0 2px 16px; border-radius: var(--r-md); }
+.obj .pc { position: relative; display: flex; align-items: flex-end; justify-content: center; padding-top: 22px; }
+.shelf.hang .obj .pc { align-items: flex-start; padding-top: 14px; }
+.obj .pc > svg { width: calc(var(--w) * var(--s, 1) * var(--k, 1)); height: auto; display: block; overflow: visible; transition: transform .35s var(--ease), filter .35s var(--ease); transform-origin: 50% 100%; }
+.shelf.hang .obj .pc > svg { transform-origin: 50% 0; }
+/* la sombra sobre la repisa */
+.obj .pc::after { content: ""; position: absolute; z-index: -1; left: 50%; bottom: -3px; width: calc(var(--w) * var(--s, 1) * var(--k, 1) * .9); height: 10px; transform: translateX(-50%); border-radius: 50%; background: radial-gradient(closest-side, var(--floor), transparent); }
+.obj.sil .pc::after, .shelf.hang .obj .pc::after { opacity: .35; }
+.obj .tx { display: grid; justify-items: center; gap: 5px; padding: 12px 4px 0; }
+.obj b { font-size: 12px; font-weight: 600; line-height: 1.25; text-wrap: balance; }
+.obj small { font-size: 11px; color: var(--ink-3); font-variant-numeric: tabular-nums; line-height: 1.2; }
+.obj .laps { width: 56px; }
+.obj.sil b { color: var(--ink-2); font-weight: 500; }
+.obj:hover .pc > svg { transform: translateY(-3px) scale(1.03); }
+.shelf.hang .obj:hover .pc > svg { transform: rotate(-3deg); }
+.obj:hover b { text-decoration: underline; text-underline-offset: 3px; text-decoration-thickness: 1px; }
+.obj:focus-visible { outline-offset: -2px; }
+/* por caer: el contorno en tartán y un brillo que respira */
+.obj.close .pc > svg { filter: drop-shadow(0 0 7px color-mix(in oklab, var(--acc) 55%, transparent)); animation: breathe 2.6s var(--ease) infinite alternate; }
+.obj.close small { color: var(--acc); font-weight: 600; }
+.obj.close .laps i.on { background: var(--acc); }
+@keyframes breathe { to { filter: drop-shadow(0 0 14px color-mix(in oklab, var(--acc) 80%, transparent)); } }
+/* nuevo desde la última vez que miraste */
+.obj .nw { position: absolute; z-index: 5; top: 12px; left: 50%; transform: translateX(-50%) rotate(-4deg); font: italic 900 10px/1 var(--f-disp); font-stretch: 70%; letter-spacing: .06em; text-transform: uppercase; background: var(--acc); color: #fff; padding: 3px 5px; border-radius: 2px; }
+/* los ícono de los escudos: arriba del svg, en el centro del escudo */
+.obj .ic { position: absolute; left: 50%; bottom: calc(var(--w) * var(--s, 1) * var(--k, 1) * 1.625 * .70); transform: translate(-50%, 50%); font-size: calc(var(--w) * var(--s, 1) * var(--k, 1) * .36); color: rgb(255 255 255 / .95); text-shadow: 0 1px 1px rgb(0 0 0 / .25); pointer-events: none; }
+.obj.sil .ic { color: var(--sil); text-shadow: none; }
+/* las cajas de los secretos no son botones: no hay nada que abrir */
+.obj.box { cursor: default; }
+.obj.box:hover .pc > svg { transform: none; }
+.obj.box:hover b { text-decoration: none; }
+.shelf-note { position: absolute; z-index: 4; right: 18px; top: calc(var(--hh) + 14px); font: 600 10.5px/1 var(--f-ui); letter-spacing: .08em; text-transform: uppercase; color: rgb(255 255 255 / .6); pointer-events: none; }
+.shelf-note b { color: #fff; font-weight: 700; }
+
+/* aparecen al llegar, de izquierda a derecha */
+.reveal .obj { opacity: 0; transform: translateY(10px); }
+.reveal.in .obj { opacity: 1; transform: none; transition: opacity .5s var(--ease), transform .55s var(--ease); transition-delay: calc(var(--j) * 45ms); }
+/* ?quieto: sin la entrada, para sacar capturas */
+.quiet .reveal .obj { opacity: 1; transform: none; transition: none; }
+.quiet .obj.close .pc > svg { animation: none; }
+.empty { padding: 40px 20px; text-align: center; color: var(--ink-3); }
+
+.foot-n { margin-top: 28px; color: var(--ink-3); font-size: 12.5px; max-width: 90ch; }
+
+/* ============================================================ la vidriera chica en Logros */
+.lg { display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); gap: 20px; }
+.ghost-b { grid-column: span 12; height: 120px; border-radius: var(--r-lg); border: 1px dashed var(--line-2); display: grid; place-items: center; color: var(--ink-3); font-size: 12.5px; }
+.vid { grid-column: span 8; }
+.chs { grid-column: span 4; }
+.vid .shelf { border: 0; border-radius: 0 0 var(--r-lg) var(--r-lg); }
+.vid-z { display: grid; grid-template-columns: 1fr 1fr; }
+.vid-z .shelf { --hh: 168px; border-radius: 0; }
+.vid-z .shelf:first-child { border-bottom-left-radius: var(--r-lg); }
+.vid-z .shelf:last-child { border-bottom-right-radius: var(--r-lg); }
+.vid-z .shelf + .shelf .shelf-row::before { box-shadow: 1px 0 0 rgb(0 0 0 / .08) inset; }
+.wall { position: absolute; z-index: 4; left: 16px; top: 14px; font: 600 10px/1 var(--f-ui); letter-spacing: .1em; text-transform: uppercase; color: var(--ink-3); pointer-events: none; }
+.vid .obj { min-width: 80px; }
+.vid .obj .pc { padding-top: 38px; }
+.vid .obj .nw { top: 32px; }
+.chs p { margin: 0; padding: 20px; color: var(--ink-3); font-size: 13px; line-height: 1.5; }
+
+@media (max-width: 1240px) {
+  .search { width: 220px; }
+  .case > .shelf { grid-column: span 12; }
+}
+@media (max-width: 900px) {
+  .app { grid-template-columns: minmax(0, 1fr); }
+  .rail { position: fixed; z-index: 30; top: auto; bottom: 0; left: 0; right: 0; height: auto; flex-direction: row; padding: 6px 8px calc(6px + env(safe-area-inset-bottom)); border-right: 0; border-top: 1px solid var(--line); background: color-mix(in oklab, var(--bg) 92%, transparent); backdrop-filter: blur(12px); }
+  .brand, .nav-sep, .nav-h, .nav .x { display: none; }
+  .nav { grid-auto-flow: column; grid-auto-columns: minmax(0, 1fr); width: 100%; }
+  .nav a { flex-direction: column; height: 48px; gap: 3px; justify-content: center; font-size: 10.5px; padding: 0; }
+  .nav a i { font-size: 20px; }
+  .nav a[aria-current="page"] { background: transparent; color: var(--ink); }
+  .nav a[aria-current="page"]::after { left: 30%; right: 30%; top: -7px; bottom: auto; width: auto; height: 3px; border-radius: 0; }
+  .top { padding: 0 12px; gap: 6px; }
+  .search, .top .btn.pri kbd, .top .btn.pri span { display: none; }
+  .top .btn.pri { width: 34px; padding: 0; }
+  .page { padding: 20px 16px 110px; }
+  .vh { flex-direction: column; align-items: stretch; gap: 18px; margin-bottom: 20px; }
+  .vh h1 { font-size: 60px; }
+  .vh p { font-size: 14px; }
+  .vh-r { justify-items: stretch; }
+  .tally { justify-content: space-between; gap: 8px; }
+  .seg { display: flex; }
+  .seg button { flex: 1; justify-content: center; padding: 0 6px; }
+  .case { grid-template-columns: minmax(0, 1fr); gap: 14px; }
+  .case > .shelf, .case > .shelf.wide { grid-column: 1 / -1; }
+  /* en el celu el estante se corre de costado; la placa queda quieta a la izquierda */
+  .shelf { --hh: 136px; --k: .8; }
+  .shelf-row { justify-content: flex-start; width: max-content; padding: 0 10px; }
+  .shelf-x { scroll-snap-type: x proximity; scroll-padding: 0 10px; }
+  .obj { flex: 0 0 90px; min-width: 0; scroll-snap-align: start; }
+  .obj b { font-size: 11.5px; }
+  .plaque { left: 12px; transform: none; }
+  .shelf-note { right: auto; left: 12px; top: 14px; color: var(--ink-3); }
+  .shelf-note b { color: var(--ink); }
+  .shelf .fade { position: absolute; z-index: 5; right: 0; top: 0; bottom: 0; width: 28px; pointer-events: none; background: linear-gradient(90deg, transparent, color-mix(in oklab, var(--surface) 85%, transparent)); }
+  .lg { grid-template-columns: minmax(0, 1fr); gap: 14px; }
+  .lg > * { grid-column: 1 / -1; }
+  .vid-z { grid-template-columns: minmax(0, 1fr); }
+  .vid-z .shelf:first-child { border-radius: 0; }
+  .vid-z .shelf:last-child { border-radius: 0 0 var(--r-lg) var(--r-lg); }
+  .vid-z .shelf-row { justify-content: space-between; }
+  .vid .shelf-row { width: auto; }
+  .vid .obj { flex: 1 0 0; min-width: 0; }
+  .vid .shelf .fade { display: none; }
+  .vid .panel-h { flex-wrap: wrap; }
+}
+@media (min-width: 901px) { .shelf .fade { display: none; } }
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation: none !important; transition: none !important; }
+  .reveal .obj { opacity: 1; transform: none; }
+}
+</style>
+</head>
+<body>
+<!-- los metales: bronce, plata, oro y platino, con el brillo de una pieza torneada -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <linearGradient id="m0" x1="0" x2="1" y1="0" y2="0"><stop offset="0" stop-color="#6A3714"/><stop offset=".28" stop-color="#B7713D"/><stop offset=".46" stop-color="#F0C29A"/><stop offset=".62" stop-color="#B0703F"/><stop offset="1" stop-color="#6E3B17"/></linearGradient>
+    <linearGradient id="m1" x1="0" x2="1" y1="0" y2="0"><stop offset="0" stop-color="#5A6169"/><stop offset=".28" stop-color="#A9B0B8"/><stop offset=".46" stop-color="#F4F6F8"/><stop offset=".62" stop-color="#9AA1A9"/><stop offset="1" stop-color="#5E656D"/></linearGradient>
+    <linearGradient id="m2" x1="0" x2="1" y1="0" y2="0"><stop offset="0" stop-color="#7A5A0E"/><stop offset=".28" stop-color="#C9992A"/><stop offset=".46" stop-color="#FBE6A0"/><stop offset=".62" stop-color="#C3962A"/><stop offset="1" stop-color="#806010"/></linearGradient>
+    <linearGradient id="m3" x1="0" x2="1" y1="0" y2="0"><stop offset="0" stop-color="#4A4288"/><stop offset=".28" stop-color="#8C7FCF"/><stop offset=".46" stop-color="#ECE7FF"/><stop offset=".62" stop-color="#8C7FCF"/><stop offset="1" stop-color="#4E4690"/></linearGradient>
+    <radialGradient id="d0" cx=".38" cy=".32" r=".75"><stop offset="0" stop-color="#F0C29A"/><stop offset=".45" stop-color="#B7713D"/><stop offset="1" stop-color="#6A3714"/></radialGradient>
+    <radialGradient id="d1" cx=".38" cy=".32" r=".75"><stop offset="0" stop-color="#F4F6F8"/><stop offset=".45" stop-color="#A9B0B8"/><stop offset="1" stop-color="#5A6169"/></radialGradient>
+    <radialGradient id="d2" cx=".38" cy=".32" r=".75"><stop offset="0" stop-color="#FBE6A0"/><stop offset=".45" stop-color="#C9992A"/><stop offset="1" stop-color="#7A5A0E"/></radialGradient>
+    <radialGradient id="d3" cx=".38" cy=".32" r=".75"><stop offset="0" stop-color="#ECE7FF"/><stop offset=".45" stop-color="#8C7FCF"/><stop offset="1" stop-color="#4A4288"/></radialGradient>
+  </defs>
+</svg>
+
+<div class="app">
+  <aside class="rail" aria-label="Navegación principal">
+    <div class="brand">
+      <svg viewBox="0 0 32 32" aria-hidden="true"><rect x="1" y="1" width="30" height="30" rx="4" fill="var(--acc)"/><rect x="5.5" y="10" width="21" height="12" rx="6" fill="none" stroke="#fff" stroke-width="2.4"/><rect x="9.4" y="13.6" width="13.2" height="4.8" rx="2.4" fill="none" stroke="#fff" stroke-width="1" opacity=".55"/><rect x="11.4" y="7.4" width="1.8" height="6" fill="#141414"/></svg>
+      <div><b>Lane One</b><small>Registro y progreso</small></div>
+    </div>
+    <nav class="nav">
+      <a href="#"><i class="ph ph-calendar-blank"></i>Semana</a>
+      <a href="#"><i class="ph ph-rows"></i>Registro</a>
+      <a href="#"><i class="ph ph-chart-line-up"></i>Análisis</a>
+      <a href="#"><i class="ph ph-flag-checkered"></i>Carreras</a>
+      <a href="#"><i class="ph ph-map-trifold"></i>Mapa</a>
+      <a href="#logros" aria-current="page"><i class="ph ph-medal"></i>Logros</a>
+      <div class="nav-sep"></div>
+      <div class="nav-h lbl">Boceto VIT-01</div>
+      <a class="x" href="#vitrina" data-v="vitrina"><i class="ph ph-trophy"></i>La vitrina</a>
+      <a class="x" href="#logros" data-v="logros"><i class="ph ph-storefront"></i>La vidriera en Logros</a>
+    </nav>
+  </aside>
+
+  <div class="main">
+    <header class="top">
+      <div class="crumbs" id="crumbs"></div>
+      <div class="spacer"></div>
+      <button class="search" type="button"><i class="ph ph-magnifying-glass"></i><span>Buscar sesiones, carreras…</span><kbd>⌘K</kbd></button>
+      <button class="ib" type="button" id="theme" aria-label="Cambiar tema"><i class="ph ph-moon"></i></button>
+      <button class="btn pri" type="button"><i class="ph-bold ph-plus"></i><span>Registrar</span><kbd>R</kbd></button>
+    </header>
+
+    <!-- ================= /logros/vitrina ================= -->
+    <section class="screen" id="s-vitrina">
+      <div class="page">
+        <header class="vh">
+          <div>
+            <div class="lbl">Logros · tus trofeos</div>
+            <h1 class="brand-t">Vitrina<em>.</em></h1>
+            <p id="vh-p"></p>
+          </div>
+          <div class="vh-r">
+            <div class="tally" id="tally"></div>
+            <div class="seg" role="radiogroup" aria-label="Filtrar trofeos" id="seg"></div>
+          </div>
+        </header>
+        <div class="case" id="case"></div>
+        <p class="foot-n">Boceto con los datos de ejemplo, más tres carreras y la Vuelta olímpica para que se vean las medallas y un secreto ganado. Las tres cajas de Secretos son los de la tanda 2 (Bajo la lluvia, Capicúa, A pleno sol). Tocar un objeto abre el panel del trofeo, como hoy.</p>
+      </div>
+    </section>
+
+    <!-- ================= /logros con la vidriera ================= -->
+    <section class="screen" id="s-logros">
+      <div class="page">
+        <div class="lg">
+          <div class="ghost-b">El estadio con tu título y el camino de títulos, sin cambios</div>
+          <article class="panel vid" aria-labelledby="vid-h">
+            <div class="panel-h">
+              <h2 id="vid-h">Vitrina</h2><span class="sub" id="vid-sub"></span>
+              <div class="r"><a class="btn sm" href="#vitrina" data-v="vitrina">Ver la vitrina<i class="ph ph-arrow-right ar"></i></a></div>
+            </div>
+            <div class="vid-z" id="vid"></div>
+          </article>
+          <article class="panel chs">
+            <div class="panel-h"><h2>Desafíos</h2><div class="r"><button class="btn sm" type="button"><i class="ph ph-plus"></i>Nuevo</button></div></div>
+            <p>No tenés desafíos en curso. Con «Nuevo» elegís uno de los sugeridos según tus últimas semanas o armás el tuyo.</p>
+          </article>
+          <div class="ghost-b">El podio y los atributos, sin cambios</div>
+        </div>
+      </div>
+    </section>
+  </div>
+</div>
+<div class="toast" id="toast" role="status"></div>
+
+<script>
+const $ = (s, el = document) => el.querySelector(s);
+
+/* ---------- los trofeos (los de los datos de ejemplo) ----------
+   [nombre, ganado, metal 0–3, nota (fecha o lo que llevás), progreso 0–1, placa de la copa] */
+const CATS = [
+  { k: 'tot', n: 'Distancia total', ic: 'path', t: [
+    ['100 km', 1, 0, '22 sept'], ['250 km', 0, 0, '237 de 250 km', .95], ['500 km', 0, 1, '237 de 500 km', .47], ['1.000 km', 0, 1, '237 de 1.000 km', .24], ['2.000 km', 0, 2, '237 de 2.000 km', .12], ['100 maratones', 0, 3, '237 de 4.220 km', .06]] },
+  { k: 'long', n: 'Salida más larga', ic: 'sneaker-move', t: [
+    ['Primeros 5 km', 1, 0, '25 ago'], ['Primeros 10 km', 1, 0, '25 ago'], ['15 km de una', 0, 1, '13,5 de 14,8 km', .91], ['Distancia de media', 0, 1, '13,5 de 21 km', .64], ['30 km', 0, 2, '13,5 de 29,7 km', .45], ['Distancia de maratón', 0, 2, '13,5 de 42 km', .32]] },
+  { k: 'pr5', n: 'Marcas en 5K', cup: 1, t: [
+    ['Terminar un 5K', 1, 0, '1 oct', 0, '5K'], ['Bajar de 35:00', 1, 0, '1 oct', 0, '35:00'], ['Bajar de 30:00', 1, 0, '1 oct', 0, '30:00'], ['Bajar de 27:30', 1, 1, '1 oct', 0, '27:30'], ['Bajar de 25:00', 1, 1, '1 oct', 0, '25:00'],
+    ['Bajar de 22:30', 0, 1, '23:55 → 22:30', .94, '22:30'], ['Bajar de 20:00', 0, 2, '23:55 → 20:00', .84, '20:00'], ['Bajar de 18:00', 0, 2, '23:55 → 18:00', .75, '18:00']] },
+  { k: 'pr10', n: 'Marcas en 10K', cup: 1, t: [
+    ['Terminar un 10K', 0, 1, '', 0, '10K'], ['Bajar de 1:10:00', 0, 0, '', 0, '1:10:00'], ['Bajar de 1:00:00', 0, 0, '', 0, '1:00:00'], ['Bajar de 55:00', 0, 1, '', 0, '55:00'], ['Bajar de 50:00', 0, 1, '', 0, '50:00'], ['Bajar de 45:00', 0, 2, '', 0, '45:00'], ['Bajar de 40:00', 0, 2, '', 0, '40:00'], ['Bajar de 37:00', 0, 3, '', 0, '37:00']] },
+  { k: 'pr15', n: 'Marcas en 15K', cup: 1, t: [
+    ['Terminar un 15K', 0, 1, '', 0, '15K'], ['Bajar de 1:45:00', 0, 0, '', 0, '1:45:00'], ['Bajar de 1:30:00', 0, 1, '', 0, '1:30:00'], ['Bajar de 1:22:30', 0, 1, '', 0, '1:22:30'], ['Bajar de 1:15:00', 0, 2, '', 0, '1:15:00'], ['Bajar de 1:07:30', 0, 2, '', 0, '1:07:30'], ['Bajar de 1:00:00', 0, 3, '', 0, '1:00:00']] },
+  { k: 'pr21', n: 'Marcas en media maratón', cup: 1, t: [
+    ['Terminar una media', 0, 2, '', 0, '21K'], ['Bajar de 2:45:00', 0, 0, '', 0, '2:45:00'], ['Bajar de 2:30:00', 0, 1, '', 0, '2:30:00'], ['Bajar de 2:15:00', 0, 1, '', 0, '2:15:00'], ['Bajar de 2:00:00', 0, 2, '', 0, '2:00:00'], ['Bajar de 1:50:00', 0, 2, '', 0, '1:50:00'], ['Bajar de 1:40:00', 0, 3, '', 0, '1:40:00'], ['Bajar de 1:30:00', 0, 3, '', 0, '1:30:00']] },
+  { k: 'pr42', n: 'Marcas en maratón', cup: 1, t: [
+    ['Terminar un maratón', 0, 3, '', 0, '42K'], ['Bajar de 5:00:00', 0, 1, '', 0, '5:00:00'], ['Bajar de 4:30:00', 0, 1, '', 0, '4:30:00'], ['Bajar de 4:15:00', 0, 2, '', 0, '4:15:00'], ['Bajar de 4:00:00', 0, 2, '', 0, '4:00:00'], ['Bajar de 3:45:00', 0, 2, '', 0, '3:45:00'], ['Bajar de 3:30:00', 0, 3, '', 0, '3:30:00'], ['Bajar de 3:15:00', 0, 3, '', 0, '3:15:00'], ['Bajar de 3:00:00', 0, 3, '', 0, '3:00:00']] },
+  /* las cintas son las de la carrera que ganó cada medalla (raceTheme): Estaciones la primera, Supernova la tercera */
+  { k: 'race', n: 'Carreras', hang: 1, t: [
+    ['Primera carrera', 1, 0, '12 abr', 0, '1', ['#F2401C', '#B9C0C8']], ['3 carreras', 1, 1, '24 may', 0, '3', ['#2E9BE0', '#B9C0C8']], ['5 carreras', 0, 1, '3 de 5', .6, '5'], ['10 carreras', 0, 2, '3 de 10', .3, '10']] },
+  { k: 'week', n: 'Semanas fuertes', ic: 'calendar-dots', t: [
+    ['Semana de 20 km', 1, 0, '30 ago'], ['Semana de 30 km', 1, 0, '25 oct', 0, 0, 0, 1], ['Semana de 40 km', 0, 1, '31 de 40 km', .78], ['Semana de 50 km', 0, 2, '31 de 50 km', .62], ['Semana de 60 km', 0, 2, '31 de 60 km', .52]] },
+  { k: 'month', n: 'Meses fuertes', ic: 'calendar-check', t: [
+    ['Mes de 50 km', 1, 0, '30 sept'], ['Mes de 100 km', 1, 0, '30 sept'], ['Mes de 150 km', 0, 1, '110 de 150 km', .73], ['Mes de 200 km', 0, 2, '110 de 200 km', .55]] },
+  { k: 'streak', n: 'Constancia', ic: 'fire', t: [
+    ['4 semanas seguidas', 1, 0, '20 sept'], ['8 semanas seguidas', 1, 0, '18 oct'], ['12 semanas seguidas', 0, 1, '9 de 12', .75], ['Medio año seguido', 0, 2, '9 de 26', .35], ['Un año seguido', 0, 3, '9 de 52', .17]] },
+  { k: 'runs', n: 'Salidas', ic: 'footprints', t: [
+    ['25 salidas', 1, 0, '20 oct'], ['50 salidas', 0, 0, '27 de 50', .54], ['100 salidas', 0, 1, '27 de 100', .27], ['200 salidas', 0, 2, '27 de 200', .14], ['365 salidas', 0, 2, '27 de 365', .07]] },
+  { k: 'hours', n: 'Horas', ic: 'clock', t: [
+    ['10 horas', 1, 0, '22 sept'], ['25 horas', 0, 0, '24 de 25 h', .96], ['50 horas', 0, 1, '24 de 50 h', .48], ['100 horas', 0, 2, '24 de 100 h', .24]] },
+  { k: 'plan', n: 'Plan cumplido', ic: 'list-checks', t: [
+    ['10 sesiones del plan', 1, 0, '15 sept'], ['50 sesiones del plan', 0, 1, '27 de 50', .54], ['100 sesiones del plan', 0, 2, '27 de 100', .27]] },
+  { k: 'score', n: 'Puntaje', ic: 'star', t: [
+    ['Primera sesión excelente', 1, 0, '25 ago'], ['10 sesiones excelentes', 1, 1, '20 sept'], ['25 sesiones excelentes', 0, 2, '23 de 25', .92]] },
+  { k: 'area', n: 'Exploración', ic: 'compass', t: [
+    ['Explorador: 5 km²', 1, 0, '1 sept'], ['Explorador: 10 km²', 0, 1, '7,6 de 10 km²', .76], ['Explorador: 25 km²', 0, 2, '7,6 de 25 km²', .3]] },
+  /* secretos: los ganados y una caja cerrada por cada uno que falta, sin decir cuál */
+  { k: 'egg', n: 'Secretos', ic: 'crown', egg: 3, t: [['Vuelta olímpica', 1, 2, '24 may']] },
+];
+const ALL = CATS.flatMap((c) => c.t.map((t) => ({ c, n: t[0], got: !!t[1], tier: t[2], note: t[3], p: t[4] || 0, plate: t[5], rib: t[6], isNew: !!t[7] })));
+const nGot = ALL.filter((t) => t.got).length;
+const TIER_N = ['bronce', 'plata', 'oro', 'platino'];
+/* más valioso, más grande: como en cualquier vitrina de club */
+const SCALE = [.86, .93, 1, 1.07];
+
+/* ---------- las piezas ---------- */
+const DASH = 'stroke="var(--sil)" stroke-width="1.4" stroke-dasharray="3 2.6" fill="var(--sil-fill)"';
+const closeStroke = (t) => (t.p >= .85 ? 'stroke="var(--acc)" stroke-width="1.6" stroke-dasharray="3 2.6" fill="color-mix(in oklab, var(--acc) 6%, transparent)"' : DASH);
+/* copa: para las marcas. La placa del pie dice el tiempo a bajar (o la distancia, si es terminarla) */
+function cup(t) {
+  const m = `url(#m${t.tier})`, s = t.got ? '' : closeStroke(t), long = String(t.plate).length > 5;
+  const fill = (x) => (t.got ? `fill="${x}"` : s);
+  return `<svg viewBox="0 0 80 124" aria-hidden="true">
+    <path d="M17 24H9c0 15 5 24 14 27" fill="none" ${t.got ? `stroke="${m}" stroke-width="4"` : s.replace(/fill="[^"]*"/, 'fill="none"')} />
+    <path d="M63 24h8c0 15-5 24-14 27" fill="none" ${t.got ? `stroke="${m}" stroke-width="4"` : s.replace(/fill="[^"]*"/, 'fill="none"')} />
+    <path d="M14 13h52v9c0 23-10 37-26 41-16-4-26-18-26-41z" ${fill(m)} />
+    <rect x="12" y="9" width="56" height="6" rx="1.5" ${fill(m)} />
+    ${t.got ? '<path d="M24 19c0 17 4 29 11 36" fill="none" stroke="#fff" stroke-opacity=".45" stroke-width="3" stroke-linecap="round"/><path d="M14 15h52" stroke="#000" stroke-opacity=".18"/>' : ''}
+    <rect x="36" y="63" width="8" height="10" ${fill(m)} />
+    <ellipse cx="40" cy="74" rx="9" ry="3" ${fill(m)} />
+    <path d="M27 85h26l3 6H24z" ${fill(m)} />
+    <rect x="18" y="91" width="44" height="33" rx="2" ${t.got ? 'fill="var(--plinth)"' : s} />
+    ${t.got ? '<rect x="18" y="91" width="44" height="2" fill="var(--plinth-hi)"/>' : ''}
+    <rect x="${long ? 21 : 24}" y="100" width="${long ? 38 : 32}" height="14" rx="1" ${t.got ? `fill="${m}"` : 'fill="none" stroke="var(--sil)" stroke-width="1"'} />
+    <text x="40" y="110.4" text-anchor="middle" style="font: italic 800 ${long ? 8.4 : 9.6}px var(--f-disp); font-stretch: 72%; letter-spacing: .02em" fill="${t.got ? '#2A1F12' : 'var(--ink-3)'}">${t.plate}</text>
+  </svg>`;
+}
+/* medalla colgada: para las carreras. La cinta es la de la carrera que la ganó; el número, cuántas llevás */
+function medal(t) {
+  const d = `url(#d${t.tier})`, s = t.got ? '' : closeStroke(t);
+  const [r1, r2] = t.rib || [];
+  return `<svg viewBox="0 0 70 142" aria-hidden="true">
+    ${t.got
+      ? `<path d="M13 0h16l11 84H28z" fill="${r1}"/><path d="M57 0H41L30 84h12z" fill="${r2}"/><path d="M57 0H41L30 84h12z" fill="#000" opacity=".12"/>
+         <path d="M17 0h3l10 84h-3z" fill="#fff" opacity=".22"/>`
+      : `<path d="M13 0h16l11 84H28z" ${s} /><path d="M57 0H41L30 84h12z" ${s} />`}
+    <rect x="28" y="80" width="14" height="9" rx="2" ${t.got ? `fill="url(#m${t.tier})"` : s} />
+    <circle cx="35" cy="112" r="27" ${t.got ? `fill="${d}"` : s} />
+    ${t.got ? `<circle cx="35" cy="112" r="21" fill="none" stroke="#000" stroke-opacity=".22" stroke-dasharray="2 2.4"/><circle cx="35" cy="112" r="27" fill="none" stroke="#000" stroke-opacity=".18"/>` : ''}
+    <text x="35" y="${t.plate.length > 1 ? 121 : 122}" text-anchor="middle" style="font: italic 900 ${t.plate.length > 1 ? 24 : 28}px var(--f-disp); font-stretch: 62%" fill="${t.got ? 'rgb(0 0 0 / .62)' : 'var(--ink-3)'}">${t.plate}</text>
+  </svg>`;
+}
+/* escudo: para todo lo demás, parado sobre su pie */
+function shield(t) {
+  const m = `url(#m${t.tier})`, s = t.got ? '' : closeStroke(t);
+  return `<svg viewBox="0 0 64 104" aria-hidden="true">
+    <path d="M32 4 54 14v18c0 13-9 22-22 26C19 54 10 45 10 32V14z" ${t.got ? `fill="${m}"` : s} />
+    ${t.got ? '<path d="M32 10 48 17v15c0 10-7 17-16 20C23 49 16 42 16 32V17z" fill="none" stroke="#fff" stroke-opacity=".4"/><path d="M32 4 54 14v18c0 13-9 22-22 26" fill="#000" fill-opacity=".1"/>' : ''}
+    <rect x="28" y="60" width="8" height="14" ${t.got ? `fill="${m}"` : s} />
+    <path d="M22 74h20l3 6H19z" ${t.got ? `fill="${m}"` : s} />
+    <rect x="14" y="80" width="36" height="24" rx="2" ${t.got ? 'fill="var(--plinth)"' : s} />
+    ${t.got ? '<rect x="14" y="80" width="36" height="2" fill="var(--plinth-hi)"/><rect x="22" y="89" width="20" height="6" rx="1" fill="' + m + '" opacity=".9"/>' : ''}
+  </svg>`;
+}
+/* caja cerrada con candado: un secreto que todavía no encontraste */
+const box = () => `<svg viewBox="0 0 64 104" aria-hidden="true">
+  <rect x="9" y="44" width="46" height="60" rx="2" fill="var(--box)"/>
+  <rect x="6" y="34" width="52" height="13" rx="2" fill="var(--box-hi)"/>
+  <rect x="9" y="47" width="46" height="2" fill="#000" opacity=".25"/>
+  <path d="M25 66v-6a7 7 0 0 1 14 0v6" fill="none" stroke="var(--lock)" stroke-width="3.2"/>
+  <rect x="21" y="65" width="22" height="18" rx="2.5" fill="var(--lock)"/>
+  <circle cx="32" cy="72" r="2.6" fill="var(--box)"/><rect x="31" y="73" width="2" height="5" fill="var(--box)"/>
+</svg>`;
+
+const laps = (p) => `<span class="laps" aria-hidden="true">${Array.from({ length: 10 }, (_, k) => `<i${k < Math.round(p * 10) ? ' class="on"' : ''}></i>`).join('')}</span>`;
+function obj(t, j) {
+  const c = t.c, kind = c.cup ? 'cup' : c.hang ? 'medal' : 'shield';
+  const w = kind === 'cup' ? 84 : kind === 'medal' ? 66 : 72;
+  const svg = kind === 'cup' ? cup(t) : kind === 'medal' ? medal(t) : shield(t);
+  const label = t.n + (t.got ? ', ' + TIER_N[t.tier] + ', ganado el ' + t.note : ', por ganar' + (t.note ? ', ' + t.note : '')) + (t.isNew ? ', nuevo' : '');
+  const cls = ['obj', t.got ? '' : 'sil', !t.got && t.p >= .85 ? 'close' : ''].filter(Boolean).join(' ');
+  return `<button type="button" class="${cls}" style="--w:${w}px;--s:${SCALE[t.tier]};--j:${j}" aria-label="${label}" data-n="${t.n}">
+    <span class="pc">${svg}${kind === 'shield' ? `<i class="ph-fill ph-${c.ic} ic" aria-hidden="true"></i>` : ''}${t.isNew ? '<span class="nw" aria-hidden="true">Nuevo</span>' : ''}</span>
+    <span></span>
+    <span class="tx" aria-hidden="true"><b>${t.n}</b>${!t.got && t.p ? laps(t.p) : ''}${t.note ? `<small>${t.note}</small>` : ''}</span>
+  </button>`;
+}
+const boxObj = (j) => `<div class="obj box" style="--w:56px;--j:${j}" role="img" aria-label="Secreto sin descubrir"><span class="pc">${box()}</span><span></span><span class="tx" aria-hidden="true"><b>Secreto</b><small>Sin pistas</small></span></div>`;
+
+function shelf({ name, got, all, items, boxes = 0, cls = '', note = '', wall = '', plaque = true }) {
+  const n = items.length + boxes;
+  return `<section class="shelf reveal ${cls}${n >= 6 ? ' wide' : ''}${got === all && all ? ' done' : ''}" aria-label="${name}${plaque ? ', ' + got + ' de ' + all : ''}">
+    <div class="shelf-x"><div class="shelf-row">${cls.includes('hang') ? '<span class="rod"></span>' : ''}
+      ${items.map((t, j) => obj(t, j)).join('')}${Array.from({ length: boxes }, (_, j) => boxObj(items.length + j)).join('')}
+    </div></div>
+    <span class="shelf-led"></span><span class="shelf-glass"></span><span class="fade"></span>
+    ${wall ? `<span class="wall">${wall}</span>` : ''}
+    ${plaque ? `<span class="plaque" aria-hidden="true"><b>${name}</b><span>${got} de ${all}</span></span>` : ''}
+    ${note ? `<span class="shelf-note">${note}</span>` : ''}
+  </section>`;
+}
+
+/* ---------- la página ---------- */
+let F = 'todos';
+function renderVitrina() {
+  $('#vh-p').innerHTML = `<b>${nGot} de ${ALL.length}</b> trofeos en su lugar. Los que faltan esperan en el estante, con lo que llevás; los que están por caer, brillan.`;
+  const cnt = [0, 1, 2, 3].map((k) => ALL.filter((t) => t.got && t.tier === k).length);
+  $('#tally').innerHTML = cnt.map((n, k) => `<div class="${n ? '' : 'z'}"><svg viewBox="0 0 22 22" aria-hidden="true"><circle cx="11" cy="11" r="10" fill="url(#d${k})"/><circle cx="11" cy="11" r="7" fill="none" stroke="#000" stroke-opacity=".2" stroke-dasharray="1.6 1.8"/></svg><span><span class="disp">${n}</span><small>${TIER_N[k]}</small></span></div>`).join('');
+  const opts = [['todos', 'Todos', ALL.length], ['ganados', 'Ganados', nGot], ['faltan', 'Por ganar', ALL.length - nGot]];
+  $('#seg').innerHTML = opts.map(([v, l, n]) => `<button type="button" role="radio" aria-checked="${v === F}" data-f="${v}">${l}<span class="n">${n}</span></button>`).join('');
+  const html = CATS.map((c) => {
+    const L = ALL.filter((t) => t.c === c);
+    let items = F === 'todos' ? L : L.filter((t) => t.got === (F === 'ganados'));
+    if (F === 'faltan') items = items.slice().sort((a, b) => b.p - a.p);
+    const boxes = c.egg && F !== 'ganados' ? c.egg : 0;
+    if (!items.length && !boxes) return '';
+    return shelf({
+      name: c.n, got: L.filter((t) => t.got).length, all: L.length + (c.egg || 0), items, boxes,
+      cls: c.hang ? 'hang' : '',
+      note: c.egg ? `Quedan <b>${c.egg}</b> por descubrir` : '',
+    });
+  }).join('');
+  $('#case').innerHTML = html || `<p class="empty">Ganaste todos. Por ahora.</p>`;
+  reveal();
+}
+$('#seg').addEventListener('click', (e) => { const b = e.target.closest('[data-f]'); if (b) { F = b.dataset.f; renderVitrina(); } });
+
+/* ---------- la vidriera en Logros: los últimos ganados y los que están por caer ---------- */
+function renderVidriera() {
+  const last = ['Semana de 30 km', '25 salidas', '8 semanas seguidas', 'Bajar de 25:00'].map((n) => ALL.find((t) => t.n === n));
+  const near = ALL.filter((t) => !t.got).sort((a, b) => b.p - a.p).slice(0, 4);
+  $('#vid-sub').textContent = nGot + ' de ' + ALL.length;
+  $('#vid').innerHTML = shelf({ name: 'Últimos ganados', items: last, plaque: false, wall: 'Últimos ganados' }) + shelf({ name: 'Por caer', items: near, plaque: false, wall: 'Por caer' });
+  reveal();
+}
+
+/* aparecen al llegar a cada estante */
+const io = 'IntersectionObserver' in window ? new IntersectionObserver((es) => es.forEach((e) => { if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); } }), { threshold: .15 }) : null;
+function reveal() { document.querySelectorAll('.reveal:not(.in)').forEach((el) => (io ? io.observe(el) : el.classList.add('in'))); }
+
+/* tocar un objeto: en la app abre el panel del trofeo */
+let tt;
+document.addEventListener('click', (e) => {
+  const b = e.target.closest('button.obj');
+  if (!b) return;
+  const el = $('#toast');
+  el.textContent = 'Abre el panel de «' + b.dataset.n + '», como hoy';
+  el.classList.add('on');
+  clearTimeout(tt);
+  tt = setTimeout(() => el.classList.remove('on'), 1800);
+});
+
+/* ---------- navegación del boceto ---------- */
+function go(v) {
+  if (v !== 'logros') v = 'vitrina';
+  document.querySelectorAll('.screen').forEach((s) => s.classList.toggle('on', s.id === 's-' + v));
+  $('#crumbs').innerHTML = v === 'vitrina' ? `<a href="#logros"><i class="ph ph-arrow-left"></i>Logros</a><span class="sep">/</span><span>Vitrina</span>` : `<span>Logros</span>`;
+  if (v === 'vitrina') renderVitrina(); else renderVidriera();
+  scrollTo(0, 0);
+}
+addEventListener('hashchange', () => go(location.hash.slice(1)));
+$('#theme').addEventListener('click', () => {
+  const d = document.documentElement, dark = d.dataset.theme !== 'dark';
+  d.dataset.theme = dark ? 'dark' : 'light';
+  $('#theme').innerHTML = `<i class="ph ph-${dark ? 'sun' : 'moon'}"></i>`;
+});
+const TEMA = (location.search.match(/[?&]tema=(claro|oscuro)/) || [])[1];
+if (TEMA ? TEMA === 'oscuro' : matchMedia('(prefers-color-scheme: dark)').matches) $('#theme').click();
+if (/[?&]quieto/.test(location.search)) document.documentElement.classList.add('quiet');
+const FQ = (location.search.match(/[?&]vitrina=(ganados|faltan)/) || [])[1];
+if (FQ) F = FQ;
+go(location.hash.slice(1));
+</script>
+</body>
+</html>

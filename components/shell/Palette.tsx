@@ -39,7 +39,7 @@ import { baseMapReady, loadBaseMap, mapBarrios, mapRoutes, onBaseMap } from '@/l
 import { addDays, dateLabel, fmt, mondayOf, todayS, ymd } from '@/lib/domain/util';
 import { CAT_N, trophies, trophyNote, trophyTier } from '@/lib/domain/trophies';
 import { chView } from '@/lib/domain/challenges';
-import { AJ_PARTS, addRace, goAjustes, goLogros } from '@/lib/data/actions';
+import { AJ_PARTS, addRace, goAjustes, goLogros, goVitrina } from '@/lib/data/actions';
 import { stravaSync } from '@/lib/strava/sync';
 import { toggleTheme } from '@/lib/theme';
 import { briefOf } from '@/components/pista/session';
@@ -93,7 +93,7 @@ const LO_ROWS: Row[] = (
     [LO_PARTS.pod, 'Podio', 'mejores sesiones ranking distancia puntaje ritmo'],
     [LO_PARTS.att, 'Atributos', 'ficha del jugador media velocidad resistencia constancia disciplina exploración'],
   ] as const
-).map(([id, t, more]) => ({ g: 'Logros', key: id, t, sub: 'En Logros', more, icon: LO_ICON, run: () => goLogros(id) }));
+).map(([id, t, more]) => ({ g: 'Logros', key: id, t, sub: 'En Logros', more, icon: LO_ICON, run: () => (id === LO_PARTS.vit ? goVitrina() : goLogros(id)) }));
 
 /* las secciones de Ajustes: se buscan por su nombre o por lo que se ajusta ahí */
 const AJ_ICON = SECTIONS.find((s) => s.id === 'ajustes')!.Icon;

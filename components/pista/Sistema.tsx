@@ -13,7 +13,7 @@ import { Button, Chip, Delta, Pr, Segmented, Stepper, Switch, Tabs, Tag } from '
 import { Calc, Field, HmsInput, Input, SearchField, TextArea, UnitInput } from './fields';
 import { BrandTitle, Kpis, PageHead, Panel, Stadium, Table, type Col, type Group } from './structure';
 import { Laps, StructureBar, Ticks, ZoneBar, type Seg } from './meters';
-import { Bib, Chrono, Countdown, Medal, Oval, PaceBand, Shield } from './sport';
+import { Bib, Chrono, Countdown, Cup, HungMedal, Medal, Oval, PaceBand, SecretBox, Shield, StandShield } from './sport';
 import { Chart, Dots, GridY, Guide, Key, LabelsX, Line, Spark, StackedBars, Tip, lin, useCursor, type Bar, type Pt } from './charts';
 
 /* ---- datos de ejemplo: los mismos del boceto ---- */
@@ -692,6 +692,18 @@ export default function Sistema() {
                 {date ? <small>{date}</small> : <><Laps value={pg!} className="sx-w70" label={txt} /><small>{txt}</small></>}
               </div>
             ))}
+          </div>
+        </Panel>
+
+        <Panel title="Piezas de la vitrina" sub="Copa, medalla colgada, escudo con pie y caja de secreto" className="p-c12" flush>
+          <div className="sx-pieces">
+            {[0, 1, 2, 3].map((k) => <Cup key={'c' + k} tier={k} got plate={['35:00', '25:00', '21K', '3:00:00'][k]} />)}
+            <Cup tier={2} got={false} plate="20:00" />
+            <HungMedal tier={1} got num="3" color="#2E9BE0" />
+            <HungMedal tier={2} got={false} num="10" />
+            {[0, 3].map((k) => <StandShield key={'s' + k} tier={k} got icon={CalendarCheck} />)}
+            <StandShield tier={1} got={false} icon={CalendarCheck} />
+            <SecretBox />
           </div>
         </Panel>
 

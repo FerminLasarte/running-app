@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="es-AR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Pista · tablero de la vitrina</title>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:ital,wdth,wght@1,62..125,900&family=Geist:wght@400..600&display=swap" rel="stylesheet">
+<style>
+/* El boceto VIT-01 de un vistazo: la vitrina y la vidriera de Logros, en compu (1440 px) y celu (375 px), claro y oscuro.
+   Cada cuadro es vitrina.html adentro de un iframe, achicado. */
+body { margin: 0; background: #E4E2DC; color: #141414; font: 400 13px/1.45 "Geist", system-ui, sans-serif; padding: 28px 32px 60px; }
+h1 { margin: 0; font: italic 900 44px/.9 "Archivo", sans-serif; font-stretch: 62%; text-transform: uppercase; }
+h1 em { font-style: inherit; color: #DC4520; }
+p { margin: 8px 0 0; color: #4A4843; max-width: 90ch; }
+h2 { margin: 34px 0 12px; font: 600 11px/1 "Geist", sans-serif; letter-spacing: .1em; text-transform: uppercase; color: #6C6963; }
+.row + .row { margin-top: 22px; }
+.row { display: flex; gap: 22px; align-items: flex-start; flex-wrap: wrap; }
+figure { margin: 0; }
+figcaption { margin-bottom: 6px; font-weight: 600; font-size: 12px; }
+figcaption a { color: inherit; }
+.fr { overflow: hidden; border-radius: 6px; box-shadow: 0 1px 2px rgb(0 0 0 / .08), 0 14px 34px -14px rgb(0 0 0 / .3); background: #fff; }
+.fr iframe { border: 0; display: block; transform-origin: 0 0; }
+</style>
+</head>
+<body>
+<h1>Vitrina<em>.</em></h1>
+<p>Boceto VIT-01 de <code>docs/LOGROS-PLAN.md</code>. Cada cuadro se puede abrir entero (el título es un link) y se maneja: el filtro, el tema y tocar un objeto.</p>
+<div id="t"></div>
+<script>
+const V = [
+  ['La vitrina · /logros/vitrina', 'vitrina', 4000, 5160],
+  ['La vidriera en Logros', 'logros', 820, 1290],
+];
+/* compu de a dos por fila y celu de a dos, achicados para que entren en el ancho de la ventana */
+const S = [['Compu · claro', 'claro', 1440], ['Compu · oscuro', 'oscuro', 1440], ['Celu · claro', 'claro', 375], ['Celu · oscuro', 'oscuro', 375]];
+function draw() {
+  const W = document.body.clientWidth - 64, kd = Math.min(.5, (W - 22) / 2 / 1440), km = Math.min(.6, (W - 22) / 2 / 375);
+  document.getElementById('t').innerHTML = V.map(([title, h, hd, hm]) => `<h2>${title}</h2>${[S.slice(0, 2), S.slice(2)].map((R) => `<div class="row">${R.map(([n, tema, w]) => {
+    const k = w < 900 ? km : kd, height = w < 900 ? hm : hd, url = `vitrina.html?tema=${tema}&quieto#${h}`;
+    return `<figure><figcaption><a href="${url}" target="_blank">${n}</a></figcaption><div class="fr" style="width:${w * k}px;height:${height * k}px"><iframe src="${url}" width="${w}" height="${height}" style="transform:scale(${k})" title="${title}, ${n}"></iframe></div></figure>`;
+  }).join('')}</div>`).join('')}`).join('');
+}
+draw();
+let rt;
+addEventListener('resize', () => { clearTimeout(rt); rt = setTimeout(draw, 300); });
+</script>
+</body>
+</html>

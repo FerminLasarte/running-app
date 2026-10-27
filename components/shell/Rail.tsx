@@ -69,7 +69,7 @@ export function Rail({ section }: { section: SectionDef | null }) {
       <nav className="nav" aria-label="Secciones">
         {NAV.map((s, i) => (
           /* la sección en la que estás lleva a donde ya estás: tocarla no cambia nada */
-          <Link key={s.id} href={section?.id === s.id ? pathname + (qs ? '?' + qs : '') : sectionHref(s)} aria-current={section?.id === s.id ? 'page' : undefined}>
+          <Link key={s.id} href={pathname === s.href ? pathname + (qs ? '?' + qs : '') : sectionHref(s)} aria-current={section?.id === s.id ? 'page' : undefined}>
             <s.Icon weight={section?.id === s.id ? 'fill' : 'regular'} aria-hidden="true" />
             {s.label}
             <kbd>{i + 1}</kbd>

@@ -134,6 +134,12 @@ export function weekGo(d: number) {
 export function goLogros(part?: string) {
   navigate('/logros', () => (part ? document.getElementById(part)?.scrollIntoView({ block: 'start' }) : jumpTo(0)));
 }
+/** el estante de una categoría en la vitrina */
+export const vitShelfId = (cat: string) => 'lo-vs-' + cat;
+/** a la vitrina, arriba de todo o bajando hasta el estante de una categoría */
+export function goVitrina(cat?: string) {
+  navigate('/logros/vitrina', () => (cat ? document.getElementById(vitShelfId(cat))?.scrollIntoView({ block: 'start' }) : jumpTo(0)));
+}
 /** las partes de Ajustes (el índice, la paleta y los links de otras pantallas bajan hasta ahí) */
 export const AJ_PARTS = { perfil: 'aj-perfil', fc: 'aj-fc', races: 'aj-carreras', shoes: 'aj-zapas', con: 'aj-con', apa: 'aj-apa', datos: 'aj-datos' } as const;
 /** el campo de la FC máxima (lo enfoca la bienvenida de Semana) */

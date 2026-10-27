@@ -1,6 +1,7 @@
 'use client';
 /* Piezas de deporte del rediseño «Pista» (estilos en app/styles/components/sport.css): la pista ovalada, el dorsal,
-   la pulsera de ritmos, el escudo de trofeo, la medalla, el reloj de cuenta regresiva y el cronógrafo. */
+   la pulsera de ritmos, el escudo de trofeo, las piezas de la vitrina (copa, medalla colgada, escudo con pie y caja
+   de secreto), la medalla, el reloj de cuenta regresiva y el cronógrafo. */
 import { Fragment, useId, useSyncExternalStore, type ReactNode } from 'react';
 import type { Icon } from '@phosphor-icons/react';
 import { clamp, fmt, fmtDur, pad } from '@/lib/domain/util';
@@ -195,6 +196,130 @@ export function Shield({ tier, got, icon: I, size = 52 }: { tier: number; got: b
         {got ? <path d="M26 8 42 15v15c0 10-7 17-16 20C17 47 10 40 10 30V15z" fill="none" stroke="rgb(255 255 255 / .35)" strokeWidth="1" /> : null}
       </svg>
       <I className="ic" weight="fill" />
+    </span>
+  );
+}
+
+/* ---- piezas de la vitrina: el metal torneado, sobre un pie negro. Sin ganar, la silueta punteada (sport.css) ---- */
+/* claro, medio, brillo y oscuro de cada metal (bronce, plata, oro, platino) */
+const METAL = [
+  ['#6A3714', '#B7713D', '#F0C29A'],
+  ['#5A6169', '#A9B0B8', '#F4F6F8'],
+  ['#7A5A0E', '#C9992A', '#FBE6A0'],
+  ['#4A4288', '#8C7FCF', '#ECE7FF'],
+];
+/** los degradés del metal: `l` de costado (una pieza torneada) y `r` en círculo (una medalla) */
+function MetalDefs({ id, tier }: { id: string; tier: number }) {
+  const [d, m, h] = METAL[clamp(tier, 0, 3)];
+  return (
+    <defs>
+      <linearGradient id={id + 'l'} x1="0" x2="1">
+        <stop offset="0" stopColor={d} />
+        <stop offset=".28" stopColor={m} />
+        <stop offset=".46" stopColor={h} />
+        <stop offset=".62" stopColor={m} />
+        <stop offset="1" stopColor={d} />
+      </linearGradient>
+      <radialGradient id={id + 'r'} cx=".38" cy=".32" r=".75">
+        <stop offset="0" stopColor={h} />
+        <stop offset=".45" stopColor={m} />
+        <stop offset="1" stopColor={d} />
+      </radialGradient>
+    </defs>
+  );
+}
+type PieceProps = { tier: number; got: boolean; size?: number; className?: string };
+const pieceCx = (kind: string, got: boolean, className?: string) => cx('p-tro', kind, !got && 'lock', className);
+
+/** copa: para las marcas. La placa del pie dice el tiempo a bajar («25:00») o la distancia («21K») */
+export function Cup({ tier, got, plate, size = 84, className }: PieceProps & { plate: string }) {
+  const id = useId(),
+    m = got ? `url(#${id}l)` : undefined,
+    long = plate.length > 5;
+  return (
+    <span className={pieceCx('cup', got, className)} style={cssVars({ '--w': size + 'px' })} aria-hidden="true">
+      <svg viewBox="0 0 80 124">
+        {got ? <MetalDefs id={id} tier={tier} /> : null}
+        <path className="h" d="M17 24H9c0 15 5 24 14 27M63 24h8c0 15-5 24-14 27" stroke={m} />
+        <path className="m" d="M14 13h52v9c0 23-10 37-26 41-16-4-26-18-26-41z" fill={m} />
+        <rect className="m" x="12" y="9" width="56" height="6" rx="1.5" fill={m} />
+        {got ? <path d="M24 19c0 17 4 29 11 36" fill="none" stroke="#fff" strokeOpacity=".45" strokeWidth="3" strokeLinecap="round" /> : null}
+        <rect className="m" x="36" y="63" width="8" height="10" fill={m} />
+        <ellipse className="m" cx="40" cy="74" rx="9" ry="3" fill={m} />
+        <path className="m" d="M27 85h26l3 6H24z" fill={m} />
+        <rect className="b" x="18" y="91" width="44" height="33" rx="2" />
+        {got ? <rect className="bh" x="18" y="91" width="44" height="2" /> : null}
+        <rect className="pl" x={long ? 21 : 24} y="100" width={long ? 38 : 32} height="14" rx="1" fill={m} />
+        <text x="40" y="110.4" textAnchor="middle" style={{ font: `italic 800 ${long ? 8.4 : 9.6}px var(--f-disp)`, fontStretch: '72%' }}>
+          {plate}
+        </text>
+      </svg>
+    </span>
+  );
+}
+/** medalla colgada: para las carreras. Cuelga de su cinta y lleva el número (cuántas carreras) */
+export function HungMedal({ tier, got, num, color, size = 66, className }: PieceProps & { num: string; color?: string }) {
+  const id = useId();
+  return (
+    <span className={pieceCx('medal', got, className)} style={cssVars({ '--w': size + 'px' })} aria-hidden="true">
+      <svg viewBox="0 0 70 142">
+        {got ? <MetalDefs id={id} tier={tier} /> : null}
+        <path className="m" d="M13 0h16l11 84H28z" fill={got ? color : undefined} />
+        <path className="m" d="M57 0H41L30 84h12z" fill={got ? color : undefined} />
+        {got ? (
+          <>
+            <path d="M57 0H41L30 84h12z" fill="#000" opacity=".22" />
+            <path d="M17 0h3l10 84h-3z" fill="#fff" opacity=".22" />
+          </>
+        ) : null}
+        <rect className="m" x="28" y="80" width="14" height="9" rx="2" fill={got ? `url(#${id}l)` : undefined} />
+        <circle className="m" cx="35" cy="112" r="27" fill={got ? `url(#${id}r)` : undefined} />
+        {got ? <circle cx="35" cy="112" r="21" fill="none" stroke="#000" strokeOpacity=".22" strokeDasharray="2 2.4" /> : null}
+        <text x="35" y={num.length > 1 ? 121 : 122} textAnchor="middle" style={{ font: `italic 900 ${num.length > 1 ? 24 : 28}px var(--f-disp)`, fontStretch: '62%' }}>
+          {num}
+        </text>
+      </svg>
+    </span>
+  );
+}
+/** escudo con pie: para todo lo demás, con el ícono de la categoría */
+export function StandShield({ tier, got, icon: I, size = 72, className }: PieceProps & { icon: Icon }) {
+  const id = useId(),
+    m = got ? `url(#${id}l)` : undefined;
+  return (
+    <span className={pieceCx('shield', got, className)} style={cssVars({ '--w': size + 'px' })} aria-hidden="true">
+      <svg viewBox="0 0 64 104">
+        {got ? <MetalDefs id={id} tier={tier} /> : null}
+        <path className="m" d="M32 4 54 14v18c0 13-9 22-22 26C19 54 10 45 10 32V14z" fill={m} />
+        {got ? (
+          <>
+            <path d="M32 10 48 17v15c0 10-7 17-16 20C23 49 16 42 16 32V17z" fill="none" stroke="#fff" strokeOpacity=".4" />
+            <path d="M32 4 54 14v18c0 13-9 22-22 26" fill="#000" fillOpacity=".1" />
+          </>
+        ) : null}
+        <rect className="m" x="28" y="60" width="8" height="14" fill={m} />
+        <path className="m" d="M22 74h20l3 6H19z" fill={m} />
+        <rect className="b" x="14" y="80" width="36" height="24" rx="2" />
+        {got ? <rect className="bh" x="14" y="80" width="36" height="2" /> : null}
+        {got ? <rect x="22" y="89" width="20" height="6" rx="1" fill={m} opacity=".9" /> : null}
+      </svg>
+      <I className="ic" weight="fill" />
+    </span>
+  );
+}
+/** caja cerrada con candado: un secreto que todavía no encontraste */
+export function SecretBox({ size = 72, className }: { size?: number; className?: string }) {
+  return (
+    <span className={cx('p-tro', 'box', className)} style={cssVars({ '--w': size + 'px' })} aria-hidden="true">
+      <svg viewBox="0 0 64 104">
+        <rect className="bx" x="9" y="44" width="46" height="60" rx="2" />
+        <rect className="lid" x="6" y="34" width="52" height="13" rx="2" />
+        <rect x="9" y="47" width="46" height="2" fill="#000" opacity=".25" />
+        <path className="lk" d="M25 66v-6a7 7 0 0 1 14 0v6" fill="none" strokeWidth="3.2" />
+        <rect className="lkb" x="21" y="65" width="22" height="18" rx="2.5" />
+        <circle className="bx" cx="32" cy="72" r="2.6" />
+        <rect className="bx" x="31" y="73" width="2" height="5" />
+      </svg>
     </span>
   );
 }

@@ -1,8 +1,9 @@
 'use client';
 /* Celebración al ganar un trofeo o subir de nivel (boceto «Celebración»): el estadio a oscuras con la pista que se
-   dibuja, confeti en los colores de la app, el escudo con rayos girando, el nombre en grande, la XP que sube contando y
-   la barra del nivel que se completa y vuelve a arrancar. «Seguir» o «Ver la vitrina»; Esc cierra. Con «reducir
-   movimiento» no hay confeti ni animaciones: se ve todo quieto, ya en su valor final.
+   dibuja, confeti en los colores de la app, el trofeo (su pieza de la vitrina) con rayos girando, el nombre en grande,
+   la XP que sube contando y la barra del nivel que se completa y vuelve a arrancar. «Seguir» o «Ver la vitrina» (baja
+   hasta su estante); Esc cierra. Con «reducir movimiento» no hay confeti ni animaciones: se ve todo quieto, ya en su
+   valor final.
    El host se monta una vez en el shell y, cada vez que cambian tus datos, festeja lo nuevo (una sola vez: queda
    anotado en la configuración). */
 import '@/app/styles/screens/logros.css';
@@ -10,14 +11,14 @@ import { useEffect, useRef, useState, type KeyboardEvent as ReactKeyboardEvent }
 import { useApp } from '@/lib/store';
 import { reduceMotion } from '@/lib/motion';
 import { closeSheet } from '@/lib/sheets';
-import { goLogros } from '@/lib/data/actions';
+import { goLogros, goVitrina } from '@/lib/data/actions';
 import { celebratePending, closeCelebrate, trophyTier, type CelebrateState } from '@/lib/domain/trophies';
 import { nf } from '@/lib/domain/util';
 import { Button } from '@/components/pista/controls';
 import { BrandTitle } from '@/components/pista/structure';
-import { Shield, TIER_C, TIER_NAME } from '@/components/pista/sport';
+import { TIER_C, TIER_NAME } from '@/components/pista/sport';
 import { cssVars } from '@/components/pista/util';
-import { LO_PARTS, trophyIcon } from './util';
+import { TrophyPiece } from './Piece';
 
 const N = 20;
 
@@ -101,7 +102,8 @@ function Cel({ c }: { c: CelebrateState }) {
   const go = () => {
     closeCelebrate();
     closeSheet();
-    goLogros(best ? LO_PARTS.vit : undefined);
+    if (best) goVitrina(best.cat);
+    else goLogros();
   };
 
   return (
@@ -123,7 +125,7 @@ function Cel({ c }: { c: CelebrateState }) {
           <>
             <div className="lo-cel-badge" style={cssVars({ '--rc': TIER_C[tier] })}>
               <div className="lo-cel-rays" />
-              <Shield tier={tier} got icon={trophyIcon(best)} size={132} />
+              <TrophyPiece t={best} k={1.5} />
             </div>
             <span className="lbl" style={{ color: TIER_C[tier] }}>
               Nuevo trofeo · {TIER_NAME[tier]}

@@ -1,6 +1,6 @@
-/* Logros (boceto «Logros» y su estado vacío en «Primera vez»), la celebración y el panel del trofeo: lo que es de esta
-   pantalla, con el prefijo lo-. Las piezas (estadio, escudo, vueltas,
-   marcas) tienen su CSS en app/styles/components/.
+/* Logros (boceto «Logros» y su estado vacío en «Primera vez»), la vitrina (design/bocetos/vitrina.html), la celebración
+   y el panel del trofeo: lo que es de esta pantalla, con el prefijo lo-. Las piezas (estadio, escudo, copa, medalla,
+   vueltas, marcas) tienen su CSS en app/styles/components/.
    Ojo: base.css pone h1, h2, h3, p y ul en margin 0; los espacios van con padding o gap. */
 @layer screens {
   .lo { padding-top: 32px; }
@@ -67,24 +67,98 @@
   .lo-more p { color: var(--ink-2); line-height: 1.55; max-width: 120ch; }
   .lo-more b { color: var(--ink); font-weight: 600; }
 
-  /* ---- vitrina: por categoría, seis por fila. Con casi 90 trofeos baja por dentro, con un alto fijo ---- */
-  .lo-vit-p { display: flex; flex-direction: column; max-height: 760px; }
-  .lo-vit-b { flex: 1; min-height: 0; overflow-y: auto; border-radius: 0 0 var(--r-lg) var(--r-lg); }
-  .lo-vit-g + .lo-vit-g { border-top: 1px solid var(--line); }
-  .lo-vit-g h3 { position: sticky; top: 0; z-index: 1; background: var(--surface); display: flex; align-items: baseline; justify-content: space-between; gap: 10px; padding: 14px 20px 10px; font: 600 10.5px/1.2 var(--f-ui); letter-spacing: .1em; text-transform: uppercase; color: var(--ink-2); }
-  .lo-vit-g h3 span { font: 500 11px/1 var(--f-mono); letter-spacing: 0; text-transform: none; color: var(--ink-3); }
-  .lo-vit { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); list-style: none; margin: 0; padding: 0; border-top: 1px solid var(--line); }
-  .lo-vit li { display: flex; min-width: 0; border-right: 1px solid var(--line); border-bottom: 1px solid var(--line); }
-  .lo-vit li:nth-child(6n) { border-right: 0; }
-  .lo-tro { position: relative; flex: 1; min-width: 0; display: flex; flex-direction: column; align-items: center; text-align: center; gap: 8px; padding: 18px 12px 16px; transition: background-color .15s var(--ease); }
-  .lo-tro:hover { background: color-mix(in oklab, var(--sunk) 60%, transparent); }
-  .lo-tro b { font-size: 12.5px; font-weight: 600; line-height: 1.25; }
-  .lo-tro small { font-size: 11px; color: var(--ink-3); font-variant-numeric: tabular-nums; }
-  .lo-tro.lock b { color: var(--ink-2); }
-  .lo-tro .lo-pg { width: 70%; }
-  .lo-tro .lo-pg i.on { background: var(--ink-3); }
-  .lo-tro.close .lo-pg i.on { background: var(--acc); }
-  .lo-tro.new::after { content: "Nuevo"; position: absolute; top: 10px; right: 10px; font: italic 900 10px/1 var(--f-disp); font-stretch: 70%; letter-spacing: .06em; text-transform: uppercase; background: var(--acc); color: #fff; padding: 3px 5px; border-radius: 2px; }
+  /* ---- la vitrina (/logros/vitrina) y la vidriera de Logros: estantes con luz de arriba, repisa laqueada y placa ---- */
+  .lo-vit .p-phd { align-items: flex-end; }
+  .lo-vh-r { display: grid; justify-items: end; gap: 16px; }
+  /* cuántos de cada metal: cuatro monedas */
+  .lo-tally { display: flex; gap: 18px; list-style: none; margin: 0; padding: 0; }
+  .lo-tally li { display: flex; align-items: center; gap: 8px; }
+  .lo-tally li.z { opacity: .45; }
+  .lo-tally .disp { font-size: 26px; }
+  .lo-tally small { display: block; margin-top: 2px; font: 600 9.5px/1 var(--f-ui); letter-spacing: .1em; text-transform: uppercase; color: var(--ink-3); }
+  .lo-coin { width: 22px; height: 22px; border-radius: 50%; flex: none; background: radial-gradient(circle at 36% 30%, rgb(255 255 255 / .75), transparent 46%), radial-gradient(circle, transparent 58%, rgb(0 0 0 / .22) 60%, transparent 64%), var(--c); box-shadow: inset 0 -2px 3px rgb(0 0 0 / .25); }
+
+  /* el mueble: las categorías chicas comparten fila; las de seis o más ocupan todo el ancho */
+  .lo-case { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 20px; }
+  .lo-case > .wide { grid-column: 1 / -1; }
+
+  .lo-vs {
+    --hh: 168px; --lh: 40px; --k: 1;
+    --case-top: #FFFFFF; --case-bot: #E7E5DF; --spot: rgb(255 249 235); --led: #FFFDF6; --led-glow: rgb(255 240 205 / .9);
+    --ledge-top: #3A3835; --ledge: #1D1C1A; --ledge-2: #121211; --plaque-1: #F1EFEA; --plaque-2: #B9B5AC; --floor: rgb(20 20 20 / .32); --glass: rgb(255 255 255 / .55);
+    position: relative; isolation: isolate; overflow: hidden; scroll-margin-top: 76px;
+    background: var(--surface); border: 1px solid var(--line); border-radius: var(--r-lg);
+  }
+  [data-theme="dark"] .lo-vs {
+    --case-top: #29292B; --case-bot: #111112; --spot: rgb(255 228 186 / .2); --led: #FFF1D6; --led-glow: rgb(255 214 150 / .35);
+    --ledge-top: #4A4A4E; --ledge: #2A2A2D; --ledge-2: #1C1C1E; --plaque-1: #D9D5CD; --plaque-2: #8F8B83; --floor: rgb(0 0 0 / .7); --glass: rgb(255 255 255 / .05);
+  }
+  .lo-vs-x { overflow-x: auto; scrollbar-width: none; overscroll-behavior-x: contain; }
+  .lo-vs-x::-webkit-scrollbar { display: none; }
+  /* el fondo iluminado desde arriba y la repisa van en la fila, así corren con ella en el celu */
+  .lo-vs-row {
+    position: relative; display: flex; justify-content: center; gap: 4px; min-width: 100%; margin: 0; padding: 0 16px; list-style: none;
+    background:
+      linear-gradient(var(--ledge-top), var(--ledge) 5px, var(--ledge) 60%, var(--ledge-2)) 0 var(--hh) / 100% var(--lh) no-repeat,
+      radial-gradient(60% 120% at 50% -18%, var(--spot), transparent 72%) 0 0 / 100% var(--hh) no-repeat,
+      linear-gradient(var(--case-top), var(--case-bot)) 0 0 / 100% var(--hh) no-repeat;
+  }
+  /* la barra de la que cuelgan las medallas */
+  .lo-vs.hang .lo-vs-row::before { content: ""; position: absolute; left: 18px; right: 18px; top: 16px; height: 5px; border-radius: 3px; background: linear-gradient(#E9E7E2, #8F8B83 70%, #5E5B55); box-shadow: 0 2px 3px rgb(0 0 0 / .25); }
+  .lo-vs-led { position: absolute; z-index: 2; left: 6%; right: 6%; top: 0; height: 2px; border-radius: 0 0 2px 2px; background: var(--led); box-shadow: 0 0 14px 3px var(--led-glow), 0 0 40px 10px var(--led-glow); pointer-events: none; }
+  /* el reflejo del vidrio */
+  .lo-vs-glass { position: absolute; z-index: 3; inset: 0 0 auto; height: var(--hh); pointer-events: none; opacity: .7; background: linear-gradient(112deg, transparent 38%, var(--glass) 46%, transparent 47.5%, transparent 58%, var(--glass) 60%, transparent 61%); }
+  .lo-vs-fade { display: none; }
+  /* la placa: aluminio cepillado, con dos tornillos; dorada cuando completaste la categoría */
+  .lo-vs-pl { position: absolute; z-index: 4; left: 50%; top: calc(var(--hh) + 9px); transform: translateX(-50%); display: flex; align-items: center; gap: 10px; height: 23px; padding: 0 11px; border-radius: 2px; white-space: nowrap; pointer-events: none; color: #1D1C1A; background: linear-gradient(var(--plaque-1), var(--plaque-2)); box-shadow: inset 0 1px 0 rgb(255 255 255 / .35), inset 0 -1px 0 rgb(0 0 0 / .25), 0 1px 2px rgb(0 0 0 / .5); }
+  .lo-vs-pl::before, .lo-vs-pl::after { content: ""; width: 3px; height: 3px; border-radius: 50%; background: rgb(0 0 0 / .35); box-shadow: 0 1px 0 rgb(255 255 255 / .5); }
+  .lo-vs-pl b { font: italic 900 12.5px/1 var(--f-disp); font-stretch: 66%; text-transform: uppercase; letter-spacing: .04em; }
+  .lo-vs-pl span { font: 500 10.5px/1 var(--f-mono); opacity: .75; }
+  .lo-vs.done .lo-vs-pl { background: linear-gradient(#F6DE8A, #C3962A); }
+  .lo-vs-note { position: absolute; z-index: 4; right: 18px; top: calc(var(--hh) + 14px); font: 600 10.5px/1 var(--f-ui); letter-spacing: .08em; text-transform: uppercase; color: rgb(255 255 255 / .6); pointer-events: none; }
+  .lo-vs-note b { color: #fff; font-weight: 700; }
+  .lo-vs-wall { position: absolute; z-index: 4; left: 16px; top: 14px; font: 600 10px/1 var(--f-ui); letter-spacing: .1em; text-transform: uppercase; color: var(--ink-3); pointer-events: none; }
+
+  /* cada pieza: arriba de la repisa, y el nombre y la fecha (o lo que llevás) abajo */
+  .lo-vs-row > li { display: flex; flex: 1 0 0; min-width: 92px; max-width: 148px; }
+  .lo-vo { position: relative; flex: 1; min-width: 0; display: flex; flex-direction: column; align-items: center; text-align: center; padding: 0 2px 16px; border-radius: var(--r-md); }
+  .lo-vo .pc { position: relative; height: var(--hh); width: 100%; display: flex; align-items: flex-end; justify-content: center; }
+  .lo-vs.hang .lo-vo .pc { align-items: flex-start; padding-top: 14px; }
+  .lo-vo .p-tro { width: calc(var(--w) * var(--k)); transition: transform .35s var(--ease), filter .35s var(--ease); transform-origin: 50% 100%; }
+  .lo-vs.hang .lo-vo .p-tro { transform-origin: 50% 0; }
+  /* la sombra sobre la repisa */
+  .lo-vo .pc::after { content: ""; position: absolute; z-index: -1; left: 50%; bottom: -3px; width: 60%; height: 10px; transform: translateX(-50%); border-radius: 50%; background: radial-gradient(closest-side, var(--floor), transparent); }
+  .lo-vo.lock .pc::after, .lo-vs.hang .lo-vo .pc::after { opacity: .35; }
+  .lo-vo .tx { display: grid; justify-items: center; gap: 5px; padding: calc(var(--lh) + 12px) 4px 0; }
+  .lo-vo b { font-size: 12px; font-weight: 600; line-height: 1.25; text-wrap: balance; }
+  .lo-vo small { font-size: 11px; line-height: 1.2; color: var(--ink-3); font-variant-numeric: tabular-nums; }
+  .lo-vo.lock b { color: var(--ink-2); font-weight: 500; }
+  .lo-vo .lo-pg { width: 56px; }
+  .lo-vo .lo-pg i.on { background: var(--ink-3); }
+  button.lo-vo:hover .p-tro { transform: translateY(-3px) scale(1.03); }
+  .lo-vs.hang button.lo-vo:hover .p-tro { transform: rotate(-3deg); }
+  button.lo-vo:hover b { text-decoration: underline; text-underline-offset: 3px; text-decoration-thickness: 1px; }
+  .lo-vo:focus-visible { outline-offset: -2px; }
+  /* por caer: la silueta en tartán y un brillo que respira */
+  .lo-vo.close .p-tro { --p-sil: var(--acc); filter: drop-shadow(0 0 7px color-mix(in oklab, var(--acc) 55%, transparent)); animation: lo-breathe 2.6s var(--ease) infinite alternate; }
+  .lo-vo.close small { color: var(--acc); font-weight: 600; }
+  .lo-vo.close .lo-pg i.on { background: var(--acc); }
+  @keyframes lo-breathe { to { filter: drop-shadow(0 0 14px color-mix(in oklab, var(--acc) 80%, transparent)); } }
+  /* nuevo desde la última vez que miraste */
+  .lo-vo .nw { position: absolute; z-index: 5; top: 12px; left: 50%; transform: translateX(-50%) rotate(-4deg); font: italic 900 10px/1 var(--f-disp); font-stretch: 70%; letter-spacing: .06em; text-transform: uppercase; background: var(--acc); color: #fff; padding: 3px 5px; border-radius: 2px; }
+  /* aparecen al llegar al estante, de izquierda a derecha */
+  .lo-vs.pre .lo-vo { opacity: 0; transform: translateY(10px); }
+  .lo-vs.in .lo-vo { transition: opacity .5s var(--ease), transform .55s var(--ease); transition-delay: calc(var(--j, 0) * 45ms); }
+
+  /* la vidriera de Logros: dos mitades, sin placa */
+  .lo-vid-z { display: grid; grid-template-columns: 1fr 1fr; }
+  .lo-vid .lo-vs { border: 0; border-radius: 0; }
+  .lo-vid .lo-vs:first-child { border-bottom-left-radius: var(--r-lg); }
+  .lo-vid .lo-vs:last-child { border-bottom-right-radius: var(--r-lg); }
+  .lo-vid .lo-vs + .lo-vs { box-shadow: inset 1px 0 0 rgb(0 0 0 / .08); }
+  .lo-vid .lo-vs-row > li { min-width: 80px; }
+  .lo-vid .lo-vo .pc { padding-top: 38px; }
+  .lo-vid .lo-vo .nw { top: 32px; }
 
   /* ---- desafíos ---- */
   .lo-ch-p { align-self: start; }
@@ -147,7 +221,7 @@
   .lo-tp { display: grid; gap: 18px; padding-top: 24px; }
   .lo-tp-badge { position: relative; display: grid; place-items: center; padding: 14px 0 4px; }
   .lo-tp-badge::before { content: ""; position: absolute; width: 190px; height: 190px; border-radius: 50%; background: radial-gradient(closest-side, color-mix(in oklab, var(--rc) 22%, transparent), transparent); }
-  .lo-tp-badge .p-shield { position: relative; }
+  .lo-tp-badge .p-tro { position: relative; }
   .lo-tp-desc { text-align: center; color: var(--ink-2); font-size: 14px; line-height: 1.5; max-width: 44ch; justify-self: center; }
   .lo-tp .p-kpis { border: 1px solid var(--line); border-radius: var(--r-md); }
   .lo-tp-left { display: grid; gap: 8px; }
@@ -158,9 +232,7 @@
 
   @media (max-width: 1240px) {
     .lo-h { font-size: min(92px, 100cqi / var(--w, 1)); }
-    .lo-vit { grid-template-columns: repeat(4, minmax(0, 1fr)); }
-    .lo-vit li:nth-child(6n) { border-right: 1px solid var(--line); }
-    .lo-vit li:nth-child(4n) { border-right: 0; }
+    .lo-case { grid-template-columns: minmax(0, 1fr); }
   }
   @media (max-width: 900px) {
     .lo { padding-top: 16px; }
@@ -170,10 +242,26 @@
     .lo-gains li { grid-template-columns: 70px minmax(0, 1fr); }
     .lo-gains small { grid-column: 2; }
     .lo-pcw { width: min(290px, 100%); justify-self: center; }
-    .lo-vit-p { max-height: 72dvh; }
-    .lo-vit { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-    .lo-vit li:nth-child(4n) { border-right: 1px solid var(--line); }
-    .lo-vit li:nth-child(2n) { border-right: 0; }
+    .lo-vh-r { justify-items: stretch; }
+    .lo-tally { justify-content: space-between; gap: 8px; }
+    .lo-case { gap: 14px; }
+    /* en el celu cada estante se corre de costado; la placa queda quieta a la izquierda */
+    .lo-vs { --hh: 136px; --k: .8; }
+    .lo-vs-row { justify-content: flex-start; width: max-content; padding: 0 10px; }
+    .lo-vs-x { scroll-snap-type: x proximity; scroll-padding: 0 10px; }
+    .lo-vs-row > li { flex: 0 0 90px; min-width: 0; scroll-snap-align: start; }
+    .lo-vo b { font-size: 11.5px; }
+    .lo-vs-pl { left: 12px; transform: none; }
+    .lo-vs-note { right: auto; left: 12px; top: 14px; color: var(--ink-3); }
+    .lo-vs-note b { color: var(--ink); }
+    .lo-vs-fade { display: block; position: absolute; z-index: 5; right: 0; top: 0; bottom: 0; width: 28px; pointer-events: none; background: linear-gradient(90deg, transparent, color-mix(in oklab, var(--surface) 85%, transparent)); }
+    .lo-vid-z { grid-template-columns: minmax(0, 1fr); }
+    .lo-vid .lo-vs:first-child { border-radius: 0; }
+    .lo-vid .lo-vs:last-child { border-radius: 0 0 var(--r-lg) var(--r-lg); }
+    .lo-vid .lo-vs + .lo-vs { box-shadow: none; }
+    .lo-vid .lo-vs-row { width: auto; justify-content: space-between; }
+    .lo-vid .lo-vs-row > li { flex: 1 0 0; }
+    .lo-vid .lo-vs-fade { display: none; }
     .lo-podium .disp { font-size: 24px; }
   }
 }
@@ -189,8 +277,8 @@
   .lo-cel-conf i { position: absolute; top: -20px; width: 8px; height: 14px; background: var(--cc); opacity: 0; animation: lo-fall var(--d) cubic-bezier(.25, .6, .4, 1) var(--dl) forwards; }
   @keyframes lo-fall { 0% { opacity: 1; transform: translate(0, 0) rotate(0) skewX(-14deg); } 100% { opacity: 0; transform: translate(var(--dx), 105vh) rotate(var(--r)) skewX(-14deg); } }
   .lo-cel-box { position: relative; display: grid; justify-items: center; text-align: center; width: min(560px, calc(100vw - 40px)); max-height: 100dvh; overflow-y: auto; padding: 20px 0; }
-  .lo-cel-badge { position: relative; width: 132px; height: 148px; display: grid; place-items: center; margin-bottom: 18px; }
-  .lo-cel-badge .p-shield { position: relative; filter: drop-shadow(0 20px 30px rgb(0 0 0 / .6)); animation: lo-pop .7s cubic-bezier(.2, 1.4, .4, 1) both; }
+  .lo-cel-badge { position: relative; min-width: 132px; min-height: 148px; display: grid; place-items: center; margin-bottom: 18px; }
+  .lo-cel-badge .p-tro { position: relative; filter: drop-shadow(0 20px 30px rgb(0 0 0 / .6)); animation: lo-pop .7s cubic-bezier(.2, 1.4, .4, 1) both; }
   .lo-cel-rays { position: absolute; left: 50%; top: 50%; width: 520px; height: 520px; margin: -260px 0 0 -260px; border-radius: 50%; pointer-events: none; background: repeating-conic-gradient(color-mix(in oklab, var(--rc) 16%, transparent) 0 6deg, transparent 6deg 18deg); mask: radial-gradient(closest-side, #000 20%, transparent); -webkit-mask: radial-gradient(closest-side, #000 20%, transparent); animation: lo-spin 40s linear infinite; }
   @keyframes lo-spin { to { transform: rotate(360deg); } }
   @keyframes lo-pop { from { transform: scale(.4); opacity: 0; } }

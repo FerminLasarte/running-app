@@ -66,6 +66,28 @@
   .p-shield > .ic { position: absolute; left: 50%; top: 46%; transform: translate(-50%, -50%); width: 38%; height: auto; color: #fff; }
   .p-shield.lock > .ic { color: var(--ink-4); }
 
+  /* piezas de la vitrina: copa, medalla colgada, escudo con pie y caja. El pie es negro laqueado en los dos temas; la
+     silueta de lo que falta, punteada (la vitrina la pinta en tartán cuando está por caer con --p-sil) */
+  .p-tro { --p-plinth: #1D1C1A; --p-plinth-hi: #3A3835; --p-sil: #BDB9AF; --p-box: #1D1C1A; --p-lid: #34322F; --p-lock: #CFCBC2;
+    position: relative; display: block; width: var(--w, 72px); flex: none; }
+  [data-theme="dark"] .p-tro { --p-plinth: #0B0B0C; --p-plinth-hi: #323235; --p-sil: #48484D; --p-box: #242427; --p-lid: #38383C; --p-lock: #A9A59C; }
+  .p-tro svg { width: 100%; height: auto; display: block; overflow: visible; }
+  .p-tro .h { fill: none; stroke-width: 4; }
+  .p-tro .b { fill: var(--p-plinth); }
+  .p-tro .bh { fill: var(--p-plinth-hi); }
+  .p-tro text { fill: #2A1F12; }
+  .p-tro.medal text { fill: rgb(0 0 0 / .62); }
+  .p-tro.lock .m, .p-tro.lock .b, .p-tro.lock .h { fill: color-mix(in oklab, var(--p-sil) 8%, transparent); stroke: var(--p-sil); stroke-width: 1.4; stroke-dasharray: 3 2.6; }
+  .p-tro.lock .h { fill: none; }
+  .p-tro.lock .pl { fill: none; stroke: var(--p-sil); stroke-width: 1; }
+  .p-tro.lock text { fill: var(--ink-3); }
+  .p-tro > .ic { position: absolute; left: 50%; top: 29.8%; transform: translate(-50%, -50%); width: 36%; height: auto; color: rgb(255 255 255 / .95); filter: drop-shadow(0 1px 1px rgb(0 0 0 / .25)); }
+  .p-tro.lock > .ic { color: var(--p-sil); filter: none; }
+  .p-tro .bx { fill: var(--p-box); }
+  .p-tro .lid { fill: var(--p-lid); }
+  .p-tro .lk { stroke: var(--p-lock); }
+  .p-tro .lkb { fill: var(--p-lock); }
+
   /* medalla con cinta: carreras anteriores */
   .p-medal { display: grid; grid-template-columns: 56px 1fr; gap: 16px; align-items: center; min-width: 0; }
   .p-medal svg { width: 56px; height: 72px; display: block; overflow: visible; }

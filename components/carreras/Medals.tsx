@@ -25,7 +25,7 @@ export function openRaceMedal(id: string) {
 export const openLevel = () => openSheet('level');
 
 /** la cinta: los colores del evento si es uno conocido; si no, el de la distancia (de suave a fuerte) */
-const medalColor = (r: Race) => {
+export const medalColor = (r: Race) => {
   const t = raceTheme(r);
   if (t.k !== 'gen') return t.r1;
   return r.km <= 5.5 ? typeColor('regen') : r.km <= 10.5 ? 'var(--acc)' : r.km <= 16 ? typeColor('tempo') : r.km <= 21.2 ? typeColor('fondo') : typeColor('test');
