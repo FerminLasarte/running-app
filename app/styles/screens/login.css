@@ -1,5 +1,5 @@
-/* Entrar o crear la cuenta: una tarjeta en el medio de la pantalla, con la marca (lleva a la portada), Google, el mail,
-   la contraseña y el botón. La marca usa el .brand de la barra lateral (shell.css), que en el celu se esconde: acá se ve
+/* Entrar: una tarjeta en el medio de la pantalla, con la marca (lleva a la portada), el mail, la contraseña y el
+   botón. La marca usa el .brand de la barra lateral (shell.css), que en el celu se esconde: acá se ve
    siempre. */
 @layer screens {
   .login { min-height: 100dvh; display: grid; place-items: center; padding: 24px max(16px, env(safe-area-inset-left, 0px)); }
@@ -11,17 +11,11 @@
   .login-card .brand-t { font-size: 46px; padding: 6px 0 2px; }
   .login-card .p-btn { width: 100%; }
   .login-hint { font-size: 13px; color: var(--ink-3); }
-  .login-hint a { color: inherit; text-decoration: underline; text-underline-offset: 2px; }
+  .login-hint a, .login-sw a { color: inherit; text-decoration: underline; text-underline-offset: 2px; }
+  .login-sw a { color: var(--ink); font-weight: 600; }
+  .login-sw a:hover { color: var(--acc); }
   .login-msg { min-height: 1.2em; font-size: 13px; color: var(--ink-2); }
   .login-msg:empty { display: none; }
   .login-msg.bad { color: var(--neg); }
-  /* Google pide su «G» en colores y el texto como lo escriben ellos, sin mayúsculas */
-  .login-google { text-transform: none; letter-spacing: 0; font-size: 14px; }
-  .login-google svg { width: 18px; height: 18px; }
-  /* «o con tu mail», entre dos rayas */
-  .login-or { display: flex; align-items: center; gap: 12px; font-size: 12px; color: var(--ink-3); }
-  .login-or::before, .login-or::after { content: ""; flex: 1; height: 1px; background: var(--line); }
-  .login-link { font-size: 13px; font-weight: 600; color: var(--ink); text-decoration: underline; text-underline-offset: 2px; justify-self: start; }
-  .login-link:hover { color: var(--acc); }
   .login-sw { font-size: 13px; color: var(--ink-3); padding-top: 16px; border-top: 1px solid var(--line); }
 }

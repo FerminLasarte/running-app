@@ -6,6 +6,9 @@ datos) y Strava (recorridos, parciales, series y deriva cardíaca). La interfaz 
 deportiva, pensado primero para la compu y que también anda en el celu, en claro u oscuro (o como el sistema). Se
 instala como app (PWA).
 
+Es para dos personas: el corredor y el responsable (Fermín Lasarte). No hay alta de cuentas desde la app: las dos
+cuentas se crean en Supabase. La portada (`/`) es pública y deja probar la app con datos de ejemplo, sin cuenta.
+
 ## Puesta en marcha
 
 ### 1. Supabase
@@ -15,55 +18,27 @@ instala como app (PWA).
    - `20261024000000_init.sql` crea las tablas `settings`, `sessions`, `routes` y `strava_tokens`, con RLS (cada
      usuario ve solo lo suyo), y activa el tiempo real para sesiones y ajustes;
    - `20261025000000_streams.sql` crea `streams`, donde se guardan las series de Strava de cada salida (el gráfico de
-     ritmo y FC del detalle), para no pedírselas de nuevo cada vez (y, si Strava no tiene la salida, eso también);
-   - `20261027000000_delete_account.sql` crea `delete_account()`, con la que cada uno elimina su propia cuenta desde
-     **Ajustes → Cuenta y datos**;
-   - `20261027000100_ai_usage.sql` crea `ai_usage` y sus funciones, para el tope mensual de la lectura de capturas.
+     ritmo y FC del detalle), para no pedírselas de nuevo cada vez (y, si Strava no tiene la salida, eso también).
+
+   Las otras tres son de cuando la app se iba a abrir al público: `20261027000000_delete_account.sql` y
+   `20261027000100_ai_usage.sql` crean eliminar la cuenta y el tope mensual de la lectura de capturas, y
+   `20261027000200_dos_usuarios.sql` los borra. En un proyecto nuevo, salteá las tres; si ya habías aplicado las dos
+   primeras, aplicá la tercera.
 
    (Alternativa con la CLI: `supabase link --project-ref <ref>` y `supabase db push`.)
-2. **Authentication → URL Configuration**:
-   - *Site URL*: la URL de producción de Vercel (por ejemplo `https://running-app.vercel.app`).
-   - *Redirect URLs*: agregá `https://<tu-dominio>/auth/callback`, `http://localhost:3000/auth/callback` y, si querés
-     probar en las vistas previas de Vercel, `https://*-<tu-equipo>.vercel.app/auth/callback`. Es la vuelta de Google.
-     Con mails propios (abajo), también `https://<tu-dominio>/auth/clave` (la del link de «Olvidé mi contraseña»).
-3. **Authentication → Sign In / Providers → Email**: dejalo activado y **apagá *Confirm email***: así se crea la cuenta
-   y se entra en el momento, sin esperar un mail (el servicio de mails que trae Supabase es para pruebas). En la misma
-   pantalla, la contraseña mínima en **8** caracteres (la app ya lo pide) y *Secure password change* apagado (si no,
-   cambiar la contraseña desde Ajustes pide haber entrado hace poco).
-4. Copiá **Project URL** y la **publishable key** (botón *Connect* o *Project Settings → API Keys*).
-5. ¿Quién puede crear una cuenta? Con *Allow new users to sign up* prendido (**Authentication → Sign In / Providers**) y
-   `ALLOWED_EMAILS` vacía, cualquiera. Para que sea solo para el corredor: apagalo cuando él ya tenga su cuenta, y/o
-   cargá su mail en `ALLOWED_EMAILS`.
+2. **Authentication → URL Configuration** → *Site URL*: la URL de producción de Vercel
+   (`https://running-app-lemon.vercel.app`). No hacen falta *Redirect URLs*: se entra con mail y contraseña, sin links.
+3. **Authentication → Sign In / Providers**: apagá *Allow new users to sign up* (nadie se crea una cuenta solo) y dejá
+   *Email* activado, con la contraseña mínima en **8** caracteres (la app ya lo pide) y *Secure password change*
+   apagado (si no, cambiar la contraseña desde Ajustes pide haber entrado hace poco). Google y los demás, apagados.
+4. **Las dos cuentas**: **Authentication → Users → Add user → Create new user**, con el mail, una contraseña
+   provisoria y *Auto Confirm User* tildado. Cada uno la cambia después en **Ajustes → Cuenta y datos → Contraseña**. Si
+   alguno se la olvida, el responsable le pone una provisoria nueva desde el **SQL Editor** (sin mandar mails):
 
-#### Entrar con Google (opcional)
-
-El botón «Continuar con Google» aparece en el login solo con `NEXT_PUBLIC_AUTH_GOOGLE=1`. Antes:
-
-1. En https://console.cloud.google.com, un proyecto nuevo (por ejemplo «Lane One»). En **Google Auth Platform**:
-   - *Branding*: el nombre (Lane One), el mail de soporte, la página de inicio (`https://<tu-dominio>`), la política de
-     privacidad (`https://<tu-dominio>/privacidad`) y, en *Authorized domains*, `<tu-dominio>` y `<ref>.supabase.co`.
-   - *Audience*: **External**, y **Publish app** (en *Testing* solo entran los usuarios de prueba que cargues).
-   - *Data Access*: alcanzan los permisos de siempre (`openid`, `email`, `profile`).
-   - *Clients → Create client*, tipo **Web application**. *Authorized JavaScript origins*: `https://<tu-dominio>` y
-     `http://localhost:3000`. *Authorized redirect URIs*: la *Callback URL* que muestra Supabase en el paso 2
-     (`https://<ref>.supabase.co/auth/v1/callback`). Copiá el *Client ID* y el *Client secret*.
-2. En Supabase, **Authentication → Sign In / Providers → Google**: prendelo y pegá el *Client ID* y el *Client secret*.
-3. En Vercel, `NEXT_PUBLIC_AUTH_GOOGLE=1` y un deploy nuevo (las variables `NEXT_PUBLIC_` se leen al compilar).
-
-Si alguien entra con Google con el mail de una cuenta que ya existe, Supabase la suma a esa misma cuenta (no quedan dos):
-lo hace solo cuando el mail de Google está verificado, que es siempre.
-
-#### Mails propios (opcional): «Olvidé mi contraseña»
-
-Recuperar la contraseña manda un mail, y el servicio que trae Supabase es para pruebas (pocos mails por hora). Sin un
-SMTP propio la app no lo ofrece: el login dice que entres con Google o que le escribas al responsable. Para prenderlo:
-
-1. Un servicio de mails, por ejemplo [Resend](https://resend.com): necesita un **dominio propio verificado** (no sirve
-   `*.vercel.app`). El plan gratis manda hasta 100 mails por día y 3.000 por mes (revisalo en resend.com/pricing).
-2. En Supabase, **Authentication → Emails → SMTP Settings**: host `smtp.resend.com`, puerto `465`, usuario `resend`,
-   contraseña: la API key de Resend, y un remitente de tu dominio (por ejemplo `Lane One <hola@tu-dominio>`).
-3. La plantilla **Reset Password** en castellano (abajo, en «El mail de la contraseña nueva»).
-4. En *Redirect URLs*, `https://<tu-dominio>/auth/clave`. En Vercel, `NEXT_PUBLIC_AUTH_EMAIL=1` y un deploy nuevo.
+   ```sql
+   update auth.users set encrypted_password = crypt('la-provisoria', gen_salt('bf')) where email = 'su@mail.com';
+   ```
+5. Copiá **Project URL** y la **publishable key** (botón *Connect* o *Project Settings → API Keys*).
 
 ### 2. Variables de entorno
 
@@ -74,13 +49,9 @@ Variables** (Production y Preview):
 |---|---|
 | `NEXT_PUBLIC_SUPABASE_URL` | Supabase → Project URL |
 | `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` | Supabase → publishable key (o `NEXT_PUBLIC_SUPABASE_ANON_KEY` con la anon key vieja) |
-| `ALLOWED_EMAILS` | mail(s) con acceso, separados por coma (opcional pero recomendado) |
+| `ALLOWED_EMAILS` | los dos mails con acceso, separados por coma. Cualquier otra cuenta queda afuera aunque exista |
 | `STRAVA_CLIENT_ID`, `STRAVA_CLIENT_SECRET` | Strava → https://www.strava.com/settings/api |
 | `ANTHROPIC_API_KEY` | opcional: lectura de capturas con Claude (ver abajo) |
-| `AI_MONTHLY_LIMIT` | opcional: tope de lecturas de capturas por usuario por mes (30 si no está) |
-| `STRAVA_WEBHOOK_VERIFY_TOKEN`, `SUPABASE_SERVICE_ROLE_KEY` | solo al abrir la app al público (ver abajo) |
-| `NEXT_PUBLIC_AUTH_GOOGLE` | `1` cuando Google esté configurado en Supabase (ver «Entrar con Google») |
-| `NEXT_PUBLIC_AUTH_EMAIL` | `1` cuando haya un SMTP propio en Supabase (ver «Mails propios») |
 | `SITE_URL` | opcional: la URL de la app para la vista previa del link (si no, la de producción de Vercel) |
 
 ### 3. Strava
@@ -88,11 +59,13 @@ Variables** (Production y Preview):
 La app de Strava la tiene que crear **el corredor con su propia cuenta** (las apps nuevas de Strava solo permiten
 conectar a la cuenta que las creó). En https://www.strava.com/settings/api:
 
-- *Website*: la URL de la app.
-- *Authorization Callback Domain*: solo el dominio, sin `https://` (por ejemplo `running-app.vercel.app`). Para probar
-  en tu compu, `localhost` también sirve.
+- *Website*: `https://running-app-lemon.vercel.app`.
+- *Authorization Callback Domain*: solo el dominio, sin `https://`: `running-app-lemon.vercel.app`. Para probar en tu
+  compu, `localhost` también sirve.
 
-Con `STRAVA_CLIENT_ID` y `STRAVA_CLIENT_SECRET` cargados, en la app: **Ajustes → Conexiones → Conectar con Strava**.
+El corredor le pasa al responsable el *Client ID* y el *Client Secret* por un canal privado; el responsable los carga en
+Vercel como `STRAVA_CLIENT_ID` y `STRAVA_CLIENT_SECRET` y hace un deploy nuevo. Después, en la app: **Ajustes →
+Conexiones → Conectar con Strava**. La app de Strava es de la cuenta del corredor, así que solo él puede conectarse.
 
 ### 4. Vercel
 
@@ -120,70 +93,12 @@ Planificar desde una captura del reloj y cargar parciales desde fotos usa la API
 https://console.anthropic.com (con su cuenta y su crédito), y se carga como variable de entorno en Vercel. Usa
 `claude-opus-5-5`; cada captura cuesta centavos.
 
-Cada usuario tiene un tope de lecturas por mes (`AI_MONTHLY_LIMIT`, 30 si no está; se renuevan el 1, a la hora de
-Argentina). Cada pedido cuenta una, traiga las capturas que traiga, y se cuenta antes de llamar a Claude. Pasado el
-tope, la app avisa y no llama. **Ajustes → Conexiones** muestra cuántas quedan. Necesita la migración
-`20261027000100_ai_usage.sql`.
-
-## Abrir la app al público
-
-Hoy la app es para un solo corredor. Lo que la envuelve para abrirla ya está hecho (la política de privacidad en
-`/privacidad`, eliminar la cuenta, desconectar Strava borrando lo que vino de ahí, el webhook de Strava, el tope de la
-lectura de capturas): falta activarlo, en este orden. Cuando se abra, nadie pasa claves: hay una sola app de Strava y
-una sola clave de IA, las del responsable (Fermín Lasarte, fermin.lasarte@icloud.com).
-
-1. **La app de Strava.** Crearla con la cuenta del responsable en https://www.strava.com/settings/api (*Website*: la
-   URL de la app; *Authorization Callback Domain*: el dominio, sin `https://`). Una app nueva solo deja conectar a la
-   cuenta que la creó: para sumar atletas hay que pedir la revisión de Strava. Antes de pedirla, leer las condiciones
-   vigentes de la API y de la marca de Strava. Suele pedir:
-   - la política de privacidad: `https://<tu-dominio>/privacidad`;
-   - capturas de la app donde se vea qué se hace con los datos;
-   - el botón «Connect with Strava» y el logo «Powered by Strava» oficiales, sin modificar. **No están en la app
-     todavía**: se bajan de la página de marca de Strava y se agregan en esta etapa (el botón de **Ajustes →
-     Conexiones**, el de la bienvenida de Semana y el logo donde se muestran datos de Strava, como el Mapa y el gráfico
-     de cada salida);
-   - mostrar a cada atleta solo sus datos y borrarlos cuando desconecta (ya está: **Desconectar** y el webhook).
-2. **Las variables y el webhook.** En Vercel: `STRAVA_CLIENT_ID` y `STRAVA_CLIENT_SECRET` de la app nueva,
-   `STRAVA_WEBHOOK_VERIFY_TOKEN` (una palabra que inventás) y `SUPABASE_SERVICE_ROLE_KEY` (Supabase → Project Settings
-   → API Keys: la secret key). Hacé el deploy y suscribí el webhook una sola vez:
-
-   ```bash
-   curl -X POST https://www.strava.com/api/v3/push_subscriptions -F client_id=<id> -F client_secret=<secret> -F callback_url=https://<tu-dominio>/api/strava/webhook -F verify_token=<la palabra>
-   ```
-
-   Strava llama a `/api/strava/webhook` para verificar y contesta con el id de la suscripción. Desde ahí, si alguien
-   revoca el acceso desde Strava, la app confirma con Strava que el permiso ya no sirve y borra sus recorridos, sus
-   series y la conexión. Al cambiar de app de Strava, quien ya la usaba tiene que volver a conectar (**Ajustes →
-   Conexiones**): sus sesiones están en Supabase, no se pierde nada.
-3. **La lectura de capturas, si se activa.** Cargar `ANTHROPIC_API_KEY` (la clave del responsable) y, si se quiere otro
-   tope que 30, `AI_MONTHLY_LIMIT`. La migración `20261027000100_ai_usage.sql` tiene que estar aplicada.
-4. **Abrir las altas.** En Supabase, **Authentication → Sign In / Providers**: prender *Allow new users to sign up* y
-   apagar *Confirm email* (puesta en marcha, paso 3). En Vercel, dejar `ALLOWED_EMAILS` vacía (y volver a hacer el
-   deploy). Entrar no manda mails: se entra con Google o con mail y contraseña. Solo «Olvidé mi contraseña» necesita un
-   SMTP propio, y es opcional («Mails propios»).
-5. **Los planes.** Revisar los planes de Supabase (base, usuarios activos, mails) y de Vercel (pedidos, funciones)
-   según la gente que se espera, y el límite de pedidos de la app de Strava, que comparten todos los atletas (se puede
-   pedir más a Strava).
-
-### El mail de la contraseña nueva
-
-Solo con un SMTP propio. Para pegar en Supabase → **Authentication → Email Templates → Reset Password**, asunto:
-`Tu contraseña nueva para Lane One`
-
-```html
-<h2>Contraseña nueva para Lane One</h2>
-<p>Tocá el botón para entrar y poner una contraseña nueva. Abrilo en el mismo dispositivo y el mismo navegador donde la pediste.</p>
-<p><a href="{{ .ConfirmationURL }}">Poner una contraseña nueva</a></p>
-<p>El link sirve una sola vez y vence en un rato. Si no la pediste, ignorá este mail: tu contraseña sigue igual.</p>
-```
-
 ## La portada y probar sin cuenta
 
-`/` es la portada pública (con sesión, lleva a la semana): qué es Lane One, «Probar sin cuenta» y «Crear cuenta».
+`/` es la portada pública (con sesión, lleva a la semana): qué es Lane One, «Probar sin cuenta» y «Entrar».
 «Probar sin cuenta» pone una cookie de invitado (`lo_guest`, se va al cerrar el navegador) que deja pasar a las páginas
 de la app, nunca a `/api`, y la app arranca con los datos de ejemplo sin guardar nada: ni en la nube ni en el navegador.
-Lo que guardaría ofrece crear la cuenta; Strava, la lectura de capturas, importar, exportar y eliminar la cuenta no
-aparecen. La vista previa del link (LinkedIn, WhatsApp, X) sale de `app/opengraph-image.tsx` y `app/twitter-image.tsx`.
+Lo que guardaría avisa que nada se guarda; Strava, la lectura de capturas, importar y exportar no aparecen. La vista previa del link (LinkedIn, WhatsApp, X) sale de `app/opengraph-image.tsx` y `app/twitter-image.tsx`.
 
 ## Desarrollo
 

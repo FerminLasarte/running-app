@@ -3,7 +3,7 @@
    sin guardar en la nube o que se guarda solo en este navegador. El estado de guardado va en la barra de arriba. */
 import { useShallow } from 'zustand/react/shallow';
 import { useApp } from '@/lib/store';
-import { demoOff, goSignup, retryFailed } from '@/lib/data/actions';
+import { demoOff, retryFailed } from '@/lib/data/actions';
 import { endGuest } from '@/lib/guest';
 import { Button } from '@/components/pista/controls';
 
@@ -15,13 +15,10 @@ export function Banners() {
       {S.mode === 'guest' ? (
         <div className="bnr-i guest">
           <span>
-            <b>Estás probando Lane One con datos de ejemplo.</b> Creá tu cuenta para guardar lo tuyo.
+            <b>Estás probando Lane One con datos de ejemplo.</b> Nada de lo que hagas se guarda.
           </span>
-          <Button size="sm" variant="ghost" onClick={endGuest}>
+          <Button size="sm" variant="acc" onClick={endGuest}>
             Salir
-          </Button>
-          <Button size="sm" variant="acc" onClick={goSignup}>
-            Crear cuenta
           </Button>
         </div>
       ) : S.demo ? (

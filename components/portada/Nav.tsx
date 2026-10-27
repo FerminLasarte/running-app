@@ -1,5 +1,5 @@
 'use client';
-/* La barra de arriba de la portada: la marca, las dos secciones y las cuentas. Arriba de todo es transparente; al bajar
+/* La barra de arriba de la portada: la marca, las dos secciones y entrar. Arriba de todo es transparente; al bajar
    se vuelve sólida, se achica y abajo corre una raya de tartán con lo que llevás leído. Cuando los botones del estadio
    salen de la pantalla, «Probar sin cuenta» pasa a la barra. */
 import { useEffect, useRef, useState, type MouseEvent } from 'react';
@@ -85,9 +85,6 @@ export function Nav() {
         <nav className="po-nav" aria-label="Cuenta">
           <Button variant="ghost" href="/login" className="po-enter">
             Entrar
-          </Button>
-          <Button variant="pri" href="/login?modo=crear" className="po-hide-s">
-            Crear cuenta
           </Button>
           <span className="po-try">
             <Button variant="acc" arrow onClick={startGuest}>

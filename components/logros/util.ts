@@ -1,6 +1,6 @@
 /* Lo que comparten Logros, la celebración, el panel del trofeo y la paleta: el ícono de cada categoría, cómo se abre
    un trofeo y a dónde lleva cada parte de la pantalla. */
-import { CalendarCheck, CalendarDots, Clock, Compass, Fire, FlagCheckered, Footprints, ListChecks, Path, SneakerMove, Star, Target, Timer, type Icon } from '@phosphor-icons/react';
+import { CalendarCheck, CalendarDots, Clock, Compass, Crown, Fire, FlagCheckered, Footprints, ListChecks, Path, SneakerMove, Star, Target, Timer, type Icon } from '@phosphor-icons/react';
 import { openSheet } from '@/lib/sheets';
 import { buzz } from '@/lib/data/actions';
 import { catBase, type Trophy } from '@/lib/domain/trophies';
@@ -19,6 +19,7 @@ const CAT_ICON: Record<string, Icon> = {
   score: Star,
   area: Compass,
   ch: Target,
+  egg: Crown,
 };
 export const trophyIcon = (t: Pick<Trophy, 'cat'>) => CAT_ICON[catBase(t.cat)] || Star;
 

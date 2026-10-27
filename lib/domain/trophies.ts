@@ -277,6 +277,24 @@ function calcTrophies(): Trophy[] {
     const area = cellArea(seen.size);
     T.push(...ladder('area', ['5', '10', '25'], [5, 10, 25], ['Explorador: 5 km²', 'Explorador: 10 km²', 'Explorador: 25 km²'], ['Corriste por 5 km² distintos.', 'Corriste por 10 km² distintos.', 'Corriste por 25 km² distintos.'], eE, area, 'km²', (v) => fmt(v, 1)));
   }
+  // secreto: la vuelta olímpica, la primera vez que bajás el objetivo de una carrera. No se ve hasta ganarlo
+  const vo = S.cfg.races
+    .filter((r) => r.resultSec! > 0 && r.targetSec > 0 && (r.lt ? r.resultSec! < r.targetSec : r.resultSec! <= r.targetSec))
+    .sort((a, b) => a.date.localeCompare(b.date))[0];
+  if (vo)
+    T.push({
+      id: 'egg_vuelta',
+      cat: 'egg',
+      name: 'Vuelta olímpica',
+      desc: 'Bajaste tu objetivo en ' + vo.name + ': ' + fmtDur(vo.resultSec!) + ' contra ' + fmtDur(vo.targetSec) + '. Trofeo secreto.',
+      tier: 2,
+      got: true,
+      date: vo.date,
+      cur: null,
+      target: 1,
+      unit: '',
+      xp: 600,
+    });
   // desafíos cumplidos
   (S.cfg.challenges || []).forEach((c) => {
     const p = chProgress(c);
@@ -303,6 +321,7 @@ export const CAT_N: Record<string, string> = {
   score: 'Puntaje',
   area: 'Exploración',
   ch: 'Desafíos',
+  egg: 'Secretos',
 };
 
 /* ---- medallas: el metal sale de la rareza (según la XP), la cinta y el emblema de la categoría ---- */

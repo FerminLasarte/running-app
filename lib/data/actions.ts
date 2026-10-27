@@ -27,15 +27,9 @@ export const buzz = (ms?: number) => {
 };
 
 /* ---- datos ---- */
-/** a crear la cuenta (desde el aviso de quien prueba sin cuenta), con una recarga completa: los datos de ejemplo
-    quedan atrás */
-export function goSignup() {
-  // eslint-disable-next-line @next/next/no-location-assign-relative-destination
-  window.location.assign('/login?modo=crear');
-}
 export function blockDemo() {
   if (!S.demo) return false;
-  if (S.mode === 'guest') toast('Estás probando con datos de ejemplo. Creá tu cuenta para guardar lo tuyo.', 6000, { label: 'Crear cuenta', run: goSignup });
+  if (S.mode === 'guest') toast('Estás probando con datos de ejemplo: nada de lo que hagas se guarda.');
   else toast('Estás viendo datos de ejemplo. Salí del modo ejemplo para guardar.');
   return true;
 }

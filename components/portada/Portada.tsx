@@ -1,7 +1,7 @@
 'use client';
-/* La portada: qué es Lane One en una frase, probarla sin cuenta o crear la cuenta, y lo que hace, mostrado con las
+/* La portada: qué es Lane One en una frase, probarla sin cuenta o entrar, y lo que hace, mostrado con las
    piezas de la Pista (la pista, el dorsal, la pulsera, las barras…) y datos de muestra fijos: la página se arma una vez
-   al compilar y no depende de la fecha. Va fuera del shell, como el login y la privacidad. Con sesión, el proxy
+   al compilar y no depende de la fecha. Va fuera del shell, como el login. Con sesión, el proxy
    lleva a la semana. */
 import '@/app/styles/screens/portada.css';
 import { useRef, type ReactNode } from 'react';
@@ -12,6 +12,7 @@ import { startGuest } from '@/lib/guest';
 import { BrandMark } from '@/components/shell/BrandMark';
 import { Nav } from './Nav';
 import { useReveal } from './motion';
+import { Largada, useMarathon } from './eggs';
 import { Button, Chip } from '@/components/pista/controls';
 import { BrandTitle, Stadium } from '@/components/pista/structure';
 import { Laps, StructureBar, type Seg } from '@/components/pista/meters';
@@ -193,15 +194,30 @@ const FEATURES: { k: string; t: string; p: string; v: ReactNode }[] = [
   },
 ];
 
-/** los dos caminos: probar sin cuenta (lo principal) o crearla */
+/* la carrera del estadio y, con el easter egg (eggs.tsx), el maratón */
+interface HeroRace {
+  chip: string;
+  title: string;
+  band: [string, string];
+  num: string;
+  numLabel: string;
+  start: string;
+  corral: string;
+  goal: string;
+  pace: string;
+}
+const K10: HeroRace = { chip: 'Running', title: 'con plan', band: ['10K de Palermo', 'Domingo'], num: '34', numLabel: 'días', start: '08:00', corral: 'B', goal: '48:00', pace: '4:48' };
+const MARA: HeroRace = { chip: 'Maratón', title: '42,195', band: ['Maratón de Buenos Aires', 'Domingo'], num: '42', numLabel: 'km', start: '07:00', corral: 'A', goal: '3:30:00', pace: '4:58' };
+
+/** los dos caminos: probar sin cuenta (lo principal) o entrar (las cuentas las crea el responsable) */
 function Ctas() {
   return (
     <div className="po-ctas">
       <Button variant="acc" size="lg" arrow onClick={startGuest}>
         Probar sin cuenta
       </Button>
-      <Button variant="on-dark" size="lg" href="/login?modo=crear">
-        Crear cuenta
+      <Button variant="on-dark" size="lg" href="/login">
+        Entrar
       </Button>
     </div>
   );
@@ -210,6 +226,8 @@ function Ctas() {
 export default function Portada() {
   const root = useRef<HTMLDivElement>(null);
   useReveal(root);
+  const [mara, tap] = useMarathon(),
+    r = mara ? MARA : K10;
   return (
     <div className="po" ref={root}>
       <Nav />
@@ -219,41 +237,44 @@ export default function Portada() {
           className="po-hero p-rise"
           sideWidth={300}
           side={
-            <Bib
-              band={['10K de Palermo', 'Domingo']}
-              num="34"
-              numLabel="días"
-              meta={[
-                { label: 'Largada', value: '08:00' },
-                { label: 'Corral', value: 'B' },
-              ]}
-              tear={[
-                { label: 'Objetivo', value: '48:00' },
-                {
-                  label: 'Ritmo',
-                  value: (
-                    <>
-                      4:48<span className="p-u">/km</span>
-                    </>
-                  ),
-                },
-              ]}
-            />
+            <div key={r.num} className="po-bibtap" onClick={tap}>
+              <Bib
+                band={r.band}
+                num={r.num}
+                numLabel={r.numLabel}
+                meta={[
+                  { label: 'Largada', value: r.start },
+                  { label: 'Corral', value: r.corral },
+                ]}
+                tear={[
+                  { label: 'Objetivo', value: r.goal },
+                  {
+                    label: 'Ritmo',
+                    value: (
+                      <>
+                        {r.pace}
+                        <span className="p-u">/km</span>
+                      </>
+                    ),
+                  },
+                ]}
+              />
+            </div>
           }
         >
           <Lap />
           <div className="p-st-top p-rise" style={cssVars({ '--i': 2 })}>
             <Chip color="var(--acc)" solid>
-              Running
+              {r.chip}
             </Chip>
             <span className="lbl">Registro y plan de entrenamiento</span>
           </div>
-          <BrandTitle className="po-h1">
+          <BrandTitle key={r.title} className="po-h1">
             <span className="po-ln">
               <span>Corré</span>
             </span>{' '}
             <span className="po-ln">
-              <span>con plan</span>
+              <span>{r.title}</span>
             </span>
           </BrandTitle>
           <p className="po-lead p-rise" style={cssVars({ '--i': 6 })}>
@@ -262,7 +283,7 @@ export default function Portada() {
           </p>
           <Ctas />
           <p className="po-note p-rise" style={cssVars({ '--i': 8 })}>
-            Probala con datos de ejemplo: no se guarda nada. ¿Ya tenés cuenta? <Link href="/login">Entrá</Link>.
+            Probala con datos de ejemplo: no se guarda nada.
           </p>
         </Stadium>
 
@@ -292,12 +313,8 @@ export default function Portada() {
         <div id="probala" data-reveal>
           <Stadium className="po-end">
             <Lap />
-            <BrandTitle as="h2">
-              En sus
-              <br />
-              marcas
-            </BrandTitle>
-            <p className="po-lead">Probala ahora, sin cuenta y con datos de ejemplo. Cuando quieras guardar lo tuyo, creás la cuenta en un minuto y arrancás de cero.</p>
+            <Largada />
+            <p className="po-lead">Probala ahora con datos de ejemplo: la semana, el análisis, la carrera y el mapa, sin cargar nada.</p>
             <Ctas />
           </Stadium>
         </div>
@@ -312,9 +329,7 @@ export default function Portada() {
           </span>
         </span>
         <nav aria-label="Más">
-          <Link href="/privacidad">Privacidad y condiciones</Link>
           <Link href="/login">Entrar</Link>
-          <Link href="/login?modo=crear">Crear cuenta</Link>
         </nav>
       </footer>
     </div>

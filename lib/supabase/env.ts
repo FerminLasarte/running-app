@@ -11,8 +11,3 @@ export function isAllowed(email: string | null | undefined) {
     .filter(Boolean);
   return !list.length || (!!email && list.includes(email.toLowerCase()));
 }
-
-/** Entrar con Google: solo con el proveedor prendido en Supabase (README), así el botón no aparece roto antes */
-export const AUTH_GOOGLE = process.env.NEXT_PUBLIC_AUTH_GOOGLE === '1';
-/** Mandar mails (recuperar la contraseña): solo con un SMTP propio en Supabase (README) */
-export const AUTH_EMAIL = process.env.NEXT_PUBLIC_AUTH_EMAIL === '1';

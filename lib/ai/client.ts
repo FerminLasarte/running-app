@@ -11,15 +11,9 @@ export interface AiLimits {
   mediaTypes: string[];
 }
 
-/** las lecturas de este mes y el tope */
-export interface AiQuota {
-  used: number;
-  limit: number;
-}
 interface AiStatus {
   enabled: boolean;
   limits?: AiLimits;
-  quota?: AiQuota;
 }
 
 /** el estado recién pedido (cambia con cada lectura). Sin cuenta (modo local de desarrollo o probando sin cuenta) las
@@ -39,12 +33,9 @@ export function aiAvailable(): Promise<AiLimits | null> {
 
 export class AiError extends Error {
   code: string;
-  /** el tope del mes, si el error es `quota` */
-  limit?: number;
-  constructor(code: string, message = '', limit?: number) {
+  constructor(code: string, message = '') {
     super(message || code);
     this.code = code;
-    this.limit = limit;
   }
 }
 
@@ -78,6 +69,6 @@ export async function aiJson<T = unknown>(prompt: string, opts: { images?: File[
     throw new AiError('network');
   }
   const body = await res.json().catch(() => null);
-  if (!res.ok) throw new AiError((body && body.code) || 'error', (body && body.message) || '', body && body.limit);
+  if (!res.ok) throw new AiError((body && body.code) || 'error', (body && body.message) || '');
   return body as T;
 }
