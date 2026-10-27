@@ -74,6 +74,13 @@
   .p-opt.free { border-style: dashed; grid-template-columns: 20px 1fr; }
   .p-pick + .p-seg { margin-top: 12px; }
 
+  /* el plan de la sesión elegida: sus notas (y al editar, qué era) */
+  .p-planref { display: grid; gap: 4px; padding: 10px 12px; border-left: 3px solid var(--tc); border-radius: var(--r-sm); background: var(--sunk); font-size: 13px; line-height: 1.45; }
+  .p-pick + .p-planref, .p-planref + .p-seg { margin-top: 12px; }
+  .p-planref + .p-found, .p-planref + .p-dr-g2, .p-planref + .p-dr-hint { margin-top: 16px; }
+  .p-planref b { font-weight: 600; }
+  .p-planref p { color: var(--ink-2); white-space: pre-line; }
+
   /* lo que trae Strava: oscuro como el estadio */
   .p-found { position: relative; padding: 16px; border-radius: var(--r-md); background: var(--hero); color: var(--hero-ink); }
   .p-found .lbl { color: var(--hero-mut); }

@@ -38,6 +38,7 @@ import {
   resultInit,
   rfPick,
   setFlat,
+  svAuto,
   svFill,
   type FlatKey,
   type FlatV,
@@ -95,6 +96,25 @@ function SessionPick({ pend, sid, onPick }: { pend: Session[]; sid: string | nul
           <small>Sin plan no hay puntaje, pero queda en tu historial</small>
         </span>
       </button>
+    </div>
+  );
+}
+
+/* ---- el plan de la sesión elegida: sus notas y, al editar (sin la lista de arriba), qué era ---- */
+function PlanRef({ s, full }: { s: Session; full?: boolean }) {
+  const p = s.plan;
+  if (!p || (!full && !p.notes)) return null;
+  return (
+    <div className="p-planref" style={cssVars({ '--tc': typeColor(s.type) })}>
+      {full ? (
+        <b>
+          Plan: {TYPES[s.type].label}
+          {planSummary(p) ? ' · ' + planSummary(p) : ''}
+        </b>
+      ) : (
+        <span className="lbl">Notas del plan</span>
+      )}
+      {p.notes ? <p>{p.notes}</p> : null}
     </div>
   );
 }
@@ -232,7 +252,7 @@ export default function ResultPanel(props: ResultProps & { svLoad?: boolean }) {
   function svPick(id: string) {
     const a = (f.sv.list || []).find((x) => x.id === id);
     if (!a) return;
-    setF((g) => svPickStart(g, id));
+    setF((g) => svPickStart(svAuto(g, a), id));
     svPickRun(id, a);
   }
   async function svLoad() {
@@ -247,7 +267,7 @@ export default function ResultPanel(props: ResultProps & { svLoad?: boolean }) {
         /* con una ya cargada, el botón es «Otra salida»: se elige de la lista, sin volver a la del día */
         again = !!cur.stravaId;
       if (same.length === 1 && !again) {
-        setF((g) => svPickStart({ ...g, sv: { ...g.sv, list, busy: false } }, same[0].id));
+        setF((g) => svPickStart(svAuto({ ...g, sv: { ...g.sv, list, busy: false } }, same[0]), same[0].id));
         await svPickRun(same[0].id, same[0]);
         return;
       }
@@ -337,7 +357,7 @@ export default function ResultPanel(props: ResultProps & { svLoad?: boolean }) {
       <Segmented
         label="Tipo de sesión"
         value={f.type}
-        onChange={(k: SessionType) => setF((g) => ({ ...g, type: k }))}
+        onChange={(k: SessionType) => setF((g) => ({ ...g, type: k, picked: true }))}
         options={TYPE_KEYS.map((k) => ({ value: k, label: TYPES[k].label, color: typeColor(k) }))}
       />
     ) : null;
@@ -365,11 +385,13 @@ export default function ResultPanel(props: ResultProps & { svLoad?: boolean }) {
               }}
             />
           ) : null}
+          {!f.editing && s ? <PlanRef s={s} /> : null}
           {typePick}
         </PanelSection>
       ) : null}
 
       <PanelSection no={first ? '02' : '01'} title="Datos de la salida">
+        {f.editing && s ? <PlanRef s={s} full /> : null}
         {svShown ? (
           <StravaFound f={f} onLoad={svLoad} onPick={svPick} />
         ) : strava && strava.configured !== false ? (

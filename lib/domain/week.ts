@@ -6,7 +6,7 @@ import { runActs, type ListActivitiesPayload } from '@/lib/strava/client';
 import type { Plan, PlanStep, Race, Session, SessionType } from './types';
 import { TYPES, nextRace } from './config';
 import { expand, planTotals } from './stages';
-import { planKmOf, sdate, weekStats } from './stats';
+import { planKmOf, sdate } from './stats';
 import { WD, addDays, cap, dateLabel, dayDiff, pd, sum, todayS, ymd } from './util';
 
 /* ---- carreras ---- */
@@ -24,16 +24,8 @@ export const weekSessions = (mon: Date) => {
     return d >= x && d <= y;
   });
 };
-/** km de la semana contando lo que falta: lo hecho más las planificadas sin hacer ni marcar como no hechas (la pista de
-    Semana y la barra en curso de Análisis) */
-export const weekTotalKm = (mon: Date) =>
-  weekStats(mon).km +
-  sum(
-    weekSessions(mon)
-      .filter((s) => s.plan && !s.result && !s.missed)
-      .map(planKmOf),
-  );
-/** planificadas sin resultado ni marcadas como no hechas, de días anteriores a `tS` (las «para cargar») */
+/** planificadas sin resultado ni marcadas como no hechas, de días anteriores a `tS` (las «para cargar»; con mañana,
+    también las de hoy) */
 export const pendingSessions = (tS: string) =>
   S.sessions.filter((s) => s.plan && !s.result && !s.missed && sdate(s) < tS).sort((a, b) => sdate(a).localeCompare(sdate(b)));
 /** la próxima sesión planificada desde `tS` (incluido) */
@@ -150,4 +142,17 @@ export interface SvItem {
   name: string;
   km: number;
   tsec: number;
+}
+/** el tipo que sugiere el nombre de la corrida: «6x800» → series, «Tempo», «Fondo largo», «Regenerativo suave» */
+export function svType(n: string): SessionType | null {
+  return /serie|interval|\d\s*x\s*\d|×/i.test(n) ? 'series' : /tempo|umbral/i.test(n) ? 'tempo' : /fondo|larg|long/i.test(n) ? 'fondo' : /regen|suave|recup|transic|easy/i.test(n) ? 'regen' : null;
+}
+/** la planificada sin cargar que le corresponde a la corrida (la elección de `svGo` del original): la del mismo día o,
+    si no, la más cercana del tipo que sugiere el nombre, a 3 días o menos */
+export function svMatch(a: SvItem): Session | null {
+  const g = svType(a.name),
+    pend = pendingSessions(ymd(addDays(new Date(), 1))),
+    dd = (x: Session) => Math.abs(dayDiff(pd(sdate(x)), pd(a.date)));
+  const m = pend.find((x) => sdate(x) === a.date) || pend.filter((x) => !g || x.type === g).sort((x, y) => dd(x) - dd(y))[0];
+  return m && dd(m) <= 3 ? m : null;
 }

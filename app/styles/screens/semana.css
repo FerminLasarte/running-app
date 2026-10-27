@@ -49,6 +49,11 @@
   .sem-wstats .disp { display: block; font-size: 24px; margin-top: 4px; }
   .sem-goal { display: block; color: var(--ink-3); font-size: 12px; margin-top: 2px; font-variant-numeric: tabular-nums; }
   .sem-note { color: var(--ink-3); font-size: 12.5px; line-height: 1.5; padding-top: 12px; }
+  /* contra la semana anterior (cuando esta ya cerró) */
+  .sem-wstats .p-delta { margin-top: 4px; }
+  .sem-dkm { display: flex; flex-direction: column; align-items: flex-start; gap: 6px; padding-top: 10px; font-size: 12.5px; line-height: 1.45; }
+  .sem-dkm:empty { display: none; }
+  .sem-warn { color: var(--t-tempo); }
 
   .sem-phase { width: 300px; margin-right: 12px; }
   .sem-phase b { display: block; font-weight: 600; font-size: 12px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-bottom: 7px; }

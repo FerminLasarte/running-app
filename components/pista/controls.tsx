@@ -1,12 +1,13 @@
 'use client';
 /* Controles del rediseño «Pista» (estilos en app/styles/components/controls.css): botón, chip de tipo, etiqueta,
-   Δ contra el objetivo, PR, selector segmentado, lista con forma de botón, interruptor, stepper y pestañas. */
+   Δ contra el objetivo, PR, selector segmentado, lista con forma de botón, interruptor, stepper, pestañas y Δ contra la
+   semana anterior. */
 import { useRef, type ButtonHTMLAttributes, type KeyboardEvent, type ReactNode } from 'react';
 import Link from 'next/link';
 import { ArrowRight, CaretDown, Minus, Plus, type Icon, type IconWeight } from '@phosphor-icons/react';
 import type { SessionType } from '@/lib/domain/types';
 import { TYPES } from '@/lib/domain/config';
-import { pad } from '@/lib/domain/util';
+import { fmt, pad } from '@/lib/domain/util';
 import { cssVars, cx, typeColor } from './util';
 
 /* ---- botón ---- */
@@ -217,5 +218,20 @@ export function Tabs<V extends string>({ items, value, onChange, label, idPrefix
         </button>
       ))}
     </div>
+  );
+}
+
+/* ---- Δ contra la semana anterior ---- */
+/** `dlt` del original: «+3,2 km», «−1», «igual»; nada si no hay con qué comparar. Más es mejor (km, sesiones, puntaje,
+    tiempo) */
+export function Dlt({ v, prev, unit = '', dec = 0 }: { v: number | null; prev: number | null; unit?: string; dec?: number }) {
+  if (prev == null || !(prev > 0) || v == null) return null;
+  const d = v - prev,
+    eq = Math.abs(d) < Math.pow(10, -dec) / 2;
+  return (
+    <span className={cx('p-delta', eq ? 'eq' : d > 0 ? 'good' : 'bad')} title="Contra la semana anterior">
+      {eq ? 'igual' : (d > 0 ? '+' : '−') + fmt(Math.abs(d), dec) + unit}
+      <span className="p-sr"> contra la semana anterior</span>
+    </span>
   );
 }

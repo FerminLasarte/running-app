@@ -8,9 +8,9 @@ import { easyActive, isType, mainShoe } from './config';
 import { expand, KINDS, REC_PACE, stageTotals, stepDesc, stepTgt, type ExStep } from './stages';
 import { judge, judgeTxt, lapTxt, scoreFlat, volTxt } from './score';
 import { sdate } from './stats';
-import { cap, fmt, fmtDur, fmtPace, newId, num, pad, sum, todayS } from './util';
+import { addDays, cap, fmt, fmtDur, fmtPace, newId, num, pad, sum, todayS, ymd } from './util';
 import { batchNote } from './planForm';
-import type { SvItem } from './week';
+import { pendingSessions, svMatch, svType, type SvItem } from './week';
 
 /* ---- estado ---- */
 /** un parcial tal como se escribe */
@@ -50,6 +50,8 @@ export interface SvState {
 }
 export interface ResF {
   sid: string | null;
+  /** la sesión (o el tipo de la libre) la elegiste vos: la corrida de Strava no la cambia */
+  picked: boolean;
   editing: boolean;
   editRes: Result | null;
   type: SessionType;
@@ -279,7 +281,7 @@ export function setMode(f: ResF, s: Session | null): ResF {
 }
 export function resultInit(o: ResultProps): ResF {
   const tS = todayS();
-  const pend = S.sessions.filter((s) => s.plan && !s.result && !s.missed && sdate(s) <= tS).sort((a, b) => sdate(a).localeCompare(sdate(b)));
+  const pend = pendingSessions(ymd(addDays(new Date(), 1)));
   const d = o.draft || null,
     free = o.free || !!d;
   let s = o.id ? S.sessions.find((x) => x.id === o.id) || null : null;
@@ -289,6 +291,7 @@ export function resultInit(o: ResultProps): ResF {
   const pd0 = s && s.plan ? s.plan.date : tS;
   let f: ResF = {
     sid: s ? s.id : null,
+    picked: !!o.id || !!d,
     editing,
     editRes: editing ? s!.result : null,
     type: s ? s.type : 'fondo',
@@ -345,7 +348,7 @@ export function resultDraftData(f: ResF): ResultDraft {
 /* ---- acciones (las entradas `rf-*`, `gm-toggle`, `lp-*` y `ln-skip` de la tabla de eventos) ---- */
 export function rfPick(f: ResF, id: string | null): ResF {
   const s = id ? S.sessions.find((x) => x.id === id) || null : null;
-  let n: ResF = { ...f, sid: id };
+  let n: ResF = { ...f, sid: id, picked: true };
   if (s) n.type = s.type;
   if (s && s.plan) {
     const tS = todayS();
@@ -506,6 +509,20 @@ export function matchLaps(ex: ExStep[], laps: SvLap[]): Vuelta[] {
     });
   });
   return out;
+}
+/** al elegir una corrida de Strava, si no elegiste la sesión a mano: la planificada que le corresponde o, si no hay, una
+    libre del tipo que sugiere el nombre (`svGo` del original) */
+export function svAuto(f: ResF, a: SvItem): ResF {
+  if (f.editing || f.picked) return f;
+  const m = svMatch(a);
+  if (m) {
+    if (m.id === f.sid) return f;
+    /* puede ser más vieja que las 5 de la lista: se suma para que se vea elegida */
+    const pend = f.pend.some((p) => p.id === m.id) ? f.pend : [...f.pend, m].sort((x, y) => sdate(x).localeCompare(sdate(y)));
+    return { ...rfPick({ ...f, pend }, m.id), picked: false };
+  }
+  const n = f.sid ? rfPick(f, null) : f;
+  return { ...n, picked: false, type: svType(a.name) || n.type };
 }
 /** completa el formulario con la corrida de Strava elegida */
 export function svFill(f0: ResF, a: SvItem, p: Partial<PerformancePayload>): ResF {
