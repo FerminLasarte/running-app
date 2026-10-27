@@ -43,7 +43,7 @@ Cada hallazgo tiene un código (`SEM-01`, `SES-02`…) que es el mismo del infor
 
 ### Tanda 1 · Accesos y avisos de todos los días
 
-Hecha en el PR #17 (falta probarla en la vista previa y mergearla).
+Hecha y mergeada (PR #17).
 
 - «Otra salida» de Strava vuelve a mostrar la lista (CGA-02).
 - El tipo se puede cambiar al editar una sesión sin plan (CGA-01).

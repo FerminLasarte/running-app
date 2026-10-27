@@ -61,7 +61,8 @@ Con `STRAVA_CLIENT_ID` y `STRAVA_CLIENT_SECRET` cargados, en la app: **Ajustes �
 
 En el artifact de claude.ai: **Ajustes → Respaldo → Exportar respaldo (JSON)**. En la app nueva: **Ajustes → Cuenta y datos →
 Respaldo → Importar** y elegí ese archivo. Se suman todas las sesiones y se copian la configuración, carreras y zapatillas. Los
-recorridos del mapa no viajan en el respaldo: se vuelven a traer con **Mapa → Traer de Strava**.
+recorridos del mapa no viajan en el respaldo: llegan solos al conectar Strava (**Ajustes → Conexiones → Conectar con
+Strava**), y los nuevos se traen después con **Sincronizar** o **Mapa → Traer recorridos nuevos**.
 
 ### 6. Instalar como app
 
