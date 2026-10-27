@@ -371,6 +371,38 @@ Hecho. Decisiones al pasarlo:
   de carga ofrecen conectar; los mensajes de la lectura de capturas (por ejemplo, sin conexión o con una imagen que no
   se puede abrir).
 
+### Tanda 7 · El tiempo el día de la carrera y los filtros al volver
+
+Sumada después de cerrar las seis primeras, a pedido del usuario: eran dos puntos de «Lo que queda como está».
+
+- **CAR-17 · Cargar el tiempo el mismo día de la carrera.**
+  - Original y hoy: una carrera es «pasada» recién al día siguiente (`pastRaces` en `lib/domain/config.ts:64-69`,
+    `isPast` en `components/ajustes/Races.tsx:21`). Hasta entonces sigue como la próxima: Ajustes pide el objetivo
+    en vez de «Tu tiempo», el medallero no la muestra y no hay forma de cargar el tiempo la misma noche.
+  - Hacer: el día de la carrera (desde la hora de largada si está cargada, si no todo el día), poder cargar el tiempo.
+    En Carreras, un «Cargar mi tiempo» en el estadio que abre la carrera con `editRace` en «Tu tiempo». En Ajustes,
+    la carrera de hoy muestra «Tu tiempo» además del objetivo. Con el tiempo cargado, la carrera pasa al medallero
+    y deja de ser la próxima.
+  - Cuidado: `nextRace`, `upcomingRaces` y `pastRaces` los usan el plan por bloques, la lista para el día, la
+    referencia de ritmos, los trofeos y la XP. Preferí una regla nueva y chica («ya corrida» = tiene `resultSec`)
+    antes que mover la frontera de fechas para todos, y revisá que el reloj, el dorsal y la cinta no muestren una
+    carrera ya corrida como la que viene.
+  - Listo cuando: con una carrera hoy, se carga su tiempo desde Carreras y desde Ajustes, aparece en el medallero
+    con su medalla, y el estadio pasa a la carrera siguiente (o al estado vacío). La celebración festeja la carrera
+    terminada.
+- **ANA-14 · Los filtros y el período se recuerdan al volver.**
+  - Original: los filtros del Registro quedaban en memoria mientras la app estaba abierta (`S.lg`), y la pestaña del
+    Resumen se guardaba en el navegador (`rr_sumsub`, 6251).
+  - Hoy: todo vive en la URL (decidido en las fases 6 y 7), pero la barra lateral, los atajos `1`–`6` y ⌘K van a
+    `/registro` y `/analisis` sin parámetros (`components/shell/sections.ts:18-19`), así que al volver se pierden los
+    filtros, la búsqueda y el período, y Análisis vuelve a Volumen. Al pasar de pestaña dentro de Análisis,
+    `?ritmos=objetivo` tampoco sigue (`analisisHref` en `components/analisis/period.ts` arma solo `periodo`).
+  - Hacer: recordar en memoria (mientras la app está abierta, como el original) la última URL de Registro y de
+    Análisis, y que la barra lateral, los atajos y ⌘K vuelvan a ella. Tocar la sección en la que ya estás no cambia
+    nada. «Ver todas» del Registro sigue limpiando todo. Las pestañas de Análisis conservan `ritmos`.
+  - Listo cuando: filtrar el Registro por «Series» con una búsqueda, ir a Semana y volver por la barra lateral, por
+    `2` y por ⌘K deja los mismos filtros; Análisis vuelve a la pestaña y al período en que estaba.
+
 ## Lo que queda como está
 
 Cambiaron respecto del original, no los decidió ninguna fase, y no vale la pena tocarlos. Si alguno importa, pasa a
@@ -380,12 +412,11 @@ una tanda.
   saludo, y el chip del día sin FC (SEM-08, SEM-09, SEM-11).
 - Análisis: «Si corrieras hoy» usa Daniels y la estrategia usa Riegel (ANA-05); los chequeos de preparación en orden
   fijo (ANA-09); totales del Registro con puntaje en vez de FC (ANA-10); en el celu se ordena por las columnas
-  visibles (ANA-13); los filtros no se recuerdan al volver por la barra lateral (ANA-14).
+  visibles (ANA-13).
 - Logros: el «+XP» de lo que llega de la nube cuenta solo los trofeos (LOG-03); cambiar el objetivo semanal festeja
   con el próximo dato (LOG-04); el desafío de plan muestra sesiones en vez de % (LOG-06); «Nivel A → B» (LOG-12).
 - Carreras: la estrategia por tramos sin el texto de salida del maratón (CAR-08); «De dónde sale el ritmo realista»
-  solo con «Realista» elegido (CAR-09); el día de la carrera se carga el tiempo recién al día siguiente, igual que
-  antes (CAR-17).
+  solo con «Realista» elegido (CAR-09).
 - Carga y detalle: la fecha del plan con las flechas de semana (CGA-05); los totales raros de un plan todo por tiempo,
   igual que antes (CGA-08); la línea «Plan: …» (SES-07); las series de Strava se piden solas al abrir (SES-08).
 - Strava y Ajustes: «Última sincronización» por navegador (SV-06); permiso parcial de actividades privadas (SV-07);
