@@ -371,6 +371,75 @@ Hecho. Decisiones al pasarlo:
   de carga ofrecen conectar; los mensajes de la lectura de capturas (por ejemplo, sin conexión o con una imagen que no
   se puede abrir).
 
+### Tanda 7 · El tiempo el día de la carrera y los filtros al volver
+
+Sumada después de cerrar las seis primeras, a pedido del usuario: eran dos puntos de «Lo que queda como está».
+
+- **CAR-17 · Cargar el tiempo el mismo día de la carrera.**
+  - Original y hoy: una carrera es «pasada» recién al día siguiente (`pastRaces` en `lib/domain/config.ts:64-69`,
+    `isPast` en `components/ajustes/Races.tsx:21`). Hasta entonces sigue como la próxima: Ajustes pide el objetivo
+    en vez de «Tu tiempo», el medallero no la muestra y no hay forma de cargar el tiempo la misma noche.
+  - Hacer: el día de la carrera (desde la hora de largada si está cargada, si no todo el día), poder cargar el tiempo.
+    En Carreras, un «Cargar mi tiempo» en el estadio que abre la carrera con `editRace` en «Tu tiempo». En Ajustes,
+    la carrera de hoy muestra «Tu tiempo» además del objetivo. Con el tiempo cargado, la carrera pasa al medallero
+    y deja de ser la próxima.
+  - Cuidado: `nextRace`, `upcomingRaces` y `pastRaces` los usan el plan por bloques, la lista para el día, la
+    referencia de ritmos, los trofeos y la XP. Preferí una regla nueva y chica («ya corrida» = tiene `resultSec`)
+    antes que mover la frontera de fechas para todos, y revisá que el reloj, el dorsal y la cinta no muestren una
+    carrera ya corrida como la que viene.
+  - Listo cuando: con una carrera hoy, se carga su tiempo desde Carreras y desde Ajustes, aparece en el medallero
+    con su medalla, y el estadio pasa a la carrera siguiente (o al estado vacío). La celebración festeja la carrera
+    terminada.
+- **ANA-14 · Los filtros y el período se recuerdan al volver.**
+  - Original: los filtros del Registro quedaban en memoria mientras la app estaba abierta (`S.lg`), y la pestaña del
+    Resumen se guardaba en el navegador (`rr_sumsub`, 6251).
+  - Hoy: todo vive en la URL (decidido en las fases 6 y 7), pero la barra lateral, los atajos `1`–`6` y ⌘K van a
+    `/registro` y `/analisis` sin parámetros (`components/shell/sections.ts:18-19`), así que al volver se pierden los
+    filtros, la búsqueda y el período, y Análisis vuelve a Volumen. Al pasar de pestaña dentro de Análisis,
+    `?ritmos=objetivo` tampoco sigue (`analisisHref` en `components/analisis/period.ts` arma solo `periodo`).
+  - Hacer: recordar en memoria (mientras la app está abierta, como el original) la última URL de Registro y de
+    Análisis, y que la barra lateral, los atajos y ⌘K vuelvan a ella. Tocar la sección en la que ya estás no cambia
+    nada. «Ver todas» del Registro sigue limpiando todo. Las pestañas de Análisis conservan `ritmos`.
+  - Listo cuando: filtrar el Registro por «Series» con una búsqueda, ir a Semana y volver por la barra lateral, por
+    `2` y por ⌘K deja los mismos filtros; Análisis vuelve a la pestaña y al período en que estaba.
+
+Hecho. Decisiones al pasarlo:
+
+- **CAR-17.** La regla nueva es `raceRun` en `lib/domain/config.ts`: «ya corrida» si pasó el día, o si es hoy y
+  tiene `resultSec`. `upcomingRaces` y `pastRaces` la usan, así que sin tiempo cargado todo sigue como antes (la de
+  hoy es la próxima hasta el día siguiente) y con el tiempo cargado la de hoy pasa al medallero y el plan por bloques,
+  la lista para el día, los ritmos, el reloj, el dorsal, la cinta, la barra de arriba y ⌘K pasan a la siguiente. Los
+  trofeos y la XP ya miraban `resultSec`, no la fecha. `resultOpen` dice cuándo se puede cargar el tiempo (ya corrida,
+  o hoy desde la largada; sin hora, todo el día) y `raceStart` es la largada que ya calculaba `raceClock`.
+- **El estadio.** «Cargar mi tiempo» va debajo del reloj y aparece solo al llegar la hora de largada, sin recargar:
+  lo mira una pieza chica con `useNowSec` (el segundero de `Countdown`, ahora exportado), así el resto del estadio no
+  se redibuja cada segundo. Abre la carrera con `editRace`, que ahora enfoca «Tu tiempo» cuando `resultOpen`.
+- **Ajustes.** `raceErrs` y `applyRace` reciben qué campos se cargan (`RaceFields`: `goal` hasta el día de la
+  carrera, `res` desde la largada) en lugar de `past`. La de hoy, ya largada, muestra «Tu tiempo» arriba del
+  objetivo, el inicio del plan y «bajar de ese tiempo», y los sigue mostrando después de cargar el tiempo (el
+  formulario no cambia mientras escribís). Antes de la largada solo muestra el objetivo. En la lista, con el tiempo
+  cargado dice «terminada» y «tu tiempo».
+- **La celebración** no se tocó: el shell ya festeja cuando cambian las carreras. Con la primera carrera salta
+  «Primera carrera» (y las marcas de 10K que bajó), con los 300 XP de la carrera en la cuenta del nivel.
+- **ANA-14.** La última URL de Registro y de Análisis queda en memoria en `components/shell/sections.ts`
+  (`rememberUrl`, que llama la barra cada vez que cambia la URL, y `sectionHref`). La barra lleva ahí; la sección en
+  la que estás lleva a la URL de ahora (tocarla no cambia nada, ni suma un paso al historial). Los atajos `1`–`6` y
+  «Ir a» de ⌘K usan `goSection`, que no hace nada si ya estás en esa sección. Las otras secciones no se recuerdan:
+  el pedido era Registro y Análisis.
+- **Las pestañas de Análisis** llevan los parámetros de ahora (`analisisHref(tab, qs)`): el período y `ritmos`.
+  Las pestañas de Análisis en ⌘K también, con los de la última URL de Análisis.
+- **Agregado:** la miga «Registro» del detalle de una sesión también vuelve al Registro como lo dejaste (es el
+  «volver» más directo después de abrir una sesión desde el Registro filtrado). «Todo el registro» de Semana e «Ir al
+  registro» de una sesión borrada siguen yendo al Registro entero.
+- Probado en local sin `.env.local`: una carrera de hoy que largaba a los 90 segundos (el botón apareció solo a la
+  hora), su tiempo cargado desde «Cargar mi tiempo» con el foco en «Tu tiempo», el medallero con su medalla y
+  «objetivo cumplido», la celebración, y el estadio, el dorsal, la cinta y la barra de arriba con la siguiente; una
+  de hoy sin hora (botón todo el día, Ajustes con los dos tiempos) y una de hoy a la noche (solo el objetivo); el
+  estadio en el celu. Con los datos de ejemplo: el Registro con «Series» y una búsqueda, ida a Semana y vuelta por la
+  barra, por `2` y por ⌘K; Análisis en «Ritmo» con «Un año» y ritmos «Objetivo», pasando a «Forma» y volviendo por la
+  barra, por `3` y por ⌘K; «Ver todas» limpia también lo recordado; tocar la sección en la que estás. Sin datos,
+  Carreras, Registro y Análisis sin errores.
+
 ## Lo que queda como está
 
 Cambiaron respecto del original, no los decidió ninguna fase, y no vale la pena tocarlos. Si alguno importa, pasa a
@@ -380,12 +449,11 @@ una tanda.
   saludo, y el chip del día sin FC (SEM-08, SEM-09, SEM-11).
 - Análisis: «Si corrieras hoy» usa Daniels y la estrategia usa Riegel (ANA-05); los chequeos de preparación en orden
   fijo (ANA-09); totales del Registro con puntaje en vez de FC (ANA-10); en el celu se ordena por las columnas
-  visibles (ANA-13); los filtros no se recuerdan al volver por la barra lateral (ANA-14).
+  visibles (ANA-13).
 - Logros: el «+XP» de lo que llega de la nube cuenta solo los trofeos (LOG-03); cambiar el objetivo semanal festeja
   con el próximo dato (LOG-04); el desafío de plan muestra sesiones en vez de % (LOG-06); «Nivel A → B» (LOG-12).
 - Carreras: la estrategia por tramos sin el texto de salida del maratón (CAR-08); «De dónde sale el ritmo realista»
-  solo con «Realista» elegido (CAR-09); el día de la carrera se carga el tiempo recién al día siguiente, igual que
-  antes (CAR-17).
+  solo con «Realista» elegido (CAR-09).
 - Carga y detalle: la fecha del plan con las flechas de semana (CGA-05); los totales raros de un plan todo por tiempo,
   igual que antes (CGA-08); la línea «Plan: …» (SES-07); las series de Strava se piden solas al abrir (SES-08).
 - Strava y Ajustes: «Última sincronización» por navegador (SV-06); permiso parcial de actividades privadas (SV-07);

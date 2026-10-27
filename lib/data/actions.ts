@@ -5,7 +5,8 @@ import { reduceMotion } from '@/lib/motion';
 import { afterPaint, navigate } from '@/lib/nav';
 import type { Cfg, Route, Session } from '@/lib/domain/types';
 import { normCfg, normRace } from '@/lib/domain/defaults';
-import { addDays, cleanObj, todayS, ymd } from '@/lib/domain/util';
+import { resultOpen } from '@/lib/domain/config';
+import { addDays, cleanObj, ymd } from '@/lib/domain/util';
 import { demoRoutes, demoSessions } from './demo';
 import { persistLocal, retryFailed, writeCfg, writeDelete, writeRoutes, writeSession, writeSessions } from './sync';
 
@@ -163,12 +164,12 @@ export function addRace(km = 10, name = 'Nueva carrera') {
   navigate('/ajustes', () => focusField(ajNameId('r', r.id)));
 }
 export const goRaces = () => goAjustes(AJ_PARTS.races);
-/** abre una carrera en Ajustes con el foco en su tiempo (el tuyo si ya fue, si no el objetivo) o en la hora de largada */
+/** abre una carrera en Ajustes con el foco en su tiempo (el tuyo si ya largó, si no el objetivo) o en la hora de largada */
 export function editRace(id: string, field?: 'time') {
   const r = S.cfg.races.find((x) => x.id === id);
   if (!r) return goRaces();
   closeSheet();
   setAjEdit('r:' + id);
-  navigate('/ajustes', () => focusField(ajId('r', id) + (field ? '-' + field : r.date < todayS() ? '-res-h' : '-tgt-h')));
+  navigate('/ajustes', () => focusField(ajId('r', id) + (field ? '-' + field : resultOpen(r) ? '-res-h' : '-tgt-h')));
 }
 export const goShoes = () => goAjustes(AJ_PARTS.shoes);

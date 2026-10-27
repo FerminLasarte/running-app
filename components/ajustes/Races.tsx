@@ -1,13 +1,14 @@
 'use client';
 /* Carreras: la lista con la próxima en tartán, el objetivo o tu tiempo, y «Editar», que abre los campos en la misma
-   fila. Se guardan solos; la que ya pasó pide tu tiempo en vez del objetivo y el inicio del plan. */
+   fila. Se guardan solos; la que ya pasó pide tu tiempo en vez del objetivo y el inicio del plan, y la de hoy, desde
+   la largada, los dos. */
 import { useState } from 'react';
 import { Plus } from '@phosphor-icons/react';
 import { useS } from '@/lib/store';
 import { AJ_PARTS, addRace, ajId, ajNameId, setAjEdit } from '@/lib/data/actions';
 import type { Race } from '@/lib/domain/types';
-import { RACE_PRESETS, nextRace, pastRaces, upcomingRaces } from '@/lib/domain/config';
-import { applyRace, raceDraft, raceErrs, type RaceDraft } from '@/lib/domain/settings';
+import { RACE_PRESETS, nextRace, pastRaces, raceRun, resultOpen, upcomingRaces } from '@/lib/domain/config';
+import { applyRace, raceDraft, raceErrs, type RaceDraft, type RaceFields } from '@/lib/domain/settings';
 import { raceDateLabel } from '@/lib/domain/week';
 import { fmt, fmtDur, todayS } from '@/lib/domain/util';
 import { Button, Choices, Switch } from '@/components/pista/controls';
@@ -18,19 +19,19 @@ import { medalDist } from '@/components/carreras/RaceMedalSvg';
 import { addBtnId, closeEdit, commitCfg, editBtnId, raceDel } from './actions';
 import { useAuto } from './useAuto';
 
-const isPast = (r: Race) => r.date < todayS();
+const fieldsOf = (r: Race): RaceFields => ({ goal: r.date >= todayS(), res: resultOpen(r) });
 const presetOf = (km: number) => RACE_PRESETS.find((q) => Math.abs(km - q[0]) < 0.01)?.[1] || null;
 
 function RaceEdit({ r }: { r: Race }) {
-  const past = isPast(r),
+  const f = fieldsOf(r),
     p = ajId('r', r.id);
   const { draft: d, edit, now, bind } = useAuto(
     r,
     () => raceDraft(r),
-    (v) => commitCfg((c) => applyRace(c.races.find((x) => x.id === r.id)!, v, past)),
+    (v) => commitCfg((c) => applyRace(c.races.find((x) => x.id === r.id)!, v, f)),
   );
   const [del, setDel] = useState(false);
-  const err = raceErrs(d, past);
+  const err = raceErrs(d, f);
   const set = (patch: Partial<RaceDraft>) => (x: RaceDraft) => ({ ...x, ...patch });
   return (
     <div className="aj-ed" {...bind}>
@@ -61,11 +62,12 @@ function RaceEdit({ r }: { r: Race }) {
         <Field id={p + '-place'} label="Lugar" help="Opcional. Va con la fecha en Carreras.">
           <Input id={p + '-place'} hasHelp value={d.place} maxLength={60} onChange={(e) => edit(set({ place: e.target.value }))} />
         </Field>
-        {past ? (
+        {f.res ? (
           <Field id={p + '-res'} label="Tu tiempo" group error={err.res} help="Queda como marca en el medallero de Carreras.">
             <HmsInput id={p + '-res'} invalid={!!err.res} value={d.res} onChange={(h) => edit(set({ res: h }))} />
           </Field>
-        ) : (
+        ) : null}
+        {f.goal ? (
           <>
             <Field id={p + '-tgt'} label="Tiempo objetivo" group error={err.tgt} help="Opcional.">
               <HmsInput id={p + '-tgt'} invalid={!!err.tgt} value={d.tgt} onChange={(h) => edit(set({ tgt: h }))} />
@@ -77,7 +79,7 @@ function RaceEdit({ r }: { r: Race }) {
               <Switch checked={d.lt} onChange={(v) => now(set({ lt: v }))} label="El objetivo es bajar de ese tiempo" desc="Los ritmos se redondean hacia abajo." />
             </div>
           </>
-        )}
+        ) : null}
       </div>
       <div className="aj-ed-f">
         {del ? (
@@ -125,7 +127,7 @@ export function Races({ i }: { i: number }) {
       {list.length ? (
         <ul className="aj-list">
           {list.map((r) => {
-            const past = isPast(r),
+            const past = raceRun(r),
               on = open === 'r:' + r.id,
               t = past ? r.resultSec : r.targetSec;
             return (

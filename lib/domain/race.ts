@@ -1,7 +1,7 @@
 /* Estimación de carrera, escenarios y reparto de ritmos, la estrategia por tramos, la pulsera y la lista de pendientes
    del día de carrera (líneas 1932–1948 y 3062–3124 del original). */
 import type { Race } from './types';
-import { isLong, mainShoe, pastRaces } from './config';
+import { isLong, mainShoe, pastRaces, raceStart } from './config';
 import { riegel } from './score';
 import { doneList, type DoneSession } from './stats';
 import { shoeLife } from './shoes';
@@ -242,8 +242,7 @@ export function bandRows(splits: RaceStrategy['splits'], step: number) {
 export function raceClock(race: Pick<Race, 'date' | 'time'>, now: number): [number, number, number, number] {
   const n = new Date(now),
     days = Math.max(0, dayDiff(n, pd(race.date))),
-    tm = (race.time || '0:00').split(':'),
-    start = pd(race.date).getTime() + (+tm[0] * 60 + +tm[1]) * 6e4,
+    start = raceStart(race),
     end = days > 0 ? addDays(sod(n), 1).getTime() : start,
     s = Math.max(0, Math.floor((end - now) / 1000));
   return [days, Math.floor(s / 3600), Math.floor((s % 3600) / 60), s % 60];
