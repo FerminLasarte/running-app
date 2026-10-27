@@ -1,6 +1,6 @@
 /* Lo que comparten Logros, la vitrina, la celebración, el panel del trofeo y la paleta: el ícono de cada categoría, la
    forma de cada trofeo, cómo se abre y a dónde lleva cada parte de la pantalla. */
-import { CalendarCheck, CalendarDots, Clock, Compass, Crown, Fire, FlagCheckered, Footprints, ListChecks, Path, SneakerMove, Star, Target, Timer, type Icon } from '@phosphor-icons/react';
+import { Buildings, CalendarCheck, CalendarDots, Clock, Compass, Crown, FastForward, Fire, FlagCheckered, Footprints, Heartbeat, ListChecks, Mountains, Path, Sneaker, SneakerMove, Star, Target, Timer, type Icon } from '@phosphor-icons/react';
 import { openSheet } from '@/lib/sheets';
 import { buzz } from '@/lib/data/actions';
 import { catBase, type Trophy } from '@/lib/domain/trophies';
@@ -13,12 +13,17 @@ const CAT_ICON: Record<string, Icon> = {
   race: FlagCheckered,
   week: CalendarDots,
   month: CalendarCheck,
+  up: Mountains,
   streak: Fire,
   runs: Footprints,
   hours: Clock,
   plan: ListChecks,
   score: Star,
+  ns: FastForward,
+  dec: Heartbeat,
+  shoe: Sneaker,
   area: Compass,
+  barrio: Buildings,
   ch: Target,
   egg: Crown,
 };

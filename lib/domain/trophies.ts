@@ -3,12 +3,14 @@ import { S, getUi, setUi } from '@/lib/store';
 import { saveCfg, toast } from '@/lib/data/actions';
 import { reduceMotion } from '@/lib/motion';
 import { vdotOf } from './daniels';
-import { cellArea, routeCells } from './geo';
+import { BARRIO_MIN_KM, barrioCount, cellArea, routeBarrios, routeCells } from './geo';
+import { shoeKm, shoeRuns } from './shoes';
+import { NEG_SPLIT } from './streams';
 import { chProgress } from './challenges';
 import { XP_TIER, levelOf, xpFor, xpState, type XpState } from './xp';
 import { scoreSession } from './score';
-import { doneList, monthSeries, weekSeries } from './stats';
-import { clamp, cleanObj, dShort, fmt, fmtDur, nf, pd, sum, ymd } from './util';
+import { doneList, monthSeries, weekSeries, type DoneSession } from './stats';
+import { clamp, cleanObj, dShort, fmt, fmtDur, fmtPace, nf, pd, sum, ymd } from './util';
 
 export const tierOf = (i: number, n: number) => (n <= 1 ? 2 : i < Math.ceil(n / 3) ? 0 : i < Math.ceil((2 * n) / 3) ? 1 : 2);
 
@@ -65,6 +67,17 @@ export const FIN_TXT: Record<string, string> = { '21': '21,1 km de una: uno de l
 export const prXp = (sec: number, km: number, m: number) => Math.round(((100 + 4 * Math.pow(Math.max(0, vdotOf(sec, km) - 28), 1.7)) * m) / 25) * 25;
 export const trophyXp = (t: Trophy) => (t.xp != null ? t.xp : t.cat === 'ch' ? 200 : XP_TIER[t.tier]);
 
+
+/* las salidas de una lista, numeradas en orden: para las escaleras que cuentan salidas */
+const count = (L: DoneSession[]): Ev[] => L.map((x, i) => ({ d: x.result.date, v: i + 1 }));
+/** un fondo largo, para «Fondos sin deriva»: 90 minutos o más */
+export const DEC_LONG = 5400;
+/** una distancia que se lee igual al revés con dos decimales (10,01 km; 12,21 km) */
+export function capicua(km: number) {
+  if (!(km >= 1)) return false;
+  const d = km.toFixed(2).replace('.', '');
+  return d === [...d].reverse().join('');
+}
 
 /* las carreras con tiempo, de la primera a la última: cuentan para «Carreras» y cada medalla lleva la cinta de la suya */
 const doneRaces = () => S.cfg.races.filter((r) => r.resultSec! > 0).sort((a, b) => a.date.localeCompare(b.date));
@@ -207,6 +220,24 @@ function calcTrophies(): Trophy[] {
     }
   });
   T.push(...ladder('month', ['50', '100', '150', '200'], [50, 100, 150, 200], ['Mes de 50 km', 'Mes de 100 km', 'Mes de 150 km', 'Mes de 200 km'], ['50 km en un mes.', '100 km en un mes.', '150 km en un mes.', '200 km en un mes.'], mE, mm, 'km'));
+  // desnivel acumulado: el de cada salida traída de Strava (result.ex)
+  let up = 0;
+  const upE = D.filter((x) => x.result.ex).map((x) => {
+    up += x.result.ex!.up;
+    return { d: x.result.date, v: up };
+  });
+  T.push(
+    ...ladder(
+      'up',
+      ['1000', '5000', '8849'],
+      [1000, 5000, 8849],
+      ['1.000 m de desnivel', '5.000 m de desnivel', 'El Everest'],
+      ['Subiste 1.000 m sumando tus salidas.', '5.000 m de subida acumulada.', '8.849 m de desnivel acumulado: la altura del Everest.'],
+      upE,
+      up,
+      'm',
+    ),
+  );
   // constancia: semanas seguidas cumpliendo tu objetivo
   const G = S.cfg.weeklyGoal;
   let run = 0,
@@ -265,38 +296,105 @@ function calcTrophies(): Trophy[] {
   T.push(
     ...ladder('score', ['1', '10', '25'], [1, 10, 25], ['Primera sesión excelente', '10 sesiones excelentes', '25 sesiones excelentes'], ['Un puntaje de 90 o más.', 'Diez sesiones con 90 o más.', 'Veinticinco sesiones con 90 o más.'], hi, hi.length, 'sesiones'),
   );
-  // exploración: km² recorridos (cuadrículas de 200 m)
+  // negative split: la segunda mitad más rápida que la primera (las series no cuentan: el ritmo va y viene)
+  const nsE = count(D.filter((x) => x.type !== 'series' && x.result.ex?.half != null && x.result.ex.half < NEG_SPLIT));
+  T.push(
+    ...ladder(
+      'ns',
+      ['1', '5', '10'],
+      [1, 5, 10],
+      ['Negative split', '5 negative splits', '10 negative splits'],
+      ['Terminaste una salida más rápido que como la empezaste.', 'Cinco salidas con la segunda mitad más rápida.', 'Diez salidas con la segunda mitad más rápida.'],
+      nsE,
+      nsE.length,
+      'salidas',
+    ),
+  );
+  // fondos largos sin deriva: 90 minutos o más con la deriva medida bien y por debajo del 5%
+  const fE = count(D.filter((x) => x.type === 'fondo' && x.result.timeSec >= DEC_LONG && !!x.result.dec?.ok && x.result.dec.p! < 5));
+  T.push(
+    ...ladder(
+      'dec',
+      ['1', '5', '10'],
+      [1, 5, 10],
+      ['Fondo sin deriva', '5 fondos sin deriva', '10 fondos sin deriva'],
+      ['Un fondo de 90 minutos o más con menos de 5% de deriva cardíaca.', 'Cinco fondos largos sin deriva.', 'Diez fondos largos sin deriva: el motor aeróbico está.'],
+      fE,
+      fE.length,
+      'fondos',
+    ),
+  );
+  // zapatillas jubiladas en su límite de km: la fecha es la de su última salida
+  const shE = S.cfg.shoes
+    .filter((z) => z.retired && z.limitKm > 0 && shoeKm(z) >= z.limitKm)
+    .map((z) => shoeRuns(z).at(-1)?.result.date)
+    .filter((d): d is string => !!d)
+    .sort()
+    .map((d, i) => ({ d, v: i + 1 }));
+  T.push(
+    ...ladder(
+      'shoe',
+      ['1', '3'],
+      [1, 3],
+      ['Zapatillas jubiladas', 'Tres pares jubilados'],
+      ['Jubilaste un par después de llevarlo hasta su límite de km.', 'Tres pares jubilados en su límite.'],
+      shE,
+      shE.length,
+      'pares',
+    ),
+  );
+  // exploración: km² recorridos (cuadrículas de 200 m) y barrios de la Ciudad, con los recorridos de Strava en orden
   if (S.routes.length) {
+    const R = S.routes.slice().sort((a, b) => String(a.date).localeCompare(String(b.date)));
     const seen = new Set<string>(),
       eE: Ev[] = [];
-    S.routes
-      .slice()
-      .sort((a, b) => String(a.date).localeCompare(String(b.date)))
-      .forEach((r) => {
-        routeCells(r).forEach((k) => seen.add(k));
-        eE.push({ d: r.date, v: cellArea(seen.size) });
-      });
+    R.forEach((r) => {
+      routeCells(r).forEach((k) => seen.add(k));
+      eE.push({ d: r.date, v: cellArea(seen.size) });
+    });
     const area = cellArea(seen.size);
     T.push(...ladder('area', ['5', '10', '25'], [5, 10, 25], ['Explorador: 5 km²', 'Explorador: 10 km²', 'Explorador: 25 km²'], ['Corriste por 5 km² distintos.', 'Corriste por 10 km² distintos.', 'Corriste por 25 km² distintos.'], eE, area, 'km²', (v) => fmt(v, 1)));
+    /* un barrio cuenta cuando sumaste en él lo mismo que pide el ranking del Mapa; la fecha, la del recorrido que lo sumó */
+    const kmB = new Map<string, number>(),
+      bE: Ev[] = [];
+    let nb = 0;
+    R.forEach((r) => {
+      routeBarrios(r).km.forEach((km, B) => {
+        const was = kmB.get(B.n) || 0;
+        kmB.set(B.n, was + km);
+        if (was < BARRIO_MIN_KM && was + km >= BARRIO_MIN_KM) nb++;
+      });
+      bE.push({ d: r.date, v: nb });
+    });
+    const NB = barrioCount();
+    T.push(
+      ...ladder(
+        'barrio',
+        ['10', '25', 'todos'],
+        [10, 25, NB],
+        ['10 barrios', '25 barrios', 'Los ' + NB + ' barrios'],
+        ['Corriste por 10 barrios de la Ciudad.', 'Corriste por 25 barrios de la Ciudad.', 'Corriste por los ' + NB + ' barrios de la Ciudad: la conocés de punta a punta.'],
+        bE,
+        nb,
+        'barrios',
+      ),
+    );
   }
-  // secreto: la vuelta olímpica, la primera vez que bajás el objetivo de una carrera. No se ve hasta ganarlo
+  // secretos: no se ven hasta ganarlos (cada uno va también en EGG_IDS)
+  const egg = (id: string, name: string, desc: string, date: string, xp: number) =>
+    T.push({ id: 'egg_' + id, cat: 'egg', name, desc: desc + ' Trofeo secreto.', tier: 2, got: true, date, cur: null, target: 1, unit: '', xp });
+  /* la vuelta olímpica: la primera vez que bajás el objetivo de una carrera */
   const vo = S.cfg.races
     .filter((r) => r.resultSec! > 0 && r.targetSec > 0 && (r.lt ? r.resultSec! < r.targetSec : r.resultSec! <= r.targetSec))
     .sort((a, b) => a.date.localeCompare(b.date))[0];
-  if (vo)
-    T.push({
-      id: 'egg_vuelta',
-      cat: 'egg',
-      name: 'Vuelta olímpica',
-      desc: 'Bajaste tu objetivo en ' + vo.name + ': ' + fmtDur(vo.resultSec!) + ' contra ' + fmtDur(vo.targetSec) + '. Trofeo secreto.',
-      tier: 2,
-      got: true,
-      date: vo.date,
-      cur: null,
-      target: 1,
-      unit: '',
-      xp: 600,
-    });
+  if (vo) egg('vuelta', 'Vuelta olímpica', 'Bajaste tu objetivo en ' + vo.name + ': ' + fmtDur(vo.resultSec!) + ' contra ' + fmtDur(vo.targetSec) + '.', vo.date, 600);
+  /* el clima es uno de WEATHER (util.ts) */
+  const rain = D.find((x) => x.result.weather === 'Lluvia');
+  if (rain) egg('lluvia', 'Bajo la lluvia', 'Saliste a correr con lluvia el ' + dShort(pd(rain.result.date)) + '.', rain.result.date, 200);
+  const cap = D.find((x) => capicua(x.result.distKm));
+  if (cap) egg('capicua', 'Capicúa', fmt(cap.result.distKm, 2) + ' km el ' + dShort(pd(cap.result.date)) + ': se lee igual al derecho y al revés.', cap.result.date, 200);
+  const sun = D.find((x) => x.result.weather === 'Mucho calor' && x.result.paceSec > 0 && x.result.paceSec < 300);
+  if (sun) egg('sol', 'A pleno sol', fmtPace(sun.result.paceSec) + ' /km con mucho calor, el ' + dShort(pd(sun.result.date)) + '.', sun.result.date, 400);
   // desafíos cumplidos
   (S.cfg.challenges || []).forEach((c) => {
     const p = chProgress(c);
@@ -316,12 +414,17 @@ export const CAT_N: Record<string, string> = {
   race: 'Carreras',
   week: 'Semanas fuertes',
   month: 'Meses fuertes',
+  up: 'Desnivel',
   streak: 'Constancia',
   runs: 'Salidas',
   hours: 'Horas',
   plan: 'Plan cumplido',
   score: 'Puntaje',
+  ns: 'Negative split',
+  dec: 'Fondos sin deriva',
+  shoe: 'Zapatillas jubiladas',
   area: 'Exploración',
+  barrio: 'Barrios',
   ch: 'Desafíos',
   egg: 'Secretos',
 };
@@ -368,20 +471,25 @@ export const gotIds = () => new Set(trophies().filter((t) => t.got).map((t) => t
 
 /** el metal del escudo según la rareza: 0 bronce, 1 plata, 2 oro, 3 platino */
 export const trophyTier = (t: Trophy) => RARITY.indexOf(rarOf(t));
-const COUNT_UNITS = ['km', 'km²', 'h'];
+const COUNT_UNITS = ['km', 'km²', 'h', 'm'];
+/** un número de una escalera: con punto de miles desde 1.000 («2.340 de 5.000 m») */
+const countFmt = (t: Trophy) => {
+  const f0 = t.fmtV || ((v: number) => fmt(v, 0));
+  return (v: number) => (v >= 1000 ? nf(v) : f0(v));
+};
 /** lo que muestra la vitrina debajo del nombre: la fecha si lo ganaste; si no, cuánto llevás («46:12 → 45:00», «83 de 100») */
 export function trophyNote(t: Trophy): string {
   if (t.got) return t.date ? dShort(pd(t.date)) : '';
   if (t.cur == null || t.target >= 1e6) return '';
   const f0 = t.fmtV || ((v: number) => fmt(v, 0)),
-    fv = (v: number) => (v >= 1000 ? nf(v) : f0(v));
+    fv = countFmt(t);
   if (t.unit === 'time') return t.cur ? f0(t.cur) + ' → ' + f0(t.target) : '';
   return fv(t.cur) + ' de ' + fv(t.target) + (COUNT_UNITS.includes(t.unit) ? ' ' + t.unit : '');
 }
 /** cuánto te falta, en una frase (el panel del trofeo) */
 export function trophyLeft(t: Trophy): string {
   if (t.got || t.cur == null) return '';
-  const fv = t.fmtV || ((v: number) => fmt(v, 0));
+  const fv = countFmt(t);
   /* la descripción ya dice tu mejor marca */
   if (t.unit === 'time') return t.cur ? 'Te faltan ' + fmtDur(t.cur - t.target) + '.' : '';
   return t.target < 1e6 ? 'Llevás ' + fv(t.cur) + ' ' + t.unit + ' de ' + fv(t.target) + '.' : '';
@@ -390,7 +498,7 @@ export function trophyLeft(t: Trophy): string {
 /* ---- la vitrina: por categoría, con el filtro de arriba ---- */
 /* los secretos que existen: no aparecen hasta ganarlos, pero la vitrina sabe cuántos faltan (una caja cerrada por cada
    uno, sin decir cuál). Al sumar uno en calcTrophies, va acá */
-export const EGG_IDS = ['egg_vuelta'];
+export const EGG_IDS = ['egg_vuelta', 'egg_lluvia', 'egg_capicua', 'egg_sol'];
 export type VitFilter = 'todos' | 'ganados' | 'faltan';
 export interface VitGroup {
   cat: string;
@@ -439,15 +547,33 @@ export function vitShowcase(T: Trophy[], n = 4) {
 export interface CelRec {
   ids: string[];
   lv: number;
+  /** qué trofeos existían cuando se anotó (CEL_V); sin esto, los de la primera versión */
+  v?: number;
+}
+/* cada vez que se suman trofeos nuevos, la versión sube: los que ya tenías ganados se anotan como festejados, sin
+   celebración (y sin festejar el nivel que suben con su XP) */
+export const CEL_V = 2;
+const CEL_NEW: Record<number, (t: Trophy) => boolean> = {
+  2: (t) => ['up', 'ns', 'dec', 'shoe', 'barrio'].includes(t.cat) || ['egg_lluvia', 'egg_capicua', 'egg_sol'].includes(t.id),
+};
+/** el registro puesto al día con los trofeos que se sumaron desde que se anotó: los que ya tenías ganados quedan como
+    festejados y el nivel, en el de ahora */
+export function celebCatchUp(rec: CelRec, T: Trophy[], L: number): CelRec {
+  const v = rec.v || 1;
+  if (v >= CEL_V) return rec;
+  const seen = new Set(rec.ids),
+    isNew = (t: Trophy) => Object.entries(CEL_NEW).some(([k, f]) => +k > v && f(t)),
+    add = T.filter((t) => t.got && !seen.has(t.id) && isNew(t)).map((t) => t.id);
+  return { ids: [...rec.ids, ...add], lv: add.length ? Math.max(rec.lv, L) : rec.lv, v: CEL_V };
 }
 /** lo que hay para festejar: los trofeos ganados que nunca se festejaron y si pasaste el nivel más alto festejado.
     Sin registro (la primera vez), nada: se arranca desde lo que ya tenés */
 export function celebNews(got: string[], L: number, rec: CelRec | undefined): { ids: string[]; up: boolean; rec: CelRec } {
-  if (!rec) return { ids: [], up: false, rec: { ids: got, lv: L } };
+  if (!rec) return { ids: [], up: false, rec: { ids: got, lv: L, v: CEL_V } };
   const seen = new Set(rec.ids),
     ids = got.filter((i) => !seen.has(i)),
     up = L > rec.lv;
-  return { ids, up, rec: { ids: ids.length ? [...rec.ids, ...ids] : rec.ids, lv: Math.max(rec.lv, L) } };
+  return { ids, up, rec: { ...rec, ids: ids.length ? [...rec.ids, ...ids] : rec.ids, lv: Math.max(rec.lv, L) } };
 }
 export interface Confetto {
   left: string;
@@ -506,10 +632,11 @@ export function celebratePending(): boolean {
   const T = trophies(),
     x1 = xpState(),
     got = T.filter((t) => t.got).map((t) => t.id),
-    /* sin registro y recién guardado, se parte de lo que tenías antes de guardar */
-    rec0 = S.cfg.cel || (h ? { ids: [...h.had], lv: h.x0.L } : undefined),
+    /* sin registro y recién guardado, se parte de lo que tenías antes de guardar; con uno de antes de los trofeos
+       nuevos, se lo pone al día */
+    rec0 = S.cfg.cel ? celebCatchUp(S.cfg.cel, T, x1.L) : h ? { ids: [...h.had], lv: h.x0.L, v: CEL_V } : undefined,
     n = celebNews(got, x1.L, rec0);
-  if (!S.cfg.cel || n.ids.length || n.rec.lv !== S.cfg.cel.lv) {
+  if (!S.cfg.cel || n.ids.length || n.rec.lv !== S.cfg.cel.lv || n.rec.v !== S.cfg.cel.v) {
     const c = cleanObj(S.cfg);
     c.cel = n.rec;
     saveCfg(c);

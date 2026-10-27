@@ -16,6 +16,8 @@ interface SummaryActivity {
 interface DetailedActivity {
   average_heartrate?: number;
   max_heartrate?: number;
+  total_elevation_gain?: number;
+  splits_metric?: { distance: number; moving_time: number }[];
   laps?: { distance: number; moving_time: number; elapsed_time: number; average_heartrate?: number; max_heartrate?: number }[];
 }
 type Streams = Record<string, { data: unknown[] } | undefined>;
@@ -58,6 +60,9 @@ export async function POST(request: NextRequest, ctx: RouteContext<'/api/strava/
         average_heartrate: a.average_heartrate,
         max_heartrate: a.max_heartrate,
         laps: (a.laps || []).map((l) => ({ distance: l.distance, moving_time: l.moving_time, elapsed_time: l.elapsed_time, avg_hr: l.average_heartrate, max_hr: l.max_heartrate })),
+        /* para los trofeos: el desnivel positivo y los parciales por km (Strava los arma aunque el reloj no marque vueltas) */
+        elev: a.total_elevation_gain ?? 0,
+        splits: (a.splits_metric || []).map((l) => ({ distance: l.distance, moving_time: l.moving_time })),
       });
     }
     if (tool === 'get_activity_streams') {

@@ -40,7 +40,7 @@ export function Side({ P, routes, L, msg, syncing, baseErr, onPeriod, onBarrio }
     );
   const last = stravaLast();
   const pickBz = (n: string) => onBarrio(o.hb === n ? null : n);
-  const bzItems: ShareItem[] = (bz?.list || []).map((e, i) => ({
+  const bzItems: ShareItem[] = bz.list.map((e, i) => ({
     key: e.b.n,
     label: (
       <>

@@ -3,13 +3,14 @@
 import { S } from '@/lib/store';
 import type { PerformancePayload } from '@/lib/strava/client';
 import { hmsFromSec, msFromSec, readHms, readMs, type Hms, type Ms } from './hms';
-import type { Decoupling, Lap, Plan, Result, Session, SessionType, Stage, Step, StepKind } from './types';
+import type { Decoupling, Lap, Plan, Result, RunExtra, Session, SessionType, Stage, Step, StepKind } from './types';
 import { easyActive, isType, mainShoe } from './config';
 import { expand, KINDS, REC_PACE, stageTotals, stepDesc, stepTgt, type ExStep } from './stages';
 import { judge, judgeTxt, lapTxt, scoreFlat, volTxt } from './score';
 import { sdate } from './stats';
 import { addDays, cap, fmt, fmtDur, fmtPace, newId, num, pad, sum, todayS, ymd } from './util';
 import { batchNote } from './planForm';
+import { runExtra } from './streams';
 import { pendingSessions, svMatch, svType, type SvItem } from './week';
 
 /* ---- estado ---- */
@@ -71,6 +72,8 @@ export interface ResF {
   notes: string;
   stravaId: string | null;
   dec: Decoupling | null;
+  /** desnivel y mitades, del detalle de Strava */
+  ex: RunExtra | null;
   sv: SvState;
 }
 /** lo que se guarda como borrador (ver lib/data/draft.ts) */
@@ -92,6 +95,7 @@ export interface ResultDraft {
   flat?: FlatV;
   stravaId?: string | null;
   dec?: Decoupling | null;
+  ex?: RunExtra | null;
 }
 export interface ResultProps {
   id?: string | null;
@@ -310,6 +314,7 @@ export function resultInit(o: ResultProps): ResF {
     notes: editing ? r.notes || '' : '',
     stravaId: null,
     dec: null,
+    ex: null,
     sv: SV0,
   };
   if (!d) return setMode(f, s);
@@ -320,7 +325,7 @@ export function resultInit(o: ResultProps): ResF {
   f = setMode(f, ds);
   if (f.mode === 'stages' && d.mode === 'stages') f = { ...f, gm: d.gm || f.gm, vals: d.vals || {} };
   else if (f.mode === 'flat' && d.flat) f = { ...f, flat: d.flat };
-  return { ...f, date: d.date, notes: d.notes || '', stravaId: d.stravaId || null, dec: d.dec || null };
+  return { ...f, date: d.date, notes: d.notes || '', stravaId: d.stravaId || null, dec: d.dec || null, ex: d.ex || null };
 }
 export function resultDraftData(f: ResF): ResultDraft {
   const d: ResultDraft = {
@@ -340,6 +345,7 @@ export function resultDraftData(f: ResF): ResultDraft {
     notes: f.notes,
     stravaId: f.stravaId,
     dec: f.dec,
+    ex: f.ex,
   };
   if (f.mode === 'flat') d.flat = f.flat;
   return d;
@@ -527,7 +533,7 @@ export function svAuto(f: ResF, a: SvItem): ResF {
 /** completa el formulario con la corrida de Strava elegida */
 export function svFill(f0: ResF, a: SvItem, p: Partial<PerformancePayload>): ResF {
   const tS = todayS();
-  let f: ResF = { ...f0, date: a.date <= tS ? a.date : tS, stravaId: a.id };
+  let f: ResF = { ...f0, date: a.date <= tS ? a.date : tS, stravaId: a.id, ex: runExtra(p) };
   const hrA = p.average_heartrate! > 0 ? Math.round(p.average_heartrate!) : null,
     hrM = p.max_heartrate! > 0 ? Math.round(p.max_heartrate!) : null;
   let msg: string;
@@ -635,7 +641,11 @@ export function buildResult(f: ResF): { err: string } | { s: Session } {
   else if (f.editing && f.editRes && f.editRes.sid) r.sid = f.editRes.sid;
   if (f.stravaId) {
     if (f.dec) r.dec = f.dec;
-  } else if (f.editing && f.editRes && f.editRes.dec) r.dec = f.editRes.dec;
+    if (f.ex) r.ex = f.ex;
+  } else if (f.editing && f.editRes) {
+    if (f.editRes.dec) r.dec = f.editRes.dec;
+    if (f.editRes.ex) r.ex = f.editRes.ex;
+  }
   if (f.weather) r.weather = f.weather;
   if (f.shoe) r.shoe = f.shoe;
   const notes = f.notes.trim();

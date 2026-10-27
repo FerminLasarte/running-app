@@ -111,6 +111,38 @@ olímpica (`cat: 'egg'`, solo cuando se ganan). Cada categoría nueva necesita s
   Revisar que la paleta (⌘K) los encuentre.
 - Listo cuando: cada trofeo nuevo tiene sus tests y se ve en la vitrina (o en Secretos al ganarlo).
 
+**Hecho.** Decisiones al pasarlo (las tres primeras las eligió el usuario):
+
+- **Barrios con la app.** Los límites de los 48 barrios (9 KB) pasaron a `lib/domain/barrios.json` y `public/map/ba.json`
+  quedó solo con las capas del mapa (`scripts/build-map-data.mjs` arma los dos). El trofeo se calcula siempre, sin
+  esperar el mapa, y la paleta ya no baja los 520 KB para listar tus barrios. Un barrio cuenta cuando sumaste en él lo
+  mismo que pide el ranking del Mapa (`BARRIO_MIN_KM`, 50 m). La fecha de cada escalón es la del recorrido que lo sumó.
+  Escalones: 10, 25 y «Los 48 barrios».
+- **Desnivel y negative split, guardados al traer cada salida de Strava.** El detalle de la actividad (el mismo pedido
+  que ya traía la FC y las vueltas) ahora devuelve el desnivel (`total_elevation_gain`) y los parciales por km
+  (`splits_metric`). El panel de carga los guarda en `result.ex` (`runExtra` en `lib/domain/streams.ts`).
+- **Las salidas anteriores se completan desde el panel del trofeo.** Lo hace «Completar con Strava» en Desnivel y
+  Negative split (`lib/strava/extra.ts`), de a 40 por vez, como la deriva. En «Fondos sin deriva», el mismo botón
+  calcula la deriva que falta. La búsqueda de cada corrida en Strava salió de la deriva a `lib/strava/match.ts`, y la
+  usan los dos.
+- **Retroactivos sin festejo.** El registro de festejos ahora tiene versión (`CEL_V`, `celebCatchUp`). Los trofeos de
+  esta tanda que ya tenías ganados quedan como festejados, y lo mismo el nivel que subís con su XP. En la vitrina
+  aparecen con «Nuevo».
+- **Negative split:** la segunda mitad más de 1% más rápida que la primera, el mismo umbral que la frase de las mitades
+  del detalle (`NEG_SPLIT`). Las series no cuentan, porque el ritmo va y viene. Escalones: 1, 5 y 10.
+- **Desnivel:** 1.000 m, 5.000 m y «El Everest» (8.849 m).
+- **Fondos sin deriva:** de tipo fondo, de 90 minutos o más (`DEC_LONG`), con la deriva medida bien (`ok`) y menos de
+  5%. Escalones: 1, 5 y 10.
+- **Zapatillas jubiladas:** pares retirados con `shoeKm` igual o mayor que su límite. No se guarda la fecha en que se
+  retiran, así que vale la de su última salida. Escalones: 1 y 3.
+- **Secretos:**
+  - van en `EGG_IDS` y valen 200 XP Bajo la lluvia y Capicúa (plata) y 400 XP A pleno sol (oro);
+  - Capicúa pide 1 km o más;
+  - A pleno sol pide bajar de 5:00/km: con 5:00 justo, no.
+- **⌘K** encuentra los trofeos nuevos sin cambios, porque lista todos los de `trophies()`.
+- **No probado en el navegador:** «Completar con Strava» con una cuenta real (con los datos de ejemplo no se muestra) y
+  el festejo de los retroactivos con datos de verdad, que está cubierto por los tests.
+
 ## Tanda 3 · Más easter eggs
 
 - **EGG-01 · «Te saliste del andarivel».** La página 404 (`app/not-found.tsx`, hoy no existe): una pista con un

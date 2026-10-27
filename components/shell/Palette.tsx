@@ -3,7 +3,7 @@
    secciones y lo reciente; al escribir agrupa los resultados y marca lo que coincide (sin importar tildes). Se maneja
    entera con el teclado: ↑ ↓ para moverse, ↵ para abrir, Esc para cerrar. Estilos en
    app/styles/components/palette.css; el índice y la búsqueda, en lib/domain/palette.ts. */
-import { useEffect, useMemo, useRef, useState, useSyncExternalStore, type KeyboardEvent } from 'react';
+import { useEffect, useMemo, useRef, useState, type KeyboardEvent } from 'react';
 import {
   ArrowCounterClockwise,
   ArrowRight,
@@ -35,7 +35,7 @@ import { longRace } from '@/lib/domain/blocks';
 import { LG_INIT, lgRows } from '@/lib/domain/log';
 import { openRecal, undoRecal } from '@/lib/domain/recal';
 import { palIndex, palMark, palSearch, type PalItem } from '@/lib/domain/palette';
-import { baseMapReady, loadBaseMap, mapBarrios, mapRoutes, onBaseMap } from '@/lib/domain/geo';
+import { mapBarrios, mapRoutes } from '@/lib/domain/geo';
 import { addDays, dateLabel, fmt, mondayOf, todayS, ymd } from '@/lib/domain/util';
 import { CAT_N, trophies, trophyNote, trophyTier } from '@/lib/domain/trophies';
 import { chView } from '@/lib/domain/challenges';
@@ -130,11 +130,6 @@ function PaletteBox() {
   const cfg = useApp((s) => s.cfg);
   /* probando sin cuenta no se ofrece el respaldo ni las conexiones (necesitan la cuenta) */
   const guest = useApp((s) => s.mode === 'guest');
-  /* los barrios salen del mapa de la Ciudad (~530 KB): con recorridos, se baja al abrir la paleta, una sola vez */
-  const baseReady = useSyncExternalStore(onBaseMap, baseMapReady, () => false);
-  useEffect(() => {
-    if (routes.length) void loadBaseMap();
-  }, [routes]);
 
   /* lo que se puede hacer, siempre a mano */
   const fixed = useMemo<Row[]>(() => {
@@ -197,7 +192,7 @@ function PaletteBox() {
   /* tus barrios, de todos tus recorridos: llevan al Mapa con el barrio resaltado */
   const barrios = useMemo<Row[]>(
     () =>
-      (mapBarrios(mapRoutes('todo'), 'todo')?.list || []).map((e) => ({
+      mapBarrios(mapRoutes('todo'), 'todo').list.map((e) => ({
         g: 'Mapa',
         key: 'bz:' + e.b.n,
         t: e.b.n,
@@ -206,9 +201,9 @@ function PaletteBox() {
         icon: MAP_ICON,
         run: () => navigate(mapaHref(e.b.n)),
       })),
-    // mapBarrios lee los recorridos del estado; se rearma cuando cambian o cuando termina de bajar el mapa
+    // mapBarrios lee los recorridos del estado; se rearma cuando cambian
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [routes, baseReady],
+    [routes],
   );
 
   const list = useMemo<Row[]>(() => {

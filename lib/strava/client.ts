@@ -45,6 +45,10 @@ export interface PerformancePayload {
   average_heartrate?: number;
   max_heartrate?: number;
   laps: { distance: number; moving_time: number; elapsed_time: number; avg_hr?: number; max_hr?: number }[];
+  /** desnivel positivo, en metros */
+  elev?: number;
+  /** los parciales de cada km que arma Strava */
+  splits?: { distance: number; moving_time: number }[];
 }
 export interface StreamsPayload {
   time?: number[];

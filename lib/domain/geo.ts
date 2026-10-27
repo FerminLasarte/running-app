@@ -4,6 +4,7 @@ import { S, setUi } from '@/lib/store';
 import type { Route, Session } from './types';
 import { addDays, clamp, sod, sum, ymd } from './util';
 import { medOf } from './analysis';
+import BARRIOS from './barrios.json';
 
 /** punto proyectado (Mercator normalizado: 0–1 en x e y) o [lat, lng] recién decodificado */
 export type Pt = [number, number];
@@ -57,14 +58,15 @@ export const getMapUi = (): MapUi => {
 export const setMapUi = (patch: Partial<MapUi>) => setUi<MapUi>('map', (p) => ({ ...(p === undefined ? mapUiInit() : p), ...patch }));
 
 /* ---- mapa de fondo (OpenStreetMap) ----
-   pesa ~530 KB: vive en public/map/ba.json y se baja recién al abrir la pestaña Mapa */
+   las calles, el río y los parques pesan ~520 KB: viven en public/map/ba.json y se bajan recién al abrir la pestaña
+   Mapa. Los límites de los barrios (9 KB) van con la app, así los trofeos de barrios y la paleta no esperan el mapa */
 interface RawBarrio {
   n: string;
   r: string[];
 }
 type RawOsm = Record<string, unknown>;
-let BA_BARRIOS: RawBarrio[] | null = null,
-  BA_OSM: RawOsm | null = null,
+const BA_BARRIOS: RawBarrio[] = BARRIOS;
+let BA_OSM: RawOsm | null = null,
   BA_LOAD: Promise<boolean> | null = null,
   BA_P: Barrio[] | null = null,
   OSM_P: OsmLayers | null = null;
@@ -76,9 +78,8 @@ export function loadBaseMap(): Promise<boolean> {
   BA_LOAD = fetch('/map/ba.json')
     .then((r) => (r.ok ? r.json() : Promise.reject(new Error('HTTP ' + r.status))))
     .then(
-      (d: { b?: RawBarrio[]; o?: RawOsm } | null) => {
-        if (d && d.b && d.o) {
-          BA_BARRIOS = d.b;
+      (d: { o?: RawOsm } | null) => {
+        if (d && d.o) {
           BA_OSM = d.o;
           baseSubs.forEach((f) => f());
         }
@@ -99,8 +100,8 @@ export function onBaseMap(fn: () => void) {
     baseSubs.delete(fn);
   };
 }
-/** cantidad de barrios de la Ciudad (48 mientras no bajó el mapa) */
-export const barrioCount = () => (BA_BARRIOS ? BA_BARRIOS.length : 48);
+/** cantidad de barrios de la Ciudad */
+export const barrioCount = () => BA_BARRIOS.length;
 
 const boxOf = (pts: Pt[]): Box => {
   let x0 = 1,
@@ -116,7 +117,6 @@ const boxOf = (pts: Pt[]): Box => {
   return { x0, x1, y0, y1 };
 };
 export function baRings(): Barrio[] {
-  if (!BA_BARRIOS) return [];
   if (!BA_P)
     BA_P = BA_BARRIOS.map((b) => {
       const rings = b.r.map((r) => decodePoly(r).map((q) => mproj(q[0], q[1])));
@@ -477,15 +477,14 @@ export interface MapBarrios {
   /** lo corrido fuera de la Ciudad */
   out: { n: number; km: number };
 }
-/** km de un recorrido en cada barrio y fuera de la Ciudad (vacío mientras no bajó el mapa). Con esto se arma el ranking
-    y se resaltan los recorridos de un barrio */
+/** km de un recorrido en cada barrio y fuera de la Ciudad. Con esto se arma el ranking, se resaltan los recorridos de
+    un barrio y se cuentan los barrios de los trofeos */
 export interface RouteBarrios {
   km: Map<Barrio, number>;
   out: number;
 }
 const RT_B = new WeakMap<Route, RouteBarrios>();
 export function routeBarrios(r: Route): RouteBarrios {
-  if (!BA_BARRIOS) return { km: new Map(), out: 0 };
   const had = RT_B.get(r);
   if (had) return had;
   const P = routePts(r),
@@ -504,9 +503,10 @@ export function routeBarrios(r: Route): RouteBarrios {
   RT_B.set(r, res);
   return res;
 }
+/** lo mínimo que hay que correr en un barrio para que cuente (en el ranking y en los trofeos) */
+export const BARRIO_MIN_KM = 0.05;
 let BZ: (MapBarrios & { src: Route[] }) | null = null;
-export function mapBarrios(L: Route[], period: string): MapBarrios | null {
-  if (!BA_BARRIOS) return null;
+export function mapBarrios(L: Route[], period: string): MapBarrios {
   const key = cacheKey(L, period);
   if (BZ && BZ.key === key && BZ.src === S.routes) return BZ;
   const m = new Map<string, BarrioKm>(),
@@ -524,7 +524,7 @@ export function mapBarrios(L: Route[], period: string): MapBarrios | null {
       out.n++;
     }
   });
-  const list = [...m.values()].filter((e) => e.km >= 0.05).sort((a, b) => b.km - a.km);
+  const list = [...m.values()].filter((e) => e.km >= BARRIO_MIN_KM).sort((a, b) => b.km - a.km);
   BZ = { key, list, out, src: S.routes };
   return BZ;
 }

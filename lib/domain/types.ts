@@ -64,6 +64,13 @@ export interface Decoupling {
   na?: number;
 }
 
+/** lo que se guarda del detalle de la actividad de Strava para los trofeos: el desnivel positivo (m) y la segunda mitad
+    contra la primera, en % de ritmo (negativo: terminaste más rápido; sin `half` si no tiene parciales de 1 km) */
+export interface RunExtra {
+  up: number;
+  half?: number;
+}
+
 export interface Result {
   date: string;
   distKm: number;
@@ -83,6 +90,8 @@ export interface Result {
   sid?: string;
   dec?: Decoupling;
   stages?: Stage[];
+  /** del detalle de Strava: si está, ya se pidió (no se vuelve a buscar) */
+  ex?: RunExtra;
 }
 
 export interface Session {
@@ -175,7 +184,7 @@ export interface Cfg {
   challenges?: Challenge[];
   seenTrophies?: string[];
   /** lo que ya se festejó (trofeos y el nivel más alto): la celebración sale una sola vez */
-  cel?: { ids: string[]; lv: number };
+  cel?: { ids: string[]; lv: number; v?: number };
 }
 
 /** Recorrido traído de Strava (polilínea codificada). */
