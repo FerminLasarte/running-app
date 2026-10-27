@@ -4,12 +4,14 @@
    al compilar y no depende de la fecha. Va fuera del shell, como el login y la privacidad. Con sesión, el proxy
    lleva a la semana. */
 import '@/app/styles/screens/portada.css';
-import type { ReactNode } from 'react';
+import { useRef, type ReactNode } from 'react';
 import Link from 'next/link';
 import { Lightning, Mountains, Sneaker, Trophy } from '@phosphor-icons/react';
 import type { SessionType } from '@/lib/domain/types';
 import { startGuest } from '@/lib/guest';
 import { BrandMark } from '@/components/shell/BrandMark';
+import { Nav } from './Nav';
+import { useReveal } from './motion';
 import { Button, Chip } from '@/components/pista/controls';
 import { BrandTitle, Stadium } from '@/components/pista/structure';
 import { Laps, StructureBar, type Seg } from '@/components/pista/meters';
@@ -78,7 +80,7 @@ function CityMap() {
       <path d="M214 34 C268 4 382 16 390 78 C398 140 312 156 252 140 C206 128 182 62 214 34Z" fill="#15201A" />
       <path d={LAKE} fill="#1A2731" />
       <path d="M0 212 C110 192 270 206 400 178 V220 H0Z" fill="#1A2731" />
-      <g fill="none" stroke="var(--acc)" strokeWidth="1.5" strokeLinejoin="round" strokeLinecap="round" opacity=".42">
+      <g className="po-runs" fill="none" stroke="var(--acc)" strokeWidth="1.5" strokeLinejoin="round" strokeLinecap="round" opacity=".42">
         {off.map((o) => (
           <g key={o} transform={`translate(${o} ${o / 2})`}>
             <g transform={GRID}>
@@ -90,13 +92,26 @@ function CityMap() {
           </g>
         ))}
       </g>
-      <g fill="none" stroke="#fff" strokeWidth="2.2" strokeLinejoin="round" strokeLinecap="round">
+      <g className="po-run" fill="none" stroke="#fff" strokeWidth="2.2" strokeLinejoin="round" strokeLinecap="round">
         <path d={RUNS[0]} transform={GRID} />
         <path d={LAKE} />
+      </g>
+      {/* el corredor, ida y vuelta por la salida elegida */}
+      <g className="po-runner" transform={GRID}>
+        <circle r="7" fill="var(--acc)" opacity=".35" />
+        <circle r="3.4" fill="#fff" />
+        <animateMotion dur="7s" repeatCount="indefinite" path={RUNS[0]} keyPoints="0;1;0" keyTimes="0;.5;1" calcMode="linear" />
       </g>
     </svg>
   );
 }
+
+/* una vuelta en el andarivel de tartán de los estadios (el cuarto de Lanes), contra el reloj como en la pista */
+const Lap = () => (
+  <svg className="p-lanes po-lap" viewBox="0 0 900 560" aria-hidden="true">
+    <rect x="112" y="112" width="676" height="336" rx="168" pathLength={100} />
+  </svg>
+);
 
 const FEATURES: { k: string; t: string; p: string; v: ReactNode }[] = [
   {
@@ -193,25 +208,11 @@ function Ctas() {
 }
 
 export default function Portada() {
+  const root = useRef<HTMLDivElement>(null);
+  useReveal(root);
   return (
-    <div className="po">
-      <header className="po-top">
-        <Link className="brand" href="/">
-          <BrandMark />
-          <span>
-            <b>Lane One</b>
-            <small>Registro y progreso</small>
-          </span>
-        </Link>
-        <nav className="po-nav" aria-label="Cuenta">
-          <Button variant="ghost" href="/login">
-            Entrar
-          </Button>
-          <Button variant="pri" href="/login?modo=crear" className="po-hide-s">
-            Crear cuenta
-          </Button>
-        </nav>
-      </header>
+    <div className="po" ref={root}>
+      <Nav />
 
       <main>
         <Stadium
@@ -240,29 +241,33 @@ export default function Portada() {
             />
           }
         >
-          <div className="p-st-top">
+          <Lap />
+          <div className="p-st-top p-rise" style={cssVars({ '--i': 2 })}>
             <Chip color="var(--acc)" solid>
               Running
             </Chip>
             <span className="lbl">Registro y plan de entrenamiento</span>
           </div>
           <BrandTitle className="po-h1">
-            Corré
-            <br />
-            con plan
+            <span className="po-ln">
+              <span>Corré</span>
+            </span>{' '}
+            <span className="po-ln">
+              <span>con plan</span>
+            </span>
           </BrandTitle>
-          <p className="po-lead">
+          <p className="po-lead p-rise" style={cssVars({ '--i': 6 })}>
             Lane One es tu registro de running: anotás cada salida, armás la semana hacia tu próxima carrera y ves cómo venís.
             Fondos guiados por frecuencia cardíaca; series y tempos, por ritmo.
           </p>
           <Ctas />
-          <p className="po-note">
+          <p className="po-note p-rise" style={cssVars({ '--i': 8 })}>
             Probala con datos de ejemplo: no se guarda nada. ¿Ya tenés cuenta? <Link href="/login">Entrá</Link>.
           </p>
         </Stadium>
 
-        <section className="po-feats" aria-labelledby="po-feats-h">
-          <header className="po-sh p-rise" style={cssVars({ '--i': 1 })}>
+        <section className="po-feats" id="que-hace" aria-labelledby="po-feats-h">
+          <header className="po-sh" data-reveal>
             <span className="lbl">Qué hace</span>
             <BrandTitle as="h2" id="po-feats-h">
               De la primera salida a la llegada
@@ -270,7 +275,7 @@ export default function Portada() {
           </header>
           <div className="po-grid">
             {FEATURES.map((f, i) => (
-              <article key={f.k} className="po-f p-rise" style={cssVars({ '--i': i + 2 })}>
+              <article key={f.k} className="po-f" data-reveal style={cssVars({ '--d': i % 3 })}>
                 <div className="po-f-v">{f.v}</div>
                 <div className="po-f-t">
                   <span className="lbl">
@@ -284,15 +289,18 @@ export default function Portada() {
           </div>
         </section>
 
-        <Stadium className="po-end">
-          <BrandTitle as="h2">
-            En sus
-            <br />
-            marcas
-          </BrandTitle>
-          <p className="po-lead">Probala ahora, sin cuenta y con datos de ejemplo. Cuando quieras guardar lo tuyo, creás la cuenta en un minuto y arrancás de cero.</p>
-          <Ctas />
-        </Stadium>
+        <div id="probala" data-reveal>
+          <Stadium className="po-end">
+            <Lap />
+            <BrandTitle as="h2">
+              En sus
+              <br />
+              marcas
+            </BrandTitle>
+            <p className="po-lead">Probala ahora, sin cuenta y con datos de ejemplo. Cuando quieras guardar lo tuyo, creás la cuenta en un minuto y arrancás de cero.</p>
+            <Ctas />
+          </Stadium>
+        </div>
       </main>
 
       <footer className="po-foot">
