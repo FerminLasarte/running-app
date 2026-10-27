@@ -13,7 +13,7 @@ import { aiAvailable } from '@/lib/ai/client';
 import { Button, Tag } from '@/components/pista/controls';
 import { Panel } from '@/components/pista/structure';
 import { cssVars, cx } from '@/components/pista/util';
-import { useStravaStatus } from '@/components/shell/useStravaStatus';
+import { setStravaStatus, useStravaStatus } from '@/components/shell/useStravaStatus';
 
 /** `ink`: el logo en tinta (se invierte con el tema) en vez de un color de marca */
 function Conn({ logo, bg, ink, name, children, acts }: { logo: ReactNode; bg?: string; ink?: boolean; name: string; children: ReactNode; acts?: ReactNode }) {
@@ -34,18 +34,16 @@ function Conn({ logo, bg, ink, name, children, acts }: { logo: ReactNode; bg?: s
 
 function Strava() {
   const cloud = useS().mode === 'cloud';
-  const status = useStravaStatus();
-  const [gone, setGone] = useState(false);
+  const st = useStravaStatus();
   const [busy, setBusy] = useState(false);
   const [ran, setRan] = useState(false);
   const map = getMapUi();
-  const st = gone ? { connected: false, configured: true, athlete: undefined } : status;
   async function disconnect() {
     setBusy(true);
     try {
       const r = await fetch('/api/strava/disconnect', { method: 'POST' });
       if (!r.ok) throw new Error(String(r.status));
-      setGone(true);
+      setStravaStatus({ connected: false, configured: true });
       toast('Strava desconectado');
     } catch {
       toast('No pude desconectar Strava. Probá de nuevo.');

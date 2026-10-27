@@ -17,7 +17,7 @@ import { Attributes } from './Attributes';
 import { Empty } from './Empty';
 
 export default function Logros() {
-  const { cfg } = useS();
+  useS();
   const [vf, setVf] = useParam<VitFilter>('vitrina', VIT_IDS, 'todos');
   const [pod, setPod] = useParam<PodId>('podio', POD_IDS, 'distancia');
   const X = xpState();
@@ -26,7 +26,7 @@ export default function Logros() {
       <div className="p-grid lo">
         <Empty />
         <Road X={X} i={1} />
-        {cfg.challenges?.length ? <Challenges i={2} /> : null}
+        <Challenges i={2} />
       </div>
     );
   const st = charStats();

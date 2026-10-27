@@ -39,13 +39,18 @@ export async function sampleRun<T>(lim: AiLimits, files: File[] | null, mk: (pre
   }
   return prev;
 }
+/* los códigos son los de /api/ai/json, más `network` (sin conexión, lib/ai/client.ts) e `invalid_json` (vino JSON
+   pero sin lo que se pidió, lo tiran los paneles) */
 export function aiErr(e: unknown) {
   const c = e && typeof e === 'object' && 'code' in e ? (e as { code: unknown }).code : null;
-  if (c === 'not_granted') return 'No diste permiso para que la página use Claude. Podés armar el entrenamiento a mano.';
+  if (c === 'network') return 'No hay conexión. Probá de nuevo cuando tengas señal o armalo a mano.';
   if (c === 'rate_limited') return 'Se llegó al límite de uso por ahora. Probá más tarde o armalo a mano.';
-  if (c === 'image_rejected') return 'No pude abrir esa imagen. Probá con una captura de pantalla en JPG o PNG.';
-  if (c === 'invalid_json' || c === 'empty_completion' || c === 'refused') return 'No pude entender el contenido. Probá con una captura más nítida o armalo a mano.';
-  if (c === 'cancelled') return '';
+  if (c === 'bad_image') return 'No pude abrir esa imagen. Probá con una captura de pantalla en JPG o PNG.';
+  if (c === 'too_many') return 'Son demasiadas imágenes para un solo pedido. Probá con menos.';
+  if (c === 'bad_output' || c === 'invalid_json') return 'No pude entender el contenido. Probá con una captura más nítida o armalo a mano.';
+  if (c === 'refusal') return 'Claude no quiso leer este pedido. Probá con otra captura o armalo a mano.';
+  if (c === 'api_error') return 'Claude no responde ahora. Probá de nuevo en unos minutos o armalo a mano.';
+  if (c === 'unauthorized') return 'Se cerró tu sesión. Volvé a entrar a la app.';
   return 'No pude leerlo ahora. Probá de nuevo o armalo a mano.';
 }
 export function planPrompt0(text: string | null) {
