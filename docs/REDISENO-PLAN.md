@@ -330,7 +330,9 @@ piezas están en `components/pista/` y su CSS en `app/styles/components/`.
   panel del puntaje ya estaba rehecho (fase 5): pasó a `components/panels/ScorePanel.tsx`. Sin consultar, para revisar
   en el PR: los íconos de la PWA son la marca (la pista sobre tartán), con el fondo del estadio para la pantalla de
   arranque; el botón «Salir» del aviso de datos de ejemplo es el botón del sistema, y el anillo del foco ya no redondea
-  las esquinas.
+  las esquinas. Contraste (pedido por el usuario): en el tema claro, `--ink-3` y `--t-tempo` se oscurecieron lo justo
+  para llegar a 4,5:1 (AA) como texto: `--ink-3` sobre `--sunk` y `--t-tempo` sobre `--bg`. Como `--t-tempo` también
+  es el color del tempo, las barras y los gráficos de esas sesiones quedan un poco más oscuros.
 
 ## Cómo verificar cada fase
 

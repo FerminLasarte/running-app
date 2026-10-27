@@ -12,7 +12,7 @@
     --line-2: #CFCCC3;
     --ink: #141414;
     --ink-2: #4A4843;
-    --ink-3: #84817A;
+    --ink-3: #6C6963;        /* el más claro que da 4,5:1 (AA) sobre --sunk */
     --ink-4: #B0ADA5;
 
     --acc: #DC4520;          /* tartán */
@@ -33,7 +33,7 @@
 
     --t-regen: #7A9C88;
     --t-fondo: #3569A3;
-    --t-tempo: #C9850F;
+    --t-tempo: #96630B;      /* también va como texto: el más claro que da 4,5:1 sobre --bg */
     --t-series: #DC4520;
     --t-test: #141414;
 
