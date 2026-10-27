@@ -1,6 +1,7 @@
 'use client';
-/* La semana que estás mirando (← → o la barra de arriba): la pista con el volumen contra el plan y sus números, y los
-   7 días. Una sesión sin hacer se arrastra a otro día; si hay algo que avisar se abre la hoja de mover con ese día. */
+/* La semana que estás mirando (← → o la barra de arriba): la pista con el volumen contra el plan y sus números (con
+   la semana anterior al lado cuando esta ya cerró), y los 7 días. Una sesión sin hacer se arrastra a otro día; si hay
+   algo que avisar se abre la hoja de mover con ese día. */
 import { useState, type DragEvent } from 'react';
 import Link from 'next/link';
 import { Check, DotsSixVertical, MagicWand, Plus, X } from '@phosphor-icons/react';
@@ -9,13 +10,13 @@ import { TYPES } from '@/lib/domain/config';
 import { PHASES, blockPlan, blockWeekOf, longRace } from '@/lib/domain/blocks';
 import { scoreSession } from '@/lib/domain/score';
 import { sdate, streakInfo, weekStats } from '@/lib/domain/stats';
-import { applyMove, canMove, moveAdvice, occupiedOn, toastMoveUndo, weekSessions, weekTotalKm } from '@/lib/domain/week';
+import { applyMove, canMove, moveAdvice, occupiedOn, toastMoveUndo, weekSessions } from '@/lib/domain/week';
 import { WD, addDays, dateLabel, dShort, fmt, fmtPace, isoWeek, mondayOf, pad, todayS, ymd } from '@/lib/domain/util';
 import { blockDemo, buzz, saveSession } from '@/lib/data/actions';
 import { openSheet } from '@/lib/sheets';
 import { sessionHref } from '@/lib/nav';
 import { S, useApp } from '@/lib/store';
-import { Button } from '@/components/pista/controls';
+import { Button, Dlt } from '@/components/pista/controls';
 import { Panel } from '@/components/pista/structure';
 import { Oval } from '@/components/pista/sport';
 import { SessionBar, briefOf, kmOf } from '@/components/pista/session';
@@ -52,6 +53,7 @@ function Phase({ mon }: { mon: Date }) {
     <div className="sem-phase hide-s">
       <b>
         Plan {bp.race.name} · {PHASES[bw.ph].n}, semana {bw.n} de {bp.N}
+        {bw.deload ? ' · liviana' : ''}
       </b>
       <div className="sem-cells" style={cssVars({ '--n': bp.N })} aria-hidden="true">
         {bp.weeks.map((w) => (
@@ -135,8 +137,9 @@ export function WeekBoard({ fresh }: { fresh?: boolean }) {
     mon = addDays(mondayOf(new Date()), off * 7),
     wk = weekSessions(mon),
     a = weekStats(mon),
-    live = wk.filter((s) => s.result || !s.missed),
-    total = weekTotalKm(mon),
+    /* la semana anterior, para comparar solo cuando esta ya cerró (como el original) */
+    b = ymd(addDays(mon, 6)) < tS ? weekStats(addDays(mon, -7)) : null,
+    rise = b && a.km > 0 && b.km > 0 ? Math.round((a.km / b.km - 1) * 100) : 0,
     st = streakInfo(),
     maxKm = Math.max(1, ...wk.map(kmOf)),
     empty = !wk.length;
@@ -174,9 +177,30 @@ export function WeekBoard({ fresh }: { fresh?: boolean }) {
       <div className="sem-board">
         <div className="sem-wsum sem-swipe">
           <span className="lbl">Volumen de la semana</span>
-          <Oval done={a.km} total={total}>
-            {empty ? <span className="disp sem-zero">0</span> : undefined}
-          </Oval>
+          {/* contra el plan de todas las sesiones de la semana, también las no hechas; sin plan, las salidas contra el
+              objetivo de Ajustes */}
+          <div>
+            {a.planKm > 0 || empty ? (
+              <Oval done={a.km} total={a.planKm}>
+                {empty ? <span className="disp sem-zero">0</span> : undefined}
+              </Oval>
+            ) : (
+              <Oval done={a.done} total={st.goal} unit={st.goal === 1 ? 'salida' : 'salidas'}>
+                <div>
+                  <span className="disp">{fmt(a.km)}</span>
+                  <small>
+                    km · {a.done} de {st.goal} {st.goal === 1 ? 'salida' : 'salidas'}
+                  </small>
+                </div>
+              </Oval>
+            )}
+            {b && !empty ? (
+              <p className="sem-dkm">
+                <Dlt v={a.km} prev={b.km} unit=" km" dec={1} />
+                {rise > 30 ? <span className="sem-warn">Subiste un {rise} % los km respecto de la semana anterior. Es una subida fuerte: cuidá la próxima.</span> : null}
+              </p>
+            ) : null}
+          </div>
           {empty ? (
             <p className="sem-note">{off === 0 ? 'La pista se va completando con cada salida.' : 'Nada cargado ni planificado esta semana.'}</p>
           ) : (
@@ -185,8 +209,9 @@ export function WeekBoard({ fresh }: { fresh?: boolean }) {
                 <span className="lbl">Sesiones</span>
                 <span className="disp">
                   {a.done}
-                  <span className="p-u">de {live.length}</span>
+                  {a.planned ? <span className="p-u">de {a.planned}</span> : null}
                 </span>
+                {b ? <Dlt v={a.done} prev={b.done} /> : null}
               </div>
               <div>
                 <span className="lbl">Tiempo</span>
@@ -194,6 +219,7 @@ export function WeekBoard({ fresh }: { fresh?: boolean }) {
                   {a.time ? hm(a.time) : '0:00'}
                   <span className="p-u">h</span>
                 </span>
+                {b && a.time ? <Dlt v={a.time / 60} prev={b.time / 60} unit=" min" /> : null}
               </div>
               <div>
                 <span className="lbl">Racha</span>
@@ -209,6 +235,7 @@ export function WeekBoard({ fresh }: { fresh?: boolean }) {
               <div>
                 <span className="lbl">Puntaje</span>
                 <span className="disp">{a.score != null ? Math.round(a.score) : '–'}</span>
+                {b ? <Dlt v={a.score} prev={b.score} /> : null}
               </div>
             </div>
           )}

@@ -97,6 +97,35 @@ Decidido por el usuario al cerrar el informe: SEM-01 y SEM-03 vuelven a ser como
 - **SEM-06 · «(liviana)» en la semana de descarga.** La fase del plan dice siempre «semana n de N», sin marcar la de
   descarga (`WeekBoard.tsx:46-63`; original 2478). Agregar «· liviana» cuando `blockWeekOf` da una de descarga.
 
+Hecho. Decisiones al pasarlo:
+
+- **SEM-01.** `weekTotalKm` se borró: con la regla del original es lo mismo que `weekStats(mon).planKm`. La pista
+  y Análisis → Volumen usan eso. En Volumen la barra punteada sigue siendo «lo planificado de la semana en curso»;
+  si corriste más que el plan, no hay punteado. «Sesiones» es `done de planned` como en el original: con salidas
+  libres puede dar «3 de 2», y sin nada planificado queda solo el número. Sin plan, la pista mide salidas contra
+  `weeklyGoal` y en el centro dice los km y «N de M salidas».
+- **SEM-03.** `svType` volvió a `lib/domain/week.ts` con su nombre. La elección de `svGo` se llama `svMatch`, porque
+  ya no abre el panel. `svAuto` (`resultForm.ts`) la usa al elegir una corrida (a mano o la única del día). La
+  sesión cuenta como «elegida a mano» si abriste el panel desde una sesión (`id`), si viene de un borrador, si
+  tocaste una opción de la lista o si cambiaste el tipo de la libre. Si la que corresponde es más vieja que las 5
+  de la lista, se suma a la lista. Las pendientes hasta hoy salen de `pendingSessions(mañana)`, también en
+  `resultInit`, que tenía el mismo filtro escrito aparte.
+- **SEM-05.** Como en el original, los Δ salen solo cuando la semana que mirás ya cerró (`bd = cur ? {} : b`): en la
+  semana en curso no hay. El Δ de km y el aviso de subida fuerte van debajo de la pista; los de sesiones, tiempo (en
+  minutos) y puntaje, debajo de cada número; racha no tiene. La pieza de Δ que había (`Delta`) es solo para tiempos
+  (m:ss), así que se sumó `Dlt` (el `dlt` del original) al final de `controls.tsx`, con el mismo estilo `p-delta`.
+  Así no se toca `Delta`, que SES-10 (tanda 3) cambia. «Más» se pinta como bueno, como en el original. No está en
+  `/sistema`.
+- **CGA-04.** Al cargar, debajo de la lista va «Notas del plan» si la sesión elegida tiene notas: la estructura ya
+  está en cada opción. Al editar va «Plan: tipo · resumen» y las notas, arriba de «Datos de la salida».
+- **SEM-06.** Se marca con lo que da `blockWeekOf` (`deload`), en el plan genérico y en el armado con tus sesiones.
+  El original lo marcaba solo en el genérico.
+- Probado en local con datos de prueba: «0 de 31,5 km» y «Sesiones 0 de 3»; la pista sin plan; los Δ y el aviso
+  de subida en una semana cerrada (escritorio, tablet y celu); «· liviana». Strava se probó con respuestas simuladas
+  de `/api/strava`: «6x800» del martes elige la series del martes, «Fondo largo» del miércoles queda libre como
+  fondo, una sesión elegida a mano no cambia, y al editar se ve el plan. **Para tildar después del deploy:** lo
+  mismo con Strava de verdad, desde ⌘K («Traer la salida de Strava») y desde Registro («Traer de Strava»).
+
 ### Tanda 3 · Detalle de sesión
 
 Decidido por el usuario: SES-01 vuelve a las vueltas del reloj.

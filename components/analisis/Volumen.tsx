@@ -8,8 +8,7 @@ import { anFrom, anWeeks, fondoHrFit, intensitySplit, yearKm } from '@/lib/domai
 import { vdotOf } from '@/lib/domain/daniels';
 import { lvPace, lvTimeAt } from '@/lib/domain/level';
 import { bestMarks } from '@/lib/domain/marks';
-import { doneList, kmBetween, kmByType, monthNow, streakInfo, weekSeries, type WeekRow } from '@/lib/domain/stats';
-import { weekTotalKm } from '@/lib/domain/week';
+import { doneList, kmBetween, kmByType, monthNow, streakInfo, weekSeries, weekStats, type WeekRow } from '@/lib/domain/stats';
 import { addDays, cap, dShort, fmt, fmtDur, fmtPace, isoWeek, mondayOf, nf, pd, plural, sod, sum } from '@/lib/domain/util';
 import { sessionHref } from '@/lib/nav';
 import { Chip, Delta } from '@/components/pista/controls';
@@ -66,7 +65,7 @@ function VolChart({ W }: { W: WeekRow[] }) {
     N = W.length,
     bw = (w - M.l - M.r) / N,
     cur = W[N - 1],
-    target = weekTotalKm(cur.start),
+    target = weekStats(cur.start).planKm,
     avg = W.map((_, k) => {
       const L = W.slice(Math.max(0, k - 3), k + 1).filter((q) => !q.cur);
       return L.length && !W[k].cur ? sum(L.map((q) => q.km)) / L.length : null;
