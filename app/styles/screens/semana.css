@@ -47,6 +47,7 @@
   .sem-zero { font-size: 26px; font-style: italic; color: var(--ink-4); }
   .sem-wstats { margin-top: auto; display: grid; grid-template-columns: 1fr 1fr; gap: 12px 10px; padding-top: 16px; }
   .sem-wstats .disp { display: block; font-size: 24px; margin-top: 4px; }
+  .sem-goal { display: block; color: var(--ink-3); font-size: 12px; margin-top: 2px; font-variant-numeric: tabular-nums; }
   .sem-note { color: var(--ink-3); font-size: 12.5px; line-height: 1.5; padding-top: 12px; }
 
   .sem-phase { width: 300px; margin-right: 12px; }

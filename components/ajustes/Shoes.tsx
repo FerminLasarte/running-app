@@ -4,7 +4,7 @@
    tests y carreras. */
 import { Plus, Sneaker } from '@phosphor-icons/react';
 import { useS } from '@/lib/store';
-import { AJ_PARTS, ajNameId, setAjEdit } from '@/lib/data/actions';
+import { AJ_PARTS, ajId, ajNameId, setAjEdit } from '@/lib/data/actions';
 import type { Shoe } from '@/lib/domain/types';
 import { SHOE_NEAR, shoeLife, shoeUse } from '@/lib/domain/shoes';
 import { applyShoe, shoeDraft, shoeErrs, type ShoeDraft } from '@/lib/domain/settings';
@@ -27,7 +27,7 @@ function shoeNote(z: Shoe) {
 }
 
 function ShoeEdit({ z }: { z: Shoe }) {
-  const p = 'aj-z-' + z.id;
+  const p = ajId('z', z.id);
   const { draft: d, edit, bind } = useAuto(
     z,
     () => shoeDraft(z),

@@ -455,7 +455,8 @@ export const expectProgress = (had: Set<string>, x0: XpState) => void (hint = { 
 /** festeja lo nuevo, si hay, y lo anota. Lo llama el shell cada vez que cambian tus datos (al abrir la app, lo que
     trae la nube o Strava) y el panel de carga al guardar. Devuelve si festejó */
 export function celebratePending(): boolean {
-  if (S.demo || S.mode === 'boot' || !S.loaded) return false;
+  /* antes de leer la nube no: guardar lo festejado con la configuración del caché pisaría la de otro dispositivo */
+  if (S.demo || S.mode === 'boot' || !S.loaded || !S.fresh) return false;
   const h = hint;
   hint = null;
   const T = trophies(),

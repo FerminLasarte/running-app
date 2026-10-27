@@ -5,6 +5,7 @@
    app/styles/components/palette.css; el índice y la búsqueda, en lib/domain/palette.ts. */
 import { useEffect, useMemo, useRef, useState, useSyncExternalStore, type KeyboardEvent } from 'react';
 import {
+  ArrowCounterClockwise,
   ArrowRight,
   ArrowsClockwise,
   Bandaids,
@@ -32,10 +33,10 @@ import { doExport } from '@/lib/data/backup';
 import { TYPES, TYPE_KEYS, easyActive, nextRace } from '@/lib/domain/config';
 import { longRace } from '@/lib/domain/blocks';
 import { LG_INIT, lgRows } from '@/lib/domain/log';
-import { openRecal } from '@/lib/domain/recal';
+import { openRecal, undoRecal } from '@/lib/domain/recal';
 import { palIndex, palMark, palSearch, type PalItem } from '@/lib/domain/palette';
 import { baseMapReady, loadBaseMap, mapBarrios, mapRoutes, onBaseMap } from '@/lib/domain/geo';
-import { addDays, fmt, mondayOf, todayS, ymd } from '@/lib/domain/util';
+import { addDays, dateLabel, fmt, mondayOf, todayS, ymd } from '@/lib/domain/util';
 import { CAT_N, trophies, trophyNote, trophyTier } from '@/lib/domain/trophies';
 import { chView } from '@/lib/domain/challenges';
 import { AJ_PARTS, addRace, goAjustes, goLogros } from '@/lib/data/actions';
@@ -125,6 +126,7 @@ function PaletteBox() {
   const sessions = useApp((s) => s.sessions);
   const races = useApp((s) => s.cfg.races);
   const routes = useApp((s) => s.routes);
+  const lastRecal = useApp((s) => (s.cfg.recals || []).slice(-1)[0]);
   const cfg = useApp((s) => s.cfg);
   /* los barrios salen del mapa de la Ciudad (~530 KB): con recorridos, se baja al abrir la paleta, una sola vez */
   const baseReady = useSyncExternalStore(onBaseMap, baseMapReady, () => false);
@@ -145,12 +147,13 @@ function PaletteBox() {
       a('a:t', 'Cambiar entre claro y oscuro', CircleHalf, toggleTheme),
       ...(easyActive(todayS()) ? [] : [a('a:e', 'No me siento al 100%', Bandaids, () => openSheet('easy'))]),
       a('a:rc', 'Recalibrar ritmos', Gauge, () => openRecal()),
+      ...(lastRecal ? [a('a:rcu', 'Deshacer la recalibración del ' + dateLabel(lastRecal.at), ArrowCounterClockwise, undoRecal)] : []),
       a('a:lv', 'Test de nivel', ListChecks, () => openSheet('level')),
       a('a:ch', 'Nuevo desafío', Trophy, () => openSheet('challenge')),
       a('a:x', 'Exportar respaldo', DownloadSimple, () => doExport('json')),
       ...SECTIONS.map((s, i): Row => ({ g: 'Ir a', key: 'n:' + s.id, t: s.label, icon: s.Icon, run: () => navigate(s.href), k: i < 6 ? String(i + 1) : undefined })),
     ];
-  }, [strava]);
+  }, [strava, lastRecal]);
   /* sesiones y carreras: el índice se arma de nuevo si cambian */
   const index = useMemo(() => {
     const ix = palIndex(briefOf);

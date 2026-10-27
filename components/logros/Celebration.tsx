@@ -192,7 +192,7 @@ function Cel({ c }: { c: CelebrateState }) {
 
 export function Celebration() {
   const c = useApp((st) => st.ui.celebrate) as CelebrateState | null | undefined;
-  const loaded = useApp((s) => s.loaded),
+  const loaded = useApp((s) => s.loaded && s.fresh),
     sessions = useApp((s) => s.sessions),
     routes = useApp((s) => s.routes),
     races = useApp((s) => s.cfg.races),

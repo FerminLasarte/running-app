@@ -45,6 +45,8 @@ export interface SvState {
   busy: boolean;
   msg: string;
   pick: string | null;
+  /** «Otra salida» con una ya cargada: la lista queda a la vista para elegir otra */
+  choose: boolean;
 }
 export interface ResF {
   sid: string | null;
@@ -95,7 +97,7 @@ export interface ResultProps {
   draft?: ResultDraft | null;
 }
 
-export const SV0: SvState = { list: null, busy: false, msg: '', pick: null };
+export const SV0: SvState = { list: null, busy: false, msg: '', pick: null, choose: false };
 const FLAT0: FlatV = { dist: '', t: { h: '', m: '', s: '' }, pace: { m: '', s: '' }, hr: '', hrmax: '' };
 
 export const paceLabel = (t: SessionType) => (t === 'series' ? 'Ritmo promedio de las series' : t === 'tempo' ? 'Ritmo promedio del tempo (parte principal)' : 'Ritmo promedio');

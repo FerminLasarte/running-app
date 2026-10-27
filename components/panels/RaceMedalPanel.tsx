@@ -5,7 +5,7 @@ import '@/app/styles/screens/carreras.css';
 import { usePathname } from 'next/navigation';
 import { useS } from '@/lib/store';
 import { closeSheet, requestClose } from '@/lib/sheets';
-import { goRaces } from '@/lib/data/actions';
+import { editRace } from '@/lib/data/actions';
 import { navigate } from '@/lib/nav';
 import { racePr } from '@/lib/domain/race';
 import { raceTheme } from '@/lib/domain/raceTheme';
@@ -84,7 +84,7 @@ export default function RaceMedalPanel({ id }: { id: string }) {
         ) : (
           <div className="car-mp-none">
             <p className="p-dr-p">Todavía no cargaste tu tiempo en esta carrera.</p>
-            <Button size="sm" onClick={goRaces}>
+            <Button size="sm" onClick={() => editRace(r.id)}>
               Cargar mi tiempo
             </Button>
           </div>

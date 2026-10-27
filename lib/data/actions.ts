@@ -5,7 +5,7 @@ import { reduceMotion } from '@/lib/motion';
 import { afterPaint, navigate } from '@/lib/nav';
 import type { Cfg, Route, Session } from '@/lib/domain/types';
 import { normCfg, normRace } from '@/lib/domain/defaults';
-import { addDays, cleanObj, ymd } from '@/lib/domain/util';
+import { addDays, cleanObj, todayS, ymd } from '@/lib/domain/util';
 import { demoRoutes, demoSessions } from './demo';
 import { persistLocal, retryFailed, writeCfg, writeDelete, writeRoutes, writeSession, writeSessions } from './sync';
 
@@ -131,7 +131,9 @@ export const AJ_PARTS = { perfil: 'aj-perfil', fc: 'aj-fc', races: 'aj-carreras'
 /** el campo de la FC máxima (lo enfoca la bienvenida de Semana) */
 export const AJ_HRMAX = 'aj-hrmax';
 /** el nombre de una carrera o de un par en Ajustes */
-export const ajNameId = (kind: 'r' | 'z', id: string) => 'aj-' + kind + '-' + id + '-name';
+/** prefijo de los campos de una carrera («r») o un par («z») en Ajustes */
+export const ajId = (kind: 'r' | 'z', id: string) => 'aj-' + kind + '-' + id;
+export const ajNameId = (kind: 'r' | 'z', id: string) => ajId(kind, id) + '-name';
 /** qué carrera o par está abierto para editar en Ajustes: «r:id», «z:id» o null */
 export const setAjEdit = (v: string | null) => setUi('ajEdit', v);
 
@@ -161,4 +163,12 @@ export function addRace(km = 10, name = 'Nueva carrera') {
   navigate('/ajustes', () => focusField(ajNameId('r', r.id)));
 }
 export const goRaces = () => goAjustes(AJ_PARTS.races);
+/** abre una carrera en Ajustes con el foco en su tiempo: el tuyo si ya fue, si no el objetivo */
+export function editRace(id: string) {
+  const r = S.cfg.races.find((x) => x.id === id);
+  if (!r) return goRaces();
+  closeSheet();
+  setAjEdit('r:' + id);
+  navigate('/ajustes', () => focusField(ajId('r', id) + (r.date < todayS() ? '-res' : '-tgt') + '-h'));
+}
 export const goShoes = () => goAjustes(AJ_PARTS.shoes);
