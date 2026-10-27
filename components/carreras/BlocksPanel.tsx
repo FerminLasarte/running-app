@@ -1,16 +1,17 @@
 'use client';
-/* Plan por bloques de la próxima media o maratón: una columna por semana con su fase, los km planificados (punteado) y
-   los que hiciste (lleno), la semana de hoy y la de la carrera. Si son más de 12 semanas, la fila se corre de costado
-   y arranca mostrando la de hoy. Recalibrar los ritmos va en el encabezado; cómo se arma, al pie. */
+/* Plan por bloques de la próxima media o maratón: una columna por semana del plan (con la fecha del lunes) con su fase,
+   los km planificados (punteado) y los que hiciste (lleno), el nombre de la semana o «liviana» si es de descarga, la
+   semana de hoy y la de la carrera. Si son más de 12 semanas, la fila se corre de costado y arranca mostrando la de
+   hoy. Recalibrar los ritmos va en el encabezado; esta semana, cómo viene y cómo se arma, al pie. */
 import { useEffect, useRef } from 'react';
 import { FlagCheckered } from '@phosphor-icons/react';
 import { useS } from '@/lib/store';
 import type { PhaseKey, Race } from '@/lib/domain/types';
 import { isLong } from '@/lib/domain/config';
-import { PHASES, blockPlan, blockWeekOf } from '@/lib/domain/blocks';
+import { PHASES, blockPlan } from '@/lib/domain/blocks';
 import { kmBetween } from '@/lib/domain/stats';
 import { openRecal, rcSources, recalUndoTap } from '@/lib/domain/recal';
-import { addDays, dShort, dateLabel, fmt, isoWeek, mondayOf, pd, ymd } from '@/lib/domain/util';
+import { addDays, dShort, dateLabel, fmt, mondayOf, pd, ymd } from '@/lib/domain/util';
 import { Button } from '@/components/pista/controls';
 import { Key } from '@/components/pista/charts';
 import { Panel } from '@/components/pista/structure';
@@ -50,15 +51,16 @@ export function BlocksPanel({ race, other }: { race: Race; other: boolean }) {
   }, [P]);
   if (!P) return null;
   const m0 = mondayOf(new Date()),
-    cw = blockWeekOf(P, m0),
     lg = isLong(race),
     last = (cfg.recals || []).slice(-1)[0];
   const W = P.weeks.map((w, i) => {
     const now = ymd(w.mon) === ymd(m0),
       done = w.mon <= m0 ? kmBetween(w.mon, addDays(w.mon, 6)) : null;
-    return { ...w, now, done, first: i === 0 || P.weeks[i - 1].ph !== w.ph };
+    /* el nombre de la semana sale de las notas de tus sesiones; si no tiene, la de descarga se marca como liviana */
+    return { ...w, now, done, first: i === 0 || P.weeks[i - 1].ph !== w.ph, nm: w.label || (w.deload ? 'liviana' : '') };
   });
-  const max = Math.max(1, ...W.map((w) => Math.max(w.km, w.done || 0)));
+  const cw = W.find((w) => w.now),
+    max = Math.max(1, ...W.map((w) => Math.max(w.km, w.done || 0)));
   const ks = [...new Set(P.weeks.map((w) => w.ph))] as PhaseKey[];
   const sub = cw ? 'Semana ' + cw.n + ' de ' + P.N + ' · ' + PHASES[cw.ph].n : !P.started ? P.N + ' semanas · arranca el ' + dShort(P.weeks[0].mon) : P.N + ' semanas hasta la largada';
   return (
@@ -85,9 +87,9 @@ export function BlocksPanel({ race, other }: { race: Race; other: boolean }) {
     >
       <ol className="car-weeks" ref={scroller} style={cssVars({ '--n': P.N })} aria-label={'Semanas del plan hasta ' + race.name}>
         {W.map((w) => (
-          <li key={w.n} className={cx(w.done != null && !w.now && 'done', w.now && 'cur', w.race && 'race')} style={cssVars({ '--pc': PHASE_C[w.ph] })}>
+          <li key={w.n} className={cx(w.done != null && !w.now && 'done', w.now && 'cur', w.race && 'race', w.deload && 'dl')} style={cssVars({ '--pc': PHASE_C[w.ph] })}>
             <span className="p-sr">
-              {'Semana ' + w.n + ', ' + PHASES[w.ph].n.toLowerCase() + ': ' + (w.race ? 'la carrera' : (w.done != null ? 'hiciste ' + fmt(w.done, 1) + ' de ' : '') + w.km + ' km planificados') + (w.long && !w.race ? ', larga de ' + w.long + ' km' : '')}
+              {'Semana ' + w.n + ', del ' + dShort(w.mon) + ', ' + PHASES[w.ph].n.toLowerCase() + (w.nm ? ' (' + w.nm.toLowerCase() + ')' : '') + ': ' + (w.race ? 'la carrera' : (w.done != null ? 'hiciste ' + fmt(w.done, 1) + ' de ' : '') + w.km + ' km planificados') + (w.long && !w.race ? ', larga de ' + w.long + ' km' : '')}
             </span>
             <div className="ph" aria-hidden="true" />
             {w.first ? (
@@ -96,9 +98,12 @@ export function BlocksPanel({ race, other }: { race: Race; other: boolean }) {
               </span>
             ) : null}
             <div className="hd" aria-hidden="true">
-              <span className="lbl">S{isoWeek(w.mon)}</span>
+              <span className="lbl">S{w.n}</span>
               {w.now ? <span className="now">Hoy</span> : null}
             </div>
+            <span className="dt" aria-hidden="true">
+              {dShort(w.mon)}
+            </span>
             <div className="bars" aria-hidden="true">
               {w.race ? (
                 <span className="flag">
@@ -122,6 +127,7 @@ export function BlocksPanel({ race, other }: { race: Race; other: boolean }) {
                   <b>{fmt(w.done != null ? w.done : w.km, 1)}</b>
                   {w.done != null ? 'de ' + fmt(w.km, 1) : 'plan'}
                   {w.long ? <span>larga {w.long}</span> : null}
+                  {w.nm ? <span className="nm">{w.nm}</span> : null}
                 </>
               )}
             </div>
@@ -129,6 +135,22 @@ export function BlocksPanel({ race, other }: { race: Race; other: boolean }) {
         ))}
       </ol>
       <div className="p-panel-b car-sep">
+        {cw ? (
+          <p className="car-note">
+            Esta semana{cw.label ? ' (' + cw.label.toLowerCase() + ')' : cw.deload ? ' (semana liviana)' : ''}: <b>{cw.km} km</b>
+            {cw.race ? (
+              ' con la carrera'
+            ) : cw.long ? (
+              <>
+                {' '}
+                con una tirada larga de <b>{cw.long} km</b>
+              </>
+            ) : (
+              ''
+            )}
+            . Llevás <b>{fmt(cw.done || 0, 1)} km</b>.
+          </p>
+        ) : null}
         <p className="car-foot">
           {P.loaded ? (
             <>

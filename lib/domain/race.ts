@@ -101,16 +101,17 @@ export interface RaceScen {
   n: string;
   sec: number;
   x: string;
-  te?: TrainEst;
+  /** el realista: de dónde sale (el test o los entrenamientos) */
+  est?: RaceEst;
 }
 export function raceScen(race: Race): RaceScen[] {
   const sc: RaceScen[] = [],
     rnd5 = (t: number) => Math.round(t / 5) * 5;
   if (race.targetSec > 0) sc.push({ id: 'meta', n: 'Meta', sec: race.targetSec, x: 'Tu objetivo.' });
-  let real: { sec: number; x: string; te?: TrainEst } | null = null;
+  let real: { sec: number; x: string; est: RaceEst } | null = null;
   const e = raceEst(race);
-  if (e && e.src === 'train') real = { sec: rnd5(e.t), x: 'Según tus entrenamientos desde el ' + dShort(pd(e.te.from)) + ' y cómo vienen mejorando.', te: e.te };
-  else if (e) real = { sec: rnd5(e.lo ? (e.lo + e.t) / 2 : e.t), x: 'Según tu último test' + (e.lo ? ', en el medio del rango estimado' : '') + '.' };
+  if (e && e.src === 'train') real = { sec: rnd5(e.t), x: 'Según tus entrenamientos desde el ' + dShort(pd(e.te.from)) + ' y cómo vienen mejorando.', est: e };
+  else if (e) real = { sec: rnd5(e.lo ? (e.lo + e.t) / 2 : e.t), x: 'Según tu último test' + (e.lo ? ', en el medio del rango estimado' : '') + '.', est: e };
   if (real) sc.push({ id: 'real', n: 'Realista', ...real });
   if (sc.length) sc.push({ id: 'seg', n: 'Seguro', sec: rnd5(sc[sc.length - 1].sec * 1.02), x: 'Salida más cauta: un 2% más lento.' });
   return sc;

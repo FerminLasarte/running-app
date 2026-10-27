@@ -212,6 +212,32 @@ Decidido por el usuario: ANA-01 y ANA-02 se arreglan.
 - **CAR-16 · Año en la fecha** del estadio cuando la carrera no es de este año (`components/carreras/Hero.tsx:53`;
   original `raceDateLabel`, 2320).
 
+Hecho. Decisiones al pasarlo:
+
+- **CAR-03.** El aviso va al pie de «Para el día», siempre a la vista (el grupo del día de la carrera suele estar
+  plegado). El botón «Cargar la hora» abre la carrera con el foco en la hora de largada: `editRace(id, 'time')`; sin el
+  segundo argumento sigue yendo al tiempo, como antes.
+- **CAR-04.** Va al pie del grupo «El día de la carrera», con o sin hora; con hora empieza «Mirá el pronóstico para las
+  08:00». Sin hora se saca esa frase, porque el pendiente de cinco días antes ya dice que mires el pronóstico. El de los
+  geles del maratón no se repite: ya está al pie de la estrategia.
+- **CAR-05.** Cada columna muestra al pie el nombre de la semana sacado de las notas («Carga», «Descarga») o «liviana»
+  si es de descarga sin nombre, como la tabla del original; la de descarga va en el color de la fase. El cuadro «Esta
+  semana (descarga): 24 km con una tirada larga de 11 km. Llevás 0 km.» va arriba del pie del panel. Sale de la
+  semana de hoy de las columnas, que es la misma que daba `blockWeekOf` (se dejó de llamar ahí).
+- **CAR-06.** «S1», «S2»… con la fecha del lunes debajo («5 oct»); la lectura en texto también dice «del 5 oct».
+- **CAR-07.** Solo con «Realista» elegido, como «De dónde sale el ritmo realista» (CAR-09). `RaceScen` lleva la
+  estimación entera (`est`) en lugar de `te`. Desde el test: Riegel con 1,06, y en el maratón desde un test corto, el
+  rango con 1,10. Desde los entrenamientos: el paso del 10K a la distancia con Riegel (y el 3 % del maratón), el tope
+  de 3 % por mes cuando venís mejorando y no llega a tocarlo (si lo toca ya lo decía), el aviso del test viejo con lo
+  que daba, y que un test nuevo pasa a mandar.
+- **CAR-10.** Se lee en cada cambio de cualquiera de los tres campos; se sacó la lectura al salir y al aplicar.
+- **CAR-16.** `dayLong` en `lib/domain/util.ts` (junto a `monthOf`): «Domingo 17 de enero de 2027». El detalle de
+  sesión tiene su propio `longDate` sin año; no se tocó.
+- Probado en local sin `.env.local`, en escritorio y celu: una media de enero de 2027 sin hora con 15 semanas
+  cargadas («S4 · Descarga · …» la de hoy), un test viejo y tempos y series más nuevos; un maratón con solo un test de
+  5 km y el plan genérico (semana 4 liviana); el foco de «Cargar la hora» en Ajustes; Recalibrar cambiando la
+  referencia sin salir del campo; y sin carreras ni sesiones.
+
 ### Tanda 6 · Sueltos
 
 - **CGA-03 · Errores de la lectura de capturas.** `aiErr` (`lib/domain/planForm.ts:42-50`) no conoce los códigos que
