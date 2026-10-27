@@ -1,17 +1,46 @@
-/* Portada: la marca y las cuentas arriba, el estadio con qué es la app y los dos caminos (con el dorsal al costado), lo
+/* Portada: la barra de arriba (fija), el estadio con qué es la app y los dos caminos (con el dorsal al costado), lo
    que hace en seis tarjetas con una pieza de la Pista cada una, el cierre en otro estadio y el pie. Fuera del shell: la
-   marca usa el .brand de la barra lateral (shell.css), que en el celu se esconde; acá se ve siempre. */
+   marca usa el .brand de la barra lateral (shell.css), que en el celu se esconde; acá se ve siempre.
+   Movimiento: el estadio entra al cargar (el título por líneas, los andariveles se dibujan y una vuelta corre por el de
+   tartán); el resto aparece al llegar (motion.ts pone `.in`) y recién ahí corren las animaciones de sus piezas. */
 @layer screens {
   .po { min-height: 100dvh; font-size: 14px; line-height: 1.5; }
   .po .brand { display: flex; padding: 0; }
-  .po-top, .po main { max-width: 1260px; margin: 0 auto; padding-left: 40px; padding-right: 40px; }
-  .po-top { display: flex; align-items: center; justify-content: space-between; gap: 16px; height: 76px; padding-top: env(safe-area-inset-top, 0px); }
-  .po-nav { display: flex; align-items: center; gap: 8px; }
-  .po main { display: grid; gap: 80px; padding-top: 4px; }
+  .po main { max-width: 1260px; margin: 0 auto; padding: 4px 40px 0; display: grid; gap: 80px; }
+  #que-hace, #probala { scroll-margin-top: 84px; }
+
+  /* la barra de arriba: transparente sobre la página; al bajar, sólida, más baja y con la raya de lo leído */
+  .po-top { position: sticky; top: 0; z-index: 40; padding-top: env(safe-area-inset-top, 0px); transition: background-color .3s var(--ease), box-shadow .3s var(--ease); }
+  .po-top.stuck { background: color-mix(in oklab, var(--bg) 82%, transparent); -webkit-backdrop-filter: saturate(1.6) blur(16px); backdrop-filter: saturate(1.6) blur(16px); box-shadow: 0 1px 0 var(--line); }
+  .po-top-in { display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: 24px; max-width: 1260px; height: 76px; margin: 0 auto; padding: 0 40px; transition: height .3s var(--ease); }
+  .po-top.stuck .po-top-in { height: 62px; }
+  /* los links quedan en el centro exacto aunque a la derecha entre un botón */
+  .po-links { display: flex; gap: 30px; }
+  .po-links a { position: relative; padding: 8px 0; font: italic 900 15px/1 var(--f-disp); font-stretch: 66%; text-transform: uppercase; letter-spacing: .03em; color: var(--ink-2); transition: color .2s; }
+  .po-links a::after { content: ''; position: absolute; left: 0; right: 0; bottom: 2px; height: 2px; background: var(--acc); transform: scaleX(0); transform-origin: right; transition: transform .35s var(--ease); }
+  .po-links a:hover, .po-links a[aria-current] { color: var(--ink); }
+  .po-links a:hover::after, .po-links a[aria-current]::after { transform: none; transform-origin: left; }
+  .po-nav { display: flex; align-items: center; gap: 8px; justify-self: end; }
+  /* «Probar sin cuenta» entra cuando los del estadio quedaron arriba: se abre de ancho cero (no deja un hueco mientras
+     no está) */
+  .po .brand { flex: none; }
+  .po-try { display: grid; grid-template-columns: 0fr; margin-left: -8px; visibility: hidden; opacity: 0; transition: grid-template-columns .4s var(--ease), margin-left .4s var(--ease), opacity .25s, visibility 0s .4s; }
+  .po-try > .p-btn { min-width: 0; overflow: hidden; white-space: nowrap; }
+  .po-top.cta .po-try { grid-template-columns: 1fr; margin-left: 0; visibility: visible; opacity: 1; transition-delay: 0s, 0s, .1s, 0s; }
+  .po-prog { position: absolute; left: 0; right: 0; bottom: 0; height: 2px; background: var(--acc); transform: scaleX(var(--sp, 0)); transform-origin: left; opacity: 0; transition: opacity .3s; }
+  .po-top.stuck .po-prog { opacity: 1; }
 
   /* el estadio de arriba: la voz de marca en grande */
   .po-hero { padding: 54px 56px 52px; gap: 72px; align-items: center; }
   .po-h1 { font-size: 150px; padding-top: calc(24px + .05em); }
+  /* el título entra por líneas, desde abajo de su propio renglón; el punto, al final */
+  .po-ln { display: block; overflow: clip; padding: .16em .12em .14em 0; margin: -.16em -.12em -.14em 0; }
+  .po-ln + .po-ln { display: inline-block; }
+  .po-ln > span { display: inline-block; animation: po-ln .95s var(--ease) .1s both; }
+  .po-ln + .po-ln > span { animation-delay: .2s; }
+  .po-h1 em { display: inline-block; transform-origin: 30% 80%; animation: po-pop .5s cubic-bezier(.3, 1.6, .5, 1) .75s both; }
+  .po-hero .po-ctas { animation: p-rise .55s var(--ease) .35s both; }
+  .po-hero .p-bib-wrap { animation: po-bib 1s var(--ease) .3s both; }
   .po-lead { max-width: 54ch; margin-top: 24px; font-size: 17px; line-height: 1.5; color: color-mix(in oklab, var(--hero-ink) 82%, transparent); }
   .po-ctas { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 30px; }
   .po-note { margin-top: 16px; font-size: 13px; color: var(--hero-mut); }
@@ -23,7 +52,8 @@
   .po-sh { display: grid; gap: 4px; }
   .po-sh h2 { font-size: 76px; padding-top: calc(8px + .06em); }
   .po-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 20px; }
-  .po-f { display: grid; grid-template-rows: 252px auto; overflow: hidden; background: var(--surface); border: 1px solid var(--line); border-radius: var(--r-lg); }
+  .po-f { display: grid; grid-template-rows: 252px auto; overflow: hidden; background: var(--surface); border: 1px solid var(--line); border-radius: var(--r-lg); transition: transform .4s var(--ease), box-shadow .4s var(--ease), border-color .4s; }
+  .po-f:hover { transform: translateY(-4px); border-color: var(--line-2); box-shadow: 0 22px 40px -28px rgb(0 0 0 / .4); }
   .po-f-v { position: relative; display: grid; place-items: center; padding: 22px 28px; overflow: hidden; background: var(--sunk); border-bottom: 1px solid var(--line); }
   .po-f-t { display: grid; align-content: start; gap: 8px; padding: 20px 22px 24px; }
   .po-f h3 { font: italic 900 28px/.95 var(--f-disp); font-stretch: 64%; text-transform: uppercase; letter-spacing: .005em; padding-top: 4px; }
@@ -36,13 +66,25 @@
   .po-sess b { font-weight: 600; }
   .po-sess small { margin-left: auto; color: var(--ink-3); font-size: 12px; }
   .po-vol { width: 100%; }
-  /* la pulsera asoma desde arriba de la tarjeta y se pierde abajo */
-  .po-f-v:has(.po-band) { place-items: start center; padding-top: 22px; }
-  .po-band { width: 200px; -webkit-mask-image: linear-gradient(#000 62%, transparent 96%); mask-image: linear-gradient(#000 62%, transparent 96%); }
+  .po-vol rect { transform-box: fill-box; transform-origin: bottom; animation: p-grow .7s var(--ease) both; animation-delay: calc(.15s + var(--j, 0) * 45ms); }
+  .po-vol path { --len: 400; animation: po-draw 1.2s var(--ease) .75s both; }
+  /* la pulsera asoma desde arriba de la tarjeta y se desvanece antes del borde: la ventana es la del recuadro, no la de la
+     pulsera (si no, el borde la corta a mitad de una fila) */
+  .po-f-v:has(.po-band) { place-items: stretch center; padding: 22px 0 0; }
+  .po-band { width: 236px; padding: 0 18px; overflow: hidden; -webkit-mask-image: linear-gradient(#000 38%, transparent 92%); mask-image: linear-gradient(#000 38%, transparent 92%); }
+  .po-band .p-band { animation: po-band 1s var(--ease) .1s backwards; }
+  .po-f:hover .p-band { transform: none; }
   .po-f-v:has(.po-map) { padding: 0; }
   .po-map { width: 100%; height: 100%; display: block; }
+  .po-runs path, .po-run path { --len: 640; animation: po-draw 1.6s var(--ease) .1s both; }
+  .po-run path { animation-delay: .8s; }
+  .po-runner { animation: p-fade .4s var(--ease) 2.2s both; }
   .po-tro { display: grid; justify-items: center; gap: 24px; width: 100%; }
   .po-shields { display: flex; gap: 14px; }
+  .po-shields .p-shield { animation: po-pop .55s cubic-bezier(.3, 1.5, .6, 1) .15s backwards; }
+  .po-shields .p-shield:nth-child(2) { animation-delay: .25s; }
+  .po-shields .p-shield:nth-child(3) { animation-delay: .35s; }
+  .po-shields .p-shield:nth-child(4) { animation-delay: .45s; }
   .po-lvl { width: min(100%, 240px); }
   .po-lvl > div { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 8px; }
   .po-lvl b { font: italic 900 20px/1 var(--f-disp); font-stretch: 64%; text-transform: uppercase; }
@@ -51,6 +93,28 @@
   /* el cierre */
   .po-end { padding: 52px 56px; }
   .po-end h2 { font-size: 112px; padding-top: calc(10px + .05em); }
+
+  /* los andariveles de los estadios se dibujan; por el de tartán corre una vuelta, contra el reloj */
+  .po-hero .p-lanes:not(.po-lap) rect, .po-end .p-lanes:not(.po-lap) rect { --len: 2700; animation: po-draw 1.8s var(--ease) both; }
+  .po-hero .p-lanes rect.a, .po-end .p-lanes rect.a { animation-delay: .25s; }
+  .p-lanes.po-lap rect { stroke: var(--acc); stroke-width: 3; stroke-linecap: round; opacity: 1; stroke-dasharray: 3 97; filter: drop-shadow(0 0 6px var(--acc)); animation: po-lap 11s linear 1.6s infinite both; }
+
+  /* aparecer al llegar: mientras no llega, las piezas de adentro esperan quietas en su primer cuadro */
+  .po.js [data-reveal]:not(.in) { opacity: 0; }
+  .po.js [data-reveal]:not(.in) * { animation-play-state: paused; }
+  .po.js [data-reveal].in { animation: po-in .8s var(--ease) calc(var(--d, 0) * 90ms) backwards; }
+
+  @keyframes po-in { from { opacity: 0; transform: translateY(28px); } }
+  @keyframes po-ln { from { transform: translateY(115%); } }
+  @keyframes po-pop { from { opacity: 0; transform: scale(.4); } }
+  @keyframes po-bib { from { opacity: 0; transform: translateY(-28px) rotate(-7deg); } }
+  @keyframes po-band { from { opacity: 0; transform: translateY(70px) rotate(8deg); } }
+  @keyframes po-draw { from { stroke-dasharray: var(--len); stroke-dashoffset: var(--len); } to { stroke-dasharray: var(--len); stroke-dashoffset: 0; } }
+  @keyframes po-lap { from { stroke-dashoffset: 0; } to { stroke-dashoffset: 100; } }
+  /* el corredor del mapa se mueve con SVG (animateMotion), que «reducir movimiento» no frena: se saca */
+  @media (prefers-reduced-motion: reduce) {
+    .po-runner, .po-lap { display: none; }
+  }
 
   /* el pie, del ancho del contenido (la raya no pasa de las tarjetas) */
   .po-foot { display: flex; align-items: center; justify-content: space-between; gap: 20px; width: min(1180px, calc(100% - 80px)); margin: 80px auto 0; padding: 28px 0 calc(40px + env(safe-area-inset-bottom, 0px)); border-top: 1px solid var(--line); }
@@ -67,10 +131,12 @@
   }
   /* celu: todo apilado, el dorsal debajo del texto */
   @media (max-width: 900px) {
-    .po-top, .po main { padding-left: 16px; padding-right: 16px; }
+    .po main { padding-left: 16px; padding-right: 16px; }
     .po-foot { width: calc(100% - 32px); }
-    .po-top { height: calc(64px + env(safe-area-inset-top, 0px)); }
-    .po-hide-s { display: none; }
+    .po-top-in { display: flex; height: 64px; padding: 0 16px; gap: 12px; }
+    .po-top.stuck .po-top-in { height: 56px; }
+    .po-top-in .brand { margin-right: auto; }
+    .po-top .brand small, .po-links, .po-hide-s, .po-top.cta .po-enter { display: none; }
     .po main { gap: 56px; }
     .po-hero { padding: 28px 20px 36px; gap: 36px; }
     .po-h1 { font-size: 84px; padding-top: calc(16px + .05em); }

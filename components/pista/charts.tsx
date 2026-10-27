@@ -171,7 +171,7 @@ export function StackedBars({ bars, y, sel }: { bars: Bar[]; y: (v: number) => n
         let acc = 0;
         const dim = sel != null && sel !== i;
         return (
-          <g key={i} opacity={dim ? 0.45 : b.cur ? 0.55 : 1} style={{ transition: 'opacity .15s' }}>
+          <g key={i} opacity={dim ? 0.45 : b.cur ? 0.55 : 1} style={{ transition: 'opacity .15s', ...cssVars({ '--j': i }) }}>
             {b.parts.map((p, k) => {
               const y0 = y(acc),
                 y1 = y(acc + p.v);
