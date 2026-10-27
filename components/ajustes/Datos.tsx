@@ -1,6 +1,7 @@
 'use client';
-/* Cuenta y datos: dónde se guardan tus datos (en la nube o solo en este navegador), cerrar sesión y el respaldo. */
-import { DownloadSimple, SignOut, Table, UploadSimple } from '@phosphor-icons/react';
+/* Cuenta y datos: dónde se guardan tus datos (en la nube o solo en este navegador), cerrar sesión, el respaldo, la
+   política de privacidad y eliminar la cuenta. */
+import { DownloadSimple, ShieldCheck, SignOut, Table, Trash, UploadSimple } from '@phosphor-icons/react';
 import { useS } from '@/lib/store';
 import { openSheet } from '@/lib/sheets';
 import { AJ_PARTS, blockDemo } from '@/lib/data/actions';
@@ -17,6 +18,10 @@ const maskMail = (m: string) => m.replace(/^(.{2})[^@]*/, (_, a: string) => a + 
 export function openImport() {
   if (blockDemo()) return;
   openSheet('import');
+}
+function openDelete() {
+  if (blockDemo()) return;
+  openSheet('deleteAccount');
 }
 
 export function Datos({ i }: { i: number }) {
@@ -50,6 +55,19 @@ export function Datos({ i }: { i: number }) {
         </Button>
         <Button variant="ghost" icon={UploadSimple} onClick={openImport}>
           Importar
+        </Button>
+      </Row>
+      <Row title="Privacidad" desc="Qué se guarda, dónde, qué se lee de Strava y cómo borrar todo.">
+        <Button variant="ghost" icon={ShieldCheck} href="/privacidad">
+          Privacidad y condiciones
+        </Button>
+      </Row>
+      <Row
+        title={cloud ? 'Eliminar la cuenta' : 'Borrar los datos'}
+        desc={cloud ? 'Borra la cuenta con todo lo tuyo y desconecta Strava. No se puede deshacer.' : 'Borra todo lo que la app guardó en este navegador. No se puede deshacer.'}
+      >
+        <Button className="dng" icon={Trash} onClick={openDelete}>
+          {cloud ? 'Eliminar mi cuenta' : 'Borrar todo'}
         </Button>
       </Row>
     </Panel>

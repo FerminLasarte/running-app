@@ -154,6 +154,8 @@ export interface EasyMode {
 
 export interface Cfg {
   hrMax: number;
+  /** la FC máxima la cargó la persona; si no, `hrMax` es una provisoria (220 − edad) */
+  hrSet: boolean;
   weeklyGoal: number;
   planStart: string;
   age: number;

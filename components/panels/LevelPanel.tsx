@@ -27,7 +27,7 @@ const SOURCES: [string, string][] = [
 ];
 
 export default function LevelPanel() {
-  useS();
+  const ageSet = useS().cfg.age > 0;
   const R = lvBuild();
   const foot = (
     <Button variant="pri" autoFocus onClick={requestClose}>
@@ -48,7 +48,7 @@ export default function LevelPanel() {
   /* el factor que más suma si mejora: lo que le falta para 10, por su peso (la resistencia aeróbica no se entrena directo) */
   const d = R.dims.filter((x) => x.k !== 'aer').sort((a, b) => (10 - b.b) * b.w - (10 - a.b) * a.w)[0];
   return (
-    <PanelFrame eyebrow={'Hombre de ' + R.age + ' años · ' + fmt(R.M.months, 0) + ' meses corriendo'} title="Test de nivel" foot={foot}>
+    <PanelFrame eyebrow={(ageSet ? 'Hombre de ' + R.age + ' años' : 'Sin tu edad') + ' · ' + fmt(R.M.months, 0) + ' meses corriendo'} title="Test de nivel" foot={foot}>
       <div className="car-lv-h" style={cssVars({ '--lc': col(B) })}>
         <div>
           <span className="disp">{fmt(B, 1)}</span>
@@ -109,7 +109,9 @@ export default function LevelPanel() {
           <p className="p-dr-hint">
             Tu 10K se estima con tu mejor señal de las últimas 6 semanas (un test, series o tempo). Las series dan un piso de tu capacidad, así que es probable que el día real salga igual o más rápido. Pesos: velocidad 35%, volumen 15%, frecuencia, tirada larga, calidad, resistencia y constancia 10% cada una. Los corredores de carreras populares son un grupo más entrenado que la población general, y las referencias de tiempos en la web varían entre sitios: no tomes el decimal como exacto.
           </p>
-          <p className="p-dr-hint">Edad y fecha de inicio se cambian en Ajustes.</p>
+          <p className="p-dr-hint">
+            {ageSet ? 'Edad y fecha de inicio se cambian en Ajustes.' : 'Todavía no cargaste tu edad: te comparo con corredores de ' + R.age + ' años. Cargala en Ajustes → Perfil, junto con la fecha en que empezaste a correr.'}
+          </p>
           <ul className="car-lv-src">
             {SOURCES.map(([href, t]) => (
               <li key={href}>

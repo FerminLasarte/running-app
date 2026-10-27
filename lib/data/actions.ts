@@ -6,7 +6,7 @@ import { afterPaint, navigate } from '@/lib/nav';
 import type { Cfg, Route, Session } from '@/lib/domain/types';
 import { normCfg, normRace } from '@/lib/domain/defaults';
 import { addDays, cleanObj, todayS, ymd } from '@/lib/domain/util';
-import { demoRoutes, demoSessions } from './demo';
+import { demoCfg, demoRoutes, demoSessions } from './demo';
 import { persistLocal, retryFailed, writeCfg, writeDelete, writeRoutes, writeSession, writeSessions } from './sync';
 
 /* ---- avisos ---- */
@@ -89,12 +89,22 @@ export function saveRoutes(fresh: Route[]) {
   persistLocal();
   writeRoutes(fresh);
 }
+/** Saca los recorridos de acá (al desconectar Strava, que ya los borró de la nube). */
+export function clearRoutes() {
+  if (S.demo) setS({ realRoutes: [] });
+  else {
+    setS({ routes: [] });
+    persistLocal();
+  }
+}
 export { retryFailed, reduceMotion, afterPaint };
 
 /* ---- modo ejemplo ---- */
+/* el ejemplo trae su propia configuración (una cuenta nueva no tiene carreras ni FC); la tuya vuelve al salir */
 export function demoOn() {
-  const sessions = demoSessions();
-  setS({ realSessions: S.sessions, realCfg: S.cfg, realRoutes: S.routes, demo: true, sessions, routes: demoRoutes(sessions), weekOff: 0 });
+  const cfg = demoCfg(),
+    sessions = demoSessions(cfg.hrMax);
+  setS({ realSessions: S.sessions, realCfg: S.cfg, realRoutes: S.routes, demo: true, cfg, sessions, routes: demoRoutes(sessions), weekOff: 0 });
   navigate('/semana', () => jumpTo(0));
 }
 export function demoOff() {

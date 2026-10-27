@@ -3,7 +3,7 @@ import { NextResponse, type NextRequest } from 'next/server';
 import { createServerClient } from '@supabase/ssr';
 import { SUPABASE_KEY, SUPABASE_URL, isAllowed, supabaseConfigured } from '@/lib/supabase/env';
 
-const PUBLIC = ['/login', '/auth', '/manifest.webmanifest', '/pwa-icon', '/sw.js'];
+const PUBLIC = ['/login', '/auth', '/privacidad', '/manifest.webmanifest', '/pwa-icon', '/sw.js'];
 
 export async function proxy(request: NextRequest) {
   let response = NextResponse.next({ request });

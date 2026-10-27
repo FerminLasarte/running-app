@@ -26,6 +26,7 @@ const goHr = () =>
 export function Welcome() {
   const cloud = useApp((s) => s.mode === 'cloud'),
     hrMax = useApp((s) => s.cfg.hrMax),
+    hrSet = useApp((s) => s.cfg.hrSet),
     sv = useStravaStatus(),
     /* sin Strava configurado en el servidor no hay nada que conectar */
     svOk = cloud && sv?.configured !== false,
@@ -42,7 +43,7 @@ export function Welcome() {
       go: svOk ? () => stravaConnect() : undefined,
     },
     race: { t: 'Tu próxima carrera', todo: 'Desde ahí se arma el plan y la cuenta regresiva', done: race ? race.name + ' · ' + raceDateLabel(race) : 'Lista', go: goRaces },
-    hr: { t: 'Tu FC máxima', todo: 'Para guiar los fondos y los regenerativos', done: hrMax + ' lpm', go: goHr },
+    hr: { t: 'Tu FC máxima', todo: 'Para guiar los fondos y los regenerativos', done: hrSet ? hrMax + ' lpm' : 'Zonas cargadas a mano', go: goHr },
   };
 
   return (

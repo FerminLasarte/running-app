@@ -111,3 +111,47 @@ demás) **y** se le pasa al usuario el SQL para pegar en el SQL Editor. Nunca `s
   - El texto del mail del link de entrada, en castellano y con el nombre nuevo, para pegar en Supabase
     (Authentication → Email Templates).
   - El botón y el logo oficiales de Strava no se bajan ahora: se agregan cuando exista la app propia.
+
+**Hecho.** Decisiones al pasarlo:
+
+- **AP-01.** La FC máxima «sin cargar» es un campo nuevo de la configuración, `hrSet`. Lo guardado antes (y los
+  respaldos del artifact) trae su `hrMax`, así que cuenta como cargada: a nadie le cambia nada. Sin cargar, `hrMax` es
+  una provisoria, 220 − edad (con 30 años si no hay edad): en Ajustes el campo queda vacío con la provisoria de fondo y
+  la explicación, y el editor de tramos del plan avisa al elegir una zona de FC. Cargar las zonas a mano también cuenta
+  como hecho en la bienvenida. Sin edad, el test de nivel sigue comparando con 27 años, pero lo dice («Sin tu edad») e
+  invita a cargarla. Al importar un respaldo, lo que le falte se completa con la configuración de fábrica del artifact
+  (`importCfgRaw`), no con la nueva: los respaldos viejos sin `races` siguen trayendo el 10K y el maratón. El ejemplo trae
+  `demoCfg()`: un «10K de Palermo» dentro de un mes (con su plan desde que arrancan los datos), una media maratón, FC
+  máxima 190 y 30 años; al salir vuelve la tuya.
+- **AP-02.** La confirmación es un panel (como Importar): qué se borra, el botón del respaldo JSON y escribir
+  «eliminar». La ruta `/api/account/delete` desconecta Strava (revoca y borra), llama a `delete_account()` y borra las
+  cookies de la sesión. En el navegador se borran todas las claves que empiezan con `rr` (datos, pendientes, borrador,
+  última sincronización con Strava, tema, capas del mapa). En modo local el botón dice «Borrar todo» y vuelve a la
+  bienvenida.
+- **AP-03.** La confirmación de «Desconectar» va en la misma fila de Strava, como la de borrar una carrera. En el
+  servidor, `stravaDisconnect` y `forgetStrava` (`lib/strava/server.ts`) los comparten «Desconectar», eliminar la cuenta
+  y el webhook. Los avisos de Strava no vienen firmados: antes de borrar, el webhook confirma con Strava que el permiso
+  ya no anda (si todavía anda o Strava no responde, no borra nada). El borrado corre con `after()`, para responder en
+  menos de 2 segundos. La clave de servicio está en `lib/supabase/admin.ts`.
+- **AP-04.** La página vive fuera del shell, como el login, en `app/privacidad/` (la página con la metadata y el texto
+  en un componente de cliente, porque las piezas de la Pista lo son). El login suma «Al entrar aceptás las condiciones
+  de uso y la política de privacidad» con el link. No nombra la región de los servidores ni el plazo de los respaldos
+  de Supabase. Dice que, si revocás el acceso desde Strava, se borra lo que vino de ahí: eso es cierto recién con el
+  webhook suscripto (paso 2 de la guía).
+- **AP-05.** `ai_usage` solo se puede leer: suma únicamente `ai_take(lim)` (`security definer`, contra `auth.uid()`),
+  así nadie se resetea el contador. El mes es el de Argentina. Una lectura se cuenta aunque Claude falle después. Si la
+  tabla no está, `/api/ai/status` igual muestra la función activada (sin el número) y leer falla con el error genérico.
+- **AP-06.** Sin migración: si Strava no tiene la salida (o no tiene sus series), se guarda en `streams` una fila
+  `{ none, of }` en vez de las series, con `of` = la actividad o, sin ella, la fecha y la distancia. Mientras el
+  resultado sea el mismo no se vuelve a buscar. En el detalle, «No está en Strava» suma «Buscar de nuevo», por si la
+  salida se subió a Strava después.
+- **AP-07.** También el nombre corto de la app instalada y el título de iOS (antes «Running»). La migración inicial
+  sigue diciendo «My Running App» en un comentario: ya está aplicada y no se toca.
+- **AP-08.** Además de lo pedido, la guía avisa que el servicio de mails que trae Supabase es para pruebas (hace falta
+  un SMTP propio para abrir) y que al cambiar de app de Strava quien ya la usaba tiene que volver a conectar. Los mails
+  van en las dos plantillas que usa el link de entrada: *Magic Link* y *Confirm signup*. `.env.example` suma
+  `STRAVA_WEBHOOK_VERIFY_TOKEN`, `SUPABASE_SERVICE_ROLE_KEY` y `AI_MONTHLY_LIMIT`.
+- **Para probar después del deploy** (no se puede en local): aplicar las dos migraciones; eliminar una cuenta de
+  prueba; desconectar Strava y ver que el Mapa queda vacío y que las sesiones siguen; con `ANTHROPIC_API_KEY`, ver
+  cuántas lecturas quedan en Conexiones y el aviso al pasar el tope (por ejemplo con `AI_MONTHLY_LIMIT=1`); abrir una
+  sesión cargada a mano, recargar la app, volver a abrirla y ver que no le pide nada a Strava.

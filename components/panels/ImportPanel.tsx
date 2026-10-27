@@ -8,17 +8,18 @@ import { S } from '@/lib/store';
 import { closeSheet, useSheetDirty } from '@/lib/sheets';
 import { blockDemo, saveCfg, saveSessions, toast } from '@/lib/data/actions';
 import { parseImport, type Parsed } from '@/lib/domain/csv';
-import { defaultCfgRaw, normCfg } from '@/lib/domain/config';
+import { importCfgRaw, normCfg } from '@/lib/domain/defaults';
 import { TextArea } from '@/components/pista/fields';
 import { Advice, PanelActions, PanelFrame, PanelSection } from './PanelFrame';
 import { plural } from '@/lib/domain/util';
 
-/** Las sesiones con el mismo id se actualizan y las demás se suman; los ajustes del respaldo reemplazan a los actuales. */
+/** Las sesiones con el mismo id se actualizan y las demás se suman; los ajustes del respaldo reemplazan a los actuales
+    (lo que les falte sale de la configuración de fábrica del artifact, así los respaldos de allá entran igual que siempre). */
 function doImport(p: Parsed) {
   if (blockDemo()) return;
   saveSessions(p.sessions);
   if (p.cfg) {
-    const raw: Record<string, unknown> = Object.assign(defaultCfgRaw(), p.cfg);
+    const raw: Record<string, unknown> = Object.assign(importCfgRaw(), p.cfg);
     delete raw.kind;
     saveCfg(normCfg(raw));
   }

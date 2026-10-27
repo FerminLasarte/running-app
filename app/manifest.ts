@@ -2,8 +2,8 @@ import type { MetadataRoute } from 'next';
 
 export default function manifest(): MetadataRoute.Manifest {
   return {
-    name: 'My Running App',
-    short_name: 'Running',
+    name: 'Lane One',
+    short_name: 'Lane One',
     description: 'Registro y progreso. Fondos guiados por frecuencia cardíaca; series y tempos, por ritmo.',
     lang: 'es-AR',
     start_url: '/semana',

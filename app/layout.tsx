@@ -19,10 +19,10 @@ const geist = Geist({ variable: '--font-geist', subsets: ['latin'], display: 'sw
 const geistMono = Geist_Mono({ variable: '--font-geist-mono', subsets: ['latin'], display: 'swap' });
 
 export const metadata: Metadata = {
-  title: { default: 'My Running App', template: '%s · My Running App' },
+  title: { default: 'Lane One', template: '%s · Lane One' },
   description: 'Registro y progreso. Fondos guiados por frecuencia cardíaca; series y tempos, por ritmo.',
-  applicationName: 'My Running App',
-  appleWebApp: { capable: true, title: 'Running', statusBarStyle: 'black-translucent' },
+  applicationName: 'Lane One',
+  appleWebApp: { capable: true, title: 'Lane One', statusBarStyle: 'black-translucent' },
   formatDetection: { telephone: false },
 };
 

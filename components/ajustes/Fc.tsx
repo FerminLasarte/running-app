@@ -14,13 +14,21 @@ import { Zones } from './Zones';
 
 export function Fc({ i }: { i: number }) {
   const { cfg } = useS();
-  const { draft, edit, bind } = useAuto(cfg, () => String(cfg.hrMax), (v) => commitCfg((c) => applyHrMax(c, v)));
+  /* sin cargar, el campo queda vacío y la provisoria se ve de fondo */
+  const { draft, edit, bind } = useAuto(cfg, () => (cfg.hrSet ? String(cfg.hrMax) : ''), (v) => commitCfg((c) => applyHrMax(c, v)));
   const err = hrMaxErr(draft, cfg.zones);
   return (
     <Panel id={AJ_PARTS.fc} title="Frecuencia cardíaca" sub="Guía los fondos y regenerativos" className="aj-set p-rise" style={cssVars({ '--i': i })} flush>
-      <Row title="FC máxima" desc="La más alta que viste en un test o una carrera. Las zonas se calculan con ella." htmlFor={AJ_HRMAX}>
+      <Row
+        title="FC máxima"
+        desc={
+          'La más alta que viste en un test o una carrera. Las zonas se calculan con ella.' +
+          (cfg.hrSet ? '' : ' Todavía no la cargaste: mientras tanto uso ' + cfg.hrMax + ' lpm, la que da la fórmula para ' + (cfg.age > 0 ? 'tu edad' : '30 años') + '.')
+        }
+        htmlFor={AJ_HRMAX}
+      >
         <span className="aj-fld" {...bind}>
-          <UnitInput id={AJ_HRMAX} unit="lpm" inputMode="numeric" className="aj-n" invalid={!!err} value={draft} onChange={(e) => edit(() => e.target.value)} />
+          <UnitInput id={AJ_HRMAX} unit="lpm" inputMode="numeric" className="aj-n" invalid={!!err} placeholder={cfg.hrSet ? undefined : String(cfg.hrMax)} value={draft} onChange={(e) => edit(() => e.target.value)} />
           <FieldErr id={AJ_HRMAX}>{err}</FieldErr>
         </span>
         {cfg.zones ? (

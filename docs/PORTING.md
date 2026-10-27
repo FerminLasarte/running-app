@@ -78,7 +78,7 @@ mismos cálculos. La interfaz se rehízo después entera con el rediseño «Pist
   de cerrar si hay cambios sin guardar).
 - `@/lib/strava/client`: `svCall(tool, input)` con las herramientas del conector del original (`list_activities`,
   `get_activity_performance`, `get_activity_streams`), `stravaErrMsg(e)` y `runActs(pl)`.
-- `@/lib/ai/client`: `aiAvailable()` y `aiJson(prompt, { images? })`. Sin `ANTHROPIC_API_KEY` devuelve `null` y la
-  interfaz esconde lo de IA.
+- `@/lib/ai/client`: `aiAvailable()`, `aiStatus()` (con las lecturas del mes y el tope) y `aiJson(prompt, { images? })`.
+  Sin `ANTHROPIC_API_KEY` devuelve `null` y la interfaz esconde lo de IA.
 - Sin señal: los paneles viajan en su propio archivo de JS (`components/panels/preloadable.tsx`) y se bajan al rato de
   arrancar; `public/sw.js` guarda las páginas para que la app instalada abra sin conexión.

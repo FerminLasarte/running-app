@@ -56,7 +56,7 @@ export function Rail({ section }: { section: SectionDef | null }) {
       <Link className="brand" href="/semana">
         <BrandMark />
         <span>
-          <b>My Running App</b>
+          <b>Lane One</b>
           <small>Registro y progreso</small>
         </span>
       </Link>

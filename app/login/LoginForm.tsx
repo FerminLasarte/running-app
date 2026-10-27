@@ -1,6 +1,7 @@
 'use client';
 /* Entrar con link mágico (por mail) o con contraseña. No hay registro abierto: la cuenta se crea con el primer link. */
 import { useState } from 'react';
+import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
 import { supabaseBrowser } from '@/lib/supabase/client';
 import { supabaseConfigured } from '@/lib/supabase/env';
@@ -46,7 +47,7 @@ export default function LoginForm() {
       <div className="brand">
         <BrandMark />
         <span>
-          <b>My Running App</b>
+          <b>Lane One</b>
           <small>Registro y progreso</small>
         </span>
       </div>
@@ -76,6 +77,9 @@ export default function LoginForm() {
       </Button>
       <p className={'login-msg' + (msg?.bad ? ' bad' : '')} role="status">
         {msg?.t}
+      </p>
+      <p className="login-hint">
+        Al entrar aceptás las <Link href="/privacidad">condiciones de uso y la política de privacidad</Link>.
       </p>
     </form>
   );

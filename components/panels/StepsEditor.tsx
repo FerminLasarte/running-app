@@ -3,7 +3,9 @@
    edita ahí mismo (Enter o «Listo» lo cierra). La lógica es la de lib/domain/planForm.ts. */
 import { useEffect, useRef, type KeyboardEvent } from 'react';
 import { ArrowDown, ArrowUp, Plus, Repeat, X } from '@phosphor-icons/react';
+import { S } from '@/lib/store';
 import { ZN, zoneRange } from '@/lib/domain/config';
+import { hrPending } from '@/lib/domain/firstRun';
 import { KINDS, stepDesc, stepTgt } from '@/lib/domain/stages';
 import type { StepKind } from '@/lib/domain/types';
 import { edAdd, edDel, edDone, edEm, edKind, edMove, edOpen, edTm, edZone, emOf, repDel, repN, tmOf, type EdFields, type EdStep, type PlanF } from '@/lib/domain/planForm';
@@ -119,6 +121,7 @@ function StepForm({ st, ed, upd, onClose }: { st: EdStep; ed: EdFields; upd: Upd
                   return { value: String(i), label: q[0], sub: r[0] + '–' + r[1] };
                 })}
               />
+              {hrPending() ? <p className="p-dr-hint">Las zonas salen de una FC máxima provisoria ({S.cfg.hrMax} lpm). Cargá la tuya en Ajustes → Frecuencia cardíaca.</p> : null}
               <div className="p-dr-g2">
                 <Field id="ed-hl" label="FC mínima">
                   <UnitInput id="ed-hl" unit="lpm" inputMode="numeric" value={ed.hl} onChange={(e) => set({ hl: e.target.value })} />

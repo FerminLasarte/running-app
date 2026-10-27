@@ -1,7 +1,7 @@
-/* Datos de ejemplo: 10 semanas con series/tempo, regenerativo y fondo, y el recorrido de cada salida (por Palermo y
-   alrededores). Nada de esto se guarda. */
-import { S } from '@/lib/store';
-import type { Plan, Route, Session, SessionType, Stage } from '@/lib/domain/types';
+/* Datos de ejemplo: 10 semanas con series/tempo, regenerativo y fondo, el recorrido de cada salida (por Palermo y
+   alrededores) y una configuración de muestra (carreras, FC máxima y edad). Nada de esto se guarda. */
+import type { Cfg, Plan, Route, Session, SessionType, Stage } from '@/lib/domain/types';
+import { normCfg } from '@/lib/domain/defaults';
 import { encodePoly, type Pt } from '@/lib/domain/geo';
 import { expand, stageTotals } from '@/lib/domain/stages';
 import { addDays, mondayOf, sod, ymd } from '@/lib/domain/util';
@@ -18,14 +18,33 @@ function seeded(seed: number) {
   };
 }
 
-export function demoSessions(): Session[] {
+/** la configuración de muestra: un 10K dentro de un mes, con su plan desde que arrancan los datos, y una media maratón
+    más adelante. Las zonas salen de la FC máxima */
+export function demoCfg(): Cfg {
+  const m0 = mondayOf(sod(new Date())),
+    at = (d: number) => ymd(addDays(m0, d));
+  return normCfg({
+    hrMax: 190,
+    weeklyGoal: 3,
+    age: 30,
+    since: at(-270),
+    planStart: '',
+    races: [
+      { id: 'demo_r10', name: '10K de Palermo', km: 10, date: at(34), time: '08:00', place: 'Palermo', targetSec: 2880, lt: true, planStart: at(-63) },
+      { id: 'demo_r21', name: 'Media maratón', km: 21.0975, date: at(160), time: '07:30', targetSec: 6300, lt: false },
+    ],
+    easy: null,
+  });
+}
+
+/** `hrm`: la FC máxima de la configuración de muestra */
+export function demoSessions(hrm: number): Session[] {
   const rnd = seeded(7);
   const out: Session[] = [],
     today = sod(new Date()),
     m0 = mondayOf(today),
     tS = ymd(today);
   let n = 0;
-  const hrm = S.cfg.hrMax;
   for (let w = -9; w <= 0; w++) {
     const p = (w + 9) / 9,
       mon = addDays(m0, w * 7),

@@ -43,6 +43,7 @@ export function applyHrMax(c: Cfg, v: string): string[] {
   if (hrMaxErr(v, c.zones)) return ['la FC máxima'];
   if (hm == null) return [];
   c.hrMax = Math.round(hm);
+  c.hrSet = true;
   if (c.zones) c.zones = zonesOf(edgesWithMax(zoneEdges(c.zones), c.hrMax)!);
   return [];
 }

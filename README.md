@@ -1,7 +1,7 @@
-# My Running App
+# Lane One
 
 Registro y progreso de entrenamientos de running: fondos guiados por frecuencia cardíaca, series y tempos por ritmo.
-Es el port a web del artifact original de claude.ai, con Next.js 16 (App Router, TypeScript), Supabase (login y base de
+El nombre sale del andarivel 1, el que se va completando en la pista de Semana. Es el port a web del artifact original de claude.ai, con Next.js 16 (App Router, TypeScript), Supabase (login y base de
 datos) y Strava (recorridos, parciales, series y deriva cardíaca). La interfaz es el rediseño «Pista»: estilo de marca
 deportiva, pensado primero para la compu y que también anda en el celu, en claro u oscuro (o como el sistema). Se
 instala como app (PWA).
@@ -15,7 +15,10 @@ instala como app (PWA).
    - `20261024000000_init.sql` crea las tablas `settings`, `sessions`, `routes` y `strava_tokens`, con RLS (cada
      usuario ve solo lo suyo), y activa el tiempo real para sesiones y ajustes;
    - `20261025000000_streams.sql` crea `streams`, donde se guardan las series de Strava de cada salida (el gráfico de
-     ritmo y FC del detalle), para no pedírselas de nuevo cada vez.
+     ritmo y FC del detalle), para no pedírselas de nuevo cada vez (y, si Strava no tiene la salida, eso también);
+   - `20261027000000_delete_account.sql` crea `delete_account()`, con la que cada uno elimina su propia cuenta desde
+     **Ajustes → Cuenta y datos**;
+   - `20261027000100_ai_usage.sql` crea `ai_usage` y sus funciones, para el tope mensual de la lectura de capturas.
 
    (Alternativa con la CLI: `supabase link --project-ref <ref>` y `supabase db push`.)
 2. **Authentication → URL Configuration**:
@@ -39,6 +42,8 @@ Variables** (Production y Preview):
 | `ALLOWED_EMAILS` | mail(s) con acceso, separados por coma (opcional pero recomendado) |
 | `STRAVA_CLIENT_ID`, `STRAVA_CLIENT_SECRET` | Strava → https://www.strava.com/settings/api |
 | `ANTHROPIC_API_KEY` | opcional: lectura de capturas con Claude (ver abajo) |
+| `AI_MONTHLY_LIMIT` | opcional: tope de lecturas de capturas por usuario por mes (30 si no está) |
+| `STRAVA_WEBHOOK_VERIFY_TOKEN`, `SUPABASE_SERVICE_ROLE_KEY` | solo al abrir la app al público (ver abajo) |
 
 ### 3. Strava
 
@@ -76,6 +81,76 @@ Planificar desde una captura del reloj y cargar parciales desde fotos usa la API
 `ANTHROPIC_API_KEY`, esas opciones no aparecen. Para activarla, el corredor crea una clave en
 https://console.anthropic.com (con su cuenta y su crédito), y se carga como variable de entorno en Vercel. Usa
 `claude-opus-5-5`; cada captura cuesta centavos.
+
+Cada usuario tiene un tope de lecturas por mes (`AI_MONTHLY_LIMIT`, 30 si no está; se renuevan el 1, a la hora de
+Argentina). Cada pedido cuenta una, traiga las capturas que traiga, y se cuenta antes de llamar a Claude. Pasado el
+tope, la app avisa y no llama. **Ajustes → Conexiones** muestra cuántas quedan. Necesita la migración
+`20261027000100_ai_usage.sql`.
+
+## Abrir la app al público
+
+Hoy la app es para un solo corredor. Lo que la envuelve para abrirla ya está hecho (la política de privacidad en
+`/privacidad`, eliminar la cuenta, desconectar Strava borrando lo que vino de ahí, el webhook de Strava, el tope de la
+lectura de capturas): falta activarlo, en este orden. Cuando se abra, nadie pasa claves: hay una sola app de Strava y
+una sola clave de IA, las del responsable (Fermín Lasarte, fermin.lasarte@icloud.com).
+
+1. **La app de Strava.** Crearla con la cuenta del responsable en https://www.strava.com/settings/api (*Website*: la
+   URL de la app; *Authorization Callback Domain*: el dominio, sin `https://`). Una app nueva solo deja conectar a la
+   cuenta que la creó: para sumar atletas hay que pedir la revisión de Strava. Antes de pedirla, leer las condiciones
+   vigentes de la API y de la marca de Strava. Suele pedir:
+   - la política de privacidad: `https://<tu-dominio>/privacidad`;
+   - capturas de la app donde se vea qué se hace con los datos;
+   - el botón «Connect with Strava» y el logo «Powered by Strava» oficiales, sin modificar. **No están en la app
+     todavía**: se bajan de la página de marca de Strava y se agregan en esta etapa (el botón de **Ajustes →
+     Conexiones**, el de la bienvenida de Semana y el logo donde se muestran datos de Strava, como el Mapa y el gráfico
+     de cada salida);
+   - mostrar a cada atleta solo sus datos y borrarlos cuando desconecta (ya está: **Desconectar** y el webhook).
+2. **Las variables y el webhook.** En Vercel: `STRAVA_CLIENT_ID` y `STRAVA_CLIENT_SECRET` de la app nueva,
+   `STRAVA_WEBHOOK_VERIFY_TOKEN` (una palabra que inventás) y `SUPABASE_SERVICE_ROLE_KEY` (Supabase → Project Settings
+   → API Keys: la secret key). Hacé el deploy y suscribí el webhook una sola vez:
+
+   ```bash
+   curl -X POST https://www.strava.com/api/v3/push_subscriptions -F client_id=<id> -F client_secret=<secret> -F callback_url=https://<tu-dominio>/api/strava/webhook -F verify_token=<la palabra>
+   ```
+
+   Strava llama a `/api/strava/webhook` para verificar y contesta con el id de la suscripción. Desde ahí, si alguien
+   revoca el acceso desde Strava, la app confirma con Strava que el permiso ya no sirve y borra sus recorridos, sus
+   series y la conexión. Al cambiar de app de Strava, quien ya la usaba tiene que volver a conectar (**Ajustes →
+   Conexiones**): sus sesiones están en Supabase, no se pierde nada.
+3. **La lectura de capturas, si se activa.** Cargar `ANTHROPIC_API_KEY` (la clave del responsable) y, si se quiere otro
+   tope que 30, `AI_MONTHLY_LIMIT`. La migración `20261027000100_ai_usage.sql` tiene que estar aplicada.
+4. **Abrir las altas.** En Supabase, **Authentication → Sign In / Providers**: prender *Allow new users to sign up*. En
+   Vercel, dejar `ALLOWED_EMAILS` vacía (y volver a hacer el deploy). Antes:
+   - pegar el texto del mail del link de entrada (abajo) en **Authentication → Email Templates**;
+   - revisar el envío de mails: el servicio que trae Supabase está pensado para pruebas y tiene un límite bajo de
+     mails por hora; para gente de afuera hace falta un SMTP propio (**Authentication → Emails → SMTP Settings**).
+     Confirmarlo en las condiciones vigentes de Supabase.
+5. **Los planes.** Revisar los planes de Supabase (base, usuarios activos, mails) y de Vercel (pedidos, funciones)
+   según la gente que se espera, y el límite de pedidos de la app de Strava, que comparten todos los atletas (se puede
+   pedir más a Strava).
+
+### El mail del link de entrada
+
+Para pegar en Supabase → **Authentication → Email Templates**. La plantilla **Magic Link** es la del link de cada vez;
+**Confirm signup**, la de la primera vez que alguien entra con su mail.
+
+**Magic Link**, asunto: `Tu link para entrar a Lane One`
+
+```html
+<h2>Entrar a Lane One</h2>
+<p>Tocá el botón para entrar. Abrilo en el mismo dispositivo y el mismo navegador donde lo pediste.</p>
+<p><a href="{{ .ConfirmationURL }}">Entrar a Lane One</a></p>
+<p>El link sirve una sola vez y vence en un rato. Si no lo pediste, ignorá este mail: sin el link nadie entra a tu cuenta.</p>
+```
+
+**Confirm signup**, asunto: `Tu link para empezar en Lane One`
+
+```html
+<h2>Te damos la bienvenida a Lane One</h2>
+<p>Tocá el botón para crear tu cuenta y entrar. Abrilo en el mismo dispositivo y el mismo navegador donde lo pediste.</p>
+<p><a href="{{ .ConfirmationURL }}">Empezar</a></p>
+<p>Si no lo pediste, ignorá este mail: sin el link no se crea ninguna cuenta.</p>
+```
 
 ## Desarrollo
 
