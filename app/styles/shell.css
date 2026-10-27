@@ -131,6 +131,11 @@
   .bnr-i.bad::before { background: var(--neg); }
   .bnr-i b { color: var(--ink-2); font-weight: 600; }
   .bnr-i .p-btn { margin-left: auto; }
+  /* probando sin cuenta: el único aviso que es tarjeta, porque es lo que sigue (crear la cuenta) */
+  .bnr-i.guest { gap: 8px 10px; padding: 8px 8px 8px 14px; background: var(--surface); border: 1px solid var(--line); border-left: 3px solid var(--acc); border-radius: var(--r-md); color: var(--ink-2); }
+  .bnr-i.guest::before { display: none; }
+  .bnr-i.guest b { color: var(--ink); }
+  .bnr-i.guest .p-btn + .p-btn { margin-left: 0; }
 
   /* mientras cargan los datos */
   .skel {
@@ -140,9 +145,10 @@
   }
   @keyframes skel-shine { to { background-position: -200% 0; } }
 
-  /* aviso flotante de abajo (con «Deshacer» a veces): entra y se va */
+  /* aviso flotante de abajo (con «Deshacer» a veces): entra y se va. Va por encima de los paneles: su botón tiene que
+     poder tocarse con un panel abierto */
   .toast {
-    position: fixed; left: 50%; bottom: calc(92px + env(safe-area-inset-bottom, 0px)); z-index: 80; transform: translateX(-50%);
+    position: fixed; left: 50%; bottom: calc(92px + env(safe-area-inset-bottom, 0px)); z-index: 95; transform: translateX(-50%);
     max-width: calc(100vw - 32px); padding: 12px 18px; border-radius: var(--r-md); box-shadow: var(--sh-pop);
     background: var(--ink); color: var(--bg); font-weight: 600; font-size: 14px; text-align: center;
     animation: toast-in .3s cubic-bezier(.2, .8, .2, 1);
@@ -179,6 +185,8 @@
     .tb-search { width: 34px; padding: 0; justify-content: center; }
     .tb-search span, .tb-search kbd { display: none; }
     .page { padding: 0 16px 110px; }
+    .bnr-i.guest { flex-wrap: wrap; padding: 10px 12px; }
+    .bnr-i.guest > span { flex: 1 1 100%; }
   }
   @media (max-width: 420px) {
     .tb-btn.pri { padding: 0 10px; }

@@ -2,6 +2,7 @@
    Pasa por /api/ai, que usa la ANTHROPIC_API_KEY del servidor. Sin clave, `aiAvailable()` devuelve null
    y la interfaz esconde todo lo de IA, igual que el original cuando no tenía `sample`. */
 
+import { S } from '@/lib/store';
 import { supabaseConfigured } from '@/lib/supabase/env';
 
 export interface AiLimits {
@@ -21,10 +22,10 @@ interface AiStatus {
   quota?: AiQuota;
 }
 
-/** el estado recién pedido (cambia con cada lectura). Sin cuenta (modo local de desarrollo) las rutas de IA no
-    atienden: ni pregunto */
+/** el estado recién pedido (cambia con cada lectura). Sin cuenta (modo local de desarrollo o probando sin cuenta) las
+    rutas de IA no atienden: ni pregunto */
 export function aiStatus(): Promise<AiStatus | null> {
-  if (!supabaseConfigured()) return Promise.resolve(null);
+  if (!supabaseConfigured() || S.mode === 'guest') return Promise.resolve(null);
   return fetch('/api/ai/status')
     .then((r) => (r.ok ? r.json() : null))
     .catch(() => null);

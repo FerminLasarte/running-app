@@ -18,9 +18,18 @@ const archivo = Archivo({ variable: '--font-archivo', subsets: ['latin'], style:
 const geist = Geist({ variable: '--font-geist', subsets: ['latin'], display: 'swap' });
 const geistMono = Geist_Mono({ variable: '--font-geist-mono', subsets: ['latin'], display: 'swap' });
 
+/* la URL de la app, para que la vista previa del link (LinkedIn, WhatsApp, X) apunte a la imagen con la dirección
+   entera: SITE_URL si está; si no, la de producción que pone Vercel; en desarrollo, la de acá */
+const SITE = process.env.SITE_URL || (process.env.VERCEL_PROJECT_PRODUCTION_URL ? 'https://' + process.env.VERCEL_PROJECT_PRODUCTION_URL : 'http://localhost:3000');
+const DESC = 'Registro y plan de running: anotás cada salida, armás la semana hacia tu próxima carrera y ves cómo venís. Probala sin cuenta.';
+
 export const metadata: Metadata = {
+  metadataBase: new URL(SITE),
   title: { default: 'Lane One', template: '%s · Lane One' },
-  description: 'Registro y progreso. Fondos guiados por frecuencia cardíaca; series y tempos, por ritmo.',
+  description: DESC,
+  /* la imagen sale de app/opengraph-image.tsx y app/twitter-image.tsx */
+  openGraph: { type: 'website', siteName: 'Lane One', locale: 'es_AR', title: 'Lane One · Corré con plan', description: DESC },
+  twitter: { card: 'summary_large_image', title: 'Lane One · Corré con plan', description: DESC },
   applicationName: 'Lane One',
   appleWebApp: { capable: true, title: 'Lane One', statusBarStyle: 'black-translucent' },
   formatDetection: { telephone: false },

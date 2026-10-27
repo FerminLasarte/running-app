@@ -190,6 +190,8 @@ export default function ResultPanel(props: ResultProps & { svLoad?: boolean }) {
   const [aiNote, setAiNote] = useState('');
   const cfg = useApp((st) => st.cfg);
   const sessions = useApp((st) => st.sessions);
+  /* con los datos de ejemplo no hay borrador */
+  const demo = useApp((st) => st.demo);
   const ai = useAi();
   const strava = useStravaStatus();
   const fRef = useRef(f);
@@ -370,7 +372,7 @@ export default function ResultPanel(props: ResultProps & { svLoad?: boolean }) {
       title={f.editing ? 'Editar resultado' : 'Registrar'}
       onSubmit={save}
       err={err && err.at === f ? err.m : null}
-      note={f.editing ? null : 'Si recargás la página, lo cargado vuelve.'}
+      note={f.editing || demo ? null : 'Si recargás la página, lo cargado vuelve.'}
       foot={<PanelActions label="Guardar y ver puntaje" onSave={save} />}
     >
       {first ? (

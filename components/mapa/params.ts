@@ -3,6 +3,7 @@
    elegida (`?salida=<id>`) y las capas (`?color=tipo`, `?zonas=no`, `?calles=no`). Las capas además se recuerdan en el
    navegador: al volver al Mapa desde la barra lateral (sin parámetros) quedan como las dejaste. */
 import { useSearchParams } from 'next/navigation';
+import { S } from '@/lib/store';
 import { useParam } from '@/components/shell/useParam';
 import { MAP_PERIODS, baRings, type MapPeriod } from '@/lib/domain/geo';
 import type { Route } from '@/lib/domain/types';
@@ -25,6 +26,8 @@ function saved(): Saved {
   }
 }
 function save(k: keyof Saved, v: string) {
+  /* quien prueba sin cuenta no guarda nada en el navegador */
+  if (S.mode === 'guest') return;
   try {
     localStorage.setItem(LS, JSON.stringify({ ...saved(), [k]: v }));
   } catch {

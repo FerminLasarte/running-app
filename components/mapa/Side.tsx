@@ -1,6 +1,7 @@
 /* La columna del Mapa: el período, los cuatro números, los km por mes, tus barrios (tocás uno y se encienden sus
-   recorridos), las capas y Strava. */
+   recorridos), las capas y Strava (probando sin cuenta, sin Strava). */
 import { ArrowsClockwise } from '@phosphor-icons/react';
+import { useApp } from '@/lib/store';
 import { MAP_PERIODS, barrioCount, cellArea, mapBarrios, mapCells, type MapPeriod } from '@/lib/domain/geo';
 import type { Route } from '@/lib/domain/types';
 import { DF_M, dShort, fmt, kmByMonth, nf, pd, plural, sum } from '@/lib/domain/util';
@@ -24,7 +25,8 @@ const H2 = ({ t, sub }: { t: string; sub?: string }) => (
 
 export function Side({ P, routes, L, msg, syncing, baseErr, onPeriod, onBarrio }: { P: ReturnType<typeof useMapParams>; routes: Route[]; L: Route[]; msg: string; syncing: boolean; baseErr: boolean; onPeriod: (p: MapPeriod) => void; onBarrio: (n: string | null) => void }) {
   const { o } = P;
-  const sv = useStravaGo();
+  const sv = useStravaGo(),
+    guest = useApp((s) => s.mode === 'guest');
   const all = o.period === 'todo',
     km = sum(L.map((r) => r.km || 0)),
     cells = L.length ? mapCells(L, o.period).m.size : 0,
@@ -108,10 +110,15 @@ export function Side({ P, routes, L, msg, syncing, baseErr, onPeriod, onBarrio }
         <Switch checked={o.base} onChange={P.setBase} label="Calles y barrios" desc="El mapa de la Ciudad de fondo" />
       </div>
 
-      <H2 t="Strava" sub={last ? 'Actualizado el ' + dShort(new Date(last)) : undefined} />
-      <Button className="mapa-sync" icon={ArrowsClockwise} disabled={syncing} onClick={sv.go}>
-        {syncing ? 'Trayendo…' : sv.connect ? 'Conectar con Strava' : 'Traer recorridos nuevos'}
-      </Button>
+      {/* probando sin cuenta no hay Strava */}
+      {guest ? null : (
+        <>
+          <H2 t="Strava" sub={last ? 'Actualizado el ' + dShort(new Date(last)) : undefined} />
+          <Button className="mapa-sync" icon={ArrowsClockwise} disabled={syncing} onClick={sv.go}>
+            {syncing ? 'Trayendo…' : sv.connect ? 'Conectar con Strava' : 'Traer recorridos nuevos'}
+          </Button>
+        </>
+      )}
       <p className="mapa-foot" role="status">
         {msg}
       </p>

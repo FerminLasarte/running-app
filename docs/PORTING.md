@@ -46,7 +46,9 @@ mismos cálculos. La interfaz se rehízo después entera con el rediseño «Pist
 
 - Páginas: `app/(app)/<sección>/page.tsx`, dentro del shell (`components/shell/AppShell.tsx`), que dibuja solo en el
   navegador. Cada pantalla vive en `components/<sección>/` (`semana`, `registro`, `analisis`, `carreras`, `mapa`,
-  `logros`, `ajustes`, `sesion`). El login está en `app/login/`.
+  `logros`, `ajustes`, `sesion`). Fuera del shell: el login (`app/login/`), la privacidad (`app/privacidad/`) y la
+  portada (`app/page.tsx` con `components/portada/`). Quien prueba sin cuenta entra al shell en modo `guest`
+  (`lib/guest.ts`).
 - Piezas del sistema: `components/pista/` (botones, campos, paneles, estado vacío, medidores, gráficos, pista, dorsal,
   pulsera…). En desarrollo se ven todas juntas en `/sistema`.
 - Paneles: `components/panels/`, registrados en `registry.tsx`; se abren con `openSheet(kind, props)`.

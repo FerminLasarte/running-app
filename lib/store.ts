@@ -31,8 +31,8 @@ export interface AppState {
   routes: Route[];
   uid: string | null;
   email: string | null;
-  /* guardado */
-  mode: 'boot' | 'cloud' | 'local';
+  /* guardado. 'guest': probando sin cuenta, con los datos de ejemplo (`demo`) y sin guardar nada en ningún lado */
+  mode: 'boot' | 'cloud' | 'local' | 'guest';
   loaded: boolean;
   /** ya se leyó lo último de la nube (o no hay nube): recién ahí se festeja, que guarda la configuración */
   fresh: boolean;

@@ -128,6 +128,8 @@ function PaletteBox() {
   const routes = useApp((s) => s.routes);
   const lastRecal = useApp((s) => (s.cfg.recals || []).slice(-1)[0]);
   const cfg = useApp((s) => s.cfg);
+  /* probando sin cuenta no se ofrece el respaldo ni las conexiones (necesitan la cuenta) */
+  const guest = useApp((s) => s.mode === 'guest');
   /* los barrios salen del mapa de la Ciudad (~530 KB): con recorridos, se baja al abrir la paleta, una sola vez */
   const baseReady = useSyncExternalStore(onBaseMap, baseMapReady, () => false);
   useEffect(() => {
@@ -150,10 +152,10 @@ function PaletteBox() {
       ...(lastRecal ? [a('a:rcu', 'Deshacer la recalibración del ' + dateLabel(lastRecal.at), ArrowCounterClockwise, undoRecal)] : []),
       a('a:lv', 'Test de nivel', ListChecks, () => openSheet('level')),
       a('a:ch', 'Nuevo desafío', Trophy, () => openSheet('challenge')),
-      a('a:x', 'Exportar respaldo', DownloadSimple, () => doExport('json')),
+      ...(guest ? [] : [a('a:x', 'Exportar respaldo', DownloadSimple, () => doExport('json'))]),
       ...SECTIONS.map((s, i): Row => ({ g: 'Ir a', key: 'n:' + s.id, t: s.label, icon: s.Icon, run: () => goSection(s), k: i < 6 ? String(i + 1) : undefined })),
     ];
-  }, [strava, lastRecal]);
+  }, [strava, lastRecal, guest]);
   /* sesiones y carreras: el índice se arma de nuevo si cambian */
   const index = useMemo(() => {
     const ix = palIndex(briefOf);
@@ -212,13 +214,14 @@ function PaletteBox() {
   const list = useMemo<Row[]>(() => {
     const q0 = q.trim();
     if (!q0) return [...fixed, ...index.sessions.filter((x) => x.done).slice(0, 3).map((x) => ({ ...x, g: 'Recientes' }))];
-    const found = palSearch([...fixed, ...AJ_ACTS, ...AN_ROWS, ...index.carreras, ...LO_ROWS, ...AJ_ROWS, ...logros, ...barrios, ...index.sessions, ...index.races, ...index.registro], q);
+    const aj = guest ? { acts: AJ_ACTS.filter((r) => r.key !== 'a:im'), rows: AJ_ROWS.filter((r) => r.key !== AJ_PARTS.con) } : { acts: AJ_ACTS, rows: AJ_ROWS };
+    const found = palSearch([...fixed, ...aj.acts, ...AN_ROWS, ...index.carreras, ...LO_ROWS, ...aj.rows, ...logros, ...barrios, ...index.sessions, ...index.races, ...index.registro], q);
     /* la paleta muestra pocas sesiones: al final, todas las que encuentra el Registro con lo mismo */
     const n = lgRows({ ...LG_INIT, q: q0, st: 'all' }).length;
     if (!n) return found;
     return [...found, { g: 'Registro', key: 'reg:q', t: 'Buscar «' + q0 + '» en el Registro', sub: n + (n === 1 ? ' sesión' : ' sesiones'), icon: MagnifyingGlass, run: () => navigate(registroHref({ q: q0 })) }];
     /* lgRows lee las sesiones del estado: cuando cambian, cambia `index` y se vuelve a buscar */
-  }, [q, fixed, index, logros, barrios]);
+  }, [q, fixed, index, logros, barrios, guest]);
   const cur = Math.min(act, Math.max(0, list.length - 1));
 
   useEffect(() => {

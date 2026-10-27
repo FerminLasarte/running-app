@@ -80,6 +80,8 @@ function NoMatch({ set }: { set: (patch: Partial<RegFilters>) => void }) {
 export default function Registro() {
   const sessions = useApp((s) => s.sessions);
   const strava = useStravaStatus();
+  /* probando sin cuenta no se ofrece exportar */
+  const guest = useApp((s) => s.mode === 'guest');
   const [f, set] = useRegFilters();
 
   /* todo menos el tipo: de acá salen la cantidad de cada tipo y, filtrando el tipo, las filas */
@@ -111,9 +113,11 @@ export default function Registro() {
         title="Registro"
         actions={
           <>
-            <Button icon={DownloadSimple} title="Exportar lo que estás viendo" onClick={() => doExport('csv', { text: lgCsv(rows), name: 'registro-' + todayS() + '.csv' })}>
-              Exportar CSV
-            </Button>
+            {guest ? null : (
+              <Button icon={DownloadSimple} title="Exportar lo que estás viendo" onClick={() => doExport('csv', { text: lgCsv(rows), name: 'registro-' + todayS() + '.csv' })}>
+                Exportar CSV
+              </Button>
+            )}
             {strava?.connected ? (
               <Button icon={ArrowsClockwise} onClick={() => openSheet('result', { id: null, svLoad: true })}>
                 Traer de Strava
