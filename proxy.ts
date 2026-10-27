@@ -1,9 +1,11 @@
-/* Renueva la sesión de Supabase en cada pedido y manda al login a quien no entró. La portada (`/`) es pública; con
-   sesión, lleva a la semana. Quien prueba sin cuenta (cookie de invitado) pasa a las páginas de la app, no a /api. */
+/* Renueva la sesión de Supabase en cada pedido y manda al login a quien no entró y pide una página de la app
+   (APP_PATHS); una dirección que no existe llega al 404. La portada (`/`) es pública; con sesión, lleva a la semana.
+   Quien prueba sin cuenta (cookie de invitado) pasa a las páginas de la app, no a /api. */
 import { NextResponse, type NextRequest } from 'next/server';
 import { createServerClient } from '@supabase/ssr';
 import { SUPABASE_KEY, SUPABASE_URL, isAllowed, supabaseConfigured } from '@/lib/supabase/env';
 import { GUEST_COOKIE } from '@/lib/guest';
+import { isAppPath } from '@/lib/routes';
 
 const PUBLIC = ['/', '/login', '/manifest.webmanifest', '/pwa-icon', '/sw.js'];
 
@@ -33,7 +35,7 @@ export async function proxy(request: NextRequest) {
     return NextResponse.redirect(url);
   };
 
-  if (!data?.claims && !isPublic && !path.startsWith('/api/') && !guest) return to('/login');
+  if (!data?.claims && isAppPath(path) && !guest) return to('/login');
   const allowed = !!data?.claims && isAllowed(data.claims.email as string | undefined);
   if (data?.claims && !allowed && !isPublic) {
     return path.startsWith('/api/') ? NextResponse.json({ code: 'unauthorized' }, { status: 401 }) : to('/login', '?e=denied');

@@ -1,0 +1,297 @@
+<!doctype html>
+<html lang="es-AR" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Pista · boceto de los easter eggs</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:ital,wdth,wght@0,62..125,400..900;1,62..125,400..900&family=Geist:wght@400..700&family=Geist+Mono:wght@400..600&display=swap" rel="stylesheet">
+<script src="https://unpkg.com/@phosphor-icons/web@2.1.1"></script>
+<style>
+/* ============================================================
+   Boceto de la tanda 3 (docs/LOGROS-PLAN.md): dos easter eggs.
+   #404: «Te saliste del andarivel.», la página para una dirección que no existe (fuera del shell, como el login).
+   #kipchoge: escribir «kipchoge» en ⌘K lleva a Semana y un grupo de luces da la vuelta a la pista al ritmo del
+   1:59:40. ?tema=claro u ?tema=oscuro; en #404, ?sesion=no muestra el botón de quien no entró.
+   ============================================================ */
+:root {
+  --bg: #F2F1ED; --surface: #FFFFFF; --sunk: #EAE9E4; --line: #E0DED7; --line-2: #CFCCC3;
+  --ink: #141414; --ink-2: #4A4843; --ink-3: #6C6963; --ink-4: #B0ADA5;
+  --acc: #DC4520; --acc-ink: #FFFFFF; --track: #EBD3C8;
+  --hero: #151515; --hero-ink: #F2F1ED; --hero-mut: rgb(242 241 237 / .55); --hero-line: rgb(242 241 237 / .12);
+  --pos: #23804F;
+  --r-sm: 3px; --r-md: 4px; --r-lg: 6px;
+  --sh-pop: 0 1px 2px rgb(20 20 20 / .06), 0 14px 34px -12px rgb(20 20 20 / .22);
+  --f-ui: "Geist", ui-sans-serif, system-ui, sans-serif;
+  --f-disp: "Archivo", "Geist", ui-sans-serif, sans-serif;
+  --f-mono: "Geist Mono", ui-monospace, "SF Mono", monospace;
+  --ease: cubic-bezier(.2, 0, 0, 1);
+  /* el tartán de la pista grande del 404, y la luz de los marcadores de ritmo (el láser verde de Viena) */
+  --tartan: #C9472A; --tartan-2: #B53E23; --laser: #2BD46A;
+  color-scheme: light;
+}
+[data-theme="dark"] {
+  --bg: #0E0E0F; --surface: #171718; --sunk: #131314; --line: #262628; --line-2: #343437;
+  --ink: #F0EEE9; --ink-2: #B9B6AE; --ink-3: #85827B; --ink-4: #5B5955;
+  --acc: #F2552F; --track: #2E1E18; --hero: #1A1A1B; --pos: #5CBB86;
+  --sh-pop: 0 1px 2px rgb(0 0 0 / .3), 0 16px 40px -12px rgb(0 0 0 / .6);
+  --tartan: #A93B22; --tartan-2: #93321C; --laser: #3BE67B;
+  color-scheme: dark;
+}
+*, *::before, *::after { box-sizing: border-box; }
+body { margin: 0; background: var(--bg); color: var(--ink); font: 400 14px/1.5 var(--f-ui); -webkit-font-smoothing: antialiased; }
+button { font: inherit; color: inherit; background: none; border: 0; padding: 0; cursor: pointer; }
+a { color: inherit; text-decoration: none; }
+:focus-visible { outline: 2px solid var(--acc); outline-offset: 2px; }
+.disp { font-family: var(--f-disp); font-stretch: 70%; font-weight: 800; letter-spacing: -.012em; line-height: .92; font-variant-numeric: tabular-nums; }
+.brand-t { font-family: var(--f-disp); font-stretch: 62%; font-weight: 900; font-style: italic; text-transform: uppercase; letter-spacing: -.008em; line-height: .86; margin: 0; }
+.brand-t em { font-style: inherit; color: var(--acc); }
+.lbl { font: 600 10.5px/1.2 var(--f-ui); letter-spacing: .1em; text-transform: uppercase; color: var(--ink-3); }
+.btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; height: 42px; padding: 0 20px; border-radius: var(--r-sm); font: 600 11.5px/1 var(--f-ui); letter-spacing: .07em; text-transform: uppercase; white-space: nowrap; border: 1px solid var(--line-2); background: var(--surface); color: var(--ink); }
+.btn i { font-size: 15px; }
+.btn .ar { transition: transform .2s var(--ease); }
+.btn:hover .ar { transform: translateX(3px); }
+.btn.pri { background: var(--ink); border-color: var(--ink); color: var(--bg); }
+.btn.ghost { border-color: transparent; background: transparent; color: var(--ink-2); }
+.screen { display: none; }
+.screen.on { display: block; }
+.note { max-width: 70ch; margin: 0 auto; padding: 0 24px 40px; color: var(--ink-3); font-size: 12.5px; }
+
+/* ============================================================ 404 */
+.nf { min-height: 100dvh; display: grid; grid-template-rows: auto 1fr auto; }
+.nf-top { display: flex; align-items: center; gap: 10px; padding: 22px 32px; }
+.nf-top svg { width: 30px; height: 30px; }
+.nf-top b { font: italic 900 17px/1 var(--f-disp); font-stretch: 66%; text-transform: uppercase; }
+.nf-mid { display: grid; align-content: center; gap: 36px; padding: 0 0 40px; }
+/* la pista vista desde arriba: seis andariveles con su número en la salida; el corredor del 4 se va para arriba */
+.nf-track { position: relative; width: 100%; overflow: hidden; }
+.nf-track svg { display: block; width: 100%; height: auto; }
+.nf-track .lane { stroke: #fff; stroke-width: 2.4; opacity: .9; }
+.nf-track .num { font: italic 900 32px/1 var(--f-disp); font-stretch: 62%; fill: #fff; opacity: .92; }
+.nf-track .n404 { font: italic 900 150px/1 var(--f-disp); font-stretch: 62%; fill: #fff; opacity: .16; letter-spacing: -.02em; }
+.nf-track .trail { fill: none; stroke: #fff; stroke-width: 3; stroke-linecap: round; stroke-dasharray: 2 10; }
+.nf-track .trail-on { fill: none; stroke: var(--ink); stroke-width: 3.2; stroke-linecap: round; stroke-dasharray: 2 10; }
+.nf-track .runner { fill: var(--ink); stroke: #fff; stroke-width: 3; }
+.nf-track .ghost { fill: #fff; opacity: .55; }
+/* el corredor sale del andarivel al llegar */
+.nf-track .draw { stroke-dasharray: 1200; stroke-dashoffset: 1200; animation: nf-draw 2.2s var(--ease) .3s forwards; }
+@keyframes nf-draw { to { stroke-dashoffset: 0; } }
+.nf-track .run { offset-path: path("M 40 266 C 420 266 660 266 820 226 S 1060 90 1170 -14"); offset-rotate: 0deg; offset-distance: 0%; animation: nf-run 2.2s var(--ease) .3s forwards; }
+@keyframes nf-run { to { offset-distance: 100%; } }
+.nf-txt { display: grid; justify-items: start; gap: 18px; width: min(1180px, 100%); margin: 0 auto; padding: 0 32px; }
+.nf-txt h1 { font-size: 104px; }
+.nf-txt p { margin: 0; max-width: 52ch; color: var(--ink-2); font-size: 16px; }
+.nf-txt p b { color: var(--ink); font-weight: 600; }
+.nf-acts { display: flex; flex-wrap: wrap; gap: 10px; }
+.nf-foot { padding: 18px 32px; display: flex; justify-content: space-between; gap: 12px; font: 500 11.5px/1 var(--f-mono); color: var(--ink-3); border-top: 1px solid var(--line); }
+
+/* ============================================================ kipchoge: la semana con la pista */
+.kp { max-width: 1260px; margin: 0 auto; padding: 32px 40px 80px; }
+.kp-bar { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; margin-bottom: 20px; }
+.kp-bar kbd { font: 500 12px/1 var(--f-mono); border: 1px solid var(--line-2); border-bottom-width: 2px; border-radius: 3px; padding: 4px 7px; background: var(--surface); color: var(--ink-2); }
+.panel { background: var(--surface); border: 1px solid var(--line); border-radius: var(--r-lg); }
+.panel-h { display: flex; align-items: center; gap: 12px; min-height: 52px; padding: 0 20px; border-bottom: 1px solid var(--line); }
+.panel-h h2 { margin: 0; font: 800 17px/1 var(--f-disp); font-stretch: 72%; text-transform: uppercase; letter-spacing: .015em; }
+.panel-h .sub { font-size: 12px; color: var(--ink-3); }
+.wk { display: grid; grid-template-columns: 330px 1fr; }
+.wk-sum { padding: 22px 24px; border-right: 1px solid var(--line); }
+.wk-days { display: grid; grid-template-columns: repeat(7, 1fr); }
+.wk-days > div { padding: 14px 12px; border-right: 1px solid var(--line); min-height: 210px; }
+.wk-days > div:last-child { border-right: 0; }
+.wk-days b { display: block; font: 600 10.5px/1 var(--f-ui); letter-spacing: .1em; text-transform: uppercase; color: var(--ink-3); }
+.wk-days i.s { display: block; height: 28px; margin-top: 12px; border-radius: 2px; background: var(--sunk); }
+.oval { position: relative; }
+.oval svg { width: 100%; height: auto; display: block; overflow: visible; }
+.oval-c { position: absolute; inset: 0; display: grid; place-items: center; text-align: center; pointer-events: none; }
+.oval-c .disp { font-size: 30px; font-style: italic; }
+.oval-c small { display: block; font-size: 11px; color: var(--ink-3); margin-top: 2px; }
+/* mientras corren las luces, en el medio va el reloj de la vuelta */
+.oval-c .kc { display: none; }
+.oval.kip .oval-c .wk-n { display: none; }
+.oval.kip .oval-c .kc { display: block; }
+.kc .disp { font-size: 34px; color: var(--ink); }
+.kc small { color: var(--ink-3); }
+.kc small b { color: var(--laser); font-weight: 600; }
+/* las luces: un grupo que corre por el andarivel 1, con su estela */
+.lights { opacity: 0; transition: opacity .4s var(--ease); }
+.oval.kip .lights { opacity: 1; }
+.lights circle { fill: var(--laser); filter: drop-shadow(0 0 3px var(--laser)); }
+.toast { position: fixed; left: 50%; bottom: 28px; z-index: 50; transform: translate(-50%, 20px); opacity: 0; pointer-events: none; display: flex; align-items: center; gap: 12px; padding: 12px 16px; border-radius: var(--r-md); background: var(--hero); color: var(--hero-ink); box-shadow: var(--sh-pop); transition: opacity .3s var(--ease), transform .3s var(--ease); }
+.toast.on { opacity: 1; transform: translate(-50%, 0); }
+.toast .disp { font-size: 24px; font-style: italic; }
+.toast small { color: var(--hero-mut); font-size: 12.5px; }
+.toast i.sq { width: 9px; height: 16px; background: var(--laser); transform: skewX(-14deg); }
+.speed { margin-left: auto; display: inline-flex; gap: 2px; padding: 3px; background: var(--sunk); border-radius: var(--r-md); }
+.speed button { height: 28px; padding: 0 10px; border-radius: var(--r-sm); font: 600 11px/1 var(--f-ui); letter-spacing: .07em; text-transform: uppercase; color: var(--ink-3); }
+.speed button[aria-pressed="true"] { background: var(--surface); color: var(--ink); box-shadow: 0 0 0 1px var(--line); }
+
+@media (max-width: 900px) {
+  .nf-top { padding: 16px; }
+  .nf-mid { gap: 26px; }
+  .nf-txt { padding: 0 16px; gap: 14px; }
+  .nf-txt h1 { font-size: 56px; }
+  .nf-txt p { font-size: 14px; }
+  .nf-acts { width: 100%; }
+  .nf-acts .btn { flex: 1; }
+  .nf-foot { padding: 14px 16px; }
+  .nf-track svg { height: 260px; }
+  .kp { padding: 20px 16px 110px; }
+  .wk { grid-template-columns: 1fr; }
+  .wk-sum { border-right: 0; border-bottom: 1px solid var(--line); }
+  .wk-days { grid-template-columns: repeat(7, 132px); overflow-x: auto; }
+  .speed { margin-left: 0; }
+}
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation: none !important; transition: none !important; }
+  .nf-track .draw { stroke-dashoffset: 0; }
+}
+</style>
+</head>
+<body>
+
+<!-- ================= 404 ================= -->
+<section class="screen" id="s-404">
+  <main class="nf">
+    <a class="nf-top" href="#404" aria-label="Lane One">
+      <svg viewBox="0 0 32 32" aria-hidden="true"><rect x="1" y="1" width="30" height="30" rx="4" fill="var(--acc)"/><rect x="5.5" y="10" width="21" height="12" rx="6" fill="none" stroke="#fff" stroke-width="2.4"/><rect x="9.4" y="13.6" width="13.2" height="4.8" rx="2.4" fill="none" stroke="#fff" stroke-width="1" opacity=".55"/><rect x="11.4" y="7.4" width="1.8" height="6" fill="#141414"/></svg>
+      <b>Lane One</b>
+    </a>
+    <div class="nf-mid">
+      <div class="nf-track" aria-hidden="true">
+        <!-- seis andariveles de 72 de alto; el corredor arranca en el 4 y se va por arriba -->
+        <svg viewBox="0 0 1200 288" preserveAspectRatio="xMinYMid slice">
+          <defs>
+            <!-- la estela se descubre a medida que pasa el corredor -->
+            <mask id="reveal" maskUnits="userSpaceOnUse" x="0" y="-40" width="1200" height="340"><path class="draw" d="M 132 166 C 230 166 280 160 320 124 S 374 34 396 2" fill="none" stroke="#fff" stroke-width="12" pathLength="100"/></mask>
+          </defs>
+          <rect width="1200" height="288" fill="var(--tartan)"/>
+          <rect width="1200" height="12" fill="var(--tartan-2)"/>
+          <rect y="276" width="1200" height="12" fill="var(--tartan-2)"/>
+          <g class="lanes"></g>
+          <text class="n404" x="600" y="214">404</text>
+          <path class="trail" d="M 132 166 C 230 166 280 160 320 124 S 374 34 396 2" mask="url(#reveal)"/>
+          <circle class="runner" r="9" cx="0" cy="0" id="runner"><animateMotion id="rm" dur="2.2s" begin="0.3s" fill="freeze" path="M 132 166 C 230 166 280 160 320 124 S 374 34 396 2" keySplines=".2 0 0 1" keyTimes="0;1" calcMode="spline"/></circle>
+        </svg>
+      </div>
+      <div class="nf-txt">
+        <div class="lbl">Error 404 · esta página no existe</div>
+        <h1 class="brand-t">Te saliste del<br>andarivel<em>.</em></h1>
+        <p id="nf-p"></p>
+        <div class="nf-acts" id="nf-acts"></div>
+      </div>
+    </div>
+    <div class="nf-foot"><span id="nf-path">lane-one.app/semna</span><span>Andarivel 4 · descalificado</span></div>
+  </main>
+  <p class="note">Boceto: el corredor del andarivel 4 sigue derecho, se abre y se va de la pista; la línea punteada es su camino. «404» va pintado en el tartán, como los números de la salida. Con sesión, «Volver a tu semana»; sin sesión, «Ir a la portada». Con «reducir movimiento», el corredor ya está afuera. Abajo, la dirección que se escribió.</p>
+</section>
+
+<!-- ================= kipchoge ================= -->
+<section class="screen" id="s-kipchoge">
+  <div class="kp">
+    <div class="kp-bar">
+      <span class="lbl">Escribí en ⌘K</span><kbd>kipchoge</kbd>
+      <button class="btn pri" type="button" id="go" style="height:34px"><i class="ph-bold ph-play"></i>Probar</button>
+      <div class="speed" role="group" aria-label="Velocidad del boceto">
+        <button type="button" data-k="1" aria-pressed="true">Ritmo real · 1:08 la vuelta</button>
+        <button type="button" data-k="8" aria-pressed="false">Rápido, para ver</button>
+      </div>
+    </div>
+    <article class="panel">
+      <div class="panel-h"><h2>La semana</h2><span class="sub">Semana 44 · 26 oct – 1 nov</span></div>
+      <div class="wk">
+        <div class="wk-sum">
+          <div class="oval" id="oval">
+            <svg viewBox="0 0 200 116" role="img" aria-label="31 de 40 km">
+              <defs><pattern id="chk" width="4" height="4" patternUnits="userSpaceOnUse"><rect width="4" height="4" fill="#fff"/><rect width="2" height="2" fill="#141414"/><rect x="2" y="2" width="2" height="2" fill="#141414"/></pattern></defs>
+              <rect x="2" y="2" width="196" height="112" rx="56" fill="var(--track)"/>
+              <rect x="8.5" y="8.5" width="183" height="99" rx="49.5" fill="none" stroke="var(--surface)" stroke-width=".7" opacity=".9"/>
+              <rect x="15" y="15" width="170" height="86" rx="43" fill="none" stroke="var(--surface)" stroke-width=".7" opacity=".9"/>
+              <rect x="21.5" y="21.5" width="157" height="73" rx="36.5" fill="none" stroke="var(--surface)" stroke-width=".7" opacity=".9"/>
+              <rect x="28" y="28" width="144" height="60" rx="30" fill="var(--surface)"/>
+              <rect x="56" y="2" width="4" height="26" fill="url(#chk)"/>
+              <rect x="24.75" y="24.75" width="150.5" height="66.5" rx="33.25" fill="none" stroke="var(--acc)" stroke-width="3.2" stroke-linecap="round" pathLength="100" stroke-dasharray="77 100" transform="translate(200 0) scale(-1 1)"/>
+              <circle cx="175" cy="60" r="4.2" fill="var(--surface)" stroke="var(--acc)" stroke-width="2.4"/>
+              <!-- las luces: el andarivel 1 en sentido antihorario, desde la llegada -->
+              <g class="lights" id="lights"></g>
+            </svg>
+            <div class="oval-c" aria-hidden="true">
+              <div class="wk-n"><span class="disp">31</span><small>de 40 km</small></div>
+              <div class="kc"><span class="disp" id="kc">0:00,0</span><small><b>2:50/km</b> · 400 m</small></div>
+            </div>
+          </div>
+        </div>
+        <div class="wk-days">
+          <div><b>Lun 26</b><i class="s"></i></div><div><b>Mar 27</b><i class="s"></i></div><div><b>Mié 28</b><i class="s"></i></div><div><b>Jue 29</b><i class="s"></i></div><div><b>Vie 30</b><i class="s"></i></div><div><b>Sáb 31</b><i class="s"></i></div><div><b>Dom 1</b><i class="s"></i></div>
+        </div>
+      </div>
+    </article>
+    <p class="note" style="padding:20px 0 0;margin:0">Boceto: al escribir «kipchoge» en ⌘K la paleta se cierra, vas a Semana y siete luces verdes (el láser que marcaba el ritmo en Viena) dan una vuelta a la pista como si fuera de 400 m: a 2:50/km tardan 1:08. En el medio, el reloj de la vuelta. Al terminar, el aviso «1:59:40 · Viena, 2019» y la pista vuelve a tu semana. Con «reducir movimiento», solo el aviso.</p>
+  </div>
+</section>
+
+<div class="toast" id="toast" role="status"><i class="sq" aria-hidden="true"></i><span class="disp">1:59:40</span><small>Viena, 2019 · el primer maratón en menos de dos horas</small></div>
+
+<script>
+const $ = (s) => document.querySelector(s);
+const SES = !/[?&]sesion=no/.test(location.search);
+/* ---- 404 ---- */
+const lanes = $('#s-404 .lanes');
+for (let k = 0; k <= 6; k++) lanes.insertAdjacentHTML('beforeend', `<line class="lane" x1="0" x2="1200" y1="${12 + k * 44}" y2="${12 + k * 44}"/>`);
+for (let k = 1; k <= 6; k++) lanes.insertAdjacentHTML('beforeend', `<text class="num" x="92" y="${12 + (k - 1) * 44 + 33}">${k}</text>`);
+/* con «reducir movimiento» (o ?quieto, para las capturas) el corredor ya está afuera */
+if (matchMedia('(prefers-reduced-motion: reduce)').matches || /[?&]quieto/.test(location.search)) { $('#rm').remove(); $('#runner').setAttribute('transform', 'translate(396 2)'); $('#reveal path').style.cssText = 'animation:none;stroke-dashoffset:0'; }
+$('#nf-p').innerHTML = SES ? 'La dirección que buscás no existe: capaz se escribió mal o la página se mudó. <b>Tu semana sigue donde la dejaste.</b>' : 'La dirección que buscás no existe: capaz se escribió mal o la página se mudó.';
+$('#nf-acts').innerHTML = SES
+  ? '<a class="btn pri" href="#kipchoge">Volver a tu semana<i class="ph ph-arrow-right ar"></i></a><a class="btn ghost" href="#404"><i class="ph ph-magnifying-glass"></i>Buscar con ⌘K</a>'
+  : '<a class="btn pri" href="#404">Ir a la portada<i class="ph ph-arrow-right ar"></i></a><a class="btn ghost" href="#404">Entrar</a>';
+
+/* ---- kipchoge ---- */
+/* andarivel 1 en sentido antihorario desde la llegada (x 58, arriba) */
+const LANE = 'M58 24.75 A33.25 33.25 0 0 0 58 91.25 L141.97 91.25 A33.25 33.25 0 0 0 141.97 24.75 Z';
+let K = 1, timer = null, t0 = 0;
+const LAP = 68; // 400 m a 2:50/km
+function lights(dur) {
+  $('#lights').innerHTML = Array.from({ length: 7 }, (_, i) => `<circle r="${i ? 3 : 3.6}" opacity="${1 - i * 0.11}"><animateMotion dur="${dur}s" begin="indefinite" fill="freeze" path="${LANE}" keyPoints="0;1" keyTimes="0;1" calcMode="linear" id="m${i}"/></circle>`).join('');
+}
+const fmtT = (s) => Math.floor(s / 60) + ':' + String(Math.floor(s % 60)).padStart(2, '0') + ',' + Math.floor((s * 10) % 10);
+function run() {
+  const dur = LAP / K, ov = $('#oval');
+  if (matchMedia('(prefers-reduced-motion: reduce)').matches) return done();
+  lights(dur);
+  ov.classList.add('kip');
+  $('#toast').classList.remove('on');
+  /* cada luz arranca un poquito después de la anterior: el grupo con su estela */
+  [...document.querySelectorAll('#lights animateMotion')].forEach((m, i) => setTimeout(() => m.beginElement(), (i * 220) / K));
+  t0 = performance.now();
+  clearInterval(timer);
+  timer = setInterval(() => {
+    const s = Math.min(LAP, ((performance.now() - t0) / 1000) * K);
+    $('#kc').textContent = fmtT(s);
+    if (s >= LAP) { clearInterval(timer); setTimeout(done, 300); }
+  }, 50);
+}
+function done() {
+  $('#oval').classList.remove('kip');
+  $('#toast').classList.add('on');
+  setTimeout(() => $('#toast').classList.remove('on'), 6000);
+}
+$('#go').addEventListener('click', run);
+document.querySelectorAll('.speed button').forEach((b) => b.addEventListener('click', () => {
+  K = +b.dataset.k;
+  document.querySelectorAll('.speed button').forEach((x) => x.setAttribute('aria-pressed', String(x === b)));
+}));
+
+/* ---- navegación y tema ---- */
+function go() {
+  const v = location.hash.slice(1) === 'kipchoge' ? 'kipchoge' : '404';
+  document.querySelectorAll('.screen').forEach((s) => s.classList.toggle('on', s.id === 's-' + v));
+  if (v === 'kipchoge' && /[?&]auto/.test(location.search)) setTimeout(run, 400);
+}
+addEventListener('hashchange', go);
+const TEMA = (location.search.match(/[?&]tema=(claro|oscuro)/) || [])[1];
+if (TEMA ? TEMA === 'oscuro' : matchMedia('(prefers-color-scheme: dark)').matches) document.documentElement.dataset.theme = 'dark';
+go();
+</script>
+</body>
+</html>
