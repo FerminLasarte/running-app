@@ -1,6 +1,7 @@
 /* Las series de Strava de una salida, resumidas para el detalle de sesión: ritmo, FC, altura y recorrido a lo largo de
-   la distancia. `Series` es lo que se guarda en la tabla `streams` (lib/data/streams.ts la llena). */
-import type { StreamsPayload } from '@/lib/strava/client';
+   la distancia, y las vueltas del reloj. `Series` es lo que se guarda en la tabla `streams` (lib/data/streams.ts la
+   llena). */
+import type { PerformancePayload, StreamsPayload } from '@/lib/strava/client';
 import type { Session, Step, StepKind } from './types';
 import { zoneIdx } from './config';
 import { expand } from './stages';
@@ -21,6 +22,8 @@ export interface Series {
   /** desnivel positivo y negativo, en metros */
   up: number | null;
   down: number | null;
+  /** las vueltas del reloj (get_activity_performance); [] si no trajo, sin el campo si todavía no se pidieron */
+  laps?: Split[];
 }
 
 /* unos 600 puntos alcanzan para el ancho del gráfico; nunca tramitos de menos de 10 m */
@@ -125,6 +128,21 @@ export function kmSplits(se: Series): Split[] {
     out.push({ km: (b - a) / 1000, sec: Math.round(timeAt(se, b) - timeAt(se, a)), hr: hs.length ? Math.round(sum(hs) / hs.length) : 0 });
   }
   return out;
+}
+
+/** las vueltas del reloj; se dejan afuera las de menos de 50 m (las pausas paradas) */
+export const watchLaps = (pf: PerformancePayload | null): Split[] =>
+  ((pf && pf.laps) || [])
+    .map((l) => ({ km: (l.distance || 0) / 1000, sec: Math.round(l.moving_time || l.elapsed_time || 0), hr: l.avg_hr! > 0 ? Math.round(l.avg_hr!) : 0 }))
+    .filter((l) => l.km > 0.05 && l.sec > 0);
+
+/** las vueltas que marcó el corredor; null si el reloj no marcó (una sola, o todas iguales: las automáticas de 1 km o
+    de 1 milla), y entonces van los parciales por km */
+export function markedLaps(se: Series): Split[] | null {
+  const L = se.laps;
+  if (!L || L.length < 2) return null;
+  const k = L[0].km;
+  return L.slice(0, -1).every((l) => Math.abs(l.km - k) <= k * 0.03) && L[L.length - 1].km <= k * 1.03 ? null : L;
 }
 
 /** primera mitad contra segunda, si casi todos los parciales son de 1 km (lo que era «Vuelta por vuelta») */

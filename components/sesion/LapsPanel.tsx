@@ -1,7 +1,8 @@
 'use client';
 /* Los tramos de la sesión. Hecha con etapas: plan contra real, tramo por tramo (con los parciales de cada uno). Hecha
-   sin etapas: kilómetro a kilómetro con las series de Strava o, si no hay, el plan contra lo hecho en total. Por
-   hacer: el plan. En series y tempos, cómo se repartió el ritmo de las repeticiones. */
+   sin etapas: las vueltas del reloj o, si no marcó, kilómetro a kilómetro con las series de Strava; si no hay
+   series, el plan contra lo hecho en total. Por hacer: el plan. En series y tempos, cómo se repartió el ritmo de las
+   repeticiones. */
 import type { ReactNode } from 'react';
 import type { Lap, Session, Stage, Step, StepKind } from '@/lib/domain/types';
 import type { DoneSession } from '@/lib/domain/stats';
@@ -9,9 +10,9 @@ import { zoneOf } from '@/lib/domain/config';
 import { judge, type Judge } from '@/lib/domain/score';
 import { KINDS, expand, isRep, stepDesc, stepTgt } from '@/lib/domain/stages';
 import { repData, repRead } from '@/lib/domain/reps';
-import { halfSplit, kmSplits, type Series } from '@/lib/domain/streams';
+import { halfSplit, kmSplits, markedLaps, type Series, type Split } from '@/lib/domain/streams';
 import { fmt, fmtDur, fmtPace } from '@/lib/domain/util';
-import { Delta } from '@/components/pista/controls';
+import { deltaTxt } from '@/components/pista/controls';
 import { Panel, Table, type Col, type Group } from '@/components/pista/structure';
 import { cssVars, cx, typeColor } from '@/components/pista/util';
 
@@ -25,10 +26,13 @@ const Name = ({ c, main, children }: { c: string; main?: boolean; children: Reac
   </span>
 );
 
-/** contra el objetivo: el ritmo en tiempo (más rápido, mejor); si solo hay FC, en latidos */
-function deltaOf(j: Judge) {
-  if (j.pd != null) return <Delta sec={j.pd} />;
-  if (j.hd != null) return <span className={cx('p-delta', j.hd === 0 ? 'eq' : j.hd > 0 ? 'bad' : 'good')}>{(j.hd > 0 ? '+' : j.hd < 0 ? '−' : '±') + Math.abs(j.hd)} lpm</span>;
+/** contra el objetivo: el ritmo en tiempo; si solo hay FC, en latidos. Dentro del rango da cero, y afuera el puntaje
+    resta para los dos lados (`judge`, `testScore`): no hay Δ «bueno». En modo suave, ir más lento o con la FC más baja
+    no resta: queda en gris */
+function deltaOf(j: Judge, easy: boolean) {
+  const off = (d: number, ok: boolean, txt: string) => <span className={cx('p-delta', Math.round(d) === 0 || ok ? 'eq' : 'bad')}>{txt}</span>;
+  if (j.pd != null) return off(j.pd, easy && j.pd > 0, deltaTxt(j.pd));
+  if (j.hd != null) return off(j.hd, easy && j.hd < 0, (j.hd > 0 ? '+' : j.hd < 0 ? '−' : '±') + Math.abs(j.hd) + ' lpm');
   return DASH;
 }
 
@@ -74,26 +78,41 @@ function stageRows(s: DoneSession): StageRow[] {
   return out;
 }
 const pace = (a: Lap) => (a.paceSec! > 0 ? a.paceSec! : a.distKm! > 0 && a.timeSec! > 0 ? a.timeSec! / a.distKm! : 0);
-const STAGE_COLS: Col<StageRow>[] = [
+/** dos datos en una celda: el principal y, abajo, el chico (el objetivo del tramo, la FC máxima), que en el celu no va */
+const Two = ({ a, b }: { a: ReactNode; b?: ReactNode }) => (
+  <span className="ses-two">
+    {a}
+    {b ? <small className="s">{b}</small> : null}
+  </span>
+);
+const STAGE_COLS = (easy: boolean): Col<StageRow>[] => [
   { key: 'n', label: 'Tramo', cell: (r) => r.name },
   { key: 'd', label: 'Dist.', num: true, cell: (r) => (r.skipped || !r.a.distKm ? DASH : fmt(r.a.distKm, 2)) },
   { key: 't', label: 'Tiempo', num: true, hideS: true, cell: (r) => (r.skipped || !r.a.timeSec ? DASH : fmtDur(r.a.timeSec)) },
   { key: 'p', label: 'Ritmo', num: true, cell: (r) => (r.skipped || !pace(r.a) ? DASH : <span className={r.st.k === 'run' && !r.sub ? 'ses-strong' : undefined}>{fmtPace(pace(r.a))}</span>) },
-  { key: 'o', label: 'Objetivo', num: true, hideS: true, className: 'mut', cell: (r) => (r.sub ? '' : stepTgt(r.st) || DASH) },
-  { key: 'x', label: 'Δ', num: true, cell: (r) => (r.skipped ? DASH : deltaOf(r.j)) },
-  { key: 'h', label: 'FC', num: true, cell: (r) => (r.skipped || !r.a.hrAvg ? DASH : r.a.hrAvg) },
+  { key: 'o', label: 'Plan', num: true, hideS: true, className: 'mut', cell: (r) => (r.sub ? '' : <Two a={stepDesc(r.st) || DASH} b={stepTgt(r.st)} />) },
+  { key: 'x', label: 'Δ', num: true, cell: (r) => (r.skipped ? DASH : deltaOf(r.j, easy)) },
+  { key: 'h', label: 'FC', num: true, cell: (r) => (r.skipped || !r.a.hrAvg ? DASH : <Two a={r.a.hrAvg} b={r.a.hrMax ? 'máx ' + r.a.hrMax : null} />) },
 ];
 
-/* ---- kilómetro a kilómetro ---- */
-interface SplitRow {
+/* ---- las vueltas del reloj o kilómetro a kilómetro ---- */
+interface SplitRow extends Split {
   i: number;
-  km: number;
-  sec: number;
-  hr: number;
   best: boolean;
 }
-const SPLIT_COLS: Col<SplitRow>[] = [
-  { key: 'k', label: 'Km', cell: (r) => <Name c="var(--ink-4)">{r.km >= 0.99 ? 'Km ' + (r.i + 1) : 'Últimos ' + Math.round(r.km * 1000) + ' m'}</Name> },
+/** la más rápida entre las de `min` km o más, resaltada */
+function ranked(L: Split[], min: number): SplitRow[] {
+  const best = Math.min(...L.filter((l) => l.km >= min).map((l) => l.sec / l.km));
+  return L.map((l, i) => ({ ...l, i, best: l.km >= min && l.sec / l.km === best }));
+}
+/* hasta 40 vueltas, como el original; en las vueltas, las de menos de 500 m (pausas, trotes cortos) van en gris */
+const MAX_LAPS = 40,
+  SHORT_LAP = 0.5;
+const SPLIT_COLS = (laps: boolean): Col<SplitRow>[] => [
+  laps
+    ? { key: 'k', label: 'Vuelta', cell: (r) => <Name c="var(--ink-4)">{'Vuelta ' + (r.i + 1)}</Name> }
+    : { key: 'k', label: 'Km', cell: (r) => <Name c="var(--ink-4)">{r.km >= 0.99 ? 'Km ' + (r.i + 1) : 'Últimos ' + Math.round(r.km * 1000) + ' m'}</Name> },
+  ...(laps ? [{ key: 'd', label: 'Dist.', num: true, cell: (r: SplitRow) => fmt(r.km, 2) }] : []),
   { key: 't', label: 'Tiempo', num: true, cell: (r) => fmtDur(r.sec) },
   { key: 'p', label: 'Ritmo', num: true, cell: (r) => <span className={r.best ? 'ses-strong' : undefined}>{fmtPace(r.sec / r.km)}</span> },
   { key: 'h', label: 'FC', num: true, cell: (r) => r.hr || DASH },
@@ -173,18 +192,23 @@ export function LapsPanel({ s, se }: { s: Session; se: Series | null }) {
   if (r.stages && p?.steps)
     return (
       <Panel title="Tramos" sub="Plan contra real" flush className="tw">
-        <Table cols={STAGE_COLS} rows={stageRows(d)} rowKey={(x) => x.key} dim={(x) => !!x.sub || !!x.skipped} label="Tramos, plan contra real" />
+        <Table cols={STAGE_COLS(!!r.easy)} rows={stageRows(d)} rowKey={(x) => x.key} dim={(x) => !!x.sub || !!x.skipped} label="Tramos, plan contra real" />
         <RepNote s={s} />
       </Panel>
     );
-  const L = se ? kmSplits(se) : [];
+  const W = se ? markedLaps(se) : null,
+    L = W ? W.slice(0, MAX_LAPS) : se ? kmSplits(se) : [];
   if (L.length >= 2) {
-    const full = L.filter((l) => l.km >= 0.99),
-      best = Math.min(...full.map((l) => l.sec / l.km)),
-      half = halfSplit(L);
+    const half = halfSplit(L);
     return (
-      <Panel title="Parciales" sub="Kilómetro a kilómetro" flush className="tw">
-        <Table cols={SPLIT_COLS} rows={L.map((l, i) => ({ ...l, i, best: l.km >= 0.99 && l.sec / l.km === best }))} rowKey={(x) => String(x.i)} label="Parciales por kilómetro" />
+      <Panel title={W ? 'Vueltas' : 'Parciales'} sub={W ? 'Las que marcó tu reloj' : 'Kilómetro a kilómetro'} flush className="tw">
+        <Table
+          cols={SPLIT_COLS(!!W)}
+          rows={ranked(L, W ? SHORT_LAP : 0.99)}
+          rowKey={(x) => String(x.i)}
+          dim={(x) => !!W && x.km < SHORT_LAP}
+          label={W ? 'Las vueltas del reloj' : 'Parciales por kilómetro'}
+        />
         {half ? (
           <div className="ses-foot">
             <p>{half}</p>
@@ -194,7 +218,12 @@ export function LapsPanel({ s, se }: { s: Session; se: Series | null }) {
       </Panel>
     );
   }
-  if (!p) return null;
+  if (!p)
+    return repData(s) ? (
+      <Panel title="Repeticiones" sub="Los tiempos de tus notas" flush className="tw">
+        <RepNote s={s} />
+      </Panel>
+    ) : null;
   return (
     <Panel title="Plan contra real" flush className="tw">
       <Table cols={TOT_COLS} rows={totRows(d)} rowKey={(x) => x.k} label="Plan contra real" />
