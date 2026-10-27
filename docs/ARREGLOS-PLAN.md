@@ -336,6 +336,41 @@ Hecho. Decisiones al pasarlo:
 - **LOG-07 · Desafíos.** Sin salidas ni desafíos, el panel no aparece y solo se crea desde ⌘K
   (`components/logros/Logros.tsx:28`); el aviso dice «Tocá «Borrar»» y el botón es un tacho (`Challenges.tsx:24`).
 
+Hecho. Decisiones al pasarlo:
+
+- **CGA-03.** `aiErr` conoce ahora todo lo que puede llegar: `network`, `rate_limited`, `bad_image`, `too_many`,
+  `bad_output` (y `invalid_json`, que tiran los paneles), `refusal`, `api_error` y `unauthorized` (sesión vencida, el
+  mismo texto que Strava). Se sacaron los códigos del artifact que ya no existen (`not_granted`, `image_rejected`,
+  `empty_completion`, `refused`, `cancelled`). Los de configuración del servidor (`not_configured`, `bad_key`) siguen
+  en «No pude leerlo ahora»: con la IA sin configurar, la interfaz ni la muestra.
+- **MA-01.** Cambiar el período suelta la salida y el barrio (`Mapa.tsx`, `period`) y el lienzo reencuadra solo: se
+  acuerda del período del último encuadre (`rt.per`) y, si cambió, encuadra aunque haya uno guardado. Se hizo en el
+  lienzo y no poniendo `view: null` desde la pantalla porque el período llega por la URL y el encuadre por el estado,
+  y según cuál llegara primero encuadraba el período viejo. Al volver al Mapa desde otra pantalla el encuadre
+  guardado se respeta, como antes. La tarjeta busca la salida entre las del período (`L`): un link con una salida que
+  el período no dibuja no muestra nada.
+- **MA-02.** Con el mapa apilado (hasta 900 px) y fuera de pantalla completa, elegir un barrio en la lista sube la
+  página hasta el mapa (`MapApi.reveal`), con `scroll-margin-top` para que quede debajo de la barra de arriba. Sin
+  movimiento, salta sin animar. A diferencia del original sube siempre, no solo cuando el mapa estaba lejos: la lista
+  está siempre abajo del mapa.
+- **MA-03.** La escala «1 vez … N veces» va en la tarjeta, debajo de «Cuanto más pasás…», con las zonas prendidas y
+  el color «Un color» (como en el original, «Por tipo» muestra los tipos). Con N = 1 no aparece: no hay escala.
+- **STR-04.** `useStravaStatus` es un estado compartido (`useSyncExternalStore`): todos leen el mismo. Para no
+  cambiar lo que se ve, cada pieza lo vuelve a pedir al aparecer, como cuando lo pedía cada pantalla (con un solo
+  pedido a la vez), y mientras tanto muestra el último en vez de «Revisando la conexión…». Desconectar en Ajustes lo
+  cambia para todos con `setStravaStatus`, y una respuesta que estaba en camino no lo pisa.
+- **LOG-05.** Se guardan las 12 últimas, como el original, pero en el estadio se ven 3 y las otras quedan plegadas en
+  «Ver las otras N» (12 filas agrandaban el estadio al doble). «Este mes sumaste» se ve también en el celu: va en su
+  propio renglón debajo del título del camino.
+- **LOG-07.** Sin salidas, el panel de Desafíos aparece siempre, con su «Nuevo» (los sugeridos salen igual). El aviso
+  dice «Tocá el tacho de nuevo para confirmar.».
+- Probado en local con datos de ejemplo y sin datos: Desafíos sin salidas (crear y borrar), las ganancias plegadas y
+  «Este mes» en el celu, el período del Mapa (suelta la salida, reencuadra, cambia la escala), un link con una salida
+  fuera del período, el barrio en el celu y la escala de las zonas. **Para tildar después del deploy:** con Strava
+  conectado, «Desconectar» en Ajustes cambia la barra de arriba a «Conectar Strava» sin recargar, y el Mapa y el panel
+  de carga ofrecen conectar; los mensajes de la lectura de capturas (por ejemplo, sin conexión o con una imagen que no
+  se puede abrir).
+
 ## Lo que queda como está
 
 Cambiaron respecto del original, no los decidió ninguna fase, y no vale la pena tocarlos. Si alguno importa, pasa a

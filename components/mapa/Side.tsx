@@ -22,7 +22,7 @@ const H2 = ({ t, sub }: { t: string; sub?: string }) => (
   </div>
 );
 
-export function Side({ P, routes, L, msg, syncing, baseErr, onBarrio }: { P: ReturnType<typeof useMapParams>; routes: Route[]; L: Route[]; msg: string; syncing: boolean; baseErr: boolean; onBarrio: (n: string | null) => void }) {
+export function Side({ P, routes, L, msg, syncing, baseErr, onPeriod, onBarrio }: { P: ReturnType<typeof useMapParams>; routes: Route[]; L: Route[]; msg: string; syncing: boolean; baseErr: boolean; onPeriod: (p: MapPeriod) => void; onBarrio: (n: string | null) => void }) {
   const { o } = P;
   const sv = useStravaGo();
   const all = o.period === 'todo',
@@ -55,7 +55,7 @@ export function Side({ P, routes, L, msg, syncing, baseErr, onBarrio }: { P: Ret
     <aside className="mapa-side" aria-label="Tus recorridos">
       <div className="lbl">Tus recorridos de Strava{routes.length ? ' · desde el ' + dShort(pd(routes[0].date)) + ' ' + routes[0].date.slice(0, 4) : ''}</div>
       <BrandTitle className="mapa-t">Mapa</BrandTitle>
-      <Segmented<MapPeriod> fill label="Período" options={MAP_PERIODS.map(([value, label]) => ({ value, label }))} value={o.period} onChange={P.setPeriod} />
+      <Segmented<MapPeriod> fill label="Período" options={MAP_PERIODS.map(([value, label]) => ({ value, label }))} value={o.period} onChange={onPeriod} />
       <div className="mapa-stats">
         <Kpis
           items={[

@@ -21,6 +21,8 @@ export interface MapApi {
   replay(onTick: (r: Route | null) => void): void;
   /** corta el trazado y deja todo dibujado */
   stop(): void;
+  /** sube la página hasta el mapa (cuando va apilado arriba de la columna) */
+  reveal(): void;
 }
 
 interface Hint {
@@ -40,6 +42,8 @@ interface Rt extends MapRuntime {
   onTick: ((r: Route | null) => void) | null;
   /** último encuadre del estado que ya adopté o guardé */
   seen: MapVp | null;
+  /** el período del último encuadre: si cambia, se reencuadra aunque haya uno guardado */
+  per: string | null;
   /** el encuadre vivo cambió y todavía no se guardó */
   dirty: boolean;
   wheelT?: ReturnType<typeof setTimeout>;
@@ -225,7 +229,7 @@ export default function MapaCanvas({
 }) {
   const wRef = useRef<HTMLDivElement>(null),
     cRef = useRef<HTMLCanvasElement>(null);
-  const R = useRef<Rt>({ view: null, t: 1, dpr: 1, hov: null, base: newLayer(), over: newLayer(), cv: null, w: null, o, locked, wheel, fs, onPick, tok: null, onTick: null, seen: null, dirty: false, setHint: null, raf: 0, hp: null, hraf: 0 });
+  const R = useRef<Rt>({ view: null, t: 1, dpr: 1, hov: null, base: newLayer(), over: newLayer(), cv: null, w: null, o, locked, wheel, fs, onPick, tok: null, onTick: null, seen: null, per: null, dirty: false, setHint: null, raf: 0, hp: null, hraf: 0 });
   const [hintS, setHint] = useState<Hint>({ t: '', on: false });
 
   /* lo último que dibujó React: los gestos y el trazado lo leen de acá */
@@ -233,12 +237,14 @@ export default function MapaCanvas({
     Object.assign(R.current, { o, locked, wheel, fs, onPick });
   });
 
-  /* encuadre: adopto el del estado o, si no hay, encuadro tus recorridos */
+  /* encuadre: adopto el del estado o, si no hay (o cambiaste el período), encuadro tus recorridos */
   useLayoutEffect(() => {
     const rt = R.current,
-      cv = cRef.current;
-    if (!cv || (view && view === rt.seen)) return;
-    if (view) {
+      cv = cRef.current,
+      moved = rt.per !== null && rt.per !== o.period;
+    rt.per = o.period;
+    if (!cv || (view && view === rt.seen && !moved)) return;
+    if (view && !moved) {
       rt.view = { ...view };
       rt.seen = view;
     } else {
@@ -457,6 +463,7 @@ export default function MapaCanvas({
         stopPlay(R.current);
         draw(R.current);
       },
+      reveal: () => R.current.w?.scrollIntoView({ block: 'start', behavior: reduceMotion() ? 'auto' : 'smooth' }),
     }),
     [],
   );

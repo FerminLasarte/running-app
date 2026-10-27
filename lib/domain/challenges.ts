@@ -105,7 +105,7 @@ export function delChallenge(id: string) {
   if (blockDemo()) return;
   if (getUi<string | null>('chDel', null) !== id) {
     setUi('chDel', id);
-    toast('Tocá «Borrar» de nuevo para confirmar.', 3500);
+    toast('Tocá el tacho de nuevo para confirmar.', 3500);
     return;
   }
   setUi('chDel', null);

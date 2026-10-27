@@ -29,7 +29,7 @@ export function Road({ X, i }: { X: XpState; i: number }) {
       sub={nx ? '«' + nx[1] + '» en el nivel ' + nx[0] : 'Llegaste al último'}
       actions={
         X.month > 0 ? (
-          <span className="lo-month hide-s">
+          <span className="lo-month">
             Este mes sumaste <b>{nf(X.month)} XP</b>
           </span>
         ) : null

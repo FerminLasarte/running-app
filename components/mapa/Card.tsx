@@ -1,8 +1,9 @@
 /* La tarjeta que flota abajo a la izquierda del mapa: la salida elegida (tipo, fecha, distancia, tiempo, ritmo y el link
-   a la sesión) o, sin salida, qué estás viendo: el barrio resaltado o cómo se lee el mapa. */
+   a la sesión) o, sin salida, qué estás viendo: el barrio resaltado o cómo se lee el mapa (con la escala de las zonas
+   pintadas si están prendidas). */
 import { X } from '@phosphor-icons/react';
 import { TYPE_KEYS, TYPES } from '@/lib/domain/config';
-import { mapBarrios, routeSess } from '@/lib/domain/geo';
+import { mapBarrios, mapCells, routeSess } from '@/lib/domain/geo';
 import type { Route, SessionType } from '@/lib/domain/types';
 import { cap, dateLabel, fmt, fmtDur, fmtPace, plural } from '@/lib/domain/util';
 import { sessionHref } from '@/lib/nav';
@@ -12,8 +13,9 @@ import { BrandTitle } from '@/components/pista/structure';
 import { typeColor } from '@/components/pista/util';
 import type { MapOpts } from './draw';
 
-export function Card({ o, L, routes, onClose }: { o: MapOpts; L: Route[]; routes: Route[]; onClose: () => void }) {
-  const r = o.sel ? routes.find((x) => x.id === o.sel) : null;
+export function Card({ o, L, onClose }: { o: MapOpts; L: Route[]; onClose: () => void }) {
+  /* solo una salida del período: la que el mapa dibuja */
+  const r = o.sel ? L.find((x) => x.id === o.sel) : null;
   if (r) {
     const s = routeSess(r),
       pace = r.km > 0 && r.tsec > 0 ? fmtPace(r.tsec / r.km) : '';
@@ -63,6 +65,8 @@ export function Card({ o, L, routes, onClose }: { o: MapOpts; L: Route[]; routes
   }
   /* sin salida elegida: el barrio, la leyenda de los tipos o cómo se pinta */
   const bz = o.hb ? mapBarrios(L, o.period)?.list.find((e) => e.b.n === o.hb) : null;
+  /* la escala de las zonas pintadas: de 1 a las veces que más pasaste por una misma cuadrícula */
+  const zmax = o.zones && L.length ? mapCells(L, o.period).max : 0;
   const seen = new Set<SessionType>();
   if (o.color === 'type')
     L.forEach((q) => {
@@ -84,7 +88,16 @@ export function Card({ o, L, routes, onClose }: { o: MapOpts; L: Route[]; routes
           ))}
         </div>
       ) : (
-        <p className="mapa-cn">Cuanto más pasás por una calle, más fuerte se pinta.</p>
+        <>
+          <p className="mapa-cn">Cuanto más pasás por una calle, más fuerte se pinta.</p>
+          {zmax > 1 ? (
+            <div className="mapa-zl">
+              <small>1 vez</small>
+              <i aria-hidden="true" />
+              <small>{zmax} veces</small>
+            </div>
+          ) : null}
+        </>
       )}
     </section>
   );

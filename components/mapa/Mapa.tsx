@@ -6,7 +6,7 @@ import '@/app/styles/screens/mapa.css';
 import { useEffect, useRef, useState, useSyncExternalStore } from 'react';
 import { ArrowsIn, ArrowsOut, FrameCorners, Minus, Play, Plus, Stop } from '@phosphor-icons/react';
 import { useS, useUi } from '@/lib/store';
-import { barrioFit, baRings, baseMapReady, mapRoutes, mapUiInit, onBaseMap, setMapUi, type MapUi } from '@/lib/domain/geo';
+import { barrioFit, baRings, baseMapReady, mapRoutes, mapUiInit, onBaseMap, setMapUi, type MapPeriod, type MapUi } from '@/lib/domain/geo';
 import type { Route } from '@/lib/domain/types';
 import { dShort, pd, plural } from '@/lib/domain/util';
 import MapaCanvas, { type MapApi } from './MapaCanvas';
@@ -62,7 +62,16 @@ export default function Mapa() {
   };
   const barrio = (n: string | null) => {
     P.setHb(n);
-    if (n) P.setSel(null);
+    if (!n) return;
+    P.setSel(null);
+    /* apilado (celu), la lista queda abajo del mapa: subo para que veas el barrio encendido */
+    if (stacked && !M.fs) api.current?.reveal();
+  };
+  /* otro período: se suelta la salida y el barrio elegidos (el lienzo reencuadra solo) */
+  const period = (p: MapPeriod) => {
+    P.setPeriod(p);
+    P.setSel(null);
+    P.setHb(null);
   };
   const replay = () => {
     if (playing !== false) {
@@ -115,9 +124,9 @@ export default function Mapa() {
             </button>
           </div>
         </div>
-        <Card o={o} L={L} routes={st.routes} onClose={() => pick(null)} />
+        <Card o={o} L={L} onClose={() => pick(null)} />
       </MapaCanvas>
-      <Side P={P} routes={st.routes} L={L} msg={M.msg} syncing={M.syncing} baseErr={M.baseErr} onBarrio={barrio} />
+      <Side P={P} routes={st.routes} L={L} msg={M.msg} syncing={M.syncing} baseErr={M.baseErr} onPeriod={period} onBarrio={barrio} />
     </div>
   );
 }

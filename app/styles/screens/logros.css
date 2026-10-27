@@ -23,6 +23,10 @@
   .lo-gains li { display: grid; grid-template-columns: 86px minmax(0, 1fr) auto; gap: 12px; align-items: baseline; padding: 10px 0; border-bottom: 1px solid var(--hero-line); font-size: 13.5px; }
   .lo-gains b { font: italic 800 17px/1 var(--f-disp); font-stretch: 70%; color: var(--acc); white-space: nowrap; }
   .lo-gains small { color: var(--hero-mut); font-size: 12px; white-space: nowrap; }
+  .lo-gains-more summary { width: fit-content; margin-top: 10px; cursor: pointer; color: var(--hero-mut); font-size: 12.5px; font-weight: 600; border-radius: 2px; }
+  .lo-gains-more summary:hover { color: var(--hero-ink); }
+  .lo-gains-more[open] summary { margin-bottom: 10px; }
+  .lo-gains-more .lo-gains { border-top: 0; }
 
   /* la ficha del jugador: escudo de papel, como las cartas de los juegos de fútbol */
   .lo-pcw { align-self: center; filter: drop-shadow(0 28px 30px rgb(0 0 0 / .6)); }
