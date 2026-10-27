@@ -66,6 +66,11 @@ export const prXp = (sec: number, km: number, m: number) => Math.round(((100 + 4
 export const trophyXp = (t: Trophy) => (t.xp != null ? t.xp : t.cat === 'ch' ? 200 : XP_TIER[t.tier]);
 
 
+/* las carreras con tiempo, de la primera a la última: cuentan para «Carreras» y cada medalla lleva la cinta de la suya */
+const doneRaces = () => S.cfg.races.filter((r) => r.resultSec! > 0).sort((a, b) => a.date.localeCompare(b.date));
+/** la carrera que ganó una medalla de «Carreras» (la tercera, para «3 carreras»); null si no es de esas o falta */
+export const trophyRace = (t: Trophy) => (t.cat === 'race' && t.got ? doneRaces()[t.target - 1] || null : null);
+
 /* se recalcula muchas veces por render: lo guardo mientras no cambien sesiones, ajustes, recorridos ni el día */
 let TC: { s: unknown; c: unknown; r: unknown; d: string; v: Trophy[] } | null = null;
 export function trophies(): Trophy[] {
@@ -166,10 +171,7 @@ function calcTrophies(): Trophy[] {
     });
   });
   // carreras terminadas
-  const rc = S.cfg.races
-    .filter((r) => r.resultSec! > 0)
-    .sort((a, b) => a.date.localeCompare(b.date))
-    .map((r, i) => ({ d: r.date, v: i + 1 }));
+  const rc = doneRaces().map((r, i) => ({ d: r.date, v: i + 1 }));
   T.push(
     ...ladder('race', ['1', '3', '5', '10'], [1, 3, 5, 10], ['Primera carrera', '3 carreras', '5 carreras', '10 carreras'], ['Tu primera carrera con dorsal.', 'Tres carreras terminadas.', 'Cinco carreras terminadas.', 'Diez carreras terminadas.'], rc, rc.length, 'carreras'),
   );
@@ -386,6 +388,9 @@ export function trophyLeft(t: Trophy): string {
 }
 
 /* ---- la vitrina: por categoría, con el filtro de arriba ---- */
+/* los secretos que existen: no aparecen hasta ganarlos, pero la vitrina sabe cuántos faltan (una caja cerrada por cada
+   uno, sin decir cuál). Al sumar uno en calcTrophies, va acá */
+export const EGG_IDS = ['egg_vuelta'];
 export type VitFilter = 'todos' | 'ganados' | 'faltan';
 export interface VitGroup {
   cat: string;
@@ -393,20 +398,40 @@ export interface VitGroup {
   got: number;
   all: number;
   items: Trophy[];
+  /** secretos sin descubrir: van como cajas cerradas */
+  locked: number;
 }
-/** los trofeos por categoría, en el orden de siempre. «Ganados» van del más nuevo al más viejo y «Por ganar», del más
-    cerca al más lejos; las categorías que quedan vacías no van */
+/** cuántas piezas tiene la vitrina y cuántas ganaste: los trofeos más los secretos que faltan */
+export function vitCount(T: Trophy[]) {
+  const eggs = T.filter((t) => t.cat === 'egg').length;
+  return { got: T.filter((t) => t.got).length, all: T.length - eggs + EGG_IDS.length };
+}
+/** los trofeos por categoría, en el orden de siempre, y los secretos al final. «Ganados» van del más nuevo al más viejo
+    y «Por ganar», del más cerca al más lejos; las categorías que quedan vacías no van. Los secretos se ven siempre:
+    los que faltan son las cajas, que van en «Todos» y en «Por ganar» */
 export function vitGroups(T: Trophy[], f: VitFilter): VitGroup[] {
-  const cats = [...new Set(T.map((t) => t.cat))];
+  const cats = [...new Set(T.map((t) => t.cat).filter((c) => c !== 'egg')), 'egg'];
   return cats
     .map((cat) => {
-      const L = T.filter((t) => t.cat === cat);
+      const L = T.filter((t) => t.cat === cat),
+        egg = cat === 'egg';
       let items = f === 'todos' ? L : L.filter((t) => t.got === (f === 'ganados'));
       if (f === 'ganados') items = items.slice().sort((a, b) => b.date!.localeCompare(a.date!));
       else if (f === 'faltan') items = items.slice().sort((a, b) => (trophyProg(b) ?? -1) - (trophyProg(a) ?? -1));
-      return { cat, name: CAT_N[cat] || cat, got: L.filter((t) => t.got).length, all: L.length, items };
+      const locked = egg && f !== 'ganados' ? Math.max(0, EGG_IDS.length - L.length) : 0;
+      return { cat, name: CAT_N[cat] || cat, got: L.filter((t) => t.got).length, all: egg ? Math.max(EGG_IDS.length, L.length) : L.length, items, locked };
     })
-    .filter((g) => g.items.length);
+    .filter((g) => g.items.length || g.locked);
+}
+/** la vidriera de Logros: los últimos que ganaste (del más nuevo al más viejo) y los que están más cerca de caer */
+export function vitShowcase(T: Trophy[], n = 4) {
+  const last = T.filter((t) => t.got && t.date)
+      .sort((a, b) => b.date!.localeCompare(a.date!))
+      .slice(0, n),
+    near = T.filter((t) => trophyProg(t) != null)
+      .sort((a, b) => trophyProg(b)! - trophyProg(a)!)
+      .slice(0, n);
+  return { last, near };
 }
 
 /* ---- celebración al ganar trofeos o subir de nivel: la dibuja <Celebration/> ----

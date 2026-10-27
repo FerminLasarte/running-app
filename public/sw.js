@@ -9,8 +9,8 @@ const PAGE = 'rr-page-v2',
   STATIC = 'rr-static-v1',
   ASSETS = 'rr-assets-v1';
 const KEEP = [PAGE, STATIC, ASSETS];
-/* las de components/shell/sections.ts */
-const PAGES = ['/semana', '/registro', '/analisis', '/carreras', '/mapa', '/logros', '/ajustes'];
+/* las de components/shell/sections.ts, y la vitrina */
+const PAGES = ['/semana', '/registro', '/analisis', '/carreras', '/mapa', '/logros', '/logros/vitrina', '/ajustes'];
 
 self.addEventListener('install', (e) => {
   e.waitUntil(

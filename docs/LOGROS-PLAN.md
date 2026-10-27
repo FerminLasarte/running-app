@@ -50,6 +50,35 @@ trofeo es un escudo (`Shield` en `components/pista/sport.tsx`) con el ícono de 
 - Listo cuando: la vitrina se ve como un estante en compu y en celu, con los tres tipos de objeto y el estante de
   secretos, y el filtro y el panel del trofeo andan como antes.
 
+**Hecho.** Decisiones al pasarlo:
+
+- **Boceto aprobado:** `design/bocetos/vitrina.html` (`#vitrina` y `#logros`, `?tema=`) y el tablero con las ocho vistas
+  en `design/bocetos/vitrina-tablero.html`.
+- **Las piezas** son de `components/pista/sport.tsx`: `Cup`, `HungMedal`, `StandShield` y `SecretBox`, con el metal
+  torneado y el pie negro en los dos temas; se ven en `/sistema`. `TrophyPiece` (`components/logros/Piece.tsx`) elige la
+  de cada trofeo, y la usan la vitrina, el panel del trofeo y la celebración. La paleta y la escalera del panel siguen
+  con el ícono de la categoría.
+- **Más valioso, más grande:** el platino mide un 25% más que el bronce. El metal sigue saliendo de la XP.
+- **Lo que va grabado:** la placa de la copa dice el tiempo a bajar («25:00») o la distancia («21K») si es terminarla;
+  la medalla, cuántas carreras. En el estante de una marca el nombre va sin «en 5K», porque ya lo dice la placa.
+- **La cinta de la medalla** es la de la carrera que la ganó (`trophyRace`: la tercera con tiempo para «3 carreras»),
+  con el mismo color que el medallero de Carreras (`medalColor`).
+- **Secretos:** `EGG_IDS` en `lib/domain/trophies.ts` dice cuántos hay (hoy uno, la Vuelta olímpica). Cada secreto nuevo
+  de la tanda 2 se suma ahí. Las cajas cuentan entre las piezas (`vitCount`: «20 de 89») y en «Por ganar». El estante
+  de Secretos va siempre al final: en «Ganados» solo están los ganados y en «Por ganar», solo las cajas.
+- **El filtro** pasó a `/logros/vitrina?filtro=ganados` (antes `/logros?vitrina=ganados`).
+- **Las categorías de hasta cinco** comparten fila en la compu y las de seis o más ocupan todo el ancho; con menos de
+  1240 px, una por fila. En el celu cada estante se corre de costado, con la placa quieta a la izquierda.
+- **La vidriera de Logros** (`vitShowcase`) muestra los cuatro últimos ganados y los cuatro más cerca de caer.
+- **A dónde lleva:** «Ver la vitrina», en el panel del trofeo y en la celebración, va a la página y baja hasta el estante
+  de su categoría (`goVitrina`). En ⌘K, «Vitrina» lleva a la página. El atajo `6` y la barra lateral vuelven a Logros
+  desde la vitrina.
+- **Sin señal:** `public/sw.js` también guarda `/logros/vitrina` con las demás páginas.
+- **Movimiento:** cada estante aparece al llegar a él y sus piezas entran de izquierda a derecha. Lo que está por caer
+  brilla despacio. Con «reducir movimiento» todo se ve quieto desde el principio.
+- **No probado en el navegador:** la celebración, porque no salta con los datos de ejemplo. Queda revisarla al ganar un
+  trofeo de verdad.
+
 ## Tanda 2 · Trofeos nuevos
 
 Las escaleras se arman con `ladder()` en `calcTrophies` (`lib/domain/trophies.ts`); los secretos van como la Vuelta

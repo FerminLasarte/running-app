@@ -1,12 +1,12 @@
 'use client';
-/* Un trofeo de cerca: el escudo grande, de qué se trata, el metal y la XP, cuándo lo ganaste o cuánto te falta, y la
-   escalera de su categoría (los otros trofeos de lo mismo, con el que estás mirando marcado). Se abre desde la vitrina
-   de Logros y ⌘K. */
+/* Un trofeo de cerca: su pieza de la vitrina en grande, de qué se trata, el metal y la XP, cuándo lo ganaste o cuánto
+   te falta, y la escalera de su categoría (los otros trofeos de lo mismo, con el que estás mirando marcado). Se abre
+   desde la vitrina, la vidriera de Logros y ⌘K. */
 import '@/app/styles/screens/logros.css';
 import { usePathname } from 'next/navigation';
 import { useS } from '@/lib/store';
 import { closeSheet, requestClose } from '@/lib/sheets';
-import { goLogros } from '@/lib/data/actions';
+import { goVitrina } from '@/lib/data/actions';
 import { CAT_N, trophies, trophyLeft, trophyNote, trophyProg, trophyTier, trophyXp } from '@/lib/domain/trophies';
 import { cap, dateLabel, nf, pd } from '@/lib/domain/util';
 import { Button } from '@/components/pista/controls';
@@ -14,12 +14,13 @@ import { Laps } from '@/components/pista/meters';
 import { Kpis, MarkList } from '@/components/pista/structure';
 import { Shield, TIER_C, TIER_NAME } from '@/components/pista/sport';
 import { cssVars } from '@/components/pista/util';
-import { LO_PARTS, trophyIcon } from '@/components/logros/util';
+import { trophyIcon } from '@/components/logros/util';
+import { TrophyPiece } from '@/components/logros/Piece';
 import { PanelFrame } from './PanelFrame';
 
 export default function TrophyPanel({ id }: { id: string }) {
   useS();
-  const here = usePathname() === '/logros';
+  const here = usePathname() === '/logros/vitrina';
   const T = trophies(),
     t = T.find((q) => q.id === id);
   if (!t) return <PanelFrame title="Trofeo">{null}</PanelFrame>;
@@ -35,7 +36,7 @@ export default function TrophyPanel({ id }: { id: string }) {
           arrow
           onClick={() => {
             closeSheet();
-            goLogros(LO_PARTS.vit);
+            goVitrina(t.cat);
           }}
         >
           Ver la vitrina
@@ -50,7 +51,7 @@ export default function TrophyPanel({ id }: { id: string }) {
     <PanelFrame eyebrow={'Trofeo · ' + (CAT_N[t.cat] || '')} title={t.name} foot={foot}>
       <div className="lo-tp">
         <div className="lo-tp-badge" style={cssVars({ '--rc': TIER_C[tier] })}>
-          <Shield tier={tier} got={t.got} icon={trophyIcon(t)} size={112} />
+          <TrophyPiece t={t} k={1.35} />
         </div>
         <p className="lo-tp-desc">{t.desc}</p>
         <Kpis

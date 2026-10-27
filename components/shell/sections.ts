@@ -45,7 +45,8 @@ export function rememberUrl(pathname: string, search: string) {
 export const sectionHref = (s: SectionDef) => last[s.id] || s.href;
 /** los parámetros de la última URL de una sección («periodo=52s»), sin el «?» */
 export const lastQuery = (id: Section) => (last[id] || '').split('?')[1] || '';
-/** a una sección desde los atajos o ⌘K; si ya estás en ella, nada (no se pierde lo que tenías) */
+/** a una sección desde los atajos o ⌘K; si ya estás en ella, nada (no se pierde lo que tenías). Desde una página de
+    adentro (la vitrina) vuelve a la sección */
 export function goSection(s: SectionDef) {
-  if (sectionOf(window.location.pathname)?.id !== s.id) navigate(sectionHref(s));
+  if (window.location.pathname !== s.href) navigate(sectionHref(s));
 }
