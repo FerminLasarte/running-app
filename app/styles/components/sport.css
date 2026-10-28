@@ -123,6 +123,19 @@
     .p-clock .colon { font-size: 36px; padding-bottom: var(--sp-6); }
     .p-chrono { max-width: 220px; justify-self: center; }
   }
+  /* en el teléfono el dorsal se acuesta: número y desprendible lado a lado, así el estadio no ocupa dos pantallas */
+  @media (max-width: 600px) {
+    .p-bib { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); min-height: 0; transform: rotate(-1.5deg); }
+    .p-bib .pin.c, .p-bib .pin.d { display: none; }
+    .p-bib-band { grid-column: 1 / -1; margin: var(--sp-8) var(--sp-4) 0; }
+    .p-bib-main { padding: var(--sp-3) var(--sp-5) var(--sp-4); }
+    .p-bib-num { font-size: 88px; }
+    .p-bib-num-l { margin-top: var(--sp-2); }
+    .p-bib-tear { height: auto; grid-template-columns: minmax(0, 1fr); align-content: center; gap: var(--sp-3); padding: var(--sp-3) var(--sp-5); border-top: 0; border-left: 1.5px dashed #cdc9bf; }
+    .p-bib-tear::before { top: -8px; left: -8px; }
+    .p-bib-tear::after { top: auto; bottom: -8px; left: -8px; right: auto; }
+    .p-bib-tear > div + div { text-align: left; }
+  }
   @media print {
     .p-band { transform: none; box-shadow: none; }
   }

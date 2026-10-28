@@ -17,6 +17,7 @@ import { openSheet } from '@/lib/sheets';
 import { sessionHref } from '@/lib/nav';
 import { S, useApp } from '@/lib/store';
 import { Button, Dlt } from '@/components/pista/controls';
+import { Key } from '@/components/pista/charts';
 import { Panel } from '@/components/pista/structure';
 import { Oval } from '@/components/pista/sport';
 import { useKipLap } from './kipchoge';
@@ -178,7 +179,18 @@ export function WeekBoard({ fresh }: { fresh?: boolean }) {
     >
       <div className="sem-board">
         <div className="sem-wsum sem-swipe">
-          <span className="lbl">Volumen de la semana</span>
+          <div className="sem-wsum-h">
+            <span className="lbl">Volumen de la semana</span>
+            {/* lo que dicen la pista y las barritas al pie de cada día: lo hecho lleno, lo planificado punteado */}
+            <span className="sem-keys">
+              <Key color="var(--ink)" kind="sq">
+                Hecho
+              </Key>
+              <Key color="var(--ink-3)" kind="dash">
+                Planificado
+              </Key>
+            </span>
+          </div>
           {/* contra el plan de todas las sesiones de la semana, también las no hechas; sin plan, las salidas contra el
               objetivo de Ajustes */}
           <div>

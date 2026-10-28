@@ -4,23 +4,23 @@
    Movimiento: el estadio entra al cargar (el título por líneas, los andariveles se dibujan y una vuelta corre por el de
    tartán); el resto aparece al llegar (motion.ts pone `.in`) y recién ahí corren las animaciones de sus piezas. */
 @layer screens {
-  .po { min-height: 100dvh; font-size: 14px; line-height: 1.5; }
+  .po { min-height: 100dvh; font-size: var(--fs-base); line-height: 1.5; }
   .po .brand { display: flex; padding: 0; }
-  .po main { max-width: 1260px; margin: 0 auto; padding: 4px 40px 0; display: grid; gap: 80px; }
+  .po main { max-width: 1260px; margin: 0 auto; padding: var(--sp-1) var(--sp-10) 0; display: grid; gap: var(--sp-20); }
   #que-hace, #probala { scroll-margin-top: 84px; }
 
   /* la barra de arriba: transparente sobre la página; al bajar, sólida, más baja y con la raya de lo leído */
   .po-top { position: sticky; top: 0; z-index: 40; padding-top: env(safe-area-inset-top, 0px); transition: background-color .3s var(--ease), box-shadow .3s var(--ease); }
   .po-top.stuck { background: color-mix(in oklab, var(--bg) 82%, transparent); -webkit-backdrop-filter: saturate(1.6) blur(16px); backdrop-filter: saturate(1.6) blur(16px); box-shadow: 0 1px 0 var(--line); }
-  .po-top-in { display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: 24px; max-width: 1260px; height: 76px; margin: 0 auto; padding: 0 40px; transition: height .3s var(--ease); }
+  .po-top-in { display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: var(--sp-6); max-width: 1260px; height: 76px; margin: 0 auto; padding: 0 var(--sp-10); transition: height .3s var(--ease); }
   .po-top.stuck .po-top-in { height: 62px; }
   /* los links quedan en el centro exacto aunque a la derecha entre un botón */
-  .po-links { display: flex; gap: 30px; }
-  .po-links a { position: relative; padding: 8px 0; font: italic 900 15px/1 var(--f-disp); font-stretch: 66%; text-transform: uppercase; letter-spacing: .03em; color: var(--ink-2); transition: color .2s; }
+  .po-links { display: flex; gap: var(--sp-8); }
+  .po-links a { position: relative; padding: var(--sp-2) 0; font: italic 900 var(--fs-lg)/1 var(--f-disp); font-stretch: 66%; text-transform: uppercase; letter-spacing: .03em; color: var(--ink-2); transition: color .2s; }
   .po-links a::after { content: ''; position: absolute; left: 0; right: 0; bottom: 2px; height: 2px; background: var(--acc); transform: scaleX(0); transform-origin: right; transition: transform .35s var(--ease); }
   .po-links a:hover, .po-links a[aria-current] { color: var(--ink); }
   .po-links a:hover::after, .po-links a[aria-current]::after { transform: none; transform-origin: left; }
-  .po-nav { display: flex; align-items: center; gap: 8px; justify-self: end; }
+  .po-nav { display: flex; align-items: center; gap: var(--sp-2); justify-self: end; }
   /* «Probar sin cuenta» entra cuando los del estadio quedaron arriba: se abre de ancho cero (no deja un hueco mientras
      no está) */
   .po .brand { flex: none; }
@@ -31,40 +31,40 @@
   .po-top.stuck .po-prog { opacity: 1; }
 
   /* el estadio de arriba: la voz de marca en grande */
-  .po-hero { padding: 54px 56px 52px; gap: 72px; align-items: center; }
-  .po-h1 { font-size: 150px; padding-top: calc(24px + .05em); }
+  .po-hero { padding: var(--sp-14) var(--sp-14) var(--sp-14); gap: var(--sp-18); align-items: center; }
+  .po-h1 { font-size: 150px; padding-top: calc(var(--sp-6) + .05em); }
   /* el título entra por líneas, desde abajo de su propio renglón; el punto, al final */
   .po-ln { display: block; overflow: clip; padding: .16em .12em .14em 0; margin: -.16em -.12em -.14em 0; }
   .po-ln + .po-ln { display: inline-block; }
   .po-ln > span { display: inline-block; animation: po-ln .95s var(--ease) .1s both; }
   .po-ln + .po-ln > span { animation-delay: .2s; }
-  .po-h1 em { display: inline-block; transform-origin: 30% 80%; animation: po-pop .5s cubic-bezier(.3, 1.6, .5, 1) .75s both; }
+  .po-h1 em { display: inline-block; transform-origin: 30% 80%; animation: po-pop .5s var(--ease) .75s both; }
   .po-hero .po-ctas { animation: p-rise .55s var(--ease) .35s both; }
   .po-hero .p-bib-wrap { animation: po-bib 1s var(--ease) .3s both; }
-  .po-lead { max-width: 54ch; margin-top: 24px; font-size: 17px; line-height: 1.5; color: color-mix(in oklab, var(--hero-ink) 82%, transparent); }
-  .po-ctas { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 30px; }
-  .po-note { margin-top: 16px; font-size: 13px; color: var(--hero-mut); }
+  .po-lead { max-width: 54ch; margin-top: var(--sp-6); font-size: 17px; line-height: 1.5; color: color-mix(in oklab, var(--hero-ink) 82%, transparent); }
+  .po-ctas { display: flex; flex-wrap: wrap; gap: var(--sp-3); margin-top: var(--sp-8); }
+  .po-note { margin-top: var(--sp-4); font-size: var(--fs-md); color: var(--hero-mut); }
   .po-note a { color: var(--hero-ink); text-decoration: underline; text-underline-offset: 2px; }
   .po-note a:hover { color: var(--acc); }
 
   /* qué hace */
-  .po-feats { display: grid; gap: 28px; }
-  .po-sh { display: grid; gap: 4px; }
-  .po-sh h2 { font-size: 76px; padding-top: calc(8px + .06em); }
-  .po-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 20px; }
+  .po-feats { display: grid; gap: var(--sp-8); }
+  .po-sh { display: grid; gap: var(--sp-1); }
+  .po-sh h2 { font-size: 76px; padding-top: calc(var(--sp-2) + .06em); }
+  .po-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--sp-5); }
   .po-f { display: grid; grid-template-rows: 252px auto; overflow: hidden; background: var(--surface); border: 1px solid var(--line); border-radius: var(--r-lg); transition: transform .4s var(--ease), box-shadow .4s var(--ease), border-color .4s; }
   .po-f:hover { transform: translateY(-4px); border-color: var(--line-2); box-shadow: 0 22px 40px -28px rgb(0 0 0 / .4); }
-  .po-f-v { position: relative; display: grid; place-items: center; padding: 22px 28px; overflow: hidden; background: var(--sunk); border-bottom: 1px solid var(--line); }
-  .po-f-t { display: grid; align-content: start; gap: 8px; padding: 20px 22px 24px; }
-  .po-f h3 { font: italic 900 28px/.95 var(--f-disp); font-stretch: 64%; text-transform: uppercase; letter-spacing: .005em; padding-top: 4px; }
+  .po-f-v { position: relative; display: grid; place-items: center; padding: var(--sp-6) var(--sp-8); overflow: hidden; background: var(--sunk); border-bottom: 1px solid var(--line); }
+  .po-f-t { display: grid; align-content: start; gap: var(--sp-2); padding: var(--sp-5) var(--sp-6) var(--sp-6); }
+  .po-f h3 { font: italic 900 28px/.95 var(--f-disp); font-stretch: 64%; text-transform: uppercase; letter-spacing: .005em; padding-top: var(--sp-1); }
   .po-f p { color: var(--ink-2); max-width: 46ch; }
 
   /* las piezas de cada tarjeta */
   .po-oval { width: min(100%, 300px); }
-  .po-sess { list-style: none; padding: 0; width: 100%; display: grid; gap: 14px; }
-  .po-sess span { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; font-size: 13px; }
+  .po-sess { list-style: none; padding: 0; width: 100%; display: grid; gap: var(--sp-4); }
+  .po-sess span { display: flex; align-items: center; gap: var(--sp-2); margin-bottom: var(--sp-2); font-size: var(--fs-md); }
   .po-sess b { font-weight: 600; }
-  .po-sess small { margin-left: auto; color: var(--ink-3); font-size: 12px; }
+  .po-sess small { margin-left: auto; color: var(--ink-3); font-size: var(--fs-sm); }
   .po-vol { width: 100%; }
   .po-vol rect { transform-box: fill-box; transform-origin: bottom; animation: p-grow .7s var(--ease) both; animation-delay: calc(.15s + var(--j, 0) * 45ms); }
   .po-vol path { --len: 400; animation: po-draw 1.2s var(--ease) .75s both; }
@@ -72,7 +72,7 @@
      pulsera (si no, el borde la corta a mitad de una fila) */
   .po-f-v:has(.po-band) { place-items: stretch center; padding: 0; }
   /* el margen de arriba va adentro de la ventana: la pulsera está girada y su esquina sube unos px sobre su borde */
-  .po-band { width: 236px; padding: 22px 18px 0; overflow: hidden; -webkit-mask-image: linear-gradient(#000 38%, transparent 92%); mask-image: linear-gradient(#000 38%, transparent 92%); }
+  .po-band { width: 236px; padding: var(--sp-6) var(--sp-5) 0; overflow: hidden; -webkit-mask-image: linear-gradient(#000 38%, transparent 92%); mask-image: linear-gradient(#000 38%, transparent 92%); }
   .po-band .p-band { animation: po-band 1s var(--ease) .1s backwards; }
   .po-f:hover .p-band { transform: none; }
   .po-f-v:has(.po-map) { padding: 0; }
@@ -80,20 +80,20 @@
   .po-runs path, .po-run path { --len: 640; animation: po-draw 1.6s var(--ease) .1s both; }
   .po-run path { animation-delay: .8s; }
   .po-runner { animation: p-fade .4s var(--ease) 2.2s both; }
-  .po-tro { display: grid; justify-items: center; gap: 24px; width: 100%; }
-  .po-shields { display: flex; gap: 14px; }
-  .po-shields .p-shield { animation: po-pop .55s cubic-bezier(.3, 1.5, .6, 1) .15s backwards; }
+  .po-tro { display: grid; justify-items: center; gap: var(--sp-6); width: 100%; }
+  .po-shields { display: flex; gap: var(--sp-4); }
+  .po-shields .p-shield { animation: po-pop .55s var(--ease) .15s backwards; }
   .po-shields .p-shield:nth-child(2) { animation-delay: .25s; }
   .po-shields .p-shield:nth-child(3) { animation-delay: .35s; }
   .po-shields .p-shield:nth-child(4) { animation-delay: .45s; }
   .po-lvl { width: min(100%, 240px); }
-  .po-lvl > div { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 8px; }
+  .po-lvl > div { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: var(--sp-2); }
   .po-lvl b { font: italic 900 20px/1 var(--f-disp); font-stretch: 64%; text-transform: uppercase; }
   .po-lvl .disp { font-size: 30px; font-style: italic; }
 
   /* el cierre */
-  .po-end { padding: 52px 56px; }
-  .po-end h2 { font-size: 112px; padding-top: calc(10px + .05em); }
+  .po-end { padding: var(--sp-14) var(--sp-14); }
+  .po-end h2 { font-size: 112px; padding-top: calc(var(--sp-3) + .05em); }
 
   /* easter eggs (eggs.tsx). El dorsal se toca (cinco veces, modo maratón) sin cambiar el armado del estadio */
   .po-bibtap { display: contents; }
@@ -102,10 +102,10 @@
   .po-gun-h { min-height: 1.7em; }
   .po-gun { font: inherit; color: inherit; text-transform: inherit; letter-spacing: inherit; text-align: left; cursor: pointer; }
   .po-gun:focus-visible { outline: 2px solid var(--acc); outline-offset: 6px; border-radius: 4px; }
-  .po-clock { position: absolute; top: 52px; right: 56px; display: grid; justify-items: end; gap: 6px; opacity: 0; transform: translateY(8px); transition: opacity .3s var(--ease), transform .3s var(--ease); pointer-events: none; }
+  .po-clock { position: absolute; top: 52px; right: 56px; display: grid; justify-items: end; gap: var(--sp-2); opacity: 0; transform: translateY(8px); transition: opacity .3s var(--ease), transform .3s var(--ease); pointer-events: none; }
   .po-clock.on { opacity: 1; transform: none; }
   .po-clock b { font: italic 900 96px/.9 var(--f-disp); font-stretch: 64%; color: var(--acc); font-variant-numeric: tabular-nums; }
-  .po-clock small { font: 600 11px/1 var(--f-ui); letter-spacing: .14em; text-transform: uppercase; color: var(--hero-mut); }
+  .po-clock small { font: 600 var(--fs-xs)/1 var(--f-ui); letter-spacing: .14em; text-transform: uppercase; color: var(--hero-mut); }
   .po-end.go .po-lap rect { stroke-dasharray: 8 92; animation: po-lap 1.4s cubic-bezier(.3, 0, .2, 1) 1 both; }
 
   /* los andariveles de los estadios se dibujan; por el de tartán corre una vuelta, contra el reloj */
@@ -120,6 +120,7 @@
 
   @keyframes po-in { from { opacity: 0; transform: translateY(28px); } }
   @keyframes po-ln { from { transform: translateY(115%); } }
+  /* entra creciendo y frena, sin pasarse de tamaño: el rebote quedaba de juguete al lado del resto */
   @keyframes po-pop { from { opacity: 0; transform: scale(.4); } }
   @keyframes po-bib { from { opacity: 0; transform: translateY(-28px) rotate(-7deg); } }
   @keyframes po-band { from { opacity: 0; transform: translateY(70px) rotate(8deg); } }
@@ -131,41 +132,41 @@
   }
 
   /* el pie, del ancho del contenido (la raya no pasa de las tarjetas) */
-  .po-foot { display: flex; align-items: center; justify-content: space-between; gap: 20px; width: min(1180px, calc(100% - 80px)); margin: 80px auto 0; padding: 28px 0 calc(40px + env(safe-area-inset-bottom, 0px)); border-top: 1px solid var(--line); }
-  .po-foot nav { display: flex; flex-wrap: wrap; gap: 8px 22px; font-size: 13px; }
+  .po-foot { display: flex; align-items: center; justify-content: space-between; gap: var(--sp-5); width: min(1180px, calc(100% - 80px)); margin: var(--sp-20) auto 0; padding: var(--sp-8) 0 calc(var(--sp-10) + env(safe-area-inset-bottom, 0px)); border-top: 1px solid var(--line); }
+  .po-foot nav { display: flex; flex-wrap: wrap; gap: var(--sp-2) var(--sp-6); font-size: var(--fs-md); }
   .po-foot nav a { color: var(--ink-2); }
   .po-foot nav a:hover { color: var(--ink); text-decoration: underline; text-underline-offset: 2px; }
 
   @media (max-width: 1240px) {
     .po-h1 { font-size: 124px; }
-    .po-hero { gap: 48px; }
+    .po-hero { gap: var(--sp-12); }
   }
   @media (max-width: 1080px) {
     .po-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   }
   /* celu: todo apilado, el dorsal debajo del texto */
   @media (max-width: 900px) {
-    .po main { padding-left: 16px; padding-right: 16px; }
+    .po main { padding-left: var(--sp-4); padding-right: var(--sp-4); }
     .po-foot { width: calc(100% - 32px); }
-    .po-top-in { display: flex; height: 64px; padding: 0 16px; gap: 12px; }
+    .po-top-in { display: flex; height: 64px; padding: 0 var(--sp-4); gap: var(--sp-3); }
     .po-top.stuck .po-top-in { height: 56px; }
     .po-top-in .brand { margin-right: auto; }
     .po-top .brand small, .po-links, .po-top.cta .po-enter { display: none; }
-    .po main { gap: 56px; }
-    .po-hero { padding: 28px 20px 36px; gap: 36px; }
-    .po-h1 { font-size: 84px; padding-top: calc(16px + .05em); }
-    .po-lead { font-size: 16px; margin-top: 18px; }
-    .po-ctas { margin-top: 24px; }
+    .po main { gap: var(--sp-14); }
+    .po-hero { padding: var(--sp-8) var(--sp-5) var(--sp-10); gap: var(--sp-10); }
+    .po-h1 { font-size: 84px; padding-top: calc(var(--sp-4) + .05em); }
+    .po-lead { font-size: var(--fs-xl); margin-top: var(--sp-5); }
+    .po-ctas { margin-top: var(--sp-6); }
     .po-ctas .p-btn { flex: 1 1 auto; }
     .po-hero .p-bib-wrap { width: min(100%, 300px); justify-self: center; }
     .po-sh h2 { font-size: 50px; }
-    .po-grid { grid-template-columns: minmax(0, 1fr); gap: 14px; }
+    .po-grid { grid-template-columns: minmax(0, 1fr); gap: var(--sp-4); }
     .po-f { grid-template-rows: 240px auto; }
-    .po-f-v { padding-left: 20px; padding-right: 20px; }
-    .po-end { padding: 32px 20px; }
+    .po-f-v { padding-left: var(--sp-5); padding-right: var(--sp-5); }
+    .po-end { padding: var(--sp-8) var(--sp-5); }
     .po-end h2 { font-size: 68px; }
     .po-clock { top: 24px; right: 20px; }
     .po-clock b { font-size: 52px; }
-    .po-foot { flex-direction: column; align-items: flex-start; margin-top: 56px; }
+    .po-foot { flex-direction: column; align-items: flex-start; margin-top: var(--sp-14); }
   }
 }

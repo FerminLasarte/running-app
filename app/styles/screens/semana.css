@@ -37,13 +37,15 @@
   .sem-st-score .disp { font-size: 30px; }
   .sem-st-score .lbl { display: block; margin-top: var(--sp-1); }
   .sem-st-gap, .sem-st-bar { flex: 1; min-width: 0; }
+  .sem-st-bar > .lbl { display: block; margin-bottom: var(--sp-2); }
   .sem-st-bar .p-sb i.w { background: var(--hero-mut); }
   .sem-st-bar .p-sb i.x { background: var(--hero-line); }
   .sem-st-plan { display: inline-flex; align-items: center; color: var(--hero-mut); font: 600 var(--fs-lbl)/1 var(--f-ui); letter-spacing: .1em; text-transform: uppercase; }
 
   /* la semana: la pista y sus números en una franja arriba, los 7 días abajo con todo el ancho */
   .sem-wsum { display: grid; grid-template-columns: 180px minmax(0, 1fr); gap: var(--sp-4) var(--sp-8); align-items: center; padding: var(--pad); border-bottom: 1px solid var(--line); }
-  .sem-wsum > .lbl { grid-column: 1 / -1; }
+  .sem-wsum-h { grid-column: 1 / -1; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: var(--sp-2) var(--sp-4); }
+  .sem-keys { display: inline-flex; flex-wrap: wrap; gap: var(--sp-4); }
   .sem-zero { font-size: 26px; font-style: italic; color: var(--ink-3); }
   .sem-wstats { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: var(--sp-4) var(--sp-6); }
   .sem-wstats .disp { display: block; font-size: 24px; margin-top: var(--sp-1); }

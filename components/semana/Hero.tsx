@@ -112,6 +112,7 @@ function Planned({ s }: { s: Session }) {
       </div>
       <div className="sem-st-foot">
         <div className="sem-st-bar">
+          <span className="lbl">Estructura de la sesión</span>
           <SessionBar s={s} height={40} />
         </div>
         <Button size="sm" variant="acc" icon={Plus} iconWeight="bold" onClick={() => openSheet('result', { id: s.id })}>
