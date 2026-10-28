@@ -226,7 +226,7 @@ function PredPanel() {
   const vd = vdotOf(lv.sec, 10),
     up = upcomingRaces();
   return (
-    <Panel className="p-c8 p-rise an-predp" style={cssVars({ '--i': 5 })} title="Si corrieras hoy" sub={'VDOT ' + fmt(vd, 1)} flush>
+    <Panel className="p-c8 p-rise p-stretch" style={cssVars({ '--i': 5 })} title="Si corrieras hoy" sub={'VDOT ' + fmt(vd, 1)} flush>
       <div className="an-pred">
         {DISTS.map(([km, n]) => {
           const t = lvTimeAt(lv, km),
@@ -251,7 +251,8 @@ function PredPanel() {
           );
         })}
       </div>
-      <div className="p-panel-b an-sep">
+      {/* al pie: si Tus marcas estira el panel, el aire queda entre los tiempos y la explicación */}
+      <div className="p-panel-b an-sep p-end">
         <HowTo>
           Sale de {lv.txt} (VDOT {fmt(vd, 1)}), con las equivalencias de Jack Daniels. Se recalcula con cada test, serie o tempo nuevo. Es una estimación, no una promesa.
         </HowTo>

@@ -56,6 +56,10 @@
     --pad: var(--sp-5);        /* adentro de un panel */
     --gutter: var(--sp-6);     /* entre paneles */
     --section: var(--sp-12);   /* entre el estadio y lo que sigue */
+
+    /* Texto: siete pasos para la interfaz (los títulos y números de display llevan su propio tamaño). --fs-lbl es el de las
+       etiquetas en mayúsculas espaciadas; ningún texto de la interfaz baja de ahí */
+    --fs-lbl: 10.5px; --fs-xs: 11px; --fs-sm: 12px; --fs-md: 13px; --fs-base: 14px; --fs-lg: 15px; --fs-xl: 16px;
     color-scheme: light;
   }
   [data-theme="dark"] {

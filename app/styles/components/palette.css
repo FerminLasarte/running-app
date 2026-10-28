@@ -5,7 +5,7 @@
   .p-cmdk {
     position: fixed; z-index: 95; left: 50%; top: 12vh; width: min(660px, calc(100vw - 32px)); transform: translateX(-50%);
     background: var(--surface); border: 1px solid var(--line-2); border-radius: var(--r-lg); overflow: hidden;
-    box-shadow: var(--sh-pop), 0 40px 80px -30px rgb(0 0 0 / .45); font-size: 14px; line-height: 1.5; color: var(--ink);
+    box-shadow: var(--sh-pop), 0 40px 80px -30px rgb(0 0 0 / .45); font-size: var(--fs-base); line-height: 1.5; color: var(--ink);
     animation: p-ck-in .25s var(--ease) both;
   }
   @keyframes p-ck-in { from { opacity: 0; transform: translate(-50%, -8px) scale(.98); } }
@@ -17,12 +17,12 @@
   .p-ck-g { padding: var(--sp-3) var(--sp-3) var(--sp-2); }
   .p-ck-i {
     position: relative; width: 100%; display: grid; grid-template-columns: 28px minmax(0, 1fr) auto; gap: var(--sp-3); align-items: center;
-    height: 44px; padding: 0 var(--sp-3); border-radius: var(--r-sm); text-align: left; font-size: 14px; color: var(--ink-2);
+    height: 44px; padding: 0 var(--sp-3); border-radius: var(--r-sm); text-align: left; font-size: var(--fs-base); color: var(--ink-2);
   }
   .p-ck-i > svg { width: 17px; height: 17px; color: var(--ink-3); justify-self: center; }
   .p-ck-i > svg.go { color: var(--ink-4); width: 15px; height: 15px; }
   .p-ck-i .t { min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  .p-ck-i .t small { color: var(--ink-3); margin-left: var(--sp-2); font-size: 12.5px; }
+  .p-ck-i .t small { color: var(--ink-3); margin-left: var(--sp-2); font-size: var(--fs-md); }
   .p-ck-i mark { background: none; color: var(--ink); font-weight: 700; text-decoration: underline; text-decoration-color: var(--acc); text-decoration-thickness: 2px; text-underline-offset: 3px; }
   .p-ck-i.on { background: var(--sunk); color: var(--ink); }
   .p-ck-i.on::before { content: ""; position: absolute; left: 0; top: 10px; bottom: 10px; width: 3px; background: var(--acc); }
@@ -30,9 +30,9 @@
   .p-ck-i .sq { width: 10px; height: 10px; background: var(--tc); transform: skewX(-14deg); justify-self: center; }
   .p-ck-e { padding: var(--sp-10) var(--sp-5); text-align: center; color: var(--ink-3); }
   .p-ck-e b { display: block; font: italic 900 24px/1 var(--f-disp); font-stretch: 64%; text-transform: uppercase; color: var(--ink); margin-bottom: var(--sp-2); }
-  .p-ck-f { display: flex; gap: var(--sp-5); padding: var(--sp-3) var(--sp-5); border-top: 1px solid var(--line); background: var(--bg); font-size: 12px; color: var(--ink-3); }
+  .p-ck-f { display: flex; gap: var(--sp-5); padding: var(--sp-3) var(--sp-5); border-top: 1px solid var(--line); background: var(--bg); font-size: var(--fs-sm); color: var(--ink-3); }
   .p-ck-f span { display: inline-flex; align-items: center; gap: var(--sp-2); }
-  .p-ck-f .brand-t { margin-left: auto; font-size: 13px; color: var(--ink-3); }
+  .p-ck-f .brand-t { margin-left: auto; font-size: var(--fs-md); color: var(--ink-3); }
 
   @media (max-width: 900px) {
     .p-cmdk { top: calc(8px + env(safe-area-inset-top)); }

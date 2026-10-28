@@ -11,7 +11,7 @@
   @keyframes p-fade { from { opacity: 0; } }
   .p-oval-c { position: absolute; inset: 0; display: grid; place-items: center; text-align: center; pointer-events: none; }
   .p-oval-c .disp { font-size: 30px; font-style: italic; }
-  .p-oval-c small { display: block; font-size: 11px; color: var(--ink-3); margin-top: 2px; }
+  .p-oval-c small { display: block; font-size: var(--fs-xs); color: var(--ink-3); margin-top: 2px; }
   /* una vuelta de luces de ritmo (el easter egg «kipchoge»): verdes como el láser de Viena, con el reloj en el medio */
   .p-oval { --p-laser: #23B85C; }
   [data-theme="dark"] .p-oval { --p-laser: #3BE67B; }
@@ -31,11 +31,11 @@
   .p-bib .pin { position: absolute; width: 9px; height: 9px; border-radius: 50%; background: var(--notch, var(--hero)); box-shadow: inset 0 1px 1.5px rgb(0 0 0 / .4); }
   .p-bib .pin.a { top: 11px; left: 11px; } .p-bib .pin.b { top: 11px; right: 11px; }
   .p-bib .pin.c { bottom: 78px; left: 11px; } .p-bib .pin.d { bottom: 78px; right: 11px; }
-  .p-bib-band { margin: var(--sp-8) var(--sp-6) 0; display: flex; justify-content: space-between; align-items: center; gap: var(--sp-2); height: 26px; padding: 0 var(--sp-3); background: var(--acc); color: var(--acc-ink); font: italic 900 13px/1 var(--f-disp); font-stretch: 70%; letter-spacing: .06em; text-transform: uppercase; white-space: nowrap; }
+  .p-bib-band { margin: var(--sp-8) var(--sp-6) 0; display: flex; justify-content: space-between; align-items: center; gap: var(--sp-2); height: 26px; padding: 0 var(--sp-3); background: var(--acc); color: var(--acc-ink); font: italic 900 var(--fs-md)/1 var(--f-disp); font-stretch: 70%; letter-spacing: .06em; text-transform: uppercase; white-space: nowrap; }
   .p-bib-main { flex: 1; display: flex; flex-direction: column; justify-content: center; align-items: center; padding: var(--sp-2) var(--sp-5) var(--sp-3); }
   .p-bib-num { font-family: var(--f-disp); font-stretch: 62%; font-weight: 900; font-style: italic; font-size: 150px; line-height: .78; letter-spacing: -.035em; font-variant-numeric: tabular-nums; padding-right: .04em; }
-  .p-bib-num-l { font: 700 11px/1 var(--f-ui); letter-spacing: .4em; text-transform: uppercase; margin-top: var(--sp-3); color: var(--paper-mut); padding-left: .4em; }
-  .p-bib-meta { display: flex; justify-content: center; gap: var(--sp-4); font-size: 12px; color: var(--paper-mut); margin-top: var(--sp-4); }
+  .p-bib-num-l { font: 700 var(--fs-xs)/1 var(--f-ui); letter-spacing: .4em; text-transform: uppercase; margin-top: var(--sp-3); color: var(--paper-mut); padding-left: .4em; }
+  .p-bib-meta { display: flex; justify-content: center; gap: var(--sp-4); font-size: var(--fs-sm); color: var(--paper-mut); margin-top: var(--sp-4); }
   .p-bib-meta b { color: var(--paper-ink); font-weight: 600; }
   .p-bib-tear { position: relative; height: 68px; border-top: 1.5px dashed #cdc9bf; display: grid; grid-template-columns: 1fr 1fr; align-items: center; padding: 0 var(--sp-6); }
   .p-bib-tear::before, .p-bib-tear::after { content: ""; position: absolute; top: -8px; width: 14px; height: 14px; border-radius: 50%; background: var(--notch, var(--hero)); }
@@ -55,11 +55,11 @@
   .p-band-h { background: var(--acc); color: var(--acc-ink); padding: var(--sp-4) var(--sp-5) var(--sp-3); text-align: center; }
   .p-band-h b { display: block; font: italic 900 22px/1 var(--f-disp); font-stretch: 64%; text-transform: uppercase; letter-spacing: .02em; }
   .p-band-h small { display: block; font: 600 10px/1 var(--f-ui); letter-spacing: .14em; text-transform: uppercase; margin-top: var(--sp-1); opacity: .85; }
-  .p-band table { width: 100%; border-collapse: collapse; font: 500 13px/1 var(--f-mono); font-variant-numeric: tabular-nums; }
+  .p-band table { width: 100%; border-collapse: collapse; font: 500 var(--fs-md)/1 var(--f-mono); font-variant-numeric: tabular-nums; }
   .p-band th { font: 700 9.5px/1 var(--f-ui); letter-spacing: .12em; text-transform: uppercase; color: var(--paper-mut); padding: var(--sp-2) var(--sp-4); text-align: right; }
   .p-band th:first-child, .p-band td:first-child { text-align: left; }
   .p-band td { padding: 0 var(--sp-4); height: 25px; text-align: right; border-top: 1px solid #e3dfd5; }
-  .p-band td:first-child { font: italic 900 15px/1 var(--f-disp); font-stretch: 70%; }
+  .p-band td:first-child { font: italic 900 var(--fs-lg)/1 var(--f-disp); font-stretch: 70%; }
   .p-band tr.sh td { background: #efede6; }
   .p-band tr.fin td { background: var(--paper-ink); color: var(--paper); border-top: 0; }
   .p-band tr.fin td:first-child { color: var(--acc); text-transform: uppercase; }
@@ -99,7 +99,7 @@
   .p-medal svg { width: 56px; height: 72px; display: block; overflow: visible; }
   .p-medal b { display: block; font: italic 900 20px/1 var(--f-disp); font-stretch: 64%; text-transform: uppercase; }
   .p-medal .disp { display: flex; align-items: center; gap: var(--sp-2); font-size: 30px; margin-top: var(--sp-2); }
-  .p-medal small { display: block; font-size: 12px; color: var(--ink-3); margin-top: var(--sp-1); }
+  .p-medal small { display: block; font-size: var(--fs-sm); color: var(--ink-3); margin-top: var(--sp-1); }
 
   /* reloj de largada: lo único que se mueve solo, porque el dato cambia */
   .p-clock { display: flex; align-items: flex-end; gap: var(--sp-2); }
@@ -113,7 +113,7 @@
   .p-chrono svg { width: 100%; height: auto; display: block; }
   .p-chrono .c { position: absolute; inset: 0; display: grid; place-items: center; text-align: center; }
   .p-chrono .c .disp { font-size: 54px; font-style: italic; }
-  .p-chrono .c small { display: block; font-size: 11px; line-height: 1.3; color: var(--ink-3); margin: var(--sp-1) auto 0; max-width: 96px; }
+  .p-chrono .c small { display: block; font-size: var(--fs-xs); line-height: 1.3; color: var(--ink-3); margin: var(--sp-1) auto 0; max-width: 96px; }
 
   @media (max-width: 900px) {
     .p-bib-wrap { padding: 0 var(--sp-3); }

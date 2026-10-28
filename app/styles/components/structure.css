@@ -3,7 +3,7 @@
    Ojo: base.css pone h1, h2, h3, p y ul en margin 0 y el body en 16 px: los espacios de los títulos van con padding o
    gap, y los contenedores fijan los 14 px del boceto. */
 @layer components {
-  .p-grid { display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); gap: var(--gutter); font-size: 14px; line-height: 1.5; }
+  .p-grid { display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); gap: var(--gutter); font-size: var(--fs-base); line-height: 1.5; }
   .p-c3 { grid-column: span 3; } .p-c4 { grid-column: span 4; } .p-c5 { grid-column: span 5; } .p-c6 { grid-column: span 6; }
   .p-c7 { grid-column: span 7; } .p-c8 { grid-column: span 8; } .p-c12 { grid-column: span 12; }
 
@@ -14,11 +14,11 @@
   /* encabezado de página: el momento con voz de marca */
   .p-phd { display: flex; align-items: flex-end; justify-content: space-between; gap: var(--sp-8); margin-bottom: var(--sp-8); }
   .p-phd h1 { font-size: 84px; padding-top: calc(var(--sp-2) + .06em); }
-  .p-phd p { padding-top: var(--sp-3); color: var(--ink-2); font-size: 15px; line-height: 1.5; max-width: 62ch; }
+  .p-phd p { padding-top: var(--sp-3); color: var(--ink-2); font-size: var(--fs-lg); line-height: 1.5; max-width: 62ch; }
   .p-phd p b { color: var(--ink); font-weight: 600; }
   .p-phd .p-acts { display: flex; gap: var(--sp-2); align-items: center; }
 
-  .p-panel { background: var(--surface); border: 1px solid var(--line); border-radius: var(--r-lg); min-width: 0; font-size: 14px; line-height: 1.5; }
+  .p-panel { background: var(--surface); border: 1px solid var(--line); border-radius: var(--r-lg); min-width: 0; font-size: var(--fs-base); line-height: 1.5; }
   .p-panel-h { display: flex; align-items: center; gap: var(--sp-3); min-height: 52px; padding: 0 var(--pad); border-bottom: 1px solid var(--line); }
   .p-panel-h h2 { font: 800 17px/1 var(--f-disp); font-stretch: 72%; text-transform: uppercase; letter-spacing: .015em; }
   .p-panel-h .r { margin-left: auto; display: flex; gap: var(--sp-2); align-items: center; }
@@ -27,17 +27,25 @@
   .p-empty .p-panel-b { display: grid; gap: var(--sp-3); justify-items: start; padding: var(--sp-6); }
   .p-empty .ic { width: 26px; height: 26px; color: var(--ink-3); }
   .p-empty h2 { font-size: 34px; }
-  .p-empty p { color: var(--ink-2); font-size: 13.5px; max-width: 52ch; }
+  .p-empty p { color: var(--ink-2); font-size: var(--fs-base); max-width: 52ch; }
   /* desplegable (More): el resumen en tinta, chico. «¿Cómo se calcula?» (HowTo) separa la metodología del dato */
-  .p-more summary { width: fit-content; cursor: pointer; color: var(--ink-2); font-size: 12.5px; font-weight: 600; border-radius: 2px; }
+  .p-more summary { width: fit-content; cursor: pointer; color: var(--ink-2); font-size: var(--fs-md); font-weight: 600; border-radius: 2px; }
   .p-more summary:hover { color: var(--ink); }
   .p-how { margin-top: var(--sp-4); }
   .p-how:first-child { margin-top: 0; }
-  .p-how-b { display: grid; gap: var(--sp-2); padding-top: var(--sp-3); max-width: 68ch; color: var(--ink-2); font-size: 13px; line-height: 1.55; }
+  .p-how-b { display: grid; gap: var(--sp-2); padding-top: var(--sp-3); max-width: 68ch; color: var(--ink-2); font-size: var(--fs-md); line-height: 1.55; }
   .p-how-b b { color: var(--ink); font-weight: 600; }
   /* una tabla adentro se corre de costado en el celu, no la página */
   .p-how-tw { overflow-x: auto; margin: var(--sp-1) 0; }
   .p-how-b .p-tbl td { height: 36px; padding-block: var(--sp-2); }
+
+  /* panel que estira su fila (el vecino es más alto): el cuerpo ocupa lo que sobra y el pie (.p-end) se apoya abajo, así
+     el aire queda en un solo lugar y no como un hueco al final */
+  .p-stretch { display: flex; flex-direction: column; }
+  .p-stretch > .p-panel-b { flex: 1; display: flex; flex-direction: column; }
+  .p-stretch .p-end { margin-top: auto; }
+  /* el margen auto no deja aire si el panel no sobra: el desplegable conserva sus 16 px como relleno */
+  .p-stretch .p-how.p-end { padding-top: var(--sp-4); }
 
   /* tablas anchas: se corren de costado adentro del panel, no la página */
   .p-panel.tw { overflow-x: auto; }
@@ -47,7 +55,7 @@
   .p-kpis > div { padding: var(--sp-4) var(--sp-5); min-width: 0; }
   .p-kpis > div + div { border-left: 1px solid var(--line); }
   .p-kpis .disp { display: block; font-size: 34px; margin-top: var(--sp-2); }
-  .p-kpis small { display: block; font-size: 12px; color: var(--ink-3); margin-top: var(--sp-1); }
+  .p-kpis small { display: block; font-size: var(--fs-sm); color: var(--ink-3); margin-top: var(--sp-1); }
   .p-kpis.lg .disp { font-size: 52px; margin-top: var(--sp-3); font-style: italic; }
   .p-panel-h + .p-kpis, .p-kpis:has(+ .p-panel-b) { border-bottom: 1px solid var(--line); }
   .p-up { color: var(--pos); }
@@ -55,24 +63,24 @@
 
   /* lista de marcas: nombre y origen a la izquierda, el número grande e itálico a la derecha */
   .p-marks { list-style: none; padding: 0; margin: 0; }
-  .p-marks li { border-top: 1px solid var(--line); font-size: 13px; }
+  .p-marks li { border-top: 1px solid var(--line); font-size: var(--fs-md); }
   .p-marks li:first-child { border-top: 0; }
   .p-marks .mrow { display: flex; align-items: baseline; justify-content: space-between; gap: var(--sp-3); padding: var(--sp-3) 0; }
   .p-marks li:first-child .mrow { padding-top: 0; }
   .p-marks li:last-child .mrow { padding-bottom: 0; }
   .p-marks a { color: inherit; text-decoration: none; border-radius: 2px; }
   .p-marks a:hover .disp { color: var(--acc); }
-  .p-marks small { display: block; color: var(--ink-3); font-size: 11.5px; margin-top: 2px; }
+  .p-marks small { display: block; color: var(--ink-3); font-size: var(--fs-sm); margin-top: 2px; }
   .p-marks .disp { font-size: 24px; font-style: italic; white-space: nowrap; display: inline-flex; align-items: center; gap: var(--sp-2); }
 
   /* unidad chica al lado de un número grande */
-  .p-u { font-family: var(--f-ui); font-stretch: 100%; font-style: normal; font-weight: 500; font-size: max(.34em, 11px); letter-spacing: .02em; color: var(--ink-3); margin-left: .22em; text-transform: none; }
+  .p-u { font-family: var(--f-ui); font-stretch: 100%; font-style: normal; font-weight: 500; font-size: max(.34em, var(--fs-xs)); letter-spacing: .02em; color: var(--ink-3); margin-left: .22em; text-transform: none; }
 
   /* bloque estadio: oscuro en los dos temas, con los andariveles enormes de fondo */
   .p-stadium {
     position: relative; overflow: hidden; isolation: isolate;
     display: grid; grid-template-columns: minmax(0, 1fr) var(--side, 300px); gap: var(--sp-12);
-    padding: var(--sp-8) var(--sp-10); border-radius: var(--r-lg); font-size: 14px; line-height: 1.5;
+    padding: var(--sp-8) var(--sp-10); border-radius: var(--r-lg); font-size: var(--fs-base); line-height: 1.5;
     background: var(--hero); color: var(--hero-ink);
   }
   /* el estadio abre la pantalla: lo separa de los paneles un salto de sección, no el de entre paneles */
@@ -84,7 +92,7 @@
   .p-lanes rect { fill: none; stroke: var(--hero-ink); stroke-width: 1; opacity: .07; }
   .p-lanes rect.a { stroke: var(--acc); opacity: .45; stroke-width: 2; }
   .p-st-top { display: flex; align-items: center; flex-wrap: wrap; gap: var(--sp-2) var(--sp-3); }
-  .p-st-ok { display: inline-flex; align-items: center; gap: var(--sp-1); color: #7BD3A0; font: 600 10.5px/1 var(--f-ui); letter-spacing: .1em; text-transform: uppercase; }
+  .p-st-ok { display: inline-flex; align-items: center; gap: var(--sp-1); color: #7BD3A0; font: 600 var(--fs-lbl)/1 var(--f-ui); letter-spacing: .1em; text-transform: uppercase; }
   .p-st-ok svg { width: 13px; height: 13px; }
   .p-st-h { font-size: 112px; padding-top: calc(var(--sp-5) + .05em); }
   .p-st-stats { display: grid; grid-template-columns: repeat(4, auto); justify-content: start; margin-top: var(--sp-6); }
@@ -93,8 +101,8 @@
   .p-st-stats .disp { display: block; font-size: 46px; margin-top: var(--sp-2); }
 
   /* tabla de datos: densa, números en mono a la derecha, la fila entera lleva al detalle */
-  .p-tbl { width: 100%; border-collapse: collapse; font-size: 13px; }
-  .p-tbl th { font: 600 10.5px/1 var(--f-ui); letter-spacing: .1em; text-transform: uppercase; color: var(--ink-3); text-align: left; padding: var(--sp-3) var(--sp-4); border-bottom: 1px solid var(--line); white-space: nowrap; }
+  .p-tbl { width: 100%; border-collapse: collapse; font-size: var(--fs-md); }
+  .p-tbl th { font: 600 var(--fs-lbl)/1 var(--f-ui); letter-spacing: .1em; text-transform: uppercase; color: var(--ink-3); text-align: left; padding: var(--sp-3) var(--sp-4); border-bottom: 1px solid var(--line); white-space: nowrap; }
   /* 46 px es el mínimo: una fila de dos renglones (la nota del Registro, el plan de un tramo) crece con aire arriba y abajo */
   .p-tbl td { padding: var(--sp-3) var(--sp-4); height: 46px; border-bottom: 1px solid var(--line); white-space: nowrap; }
   .p-tbl tbody tr:last-child td { border-bottom: 0; }
@@ -104,7 +112,7 @@
   .p-tbl .p-sort svg { width: 10px; height: 10px; }
   .p-tbl th.r .p-sort { flex-direction: row-reverse; }
   .p-tbl .r { text-align: right; }
-  .p-tbl td.r { font-family: var(--f-mono); font-size: 12.5px; font-variant-numeric: tabular-nums; }
+  .p-tbl td.r { font-family: var(--f-mono); font-size: var(--fs-md); font-variant-numeric: tabular-nums; }
   .p-tbl tr.go { position: relative; cursor: pointer; transition: background-color .12s var(--ease); }
   .p-tbl tr.go:hover { background: color-mix(in oklab, var(--sunk) 70%, transparent); }
   .p-tbl tr.go:has(.p-go:focus-visible) { outline: 2px solid var(--acc); outline-offset: -2px; }
@@ -116,12 +124,12 @@
   .p-tbl tr.grp td { height: auto; padding: var(--sp-6) var(--sp-4) var(--sp-3); background: var(--bg); border-bottom: 1px solid var(--line); }
   .p-tbl .grp-in { display: flex; align-items: baseline; flex-wrap: wrap; gap: var(--sp-1) var(--sp-4); }
   .p-tbl .grp-in b { font: italic 900 22px/1 var(--f-disp); font-stretch: 64%; text-transform: uppercase; letter-spacing: .01em; }
-  .p-tbl .grp-in span { font-size: 12.5px; color: var(--ink-3); }
+  .p-tbl .grp-in span { font-size: var(--fs-md); color: var(--ink-3); }
   .p-tbl .s { color: var(--ink-3); margin-left: var(--sp-2); }
   /* la fecha: el día grande e itálico, el nombre chico */
   .p-tbl td.dd { width: 64px; }
   .p-tbl td.dd b { font: italic 800 20px/1 var(--f-disp); font-stretch: 70%; display: inline-block; width: 24px; }
-  .p-tbl td.dd span { font-size: 11px; color: var(--ink-3); text-transform: uppercase; letter-spacing: .06em; font-weight: 600; }
+  .p-tbl td.dd span { font-size: var(--fs-xs); color: var(--ink-3); text-transform: uppercase; letter-spacing: .06em; font-weight: 600; }
   .p-tbl td.sbc { width: 96px; }
   .p-tbl td.sbc .p-sb { width: 84px; }
   .p-tbl tr.dim .p-chip, .p-tbl tr.dim .p-sb { opacity: .45; }

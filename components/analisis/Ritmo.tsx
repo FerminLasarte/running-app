@@ -14,7 +14,7 @@ import { doneList, type DoneSession } from '@/lib/domain/stats';
 import { addDays, dShort, dateLabel, dayDiff, fmt, fmtDur, fmtPace, isoWeek, monthOf, pd, plural, sod, sum, ymd } from '@/lib/domain/util';
 import { Button, Segmented, deltaTxt } from '@/components/pista/controls';
 import { HowTo, Kpis, Panel } from '@/components/pista/structure';
-import { Chart, Dots, GridY, Guide, Key, LabelsX, Line, Tip, lin, useCursor, type Pt } from '@/components/pista/charts';
+import { Chart, Dots, GridY, Guide, Key, LabelsX, Line, Tip, chartFont, lin, useCursor, type Pt } from '@/components/pista/charts';
 import { cssVars, typeColor } from '@/components/pista/util';
 import { useAnPeriod, usePaceBase } from './period';
 import { niceTicks, paceTicks } from './util';
@@ -144,7 +144,7 @@ function PaceChart({ T, from, race }: { T: PaceTrend[]; from: string; race: Race
     >
       <GridY ticks={ticks} y={Y} x0={M.l} x1={w - M.r} fmt={fmtPace} />
       <line x1={M.l} x2={w - M.r} y1={Y(goal)} y2={Y(goal)} stroke="var(--ink)" strokeDasharray="4 3" />
-      <text className="an-halo" x={M.l + 6} y={Y(goal) - 6} style={{ font: '600 10.5px var(--f-mono)', fill: 'var(--ink)' }}>
+      <text className="an-halo" x={M.l + 6} y={Y(goal) - 6} style={{ font: chartFont('lbl'), fill: 'var(--ink)' }}>
         OBJETIVO {race.name.toUpperCase()} · {fmtPace(goal)}
       </text>
       <text className="p-ax" x={M.l} y={M.t - 6}>
@@ -160,7 +160,7 @@ function PaceChart({ T, from, race }: { T: PaceTrend[]; from: string; race: Race
         ) : null,
       )}
       {ends.map((e) => (
-        <text key={e.k} x={Math.max(e.x, w - M.r) + 6} y={e.y + 4} style={{ font: '600 11px var(--f-mono)', fill: typeColor(e.k) }}>
+        <text key={e.k} x={Math.max(e.x, w - M.r) + 6} y={e.y + 4} style={{ font: chartFont('xs'), fill: typeColor(e.k) }}>
           {fmtPace(e.v)}
         </text>
       ))}
@@ -323,10 +323,10 @@ function HeartChart({ hp, from }: { hp: HrPace; from: string }) {
       <line x1={xa} y1={Y(a)} x2={xb} y2={Y(b)} stroke="var(--hr)" strokeWidth="2.4" strokeLinecap="round" />
       <circle cx={xa} cy={Y(a)} r="4" fill="var(--surface)" stroke="var(--hr)" strokeWidth="2" />
       <circle cx={xb} cy={Y(b)} r="4.5" fill="var(--hr)" />
-      <text x={xa + 8} y={Y(a) + (a > b ? 18 : -10)} style={{ font: '600 11px var(--f-mono)', fill: 'var(--ink-2)' }}>
+      <text x={xa + 8} y={Y(a) + (a > b ? 18 : -10)} style={{ font: chartFont('xs'), fill: 'var(--ink-2)' }}>
         {fmtPace(a)} en {monthOf(new Date(Math.max(t0, hp.first)))}
       </text>
-      <text x={xb - 4} y={Y(b) + (a > b ? -10 : 18)} textAnchor="end" style={{ font: '600 12px var(--f-mono)', fill: 'var(--hr)' }}>
+      <text x={xb - 4} y={Y(b) + (a > b ? -10 : 18)} textAnchor="end" style={{ font: chartFont('sm'), fill: 'var(--hr)' }}>
         {fmtPace(b)} ahora
       </text>
       <LabelsX y={h - 6} items={dateLabels(t0, t1, X, 5)} />
@@ -401,7 +401,7 @@ function DriftChart({ L }: { L: DoneSession[] }) {
         );
       })}
       <line x1={M.l} x2={w - M.r} y1={Y(5)} y2={Y(5)} stroke="var(--ink)" strokeDasharray="4 3" />
-      <text className="an-halo" x={w - M.r} y={Y(5) - 6} textAnchor="end" style={{ font: '600 10.5px var(--f-mono)', fill: 'var(--ink)' }}>
+      <text className="an-halo" x={w - M.r} y={Y(5) - 6} textAnchor="end" style={{ font: chartFont('lbl'), fill: 'var(--ink)' }}>
         5% · TOPE
       </text>
       <LabelsX y={h - 6} items={L.map((q, k) => ({ x: xc(k), label: (n - 1 - k) % every === 0 ? dShort(pd(q.result.date)) : '' })).filter((q) => q.label)} />
