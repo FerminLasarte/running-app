@@ -1,16 +1,20 @@
 /* Service worker: que la app instalada abra aunque no haya señal.
    Solo guarda la app (la página, el JS, el CSS, las letras, los íconos y el mapa de fondo). Los datos no pasan por
    acá: la app los lee de su caché local y de Supabase. Nada de /api, del login ni de otros dominios.
-   - Páginas de las secciones: se muestra la guardada al instante y se actualiza por detrás (la versión nueva entra
-     en la próxima apertura). Se guardan todas al instalar, así se puede navegar sin señal.
+   - Páginas de las secciones: primero la red, así después de un deploy la primera apertura ya muestra lo nuevo. Si
+     no hay señal o la red tarda más de NET_WAIT, la guardada (y la nueva se guarda igual cuando llega). Se guardan
+     todas al instalar, así se puede navegar sin señal.
    - Archivos de /_next/static: llevan un hash en el nombre, nunca cambian; se guardan la primera vez que se piden.
    - Íconos, medallas y mapa: los guardados al instante, y se actualizan por detrás. */
-const PAGE = 'rr-page-v2',
+/* v3: las páginas pasaron a pedirse primero a la red; al activarse se borra la caché vieja */
+const PAGE = 'rr-page-v3',
   STATIC = 'rr-static-v1',
   ASSETS = 'rr-assets-v1';
 const KEEP = [PAGE, STATIC, ASSETS];
 /* las de components/shell/sections.ts, y la vitrina */
 const PAGES = ['/semana', '/registro', '/analisis', '/carreras', '/mapa', '/logros', '/logros/vitrina', '/ajustes'];
+/* cuánto se espera a la red antes de mostrar la página guardada (con señal mala) */
+const NET_WAIT = 3000;
 
 self.addEventListener('install', (e) => {
   e.waitUntil(
@@ -31,11 +35,10 @@ self.addEventListener('activate', (e) => {
 
 const staticsOf = (html) => [...html.matchAll(/\/_next\/static\/[^"'\\\s)]+/g)].map((m) => m[0]);
 
-/* baja una página; si vino bien (sin mandar al login), la guarda junto con los archivos que usa. Si cambió, borra los
-   archivos que ya no usa ninguna de las páginas guardadas (lo que se cargue después se vuelve a guardar al pedirlo) */
-async function refreshPage(cache, path) {
-  const res = await fetch(path, { cache: 'no-store', credentials: 'same-origin' });
-  if (!res.ok || res.redirected || new URL(res.url).pathname !== path) return res;
+/* guarda una página que vino bien (sin mandar al login) junto con los archivos que usa. Si cambió, borra los archivos
+   que ya no usa ninguna de las páginas guardadas (lo que se cargue después se vuelve a guardar al pedirlo) */
+async function savePage(cache, path, res) {
+  if (!res.ok || res.type !== 'basic' || res.redirected || new URL(res.url).pathname !== path) return;
   const html = await res.clone().text();
   const st = await caches.open(STATIC);
   await Promise.all(staticsOf(html).map((u) => st.match(u).then((hit) => hit || st.add(u)).catch(() => {})));
@@ -46,7 +49,10 @@ async function refreshPage(cache, path) {
     for (const r of await cache.keys()) staticsOf(await (await cache.match(r)).text()).forEach((u) => used.add(u));
     for (const r of await st.keys()) if (!used.has(new URL(r.url).pathname)) await st.delete(r);
   }
-  return res;
+}
+/* al instalar: baja cada página y la guarda */
+async function refreshPage(cache, path) {
+  await savePage(cache, path, await fetch(path, { cache: 'no-store', credentials: 'same-origin' }));
 }
 
 self.addEventListener('fetch', (e) => {
@@ -63,13 +69,17 @@ self.addEventListener('fetch', (e) => {
     return;
   }
   if (req.mode === 'navigate' && PAGES.includes(p)) {
+    /* el pedido original: si hace falta, el login redirige como siempre. Lo que llega se guarda aunque ya se haya
+       mostrado la copia */
+    const net = fetch(req).then((res) => ({ res, copy: res.clone() }));
+    e.waitUntil(net.then(({ copy }) => caches.open(PAGE).then((c) => savePage(c, p, copy))).catch(() => {}));
     e.respondWith(
       (async () => {
-        const c = await caches.open(PAGE),
-          hit = await c.match(p);
-        e.waitUntil(refreshPage(c, p).catch(() => {}));
-        /* sin copia guardada todavía: el pedido original (así el login, si hace falta, redirige como siempre) */
-        return hit || fetch(req);
+        const late = new Promise((ok) => setTimeout(() => ok(null), NET_WAIT));
+        const first = await Promise.race([net, late]).catch(() => null);
+        if (first) return first.res;
+        /* sin señal o con la red lenta, la guardada; si todavía no hay copia, se espera a la red */
+        return (await caches.match(p, { cacheName: PAGE })) || net.then((x) => x.res);
       })(),
     );
     return;
