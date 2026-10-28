@@ -12,7 +12,7 @@ import { doneList, kmBetween, kmByType, monthNow, streakInfo, weekSeries, weekSt
 import { addDays, cap, dShort, fmt, fmtDur, fmtPace, isoWeek, mondayOf, nf, pd, plural, sod, sum } from '@/lib/domain/util';
 import { sessionHref } from '@/lib/nav';
 import { Chip, Delta } from '@/components/pista/controls';
-import { Kpis, MarkList, Panel } from '@/components/pista/structure';
+import { HowTo, Kpis, MarkList, Panel } from '@/components/pista/structure';
 import { ShareBars } from '@/components/pista/meters';
 import { Chart, GridY, Key, LabelsX, Line, StackedBars, Tip, lin, useCursor, type Bar, type Pt } from '@/components/pista/charts';
 import { cssVars, typeColor } from '@/components/pista/util';
@@ -60,7 +60,7 @@ function Big() {
     semana en curso, punteado */
 function VolChart({ W }: { W: WeekRow[] }) {
   const w = 760,
-    h = 330,
+    h = 420,
     M = { l: 34, r: 12, t: 16, b: 28 },
     N = W.length,
     bw = (w - M.l - M.r) / N,
@@ -133,17 +133,16 @@ function VolPanel({ W }: { W: WeekRow[] }) {
       className="p-c8 p-rise"
       style={cssVars({ '--i': 3 })}
       title="Kilómetros por semana"
-      actions={
-        <span className="an-keys hide-s">
-          {used.map((t) => (
-            <Key key={t} color={typeColor(t)} kind="sq">
-              {TYPES[t].label}
-            </Key>
-          ))}
-          <Key color="var(--ink)">Promedio 4 sem</Key>
-        </span>
-      }
     >
+      {/* la leyenda va arriba del gráfico y no en el encabezado: ahí no entraba sin partir el título en dos */}
+      <span className="an-keys an-keys-b">
+        {used.map((t) => (
+          <Key key={t} color={typeColor(t)} kind="sq">
+            {TYPES[t].label}
+          </Key>
+        ))}
+        <Key color="var(--ink)">Promedio 4 sem</Key>
+      </span>
       <VolChart W={W} />
     </Panel>
   );
@@ -201,7 +200,7 @@ function TypePanel({ from, label }: { from: string; label: string }) {
                   : 'Los demás se pasaron ' + fo.by + ' lpm en promedio: si querés fondos más suaves, bajá un poco el ritmo.'}
             </p>
           ) : null}
-          <p className="an-foot">Fuerte: los km de trabajo de series, tempos y tests. Si la nota dice «8x600 m», cuento 8 por 600 m; si no, el 40% de la sesión.</p>
+          <HowTo>Fuerte: los km de trabajo de series, tempos y tests. Si la nota dice «8x600 m», cuento 8 por 600 m; si no, el 40% de la sesión.</HowTo>
         </div>
       ) : null}
     </Panel>
@@ -227,7 +226,7 @@ function PredPanel() {
   const vd = vdotOf(lv.sec, 10),
     up = upcomingRaces();
   return (
-    <Panel className="p-c8 p-rise" style={cssVars({ '--i': 5 })} title="Si corrieras hoy" sub={'VDOT ' + fmt(vd, 1)} flush>
+    <Panel className="p-c8 p-rise an-predp" style={cssVars({ '--i': 5 })} title="Si corrieras hoy" sub={'VDOT ' + fmt(vd, 1)} flush>
       <div className="an-pred">
         {DISTS.map(([km, n]) => {
           const t = lvTimeAt(lv, km),
@@ -252,9 +251,11 @@ function PredPanel() {
           );
         })}
       </div>
-      <p className="p-panel-b an-sep an-foot">
-        Sale de {lv.txt} (VDOT {fmt(vd, 1)}), con las equivalencias de Jack Daniels. Se recalcula con cada test, serie o tempo nuevo. Es una estimación, no una promesa.
-      </p>
+      <div className="p-panel-b an-sep">
+        <HowTo>
+          Sale de {lv.txt} (VDOT {fmt(vd, 1)}), con las equivalencias de Jack Daniels. Se recalcula con cada test, serie o tempo nuevo. Es una estimación, no una promesa.
+        </HowTo>
+      </div>
     </Panel>
   );
 }

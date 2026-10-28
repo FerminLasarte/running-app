@@ -189,16 +189,18 @@ function Done({ s }: { s: Session }) {
         <div className="p-rise" style={cssVars({ '--i': 3 })}>
           <LapsPanel s={s} se={se} />
         </div>
+      </div>
+      {/* el puntaje encabeza el costado: los tramos son largos y la columna de al lado quedaba vacía. En el celu el
+          costado va debajo, así que el orden sigue siendo ritmo, tramos, puntaje */}
+      <div className="p-c4 ses-col ses-side">
         {sc ? (
-          <div className="p-rise" style={cssVars({ '--i': 4 })}>
+          <div className="p-rise" style={cssVars({ '--i': 2 })}>
             <Panel title="Puntaje" sub={s.plan ? 'Contra el plan' : undefined}>
               <ScoreHead sc={sc} />
               <ScoreParts sc={sc} />
             </Panel>
           </div>
         ) : null}
-      </div>
-      <div className="p-c4 ses-col ses-side">
         <div className="p-rise" style={cssVars({ '--i': 2 })}>
           <RoutePanel s={s} se={se} />
         </div>

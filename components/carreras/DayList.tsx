@@ -9,7 +9,7 @@ import type { Race } from '@/lib/domain/types';
 import { raceDayList, type RcRow } from '@/lib/domain/race';
 import { cleanObj, daysTo } from '@/lib/domain/util';
 import { Button, Tag } from '@/components/pista/controls';
-import { Panel } from '@/components/pista/structure';
+import { More, Panel } from '@/components/pista/structure';
 import { cssVars, cx } from '@/components/pista/util';
 
 const RC_GROUPS: [number, string][] = [
@@ -94,15 +94,12 @@ export function DayList({ race }: { race: Race }) {
     );
   const rest = G.slice(cut);
   return (
-    <Panel id="car-dia" className="p-c5 p-rise car-day" style={cssVars({ '--i': 3 })} title="Para el día" sub={done + ' de ' + L.length + ' listos'}>
+    <Panel id="car-dia" className="p-c4 p-rise car-day" style={cssVars({ '--i': 3 })} title="Para el día" sub={done + ' de ' + L.length + ' listos'}>
       {G.slice(0, cut).map(group)}
       {rest.length ? (
-        <details className="car-more car-later">
-          <summary>
-            Después: {rest.reduce((a, g) => a + g.it.length, 0)} más, hasta el día de la carrera
-          </summary>
+        <More className="car-more car-later" summary={'Después: ' + rest.reduce((a, g) => a + g.it.length, 0) + ' más, hasta el día de la carrera'}>
           {rest.map(group)}
-        </details>
+        </More>
       ) : null}
       {race.time ? null : (
         <>

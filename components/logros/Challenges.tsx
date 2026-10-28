@@ -65,6 +65,11 @@ export function Challenges({ i }: { i: number }) {
       ) : (
         <p className="lo-none">No tenés desafíos en curso. Con «Nuevo» elegís uno de los sugeridos según tus últimas semanas o armás el tuyo.</p>
       )}
+      {/* el lugar libre del panel (lo estira la vitrina de al lado) invita a sumar otro, como los días libres de Semana */}
+      <button type="button" className="lo-ch-add" onClick={() => openSheet('challenge')}>
+        <Plus aria-hidden="true" />
+        Nuevo desafío
+      </button>
       {fin.length ? (
         <details className="lo-ch-fin">
           <summary>

@@ -62,6 +62,25 @@ export function Panel({
   );
 }
 
+/** un desplegable: lo que se lee recién si interesa (la tabla de un gráfico, lo que viene después, cómo se calcula) */
+export function More({ summary, className, children }: { summary: ReactNode; className?: string; children: ReactNode }) {
+  return (
+    <details className={cx('p-more', className)}>
+      <summary>{summary}</summary>
+      {children}
+    </details>
+  );
+}
+
+/** «¿Cómo se calcula?»: la metodología va plegada, así el panel deja a la vista el dato y lo que significa para vos */
+export function HowTo({ summary = '¿Cómo se calcula?', className, children }: { summary?: ReactNode; className?: string; children: ReactNode }) {
+  return (
+    <More summary={summary} className={cx('p-how', className)}>
+      <div className="p-how-b">{children}</div>
+    </More>
+  );
+}
+
 /** una pantalla sin datos todavía (boceto «Primera vez»): el ícono de la sección, su nombre, una frase y lo que sigue */
 export function EmptyPanel({ icon: I, title, text, className, style, children }: { icon: Icon; title: string; text: ReactNode; className?: string; style?: CSSProperties; children?: ReactNode }) {
   return (

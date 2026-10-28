@@ -16,7 +16,7 @@ import { raceDateLabel } from '@/lib/domain/week';
 import { DF_WD, addDays, clamp, daysTo, fmt, plural, sod, ymd } from '@/lib/domain/util';
 import { goRaces } from '@/lib/data/actions';
 import { Button } from '@/components/pista/controls';
-import { Panel } from '@/components/pista/structure';
+import { HowTo, Panel } from '@/components/pista/structure';
 import { Laps } from '@/components/pista/meters';
 import { Chrono } from '@/components/pista/sport';
 import { Chart, GridY, Key, LabelsX, StackedBars, Tip, lin, useCursor, type Bar } from '@/components/pista/charts';
@@ -38,7 +38,7 @@ function ReadyPanel() {
   const race = nextRace();
   if (!race)
     return (
-      <Panel className="p-c5 p-rise" style={cssVars({ '--i': 2 })} title="Preparación">
+      <Panel className="p-c6 p-rise" style={cssVars({ '--i': 2 })} title="Preparación">
         <p className="an-note">Cargá tu próxima carrera y acá ves qué tan listo llegás: volumen, tirada larga, ritmo, constancia y cómo venís de carga.</p>
         <Button size="sm" onClick={goRaces}>
           Cargar carrera
@@ -52,7 +52,7 @@ function ReadyPanel() {
     withData = I.filter((i) => i.k !== 'na').length,
     when = days === 0 ? 'es hoy' : wks > 0 ? 'faltan ' + plural(wks, 'semana', 'semanas') : 'faltan ' + plural(days, 'día', 'días');
   return (
-    <Panel className="p-c5 p-rise" style={cssVars({ '--i': 2 })} title="Preparación" sub={'Para el ' + race.name}>
+    <Panel className="p-c6 p-rise" style={cssVars({ '--i': 2 })} title="Preparación" sub={'Para el ' + race.name}>
       <div className="an-ready">
         <Chrono value={sc}>{sc == null ? 'faltan datos · ' + withData + ' de ' + I.length + ' con datos' : 'de 100 · ' + when}</Chrono>
         <ul className="an-factors">
@@ -73,12 +73,12 @@ function ReadyPanel() {
           })}
         </ul>
       </div>
-      <p className="an-foot">
-        {days <= 14 && days > 0 ? 'Recta final: no busques más ritmo ni más km. ' : ''}
+      {days <= 14 && days > 0 ? <p className="an-note">Recta final: no busques más ritmo ni más km.</p> : null}
+      <HowTo>
         {raceDateLabel(race)}. Cada chequeo en verde suma 100, en amarillo 50 y en rojo 0; el puntaje es el promedio. Los que todavía no tienen datos no cuentan, y el puntaje sale con {READY_MIN} o más con datos. Son reglas simples sobre tus datos, no una predicción de tu tiempo:{' '}
         {isLong(race) ? 'volumen de unos ' + (race.km > 30 ? 45 : 30) + ' km por semana' : 'series cerca del ritmo de carrera'}, tirada larga de al menos {fmt(longTarget(race.km), 0)} km, cumplimiento de 85% o más, carga entre 0,8 y 1,3 y
         deriva bajo 5%.
-      </p>
+      </HowTo>
     </Panel>
   );
 }
@@ -150,7 +150,7 @@ function LoadPanel() {
     dl = deloadInfo();
   if (!L)
     return (
-      <Panel className="p-c7 p-rise" style={cssVars({ '--i': 3 })} title="Carga de la semana">
+      <Panel className="p-c6 p-rise" style={cssVars({ '--i': 3 })} title="Carga de la semana">
         <p className="an-note">Necesito unas 3 semanas de entrenamientos para comparar tu semana con tu promedio y avisarte si estás subiendo muy rápido.</p>
       </Panel>
     );
@@ -167,7 +167,7 @@ function LoadPanel() {
           ? 'Subida fuerte: mirá cómo te sentís y evitá sumar intensidad esta semana.'
           : 'Subida muy brusca: por encima de 1,5 el riesgo de lesión sube de forma clara. Considerá bajar los km.';
   return (
-    <Panel className="p-c7 p-rise" style={cssVars({ '--i': 3 })} title="Carga de la semana" sub={<span className="hide-s">Últimos 7 días contra tu promedio de 4 semanas</span>}>
+    <Panel className="p-c6 p-rise" style={cssVars({ '--i': 3 })} title="Carga de la semana" sub={<span className="hide-s">Últimos 7 días contra tu promedio de 4 semanas</span>}>
       <div className="an-acwr">
         <div>
           <span className="lbl">Relación de carga</span>
@@ -198,7 +198,7 @@ function LoadPanel() {
         <DaysChart avg={L.chronic / 7} />
       </div>
       {dl != null && dl >= 3 ? <p className="an-note an-warn">Hace {dl} semanas que no bajás el volumen. Una semana liviana (20–30% menos km) ayuda a asimilar el trabajo; si tu plan ya tiene una, seguila.</p> : null}
-      <p className="an-foot">Divido los km de tus últimos 7 días por tu promedio semanal de las últimas 4 semanas. Entre 0,8 y 1,3 es la zona más segura; sobre 1,5 el riesgo sube. No uso la regla del «10% por semana»: los estudios no la respaldan.</p>
+      <HowTo>Divido los km de tus últimos 7 días por tu promedio semanal de las últimas 4 semanas. Entre 0,8 y 1,3 es la zona más segura; sobre 1,5 el riesgo sube. No uso la regla del «10% por semana»: los estudios no la respaldan.</HowTo>
     </Panel>
   );
 }
@@ -273,9 +273,9 @@ function FormFull() {
           label={'Estado físico, fatiga y forma de las últimas ' + pts.length + ' semanas' + (P && near ? ', con la proyección hasta el ' + near.name : '')}
           />
         </div>
-        <p className="an-foot">
-          {P && near && E
-            ? 'La proyección usa tus ' +
+        {P && near && E ? (
+          <p className="an-note">
+            {'La proyección usa tus ' +
               plural(P.n, 'sesión planificada', 'sesiones planificadas') +
               ' hasta el ' +
               near.name +
@@ -284,13 +284,15 @@ function FormFull() {
               ' y forma ' +
               (E.tsb >= 0 ? '+' : '−') +
               Math.abs(Math.round(E.tsb)) +
-              '. '
-            : near
-              ? 'Planificá lo que falta hasta el ' + near.name + ' y acá ves cómo llegás. '
-              : ''}
+              '.'}
+          </p>
+        ) : near ? (
+          <p className="an-note">Planificá lo que falta hasta el {near.name} y acá ves cómo llegás.</p>
+        ) : null}
+        <HowTo>
           A cada salida le asigno una carga según su duración y su FC (las series y tempos pesan un poco más). El estado físico es el promedio de esa carga en unas 6 semanas, la fatiga en unos 7 días y la forma, la diferencia. Son
           unidades relativas: sirven para comparar tus semanas, no con otras personas.
-        </p>
+        </HowTo>
       </div>
     </Panel>
   );

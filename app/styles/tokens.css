@@ -48,6 +48,14 @@
     --f-mono: var(--font-geist-mono), ui-monospace, "SF Mono", monospace;
     --ease: cubic-bezier(.2, 0, 0, 1);
     --rail: 236px;
+
+    /* Espaciado: escala de 4 px (--sp-N = N × 4 px). Adentro de una pieza 4–12, entre piezas de un grupo 16–20,
+       entre paneles --gutter, entre secciones --section. Los 1–3 px que quedan escritos a mano son ajustes ópticos. */
+    --sp-1: 4px; --sp-2: 8px; --sp-3: 12px; --sp-4: 16px; --sp-5: 20px; --sp-6: 24px;
+    --sp-8: 32px; --sp-10: 40px; --sp-12: 48px; --sp-20: 80px; --sp-24: 96px;
+    --pad: var(--sp-5);        /* adentro de un panel */
+    --gutter: var(--sp-6);     /* entre paneles */
+    --section: var(--sp-12);   /* entre el estadio y lo que sigue */
     color-scheme: light;
   }
   [data-theme="dark"] {
@@ -77,5 +85,8 @@
     --z1: #3E4B57; --z2: #5D86A8; --z3: #D3A748; --z4: #E2813F; --z5: #D9503E;
     --sh-pop: 0 1px 2px rgb(0 0 0 / .3), 0 16px 40px -12px rgb(0 0 0 / .6);
     color-scheme: dark;
+  }
+  @media (max-width: 900px) {
+    :root { --gutter: var(--sp-4); --section: var(--sp-8); }
   }
 }

@@ -101,7 +101,7 @@ export default function LevelPanel() {
         </PanelSection>
       ) : null}
       <PanelSection title="Cómo se calcula">
-        <details className="car-more">
+        <details className="p-more car-more">
           <summary>¿Qué tan confiable es?</summary>
           <p className="p-dr-hint">
             Es una <b>estimación</b>, no una medición. No existe un estudio público con promedios «por tiempo corriendo», así que la comparación combina tres cosas: (1) cómo queda tu 10K frente a la distribución de corredores varones de tu edad (mediana ≈ {fmtDur(R.med)} a los {R.age} años, dispersión típica de carreras populares); (2) el tiempo típico de alguien con tus mismos meses (≈ {fmtDur(R.typ)} a los {fmt(R.M.months, 0)} meses, a partir de los rangos por nivel y de la mejora esperable en el primer año); (3) umbrales de volumen, frecuencia, tirada larga y calidad para preparar un 10K, que para quien lleva pocos meses se aflojan un {Math.round((1 - R.k) * 100)}%.

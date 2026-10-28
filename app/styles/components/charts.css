@@ -13,12 +13,10 @@
   .p-tip .t { font: 600 12.5px var(--f-mono); fill: var(--ink); }
 
   /* «Ver tabla»: los datos del gráfico en filas, con su propio scroll para no estirar el panel */
-  .p-chart-tbl { margin-top: 10px; }
-  .p-chart-tbl summary { width: fit-content; cursor: pointer; color: var(--ink-2); font-size: 12.5px; font-weight: 600; border-radius: 2px; }
-  .p-chart-tbl summary:hover { color: var(--ink); }
-  .p-chart-tbl .tw { max-height: 320px; overflow: auto; margin-top: 8px; border: 1px solid var(--line); border-radius: var(--r-sm); }
+  .p-chart-tbl { margin-top: var(--sp-3); }
+  .p-chart-tbl .tw { max-height: 320px; overflow: auto; margin-top: var(--sp-2); border: 1px solid var(--line); border-radius: var(--r-sm); }
   .p-chart-tbl table { width: 100%; border-collapse: collapse; font-size: 12.5px; }
-  .p-chart-tbl th, .p-chart-tbl td { padding: 6px 12px; border-bottom: 1px solid var(--line); text-align: left; white-space: nowrap; font-weight: 400; }
+  .p-chart-tbl th, .p-chart-tbl td { padding: var(--sp-2) var(--sp-3); border-bottom: 1px solid var(--line); text-align: left; white-space: nowrap; font-weight: 400; }
   .p-chart-tbl thead th { position: sticky; top: 0; background: var(--surface); font: 600 10.5px/1.2 var(--f-ui); letter-spacing: .1em; text-transform: uppercase; color: var(--ink-3); }
   .p-chart-tbl tbody tr:last-child > * { border-bottom: 0; }
   .p-chart-tbl .r { text-align: right; font-family: var(--f-mono); font-variant-numeric: tabular-nums; }
@@ -29,14 +27,14 @@
   .p-spark svg { width: 100%; height: 54px; display: block; overflow: visible; }
 
   /* leyenda: raya, raya cortada o cuadradito inclinado */
-  .p-key { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; color: var(--ink-2); white-space: nowrap; }
+  .p-key { display: inline-flex; align-items: center; gap: var(--sp-2); font-size: 12px; color: var(--ink-2); white-space: nowrap; }
   .p-key i { width: 12px; height: 2px; background: var(--kc); }
   .p-key i.dash { background: repeating-linear-gradient(90deg, var(--kc) 0 3px, transparent 3px 5px); }
   .p-key i.sq { width: 8px; height: 8px; transform: skewX(-14deg); }
 
   /* columnas chicas (km por mes) */
-  .p-mbars .b { display: grid; grid-template-columns: repeat(var(--n), minmax(0, 1fr)); gap: 4px; align-items: end; height: var(--h, 72px); }
+  .p-mbars .b { display: grid; grid-template-columns: repeat(var(--n), minmax(0, 1fr)); gap: var(--sp-1); align-items: end; height: var(--h, 72px); }
   .p-mbars .b i { display: block; min-height: 1px; background: var(--ink-4); transform-origin: bottom; animation: p-grow .7s var(--ease) both; animation-delay: calc(200ms + var(--j, 0) * 30ms); }
   .p-mbars .b i.cur { background: var(--acc); }
-  .p-mbars .l { display: grid; grid-template-columns: repeat(var(--n), minmax(0, 1fr)); gap: 4px; margin-top: 6px; font: 500 9.5px/1.2 var(--f-mono); color: var(--ink-3); text-align: center; text-transform: uppercase; }
+  .p-mbars .l { display: grid; grid-template-columns: repeat(var(--n), minmax(0, 1fr)); gap: var(--sp-1); margin-top: var(--sp-2); font: 500 9.5px/1.2 var(--f-mono); color: var(--ink-3); text-align: center; text-transform: uppercase; }
 }

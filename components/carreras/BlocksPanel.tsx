@@ -14,7 +14,7 @@ import { openRecal, rcSources, recalUndoTap } from '@/lib/domain/recal';
 import { addDays, dShort, dateLabel, fmt, mondayOf, pd, ymd } from '@/lib/domain/util';
 import { Button } from '@/components/pista/controls';
 import { Key } from '@/components/pista/charts';
-import { Panel } from '@/components/pista/structure';
+import { HowTo, Panel } from '@/components/pista/structure';
 import { PHASE_C, cssVars, cx } from '@/components/pista/util';
 
 function Recal() {
@@ -151,7 +151,7 @@ export function BlocksPanel({ race, other }: { race: Race; other: boolean }) {
             . Llevás <b>{fmt(cw.done || 0, 1)} km</b>.
           </p>
         ) : null}
-        <p className="car-foot">
+        <p className="car-note">
           {P.loaded ? (
             <>
               Sale de las <b>{P.sessions} sesiones</b> que tenés planificadas: pico de <b>{P.peak} km</b> en la semana {P.peakWeek} y tirada más larga de <b>{P.longest} km</b> en la semana {P.longWeek}.
@@ -164,8 +164,7 @@ export function BlocksPanel({ race, other }: { race: Race; other: boolean }) {
           {!cw && !P.started && P.prev ? ' Arranca después de tu ' + P.prev.name + ': hasta entonces seguí el plan de esa carrera.' : ''}
           {last ? ' Última recalibración de ritmos: ' + dateLabel(last.at) + ' con tu ' + String(last.src).toLowerCase() + '.' : P.loaded ? ' Después de cada test o carrera podés recalibrar los ritmos de las sesiones que vienen.' : ''}
         </p>
-        <details className="car-more">
-          <summary>¿Cómo se arma?</summary>
+        <HowTo summary="¿Cómo se arma?">
           <ul className="car-phases">
             {ks.map((k) => (
               <li key={k} style={cssVars({ '--pc': PHASE_C[k] })}>
@@ -174,16 +173,16 @@ export function BlocksPanel({ race, other }: { race: Race; other: boolean }) {
             ))}
           </ul>
           {P.loaded ? (
-            <p className="car-foot">
+            <p>
               Cada semana suma los km de las sesiones que tenés planificadas (las etapas por tiempo se estiman con su ritmo) y la larga es el fondo o la carrera más largos.{' '}
               {(race.phases || []).length ? 'Las fases son las de tu plan.' : 'Las fases se reparten por proporción: las últimas ' + (lg ? 3 : 2) + ' semanas son la puesta a punto.'} Si cambiás una sesión, el plan se actualiza solo.
             </p>
           ) : null}
-          <p className="car-foot">
+          <p>
             Si no hay sesiones cargadas, el plan genérico arranca de tu promedio de las últimas 4 semanas y sube hasta 8% por semana, con una semana 25% más liviana cada 4. El techo es de unos {P.peak} km por semana en el específico (base 80%, desarrollo 90%). La tirada larga crece 1,5 km por semana hasta{' '}
             {lg ? '20 km en base, 26 en desarrollo y 32 en el específico' : '14 km en base, 16 en desarrollo y 20 en el específico'}. Las últimas {lg ? 3 : 2} semanas bajan el volumen. Es una guía general para corredores populares: si tenés entrenador, manda su plan.
           </p>
-        </details>
+        </HowTo>
       </div>
     </Panel>
   );

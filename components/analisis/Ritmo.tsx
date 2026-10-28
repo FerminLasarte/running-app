@@ -13,7 +13,7 @@ import { lvHistory, lvPace } from '@/lib/domain/level';
 import { doneList, type DoneSession } from '@/lib/domain/stats';
 import { addDays, dShort, dateLabel, dayDiff, fmt, fmtDur, fmtPace, isoWeek, monthOf, pd, plural, sod, sum, ymd } from '@/lib/domain/util';
 import { Button, Segmented, deltaTxt } from '@/components/pista/controls';
-import { Kpis, Panel } from '@/components/pista/structure';
+import { HowTo, Kpis, Panel } from '@/components/pista/structure';
 import { Chart, Dots, GridY, Guide, Key, LabelsX, Line, Tip, lin, useCursor, type Pt } from '@/components/pista/charts';
 import { cssVars, typeColor } from '@/components/pista/util';
 import { useAnPeriod, usePaceBase } from './period';
@@ -195,10 +195,10 @@ function PacePanel({ from }: { from: string }) {
       }
     >
       {T.length ? <PaceChart T={T} from={from} race={race} /> : <p className="an-note">No hay sesiones con ritmo en este período.</p>}
-      <p className="an-foot">
+      <HowTo summary="¿Cómo se lee?">
         Cada punto es el ritmo principal de una sesión, en el color de su tipo; la recta es su tendencia (con 3 sesiones o más). En series y tempos cuenta el ritmo de la parte principal. La línea cortada es el ritmo
         objetivo del {race.name}.
-      </p>
+      </HowTo>
     </Panel>
   );
 }
@@ -271,12 +271,16 @@ function ZonesPanel() {
           );
         })}
       </ul>
-      <p className="an-foot">
+      {gap != null || foAvg != null ? (
+        <p className="an-note">
+          {gap != null ? (gap > 5 ? 'Para ese objetivo hoy te faltan unos ' + fmtDur(gap) + ' en el 10K. ' : 'Tu forma de hoy ya alcanza para ese objetivo. ') : ''}
+          {foAvg != null ? 'Tus fondos de las últimas 4 semanas van a ' + fmtPace(foAvg) + '/km' + (foAvg > p(PZ[0], 1) + 20 ? ': más lentos que el rango fácil, y está bien (en los fondos manda la FC).' : ', dentro del rango fácil.') : ''}
+        </p>
+      ) : null}
+      <HowTo>
         {goal ? 'Como si ya corrieras el ' + race.name + ' en ' + fmtDur(race.targetSec) + '.' : 'Desde ' + cur!.txt + '.'} Con la fórmula de Jack Daniels, y al lado de cada nombre la zona de FC que le
         corresponde: son una guía; si la FC o las piernas dicen otra cosa, mandan ellas.
-        {gap != null ? (gap > 5 ? ' Para ese objetivo hoy te faltan unos ' + fmtDur(gap) + ' en el 10K.' : ' Tu forma de hoy ya alcanza para ese objetivo.') : ''}
-        {foAvg != null ? ' Tus fondos de las últimas 4 semanas van a ' + fmtPace(foAvg) + '/km' + (foAvg > p(PZ[0], 1) + 20 ? ': más lentos que el rango fácil, y está bien (en los fondos manda la FC).' : ', dentro del rango fácil.') : ''}
-      </p>
+      </HowTo>
     </Panel>
   );
 }
@@ -346,10 +350,11 @@ function HeartPanel({ from }: { from: string }) {
       ) : (
         <p className="an-note">{hp ? 'No hay fondos ni regenerativos con FC en este período.' : 'Necesito al menos 4 fondos o regenerativos con frecuencia cardíaca, de 3 km o más y sin caminatas, para medir cómo cambia tu corazón.'}</p>
       )}
-      <p className="an-foot">
-        Más arriba es más rápido con la misma FC. Sale de tus fondos y regenerativos con FC: los metros por minuto que avanzás por cada latido, llevados a {hp ? hp.hr + ' lpm' : 'tu FC habitual'} (la mediana de esas salidas). La recta es la
+      <p className="an-note">Más arriba es más rápido con la misma FC.</p>
+      <HowTo>
+        Sale de tus fondos y regenerativos con FC: los metros por minuto que avanzás por cada latido, llevados a {hp ? hp.hr + ' lpm' : 'tu FC habitual'} (la mediana de esas salidas). La recta es la
         tendencia desde tu primera salida, con un método robusto. Dejo afuera las salidas con caminatas y los valores fuera de lo normal. El calor, las subidas o el cansancio suben la FC: mirá la tendencia, no una semana.
-      </p>
+      </HowTo>
     </Panel>
   );
 }
@@ -423,10 +428,10 @@ function DriftPanel({ from }: { from: string }) {
         </Button>
         <span role="status">{M.msg}</span>
       </div>
-      <p className="an-foot">
-        La deriva compara tu eficiencia (velocidad por latido) en la primera y la segunda mitad del fondo, sin los primeros 10 minutos. Menos de 5% es buena resistencia aeróbica; de 5 a 10%, moderada. El
-        calor, la deshidratación o ir cansado la suben.
-      </p>
+      <p className="an-note">Menos de 5% es buena resistencia aeróbica; de 5 a 10%, moderada.</p>
+      <HowTo>
+        La deriva compara tu eficiencia (velocidad por latido) en la primera y la segunda mitad del fondo, sin los primeros 10 minutos. El calor, la deshidratación o ir cansado la suben.
+      </HowTo>
     </Panel>
   );
 }

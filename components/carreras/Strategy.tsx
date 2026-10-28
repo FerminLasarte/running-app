@@ -10,7 +10,7 @@ import type { Prediction, RaceEst, RaceLeg, RaceScen, RaceStrategy, TrainEst } f
 import { cap, dShort, dateLabel, fmt, fmtDur, fmtPace, pd } from '@/lib/domain/util';
 import { editRace, toast } from '@/lib/data/actions';
 import { Button, Segmented } from '@/components/pista/controls';
-import { Panel } from '@/components/pista/structure';
+import { HowTo, Panel } from '@/components/pista/structure';
 import { cssVars, typeColor } from '@/components/pista/util';
 import { PRINT_BTN_ID, PrintBand } from './PrintBand';
 import { kmLabel } from './util';
@@ -55,16 +55,18 @@ const testTxt = (pr: Prediction) => 'tu test del ' + dateLabel(pr.s.result.date)
 /** de dónde sale el ritmo realista cuando lo da el test: Riegel, y en distancias largas el rango con 1,10 */
 function RealFromTest({ pr }: { pr: Prediction }) {
   return (
-    <p className="car-foot">
-      Sale de {testTxt(pr)} con la fórmula de Riegel: tu tiempo por (distancia de la carrera ÷ distancia del test) elevado a 1,06. Sirve si el test fue a máximo esfuerzo y llegaste descansado.
-      {pr.lo ? (
-        <>
-          {' '}
-          Para una distancia larga desde un test corto suele dar tiempos demasiado rápidos si no tenés mucho volumen: Riegel da <b>{fmtDur(pr.lo)}</b> y con un exponente de 1,10, el caso prudente, <b>{fmtDur(pr.t)}</b>. El realista va en el medio.
-        </>
-      ) : null}{' '}
-      Es una estimación, no una promesa.
-    </p>
+    <HowTo>
+      <p>
+        Sale de {testTxt(pr)} con la fórmula de Riegel: tu tiempo por (distancia de la carrera ÷ distancia del test) elevado a 1,06. Sirve si el test fue a máximo esfuerzo y llegaste descansado.
+        {pr.lo ? (
+          <>
+            {' '}
+            Para una distancia larga desde un test corto suele dar tiempos demasiado rápidos si no tenés mucho volumen: Riegel da <b>{fmtDur(pr.lo)}</b> y con un exponente de 1,10, el caso prudente, <b>{fmtDur(pr.t)}</b>. El realista va en el medio.
+          </>
+        ) : null}{' '}
+        Es una estimación, no una promesa.
+      </p>
+    </HowTo>
   );
 }
 
@@ -74,7 +76,7 @@ function RealFrom({ te, pr, race }: { te: TrainEst; pr: Prediction | null; race:
   const wk = Math.round(-te.slope * 7);
   return (
     <>
-      <p className="car-foot">
+      <p className="car-note">
         Uso tus {te.C.length}
         {te.C.length === 1 ? ' sesión' : ' sesiones'} de calidad desde el {dShort(pd(te.from))}. Hoy tu nivel equivale a <b>{fmtDur(te.cur)}</b>
         {wk > 0 ? (
@@ -90,35 +92,36 @@ function RealFrom({ te, pr, race }: { te: TrainEst; pr: Prediction | null; race:
         . Para el {dShort(pd(race.date))} proyecto <b>{fmtDur(te.proj)}</b>
         {te.capped ? ' (tu tendencia da más, pero la limito a una mejora prudente de 3% por mes)' : wk > 0 ? ' siguiendo esa tendencia, con un tope prudente de 3% de mejora por mes' : ''}.
       </p>
-      <p className="car-foot">
-        {race.km !== 10 ? 'Cada sesión se pasa a un 10K equivalente y de ahí a ' + kmLabel(race.km) + ' km con la fórmula de Riegel (exponente 1,06' + (race.km > 21.2 ? ' y un 3% más por ser maratón' : '') + '). ' : ''}
-        {pr ? cap(testTxt(pr)) + ' daba ' + fmtDur(pr.lo || pr.t) + (pr.lo ? ' a ' + fmtDur(pr.t) : '') + ', pero es anterior a tus últimas series y tempos, así que ya no refleja cómo estás. ' : ''}
-        Un test nuevo a esfuerzo máximo pasa a mandar sobre esta cuenta. Es una estimación, no una promesa.
-      </p>
-      <details className="car-more">
-        <summary>Ver las sesiones</summary>
-        <table className="p-tbl">
-          <thead>
-            <tr>
-              <th>Fecha</th>
-              <th>Sesión</th>
-              <th className="r">{race.name} equivalente</th>
-            </tr>
-          </thead>
-          <tbody>
-            {te.C.slice()
-              .reverse()
-              .map((c, i) => (
-                <tr key={i}>
-                  <td>{dateLabel(c.date)}</td>
-                  <td>{KN[c.k]}</td>
-                  <td className="r">{fmtDur(te.conv(c.s10))}</td>
-                </tr>
-              ))}
-          </tbody>
-        </table>
-        <p className="car-foot">Las series dan tiempos más rápidos y los tempos más lentos: por eso la tendencia se mide entre sesiones del mismo tipo y el nivel de hoy combina los dos. Las repeticiones de menos de 400 m no cuentan.</p>
-      </details>
+      <HowTo>
+        <p>
+          {race.km !== 10 ? 'Cada sesión se pasa a un 10K equivalente y de ahí a ' + kmLabel(race.km) + ' km con la fórmula de Riegel (exponente 1,06' + (race.km > 21.2 ? ' y un 3% más por ser maratón' : '') + '). ' : ''}
+          {pr ? cap(testTxt(pr)) + ' daba ' + fmtDur(pr.lo || pr.t) + (pr.lo ? ' a ' + fmtDur(pr.t) : '') + ', pero es anterior a tus últimas series y tempos, así que ya no refleja cómo estás. ' : ''}
+          Un test nuevo a esfuerzo máximo pasa a mandar sobre esta cuenta. Es una estimación, no una promesa.
+        </p>
+        <div className="p-how-tw">
+          <table className="p-tbl">
+            <thead>
+              <tr>
+                <th>Fecha</th>
+                <th>Sesión</th>
+                <th className="r">{race.name} equivalente</th>
+              </tr>
+            </thead>
+            <tbody>
+              {te.C.slice()
+                .reverse()
+                .map((c, i) => (
+                  <tr key={i}>
+                    <td>{dateLabel(c.date)}</td>
+                    <td>{KN[c.k]}</td>
+                    <td className="r">{fmtDur(te.conv(c.s10))}</td>
+                  </tr>
+                ))}
+            </tbody>
+          </table>
+        </div>
+        <p>Las series dan tiempos más rápidos y los tempos más lentos: por eso la tendencia se mide entre sesiones del mismo tipo y el nivel de hoy combina los dos. Las repeticiones de menos de 400 m no cuentan.</p>
+      </HowTo>
     </>
   );
 }
@@ -132,7 +135,7 @@ export function Strategy({ race, sc, sel, st, onPick }: { race: Race; sc: RaceSc
   const long = isLong(race);
   if (!sel || !st)
     return (
-      <Panel id="car-estrategia" className="p-c7 p-rise" style={cssVars({ '--i': 2 })} title="Estrategia">
+      <Panel id="car-estrategia" className="p-c8 p-rise" style={cssVars({ '--i': 2 })} title="Estrategia">
         <p className="car-note">Cargá un tiempo objetivo para esta carrera en Ajustes, o registrá un test, y acá armo los tramos y la pulsera de ritmos.</p>
         <div className="car-acts">
           <Button size="sm" onClick={() => editRace(race.id)}>
@@ -142,7 +145,7 @@ export function Strategy({ race, sc, sel, st, onPick }: { race: Race; sc: RaceSc
       </Panel>
     );
   return (
-    <Panel id="car-estrategia" className="p-c7 p-rise" style={cssVars({ '--i': 2 })} title="Estrategia" sub="Salir controlado, cerrar fuerte">
+    <Panel id="car-estrategia" className="p-c8 p-rise" style={cssVars({ '--i': 2 })} title="Estrategia" sub="Salir controlado, cerrar fuerte">
       {sc.length > 1 ? (
         <div className="car-scen">
           <Segmented label="Plan para" value={sel.id} onChange={onPick} options={sc.map((x) => ({ value: x.id, label: x.n + ' · ' + fmtDur(x.sec) }))} />

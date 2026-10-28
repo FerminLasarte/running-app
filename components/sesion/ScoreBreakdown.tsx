@@ -2,6 +2,7 @@
    las notas. Lo usan el detalle de sesión y el panel que se abre al guardar un resultado. */
 import type { Score } from '@/lib/domain/score';
 import { bandOf } from '@/lib/domain/score';
+import { HowTo } from '@/components/pista/structure';
 import { Laps, Ticks } from '@/components/pista/meters';
 import { cx } from '@/components/pista/util';
 
@@ -51,6 +52,7 @@ export function ScoreParts({ sc }: { sc: Score }) {
           {n}
         </p>
       ))}
+      {sc.how ? <HowTo>{sc.how}</HowTo> : null}
     </>
   );
 }
