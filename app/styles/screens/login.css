@@ -1,10 +1,15 @@
-/* Entrar: una tarjeta en el medio de la pantalla, con la marca (lleva a la portada), el mail, la contraseña y el
-   botón. La marca usa el .brand de la barra lateral (shell.css), que en el celu se esconde: acá se ve
-   siempre. */
+/* Entrar: el estadio de la app a la izquierda («A la pista.») y la tarjeta con la marca (lleva a la portada), el mail, la
+   contraseña y el botón a la derecha. En el celu el estadio va arriba, bajo. La marca usa el .brand de la barra lateral
+   (shell.css), que en el celu se esconde: acá se ve siempre. */
 @layer screens {
-  .login { min-height: 100dvh; display: grid; place-items: center; padding: var(--sp-6) max(var(--sp-4), env(safe-area-inset-left, 0px)); }
+  .login {
+    min-height: 100dvh; display: grid; grid-template-columns: minmax(0, 1fr) minmax(340px, 440px); gap: var(--gutter);
+    padding: var(--sp-6) max(var(--sp-6), env(safe-area-inset-right, 0px)) var(--sp-6) max(var(--sp-6), env(safe-area-inset-left, 0px));
+  }
+  .login-st { align-content: end; padding: var(--sp-12) var(--sp-10); }
+  .login-h { margin-top: var(--sp-3); font-size: min(150px, 11vw); }
   .login-card {
-    width: 100%; max-width: 400px; display: grid; gap: var(--sp-5); padding: var(--sp-8) var(--sp-6);
+    align-self: center; width: 100%; display: grid; gap: var(--sp-5); padding: var(--sp-8) var(--sp-6);
     background: var(--surface); border: 1px solid var(--line); border-radius: var(--r-lg); box-shadow: var(--sh-pop);
   }
   .login-card .brand { display: flex; padding: 0; justify-self: start; }
@@ -18,4 +23,11 @@
   .login-msg:empty { display: none; }
   .login-msg.bad { color: var(--neg); }
   .login-sw { font-size: var(--fs-md); color: var(--ink-3); padding-top: var(--sp-4); border-top: 1px solid var(--line); }
+
+  @media (max-width: 900px) {
+    .login { grid-template-columns: minmax(0, 1fr); align-content: start; padding: var(--sp-4); }
+    .login-st { padding: var(--sp-8) var(--sp-5) var(--sp-6); }
+    .login-h { font-size: 64px; }
+    .login-card { max-width: 440px; justify-self: center; }
+  }
 }

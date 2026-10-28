@@ -66,9 +66,10 @@
   .aj-ztab { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: var(--sp-3); margin-top: var(--sp-5); }
   .aj-ztab > div { padding: var(--sp-3); border-top: 3px solid var(--zc); background: var(--bg); min-width: 0; }
   .aj-ztab b { font: 600 var(--fs-xs)/1 var(--f-mono); }
-  .aj-zr { display: flex; align-items: center; gap: var(--sp-2); margin-top: var(--sp-2); }
+  /* el corte (3 cifras) no se achica: si no entra al lado, «a 133» baja de renglón */
+  .aj-zr { display: flex; flex-wrap: wrap; align-items: center; gap: var(--sp-1) var(--sp-2); margin-top: var(--sp-2); }
   .aj-zr .disp { font-size: 18px; font-style: italic; white-space: nowrap; }
-  .p-in.aj-zin { width: 56px; height: 30px; padding: 0 var(--sp-2); text-align: right; }
+  .p-in.aj-zin { flex: none; width: 56px; height: 30px; padding: 0 var(--sp-2); text-align: right; }
   .aj-ztab small { display: block; margin-top: var(--sp-2); font-size: var(--fs-sm); color: var(--ink-3); }
 
   /* listas de carreras y zapatillas: «Editar» abre los campos debajo de la fila */
