@@ -36,6 +36,7 @@
   .p-dr-p { color: var(--ink-2); }
   .p-dr-list { padding-left: var(--sp-5); color: var(--ink-2); line-height: 1.6; }
   .p-dr-hint { font-size: var(--fs-sm); color: var(--ink-3); }
+  .p-dr-p + .p-dr-hint { margin-top: var(--sp-2); }
   .p-dr-g2 { display: grid; grid-template-columns: 1fr 1fr; gap: var(--sp-4) var(--sp-4); }
   .p-dr-g2 + .p-dr-g2 { margin-top: var(--sp-4); }
 

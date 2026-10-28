@@ -194,7 +194,7 @@ function Empty() {
   return (
     <EmptyPanel
       icon={Sneaker}
-      title="Zapatillas"
+      title="Sin zapatillas todavía"
       text="Cargá tus zapatillas y te llevo los km de cada par, cuándo llegan al límite y para qué las usás. Muchas rinden entre 500 y 800 km; el límite lo elegís vos."
       className="p-c12 an-empty"
       style={cssVars({ '--i': 2 })}

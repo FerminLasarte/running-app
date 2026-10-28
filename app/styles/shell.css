@@ -192,8 +192,9 @@
     .tb-search { flex: none; width: 34px; padding: 0; justify-content: center; }
     .tb-search span, .tb-search kbd { display: none; }
     .page { padding: 0 var(--sp-4) 110px; }
-    .bnr-i.guest { flex-wrap: wrap; padding: var(--sp-3); }
-    .bnr-i.guest > span { flex: 1 1 100%; }
+    /* el texto al lado de «Salir», no arriba: el aviso sale en todas las pantallas y en el celu ocupaba 100 px */
+    .bnr-i.guest { padding: var(--sp-2) var(--sp-2) var(--sp-2) var(--sp-3); font-size: var(--fs-md); }
+    .bnr-i.guest > span { flex: 1; min-width: 0; }
   }
   @media (max-width: 480px) {
     /* en el teléfono, registrar es el «+»: el nombre sigue ahí para los lectores de pantalla */

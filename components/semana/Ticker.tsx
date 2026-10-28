@@ -26,7 +26,8 @@ export function Ticker() {
   const items = tickerItems();
   if (!items.length) return null;
   return (
-    <section className="sem-ticker" aria-label="Tus números de la semana">
+    /* con el foco del teclado se frena, como al pasar el mouse: la cinta no se mueve sin que se la pueda parar */
+    <section className="sem-ticker" aria-label="Tus números de la semana" tabIndex={0}>
       <Track items={items} />
       <Track items={items} />
       <p className="p-sr">

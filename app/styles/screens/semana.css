@@ -11,7 +11,8 @@
     background: var(--acc); color: var(--acc-ink); border-bottom: 1px solid color-mix(in oklab, var(--acc) 70%, #000);
   }
   .sem-tk { display: flex; flex: none; gap: var(--sp-8); padding-right: var(--sp-8); white-space: nowrap; animation: sem-tick 70s linear infinite; }
-  .sem-ticker:hover .sem-tk { animation-play-state: paused; }
+  .sem-ticker:hover .sem-tk, .sem-ticker:focus .sem-tk { animation-play-state: paused; }
+  .sem-ticker:focus-visible { outline: 2px solid var(--acc-ink); outline-offset: -4px; }
   .sem-tk > span { display: inline-flex; align-items: center; gap: var(--sp-8); font: italic 800 var(--fs-lg)/1 var(--f-disp); font-stretch: 72%; text-transform: uppercase; letter-spacing: .03em; }
   .sem-tk > span::after { content: ""; width: 8px; height: 14px; background: color-mix(in oklab, var(--acc-ink) 45%, transparent); transform: skewX(-20deg); }
   .sem-tk b { font-weight: 900; }
