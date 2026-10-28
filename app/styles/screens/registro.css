@@ -3,20 +3,20 @@
    con el prefijo reg-.
    Ojo: base.css pone h1, h2, h3, p y ul en margin 0; los espacios van con padding o gap. */
 @layer screens {
-  .reg { padding-top: 32px; font-size: 14px; line-height: 1.5; }
+  .reg { padding-top: var(--sp-8); font-size: 14px; line-height: 1.5; }
 
   /* totales: sin caja, los números grandes e itálicos separados por una raya */
-  .reg-tot { margin-bottom: 24px; }
-  .reg-tot .p-kpis > div { padding: 2px 22px; }
+  .reg-tot { margin-bottom: var(--sp-6); }
+  .reg-tot .p-kpis > div { padding: 2px var(--sp-6); }
   .reg-tot .p-kpis > div:first-child { padding-left: 0; }
   .reg-tot .p-kpis > div + div { border-left-color: var(--line-2); }
   .reg-tot .p-kpis .disp { font-size: 44px; font-style: italic; }
 
   /* filtros: el tipo a la izquierda; búsqueda, estado y período a la derecha. Si no entran en una línea, las
      herramientas bajan juntas y la búsqueda se estira */
-  .reg-bar { display: flex; align-items: center; flex-wrap: wrap; gap: 10px; margin-bottom: 16px; }
+  .reg-bar { display: flex; align-items: center; flex-wrap: wrap; gap: var(--sp-3); margin-bottom: var(--sp-4); }
   .reg-types { max-width: 100%; }
-  .reg-tools { flex: 1 1 520px; display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 10px; }
+  .reg-tools { flex: 1 1 520px; display: flex; flex-wrap: wrap; justify-content: flex-end; gap: var(--sp-3); }
   .reg-tools .p-search { flex: 1 1 220px; max-width: 520px; }
   .reg-tools .p-search input { width: 100%; }
 
@@ -27,21 +27,21 @@
   .reg-more { display: flex; justify-content: center; align-items: center; height: 56px; border-top: 1px solid var(--line); }
 
   /* los filtros no dejan ninguna */
-  .reg-none { padding: 56px 20px; display: grid; justify-items: center; gap: 6px; text-align: center; color: var(--ink-3); }
+  .reg-none { padding: var(--sp-12) var(--sp-5); display: grid; justify-items: center; gap: var(--sp-2); text-align: center; color: var(--ink-3); }
   .reg-none b { font: italic 900 26px/1 var(--f-disp); font-stretch: 64%; text-transform: uppercase; color: var(--ink); }
-  .reg-none .p-btn { margin-top: 10px; }
+  .reg-none .p-btn { margin-top: var(--sp-3); }
 
   /* sin ninguna sesión */
   .reg-empty { max-width: 520px; }
   .reg-empty p { max-width: 46ch; }
-  .reg-ghost { width: 100%; display: grid; gap: 6px; margin: 4px 0 6px; }
+  .reg-ghost { width: 100%; display: grid; gap: var(--sp-2); margin: var(--sp-1) 0 var(--sp-2); }
   .reg-ghost i { height: 26px; border-radius: var(--r-sm); border: 1px dashed var(--line-2); background: repeating-linear-gradient(90deg, transparent 0 14px, var(--sunk) 14px 15px); }
   .reg-ghost i:nth-child(2) { width: 82%; }
   .reg-ghost i:nth-child(3) { width: 64%; }
 
   @media (max-width: 900px) {
-    .reg { padding-top: 20px; }
-    .reg-tot .p-kpis { row-gap: 18px; }
+    .reg { padding-top: var(--sp-5); }
+    .reg-tot .p-kpis { row-gap: var(--sp-5); }
     .reg-tot .p-kpis > div { border-top: 0; }
     .reg-tot .p-kpis > div:nth-child(odd) { padding-left: 0; }
     .reg-tot .p-kpis .disp { font-size: 36px; }

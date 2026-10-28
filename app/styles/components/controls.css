@@ -4,7 +4,7 @@
 @layer components {
   /* botones: rectos, en mayúsculas, como una etiqueta de producto. Uno primario por pantalla */
   .p-btn {
-    display: inline-flex; align-items: center; justify-content: center; gap: 8px; height: 34px; padding: 0 14px; border-radius: var(--r-sm);
+    display: inline-flex; align-items: center; justify-content: center; gap: var(--sp-2); height: 34px; padding: 0 var(--sp-4); border-radius: var(--r-sm);
     font: 600 11.5px/1 var(--f-ui); letter-spacing: .07em; text-transform: uppercase; white-space: nowrap;
     border: 1px solid var(--line-2); background: var(--surface); color: var(--ink);
     transition: background-color .15s var(--ease), border-color .15s var(--ease), transform .1s var(--ease);
@@ -27,12 +27,12 @@
   /* borrar, descartar: en rojo, sin llenar */
   .p-btn.dng { color: var(--neg); border-color: color-mix(in oklab, var(--neg) 45%, transparent); }
   .p-btn.dng:hover { border-color: var(--neg); background: var(--neg-soft); }
-  .p-btn.sm { height: 28px; padding: 0 10px; font-size: 11px; }
-  .p-btn.lg { height: 42px; padding: 0 20px; }
+  .p-btn.sm { height: 28px; padding: 0 var(--sp-3); font-size: 11px; }
+  .p-btn.lg { height: 42px; padding: 0 var(--sp-5); }
 
   /* tipo de sesión: el cuadradito inclinado como la itálica */
   .p-chip {
-    display: inline-flex; align-items: center; gap: 6px; height: 22px; padding: 0 8px 0 7px; border-radius: var(--r-sm);
+    display: inline-flex; align-items: center; gap: var(--sp-2); height: 22px; padding: 0 var(--sp-2); border-radius: var(--r-sm);
     font: 700 10.5px/1 var(--f-ui); letter-spacing: .08em; text-transform: uppercase; white-space: nowrap;
     color: color-mix(in oklab, var(--tc) 80%, var(--ink)); background: color-mix(in oklab, var(--tc) 14%, var(--surface));
   }
@@ -42,26 +42,26 @@
   /* tinta sobre tinta: en oscuro el test es claro, y el blanco no se leería */
   .p-chip.solid.ink { color: var(--bg); }
 
-  .p-delta { display: inline-flex; align-items: center; gap: 2px; height: 20px; padding: 0 6px; border-radius: var(--r-sm); font: 500 11.5px/1 var(--f-mono); font-variant-numeric: tabular-nums; }
+  .p-delta { display: inline-flex; align-items: center; gap: 2px; height: 20px; padding: 0 var(--sp-2); border-radius: var(--r-sm); font: 500 11.5px/1 var(--f-mono); font-variant-numeric: tabular-nums; }
   .p-delta.good { color: var(--pos); background: var(--pos-soft); }
   .p-delta.bad { color: var(--neg); background: var(--neg-soft); }
   .p-delta.eq { color: var(--ink-3); background: var(--sunk); }
 
   .p-tag {
-    display: inline-flex; align-items: center; height: 20px; padding: 0 7px; border-radius: var(--r-sm); white-space: nowrap;
+    display: inline-flex; align-items: center; height: 20px; padding: 0 var(--sp-2); border-radius: var(--r-sm); white-space: nowrap;
     font: 600 10.5px/1 var(--f-ui); letter-spacing: .06em; text-transform: uppercase; color: var(--ink-3); border: 1px dashed var(--line-2);
   }
   .p-tag.warn { color: var(--t-tempo); border-color: color-mix(in oklab, var(--t-tempo) 50%, transparent); }
 
   .p-pr {
-    display: inline-flex; align-items: center; height: 18px; padding: 0 6px; border-radius: 2px; background: var(--acc); color: #fff;
+    display: inline-flex; align-items: center; height: 18px; padding: 0 var(--sp-2); border-radius: 2px; background: var(--acc); color: #fff;
     font: italic 900 11px/1 var(--f-disp); font-stretch: 70%; letter-spacing: .04em; vertical-align: middle;
   }
 
   /* selector segmentado: filtros y vistas */
   .p-seg { display: inline-flex; padding: 3px; gap: 2px; background: var(--sunk); border-radius: var(--r-md); max-width: 100%; }
   .p-seg button {
-    height: 28px; padding: 0 11px; border-radius: var(--r-sm); display: inline-flex; align-items: center; gap: 6px; white-space: nowrap;
+    height: 28px; padding: 0 var(--sp-3); border-radius: var(--r-sm); display: inline-flex; align-items: center; gap: var(--sp-2); white-space: nowrap;
     font: 600 11px/1 var(--f-ui); letter-spacing: .07em; text-transform: uppercase; color: var(--ink-2);
     transition: background-color .15s var(--ease), color .15s var(--ease);
   }
@@ -82,9 +82,9 @@
   .p-selb .cd { width: 12px; height: 12px; color: var(--ink-3); }
 
   /* botones sueltos, uno elegido: molestia, zapatillas, clima, plantillas */
-  .p-choices { display: flex; flex-wrap: wrap; gap: 6px; }
+  .p-choices { display: flex; flex-wrap: wrap; gap: var(--sp-2); }
   .p-choices button {
-    height: 32px; padding: 0 12px; border-radius: var(--r-sm); border: 1px solid var(--line-2); display: inline-flex; align-items: center; gap: 6px;
+    height: 32px; padding: 0 var(--sp-3); border-radius: var(--r-sm); border: 1px solid var(--line-2); display: inline-flex; align-items: center; gap: var(--sp-2);
     font-size: 13px; color: var(--ink-2); transition: border-color .15s var(--ease), background-color .15s var(--ease), color .15s var(--ease);
   }
   .p-choices button:hover:not(:disabled) { border-color: var(--ink-4); color: var(--ink); }
@@ -95,7 +95,7 @@
   .p-choices .sq { width: 7px; height: 7px; background: var(--tc); transform: skewX(-14deg); }
 
   /* interruptor: fila con el texto a la izquierda y la llave a la derecha */
-  .p-tg { width: 100%; display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 12px 0; text-align: left; }
+  .p-tg { width: 100%; display: flex; align-items: center; justify-content: space-between; gap: var(--sp-4); padding: var(--sp-3) 0; text-align: left; }
   .p-tg b { display: block; font-weight: 500; font-size: 13.5px; }
   .p-tg small { display: block; font-size: 12px; color: var(--ink-3); margin-top: 2px; }
   .p-tg .k { flex: none; width: 34px; height: 20px; border-radius: 10px; background: var(--line-2); position: relative; transition: background-color .2s var(--ease); }
@@ -111,12 +111,12 @@
   .p-stepper button:focus-visible { outline-offset: -2px; }
   .p-stepper svg { width: 15px; height: 15px; }
   .p-stepper output {
-    min-width: 44px; height: 36px; display: grid; place-items: center; padding: 0 6px; font: italic 800 20px/1 var(--f-disp); font-stretch: 70%;
+    min-width: 44px; height: 36px; display: grid; place-items: center; padding: 0 var(--sp-2); font: italic 800 20px/1 var(--f-disp); font-stretch: 70%;
     font-variant-numeric: tabular-nums; border-left: 1px solid var(--line); border-right: 1px solid var(--line);
   }
 
   /* pestañas: títulos de panel, con el tartán abajo en la elegida */
-  .p-tabs { display: flex; gap: 28px; border-bottom: 1px solid var(--line); overflow-x: auto; scrollbar-width: none; }
+  .p-tabs { display: flex; gap: var(--sp-8); border-bottom: 1px solid var(--line); overflow-x: auto; scrollbar-width: none; }
   .p-tabs button, .p-tabs a {
     position: relative; height: 42px; flex: none; display: inline-flex; align-items: center;
     font: 800 16px/1 var(--f-disp); font-stretch: 72%; text-transform: uppercase; letter-spacing: .02em; color: var(--ink-3);
