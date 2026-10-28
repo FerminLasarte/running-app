@@ -38,7 +38,7 @@ function ReadyPanel() {
   const race = nextRace();
   if (!race)
     return (
-      <Panel className="p-c5 p-rise" style={cssVars({ '--i': 2 })} title="Preparación">
+      <Panel className="p-c6 p-rise" style={cssVars({ '--i': 2 })} title="Preparación">
         <p className="an-note">Cargá tu próxima carrera y acá ves qué tan listo llegás: volumen, tirada larga, ritmo, constancia y cómo venís de carga.</p>
         <Button size="sm" onClick={goRaces}>
           Cargar carrera
@@ -52,7 +52,7 @@ function ReadyPanel() {
     withData = I.filter((i) => i.k !== 'na').length,
     when = days === 0 ? 'es hoy' : wks > 0 ? 'faltan ' + plural(wks, 'semana', 'semanas') : 'faltan ' + plural(days, 'día', 'días');
   return (
-    <Panel className="p-c5 p-rise" style={cssVars({ '--i': 2 })} title="Preparación" sub={'Para el ' + race.name}>
+    <Panel className="p-c6 p-rise" style={cssVars({ '--i': 2 })} title="Preparación" sub={'Para el ' + race.name}>
       <div className="an-ready">
         <Chrono value={sc}>{sc == null ? 'faltan datos · ' + withData + ' de ' + I.length + ' con datos' : 'de 100 · ' + when}</Chrono>
         <ul className="an-factors">
@@ -150,7 +150,7 @@ function LoadPanel() {
     dl = deloadInfo();
   if (!L)
     return (
-      <Panel className="p-c7 p-rise" style={cssVars({ '--i': 3 })} title="Carga de la semana">
+      <Panel className="p-c6 p-rise" style={cssVars({ '--i': 3 })} title="Carga de la semana">
         <p className="an-note">Necesito unas 3 semanas de entrenamientos para comparar tu semana con tu promedio y avisarte si estás subiendo muy rápido.</p>
       </Panel>
     );
@@ -167,7 +167,7 @@ function LoadPanel() {
           ? 'Subida fuerte: mirá cómo te sentís y evitá sumar intensidad esta semana.'
           : 'Subida muy brusca: por encima de 1,5 el riesgo de lesión sube de forma clara. Considerá bajar los km.';
   return (
-    <Panel className="p-c7 p-rise" style={cssVars({ '--i': 3 })} title="Carga de la semana" sub={<span className="hide-s">Últimos 7 días contra tu promedio de 4 semanas</span>}>
+    <Panel className="p-c6 p-rise" style={cssVars({ '--i': 3 })} title="Carga de la semana" sub={<span className="hide-s">Últimos 7 días contra tu promedio de 4 semanas</span>}>
       <div className="an-acwr">
         <div>
           <span className="lbl">Relación de carga</span>

@@ -161,7 +161,14 @@
   .lo-vid .lo-vo .nw { top: 32px; }
 
   /* ---- desafíos ---- */
-  .lo-ch-p { align-self: start; }
+  .lo-ch-p { display: flex; flex-direction: column; }
+  .lo-ch-add {
+    flex: 1; min-height: 56px; margin: 0 var(--pad) var(--pad); display: flex; align-items: center; justify-content: center; gap: var(--sp-1);
+    border: 1px dashed var(--line-2); border-radius: var(--r-md); font-size: 12px; color: var(--ink-3);
+    transition: color .15s var(--ease), border-color .15s var(--ease);
+  }
+  .lo-ch-add:hover { color: var(--ink); border-color: var(--ink-4); }
+  .lo-ch-add svg { width: 13px; height: 13px; }
   .lo-chs { list-style: none; margin: 0; padding: 0; }
   .lo-ch { padding: var(--sp-5); border-top: 1px solid var(--line); }
   .lo-chs > .lo-ch:first-child { border-top: 0; }
