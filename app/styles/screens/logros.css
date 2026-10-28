@@ -143,7 +143,7 @@
   .lo-vo.close .lo-pg i.on { background: var(--acc); }
   @keyframes lo-breathe { to { filter: drop-shadow(0 0 14px color-mix(in oklab, var(--acc) 80%, transparent)); } }
   /* nuevo desde la última vez que miraste */
-  .lo-vo .nw { position: absolute; z-index: 5; top: 12px; left: 50%; transform: translateX(-50%) rotate(-4deg); font: italic 900 10px/1 var(--f-disp); font-stretch: 70%; letter-spacing: .06em; text-transform: uppercase; background: var(--acc); color: #fff; padding: 3px var(--sp-1); border-radius: 2px; }
+  .lo-vo .nw { position: absolute; z-index: 5; top: 12px; left: 50%; transform: translateX(-50%) rotate(-4deg); font: italic 900 10px/1 var(--f-disp); font-stretch: 70%; letter-spacing: .06em; text-transform: uppercase; background: var(--acc); color: var(--acc-ink); padding: 3px var(--sp-1); border-radius: 2px; }
   /* aparecen al llegar al estante, de izquierda a derecha */
   .lo-vs.pre .lo-vo { opacity: 0; transform: translateY(10px); }
   .lo-vs.in .lo-vo { transition: opacity .5s var(--ease), transform .55s var(--ease); transition-delay: calc(var(--j, 0) * 45ms); }

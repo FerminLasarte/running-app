@@ -1,8 +1,8 @@
 'use client';
 /* Plan por bloques de la próxima media o maratón: una columna por semana del plan (con la fecha del lunes) con su fase,
    los km planificados (punteado) y los que hiciste (lleno), el nombre de la semana o «liviana» si es de descarga, la
-   semana de hoy y la de la carrera. Si son más de 12 semanas, la fila se corre de costado y arranca mostrando la de
-   hoy. Recalibrar los ritmos va en el encabezado; esta semana, cómo viene y cómo se arma, al pie. */
+   semana de hoy y la de la carrera. Si no entran a lo ancho (con columnas de 56 px, unas 20 semanas), la fila se corre de
+   costado, arranca mostrando la de hoy y el borde con más semanas se desvanece. Recalibrar los ritmos va en el encabezado; esta semana, cómo viene y cómo se arma, al pie. */
 import { useEffect, useRef } from 'react';
 import { FlagCheckered } from '@phosphor-icons/react';
 import { useS } from '@/lib/store';
@@ -49,6 +49,24 @@ export function BlocksPanel({ race, other }: { race: Race; other: boolean }) {
       cur = el?.querySelector<HTMLElement>('.cur');
     if (el && cur && el.scrollWidth > el.clientWidth) el.scrollLeft = cur.offsetLeft - (el.clientWidth - cur.offsetWidth) / 2;
   }, [P]);
+  /* si no entran todas las semanas, el borde del lado que tiene más se desvanece. Va con classList y no con estado: un
+     render nuevo volvería a centrar la semana de hoy mientras corrés la fila */
+  const has = !!P;
+  useEffect(() => {
+    const el = scroller.current;
+    if (!el) return;
+    const edges = () => {
+      el.classList.toggle('more-l', el.scrollLeft > 1);
+      el.classList.toggle('more-r', el.scrollLeft + el.clientWidth < el.scrollWidth - 1);
+    };
+    edges();
+    el.addEventListener('scroll', edges, { passive: true });
+    window.addEventListener('resize', edges);
+    return () => {
+      el.removeEventListener('scroll', edges);
+      window.removeEventListener('resize', edges);
+    };
+  }, [has]);
   if (!P) return null;
   const m0 = mondayOf(new Date()),
     lg = isLong(race),

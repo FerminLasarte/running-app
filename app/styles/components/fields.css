@@ -17,7 +17,7 @@
     font: 500 14px/1 var(--f-ui); color: var(--ink); outline: 0; min-width: 0; width: 100%;
     transition: border-color .15s var(--ease), box-shadow .15s var(--ease);
   }
-  .p-in::placeholder { color: var(--ink-4); }
+  .p-in::placeholder { color: var(--ink-3); }
   .p-in:hover { border-color: var(--ink-4); }
   .p-in:focus { border-color: var(--ink); box-shadow: 0 0 0 3px color-mix(in oklab, var(--ink) 10%, transparent); }
   .p-in[aria-invalid="true"] { border-color: var(--neg); box-shadow: 0 0 0 3px color-mix(in oklab, var(--neg) 14%, transparent); }
