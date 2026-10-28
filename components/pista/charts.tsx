@@ -4,7 +4,7 @@
    Todo en las coordenadas del viewBox: las escalas (`lin`) pasan de datos a esas coordenadas.
    Con `useCursor` el gráfico se recorre con el mouse o, con el foco, con las flechas; con `table`, «Ver tabla» abre
    los mismos datos en una tabla. */
-import { useId, useState, type KeyboardEvent, type PointerEvent, type ReactNode } from 'react';
+import { useEffect, useId, useRef, useState, type KeyboardEvent, type PointerEvent, type ReactNode } from 'react';
 import { cssVars, cx } from './util';
 
 /** escala lineal: del dominio [d0, d1] al rango [r0, r1] (el Y va invertido: d0 abajo) */
@@ -96,9 +96,24 @@ function ChartTableView({ t, label }: { t: ChartTable; label: string }) {
  * elegido) se anuncia a los lectores de pantalla. Con `table`, abajo va «Ver tabla» con los mismos datos.
  */
 export function Chart({ w, h, label, cursor, live, table, className, children }: { w: number; h: number; label: string; cursor?: Cursor; live?: string; table?: ChartTable; className?: string; children: ReactNode }) {
+  /* el dibujo escala con el ancho, pero el texto no tiene que achicarse con él: `--k` (viewBox sobre ancho real, hasta
+     1,4) devuelve las etiquetas a su tamaño de interfaz cuando el gráfico se dibuja más angosto que su lienzo */
+  const svg = useRef<SVGSVGElement>(null);
+  useEffect(() => {
+    const el = svg.current;
+    if (!el) return;
+    const fit = () => {
+      const r = el.getBoundingClientRect().width;
+      if (r) el.style.setProperty('--k', String(Math.min(1.4, Math.max(1, w / r))));
+    };
+    fit();
+    const ro = new ResizeObserver(fit);
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, [w]);
   return (
     <div className={cx('p-chart', className)}>
-      <svg viewBox={`0 0 ${w} ${h}`} role={cursor ? 'group' : 'img'} aria-label={label} aria-roledescription={cursor ? 'gráfico' : undefined} {...cursor}>
+      <svg ref={svg} viewBox={`0 0 ${w} ${h}`} role={cursor ? 'group' : 'img'} aria-label={label} aria-roledescription={cursor ? 'gráfico' : undefined} {...cursor}>
         {children}
       </svg>
       {cursor ? (
@@ -110,6 +125,9 @@ export function Chart({ w, h, label, cursor, live, table, className, children }:
     </div>
   );
 }
+
+/** la fuente de un texto suelto dentro de un `Chart` (un rótulo, una línea de referencia), al tamaño de interfaz `fs` */
+export const chartFont = (fs: 'lbl' | 'xs' | 'sm', weight = 600) => `${weight} calc(var(--fs-${fs}) * var(--k, 1)) var(--f-mono)`;
 
 /** grilla horizontal con sus valores; `zero` marca más fuerte la línea del 0 */
 export function GridY({ ticks, y, x0, x1, fmt = String, side = 'left', zero, color }: { ticks: number[]; y: (v: number) => number; x0: number; x1: number; fmt?: (v: number) => string; side?: 'left' | 'right' | 'none'; zero?: boolean; color?: string }) {

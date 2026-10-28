@@ -19,7 +19,7 @@ import { Button } from '@/components/pista/controls';
 import { HowTo, Panel } from '@/components/pista/structure';
 import { Laps } from '@/components/pista/meters';
 import { Chrono } from '@/components/pista/sport';
-import { Chart, GridY, Key, LabelsX, StackedBars, Tip, lin, useCursor, type Bar } from '@/components/pista/charts';
+import { Chart, GridY, Key, LabelsX, StackedBars, Tip, chartFont, lin, useCursor, type Bar } from '@/components/pista/charts';
 import { FormChart, FormKpis, weeklyOf, type FormPhase } from '@/components/pista/form';
 import { PHASE_C, cssVars, typeColor } from '@/components/pista/util';
 import { useAnPeriod } from './period';
@@ -136,7 +136,7 @@ function DaysChart({ avg }: { avg: number }) {
         ),
       )}
       <line x1={M.l} x2={w - M.r} y1={Y(avg)} y2={Y(avg)} stroke="var(--ink)" strokeDasharray="4 3" />
-      <text className="an-halo" x={w - M.r} y={Y(avg) - 6} textAnchor="end" style={{ font: '600 10.5px var(--f-mono)', fill: 'var(--ink)' }}>
+      <text className="an-halo" x={w - M.r} y={Y(avg) - 6} textAnchor="end" style={{ font: chartFont('lbl'), fill: 'var(--ink)' }}>
         PROMEDIO 4 SEM · {fmt(avg, 1)} KM/DÍA
       </text>
       <LabelsX y={h - 6} items={D.map((q, k) => ({ x: xc(k), label: name(q.d).toUpperCase(), accent: k === 6 }))} />
@@ -167,7 +167,7 @@ function LoadPanel() {
           ? 'Subida fuerte: mirá cómo te sentís y evitá sumar intensidad esta semana.'
           : 'Subida muy brusca: por encima de 1,5 el riesgo de lesión sube de forma clara. Considerá bajar los km.';
   return (
-    <Panel className="p-c6 p-rise" style={cssVars({ '--i': 3 })} title="Carga de la semana" sub={<span className="hide-s">Últimos 7 días contra tu promedio de 4 semanas</span>}>
+    <Panel className="p-c6 p-rise p-stretch" style={cssVars({ '--i': 3 })} title="Carga de la semana" sub={<span className="hide-s">Últimos 7 días contra tu promedio de 4 semanas</span>}>
       <div className="an-acwr">
         <div>
           <span className="lbl">Relación de carga</span>
@@ -198,7 +198,7 @@ function LoadPanel() {
         <DaysChart avg={L.chronic / 7} />
       </div>
       {dl != null && dl >= 3 ? <p className="an-note an-warn">Hace {dl} semanas que no bajás el volumen. Una semana liviana (20–30% menos km) ayuda a asimilar el trabajo; si tu plan ya tiene una, seguila.</p> : null}
-      <HowTo>Divido los km de tus últimos 7 días por tu promedio semanal de las últimas 4 semanas. Entre 0,8 y 1,3 es la zona más segura; sobre 1,5 el riesgo sube. No uso la regla del «10% por semana»: los estudios no la respaldan.</HowTo>
+      <HowTo className="p-end">Divido los km de tus últimos 7 días por tu promedio semanal de las últimas 4 semanas. Entre 0,8 y 1,3 es la zona más segura; sobre 1,5 el riesgo sube. No uso la regla del «10% por semana»: los estudios no la respaldan.</HowTo>
     </Panel>
   );
 }

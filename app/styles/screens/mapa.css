@@ -2,7 +2,7 @@
    colores de las variables de .mapa-map (components/mapa/draw.ts).
    Ojo: base.css pone h1, h2, h3, p y ul en margin 0; los espacios van con padding o gap. */
 @layer screens {
-  .mapa { display: grid; grid-template-columns: minmax(0, 1fr) 380px; height: 100%; font-size: 14px; }
+  .mapa { display: grid; grid-template-columns: minmax(0, 1fr) 380px; height: 100%; font-size: var(--fs-base); }
 
   /* ---- la ciudad de noche ---- */
   .mapa-map {
@@ -26,7 +26,7 @@
   .mapa-pill {
     display: inline-flex; align-items: center; gap: var(--sp-2); height: 34px; padding: 0 var(--sp-3); border-radius: var(--r-md);
     background: rgb(23 23 24 / .92); border: 1px solid var(--hero-line); color: var(--hero-ink);
-    font: 600 11px/1 var(--f-ui); letter-spacing: .08em; text-transform: uppercase; font-variant-numeric: tabular-nums;
+    font: 600 var(--fs-xs)/1 var(--f-ui); letter-spacing: .08em; text-transform: uppercase; font-variant-numeric: tabular-nums;
     transition: background-color .15s var(--ease), border-color .15s var(--ease);
   }
   .mapa-pill:hover { border-color: var(--hero-ink); }
@@ -41,7 +41,7 @@
   .mapa-grp svg { width: 16px; height: 16px; }
   .mapa-hint {
     position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); padding: var(--sp-2) var(--sp-3); border-radius: var(--r-md);
-    background: rgb(23 23 24 / .92); border: 1px solid var(--hero-line); font-size: 12.5px; pointer-events: none;
+    background: rgb(23 23 24 / .92); border: 1px solid var(--hero-line); font-size: var(--fs-md); pointer-events: none;
     opacity: 0; transition: opacity .2s var(--ease);
   }
   .mapa-hint.on { opacity: 1; }
@@ -60,12 +60,12 @@
   .mapa-nums .disp { display: block; font-size: 26px; margin-top: var(--sp-2); }
   .mapa-nums .p-u { color: var(--hero-mut); }
   .mapa-acts { display: flex; gap: var(--sp-2); margin-top: var(--sp-4); }
-  .mapa-cn { color: var(--hero-mut); font-size: 13px; line-height: 1.45; padding-top: var(--sp-3); }
+  .mapa-cn { color: var(--hero-mut); font-size: var(--fs-md); line-height: 1.45; padding-top: var(--sp-3); }
   .mapa-keys { display: flex; flex-wrap: wrap; gap: var(--sp-2) var(--sp-4); margin-top: var(--sp-3); }
   .mapa-keys .p-key { color: var(--hero-ink); }
   /* la escala de las zonas: el mismo color que pinta draw.ts, de 6 % a 40 % */
   .mapa-zl { display: flex; align-items: center; gap: var(--sp-3); margin-top: var(--sp-3); }
-  .mapa-zl small { color: var(--hero-mut); font-size: 12px; white-space: nowrap; }
+  .mapa-zl small { color: var(--hero-mut); font-size: var(--fs-sm); white-space: nowrap; }
   .mapa-zl i { flex: 1; height: 8px; border-radius: 2px; background: linear-gradient(90deg, color-mix(in srgb, var(--m-acc) 6%, transparent), color-mix(in srgb, var(--m-acc) 40%, transparent)); }
 
   /* ---- la columna ---- */
@@ -76,25 +76,25 @@
   .mapa-stats .p-kpis > div { padding: var(--sp-4) 0; border-left: 0; border-bottom: 1px solid var(--line); }
   .mapa-stats .p-kpis > div:nth-child(even) { padding-left: var(--sp-5); border-left: 1px solid var(--line); }
   .mapa-stats .disp { font-style: italic; }
-  .mapa-stats small { font-size: 11.5px; }
+  .mapa-stats small { font-size: var(--fs-sm); }
   .mapa-h2 { display: flex; align-items: baseline; justify-content: space-between; gap: var(--sp-3); padding: var(--sp-6) 0 var(--sp-3); }
   .mapa-h2 h2 { font: 800 17px/1 var(--f-disp); font-stretch: 72%; text-transform: uppercase; letter-spacing: .015em; }
 
   /* tus barrios: el puesto, el nombre con sus salidas, la barra, los km y qué parte del total */
   .mapa-side .p-share li, .mapa-side .p-share .pick { grid-template-columns: minmax(0, 1fr) 56px 58px 32px; gap: var(--sp-3); min-height: 44px; }
-  .mapa-side .p-share .nm { display: grid; grid-template-columns: 20px minmax(0, 1fr); align-items: baseline; column-gap: var(--sp-1); font-size: 13.5px; }
-  .mapa-side .p-share .nm small { grid-column: 2; font-size: 11.5px; color: var(--ink-3); font-weight: 400; margin-top: 2px; }
-  .mapa-rk { grid-row: span 2; font: italic 900 16px/1 var(--f-disp); font-stretch: 70%; color: var(--ink-3); }
+  .mapa-side .p-share .nm { display: grid; grid-template-columns: 20px minmax(0, 1fr); align-items: baseline; column-gap: var(--sp-1); font-size: var(--fs-base); }
+  .mapa-side .p-share .nm small { grid-column: 2; font-size: var(--fs-sm); color: var(--ink-3); font-weight: 400; margin-top: 2px; }
+  .mapa-rk { grid-row: span 2; font: italic 900 var(--fs-xl)/1 var(--f-disp); font-stretch: 70%; color: var(--ink-3); }
   .mapa-side .p-share .pick[aria-pressed="true"] .mapa-rk { color: var(--acc); }
 
-  .mapa-more summary { width: fit-content; margin-top: var(--sp-2); cursor: pointer; color: var(--ink-2); font-size: 12.5px; font-weight: 600; border-radius: 2px; }
+  .mapa-more summary { width: fit-content; margin-top: var(--sp-2); cursor: pointer; color: var(--ink-2); font-size: var(--fs-md); font-weight: 600; border-radius: 2px; }
   .mapa-more summary:hover { color: var(--ink); }
   .mapa-more[open] summary { margin-bottom: var(--sp-1); }
   .mapa-side .p-seg { width: 100%; }
   .mapa-tgs { margin-top: var(--sp-2); }
   .mapa-tgs .p-tg { border-top: 1px solid var(--line); }
   .mapa-sync { width: 100%; justify-content: center; }
-  .mapa-foot { color: var(--ink-3); font-size: 12px; line-height: 1.5; padding-top: var(--sp-3); }
+  .mapa-foot { color: var(--ink-3); font-size: var(--fs-sm); line-height: 1.5; padding-top: var(--sp-3); }
   .mapa-foot:empty { display: none; }
 
   /* ---- sin recorridos ---- */

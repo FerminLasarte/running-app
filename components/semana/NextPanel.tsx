@@ -73,7 +73,7 @@ export function NextPanel({ easyOn }: { easyOn: boolean }) {
     tc = typeColor(s.type);
   return (
     <Panel
-      className="p-c5 p-rise sem-next"
+      className="p-c5 p-rise p-stretch sem-next"
       style={cssVars({ '--i': 2, '--tc': tc })}
       title={nd === 1 ? 'Mañana' : 'Próxima'}
       sub={cap(DF_LONG.format(pd(d)).replace(',', '').replace(/ de \S+$/, ''))}
@@ -93,7 +93,7 @@ export function NextPanel({ easyOn }: { easyOn: boolean }) {
       ) : null}
       <RecalNote p={p} className="sem-next-note" />
       <MovedNote p={p} className="sem-next-note" />
-      <div className="sem-next-acts">
+      <div className="sem-next-acts p-end">
         <Button icon={ArrowsLeftRight} onClick={() => openSheet('move', { id: s.id })}>
           Mover
         </Button>

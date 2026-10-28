@@ -14,7 +14,7 @@ import { Calc, Field, HmsInput, Input, SearchField, TextArea, UnitInput } from '
 import { BrandTitle, Kpis, PageHead, Panel, Stadium, Table, type Col, type Group } from './structure';
 import { Laps, StructureBar, Ticks, ZoneBar, type Seg } from './meters';
 import { Bib, Chrono, Countdown, Cup, HungMedal, Medal, Oval, PaceBand, SecretBox, Shield, StandShield } from './sport';
-import { Chart, Dots, GridY, Guide, Key, LabelsX, Line, Spark, StackedBars, Tip, lin, useCursor, type Bar, type Pt } from './charts';
+import { Chart, Dots, GridY, Guide, Key, LabelsX, Line, Spark, StackedBars, Tip, chartFont, lin, useCursor, type Bar, type Pt } from './charts';
 
 /* ---- datos de ejemplo: los mismos del boceto ---- */
 const rng = (s: number) => () => (s = (s * 16807) % 2147483647) / 2147483647; /* fijo: siempre igual */
@@ -188,7 +188,7 @@ function PaceChart() {
         <g key={t}>
           <line x1={x(0)} y1={y(a)} x2={x(N - 1)} y2={y(b)} stroke={typeColor(t)} strokeWidth="2.4" />
           <circle cx={x(N - 1)} cy={y(b)} r="4.5" fill={typeColor(t)} stroke="var(--surface)" strokeWidth="2" />
-          <text x={x(N - 1) + 9} y={y(b) + 4} style={{ font: '600 11px var(--f-mono)', fill: typeColor(t) }}>
+          <text x={x(N - 1) + 9} y={y(b) + 4} style={{ font: chartFont('xs'), fill: typeColor(t) }}>
             {fmtPace(b)}
           </text>
         </g>

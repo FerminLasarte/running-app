@@ -3,7 +3,7 @@
    con el prefijo reg-.
    Ojo: base.css pone h1, h2, h3, p y ul en margin 0; los espacios van con padding o gap. */
 @layer screens {
-  .reg { padding-top: var(--sp-8); font-size: 14px; line-height: 1.5; }
+  .reg { padding-top: var(--sp-8); font-size: var(--fs-base); line-height: 1.5; }
 
   /* totales: sin caja, los números grandes e itálicos separados por una raya */
   .reg-tot { margin-bottom: var(--sp-6); }
@@ -21,7 +21,7 @@
   .reg-tools .p-search input { width: 100%; }
 
   /* la nota de cada fila, en una línea debajo del tipo: recortada para no ensanchar la columna */
-  .reg-txt { display: block; max-width: 44ch; overflow: hidden; text-overflow: ellipsis; font-size: 12px; line-height: 1.3; color: var(--ink-3); margin-top: var(--sp-1); }
+  .reg-txt { display: block; max-width: 44ch; overflow: hidden; text-overflow: ellipsis; font-size: var(--fs-sm); line-height: 1.3; color: var(--ink-3); margin-top: var(--sp-1); }
 
   /* pie de la tabla: traer más filas */
   .reg-more { display: flex; justify-content: center; align-items: center; height: 56px; border-top: 1px solid var(--line); }

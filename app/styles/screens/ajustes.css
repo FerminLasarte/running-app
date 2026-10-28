@@ -2,8 +2,8 @@
    stepper, vueltas) tienen su CSS en app/styles/components/.
    Ojo: base.css pone h1, h2, h3, p y ul en margin 0; los espacios van con padding o gap. */
 @layer screens {
-  .aj { padding-top: var(--sp-8); font-size: 14px; line-height: 1.5; }
-  .aj-saved { display: inline-flex; align-items: center; gap: var(--sp-2); font-size: 12.5px; color: var(--ink-3); }
+  .aj { padding-top: var(--sp-8); font-size: var(--fs-base); line-height: 1.5; }
+  .aj-saved { display: inline-flex; align-items: center; gap: var(--sp-2); font-size: var(--fs-md); color: var(--ink-3); }
   .aj-saved i { width: 7px; height: 7px; border-radius: 50%; background: var(--pos); }
 
   /* el índice fijo a la izquierda */
@@ -17,26 +17,26 @@
   .aj-nav a[aria-current="true"] { color: var(--ink); }
   .aj-nav a[aria-current="true"]::before { content: ""; position: absolute; left: 0; top: 8px; bottom: 8px; width: 3px; background: var(--acc); }
   .aj-nav svg { width: 16px; height: 16px; flex: none; }
-  .aj-sets { display: grid; gap: var(--sp-5); min-width: 0; }
+  .aj-sets { display: grid; gap: var(--gutter); min-width: 0; }
   .aj-set { scroll-margin-top: 80px; }
   .aj-set:focus { outline: none; }
 
   /* una fila: qué es a la izquierda, el control a la derecha */
   .aj-row { display: grid; grid-template-columns: 240px minmax(0, 1fr); gap: var(--sp-8); padding: var(--sp-5); border-top: 1px solid var(--line); }
   .p-panel-h + .aj-row, .p-panel-h + div > .aj-row:first-child { border-top: 0; }
-  .aj-rt > b, .aj-rt > label { display: block; font-weight: 600; font-size: 13.5px; }
-  .aj-rt small { display: block; margin-top: var(--sp-1); font-size: 12.5px; color: var(--ink-3); line-height: 1.45; }
+  .aj-rt > b, .aj-rt > label { display: block; font-weight: 600; font-size: var(--fs-base); }
+  .aj-rt small { display: block; margin-top: var(--sp-1); font-size: var(--fs-md); color: var(--ink-3); line-height: 1.45; }
   .aj-ctl { display: flex; flex-wrap: wrap; align-items: center; gap: var(--sp-3); min-width: 0; }
   .aj-top .aj-ctl { align-items: flex-start; gap: var(--sp-4); }
   .aj-sp { flex: 1; }
-  .aj-mut { font-size: 12.5px; color: var(--ink-3); }
+  .aj-mut { font-size: var(--fs-md); color: var(--ink-3); }
   .aj-wide { max-width: 320px; }
   .aj-n { width: 120px; }
   .aj-fld { display: grid; gap: var(--sp-2); }
-  .aj-err { font-size: 12px; color: var(--neg); max-width: 34ch; }
-  .aj-foot { color: var(--ink-3); font-size: 12px; line-height: 1.5; padding-top: var(--sp-4); max-width: 68ch; }
-  .aj-none { color: var(--ink-3); font-size: 13px; }
-  .aj-mail { font-size: 13.5px; }
+  .aj-err { font-size: var(--fs-sm); color: var(--neg); max-width: 34ch; }
+  .aj-foot { color: var(--ink-3); font-size: var(--fs-sm); line-height: 1.5; padding-top: var(--sp-4); max-width: 68ch; }
+  .aj-none { color: var(--ink-3); font-size: var(--fs-md); }
+  .aj-mail { font-size: var(--fs-base); }
 
   /* la foto: el mismo avatar de la barra lateral, en grande y con el anillo tartán */
   .aj-av .av { width: 64px; height: 64px; background: var(--t-fondo); font: italic 900 26px/1 var(--f-disp); font-stretch: 62%; box-shadow: 0 0 0 3px var(--surface), 0 0 0 5px var(--acc); }
@@ -50,40 +50,40 @@
   .aj-zbar { position: relative; height: 44px; margin-top: var(--sp-6); user-select: none; touch-action: none; }
   .aj-zseg {
     position: absolute; top: 0; bottom: 0; display: grid; place-items: center; overflow: hidden;
-    font: italic 900 14px/1 var(--f-disp); font-stretch: 70%; color: #fff; background: var(--zc);
+    font: italic 900 var(--fs-base)/1 var(--f-disp); font-stretch: 70%; color: #fff; background: var(--zc);
   }
   .aj-zseg.lt { color: var(--ink); }
   [data-theme="dark"] .aj-zseg.lt { color: #fff; }
   .aj-zhd { position: absolute; top: -6px; bottom: -6px; width: 22px; margin-left: -11px; cursor: ew-resize; display: grid; place-items: center; z-index: 2; touch-action: none; border-radius: 2px; }
   .aj-zhd::before { content: ""; width: 4px; height: 100%; border-radius: 2px; background: var(--ink); box-shadow: 0 0 0 2px var(--surface); transition: background-color .15s var(--ease); }
   .aj-zhd:hover::before, .aj-zhd:focus-visible::before, .aj-zhd:active::before { background: var(--acc); }
-  .aj-zhd > span { position: absolute; top: -20px; font: 600 11px/1 var(--f-mono); color: var(--ink); background: var(--surface); padding: 2px var(--sp-1); border-radius: 2px; pointer-events: none; }
+  .aj-zhd > span { position: absolute; top: -20px; font: 600 var(--fs-xs)/1 var(--f-mono); color: var(--ink); background: var(--surface); padding: 2px var(--sp-1); border-radius: 2px; pointer-events: none; }
   .aj-zbar.tall { margin-top: var(--sp-10); }
   .aj-zhd.up > span { top: -38px; }
   .aj-zax { position: relative; height: 18px; margin-top: var(--sp-1); }
-  .aj-zax span { position: absolute; top: 6px; transform: translateX(-50%); font: 500 11px/1 var(--f-mono); color: var(--ink-3); }
+  .aj-zax span { position: absolute; top: 6px; transform: translateX(-50%); font: 500 var(--fs-xs)/1 var(--f-mono); color: var(--ink-3); }
   .aj-zax span::before { content: ""; position: absolute; left: 50%; top: -6px; width: 1px; height: 4px; background: var(--line-2); }
   .aj-ztab { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: var(--sp-3); margin-top: var(--sp-5); }
   .aj-ztab > div { padding: var(--sp-3); border-top: 3px solid var(--zc); background: var(--bg); min-width: 0; }
-  .aj-ztab b { font: 600 11px/1 var(--f-mono); }
+  .aj-ztab b { font: 600 var(--fs-xs)/1 var(--f-mono); }
   .aj-zr { display: flex; align-items: center; gap: var(--sp-2); margin-top: var(--sp-2); }
   .aj-zr .disp { font-size: 18px; font-style: italic; white-space: nowrap; }
   .p-in.aj-zin { width: 56px; height: 30px; padding: 0 var(--sp-2); text-align: right; }
-  .aj-ztab small { display: block; margin-top: var(--sp-2); font-size: 11.5px; color: var(--ink-3); }
+  .aj-ztab small { display: block; margin-top: var(--sp-2); font-size: var(--fs-sm); color: var(--ink-3); }
 
   /* listas de carreras y zapatillas: «Editar» abre los campos debajo de la fila */
   .aj-list { list-style: none; margin: 0; padding: 0; }
   .aj-li { display: grid; grid-template-columns: auto minmax(0, 1fr) auto auto; gap: var(--sp-4); align-items: center; padding: var(--sp-4) 0; border-top: 1px solid var(--line); }
   .aj-li:first-child { border-top: 0; padding-top: 0; }
   .aj-li:last-child { padding-bottom: 0; }
-  .aj-ic { width: 40px; height: 40px; display: grid; place-items: center; background: var(--sunk); font: italic 900 14px/1 var(--f-disp); font-stretch: 66%; }
+  .aj-ic { width: 40px; height: 40px; display: grid; place-items: center; background: var(--sunk); font: italic 900 var(--fs-base)/1 var(--f-disp); font-stretch: 66%; }
   .aj-ic.next { background: var(--acc); color: var(--acc-ink); }
   .aj-ic svg { width: 18px; height: 18px; }
   .aj-nm { min-width: 0; }
-  .aj-nm b { display: flex; flex-wrap: wrap; align-items: center; gap: var(--sp-1) var(--sp-2); font-weight: 600; font-size: 13.5px; }
-  .aj-nm small { display: block; font-size: 12px; color: var(--ink-3); margin-top: 2px; }
+  .aj-nm b { display: flex; flex-wrap: wrap; align-items: center; gap: var(--sp-1) var(--sp-2); font-weight: 600; font-size: var(--fs-base); }
+  .aj-nm small { display: block; font-size: var(--fs-sm); color: var(--ink-3); margin-top: 2px; }
   .aj-li > .disp { font-size: 22px; font-style: italic; text-align: right; }
-  .aj-li > .disp small { display: block; font: 500 11px/1 var(--f-ui); font-style: normal; color: var(--ink-3); margin-top: var(--sp-1); }
+  .aj-li > .disp small { display: block; font: 500 var(--fs-xs)/1 var(--f-ui); font-style: normal; color: var(--ink-3); margin-top: var(--sp-1); }
   .aj-li.past .aj-nm b { color: var(--ink-2); }
   .aj-li.ret > :not(.aj-li-b):not(.aj-ed) { opacity: .55; }
   .aj-li-b { display: flex; gap: var(--sp-2); justify-content: flex-end; }
@@ -94,7 +94,7 @@
   .aj-ed-w .p-tg { padding: var(--sp-1) 0; }
   .aj-ed-f { display: flex; flex-wrap: wrap; align-items: center; justify-content: flex-end; gap: var(--sp-2); margin-top: var(--sp-5); padding-top: var(--sp-4); border-top: 1px solid var(--line); }
   .aj-ed-f > :first-child { margin-right: auto; }
-  .aj-del { display: inline-flex; flex-wrap: wrap; align-items: center; gap: var(--sp-2); font-size: 13px; }
+  .aj-del { display: inline-flex; flex-wrap: wrap; align-items: center; gap: var(--sp-2); font-size: var(--fs-md); }
   /* la contraseña nueva, en la misma fila */
   .aj-pass { display: flex; flex-wrap: wrap; align-items: center; gap: var(--sp-2); width: 100%; }
   .aj-pass .p-in { flex: 0 1 240px; min-width: 0; }
@@ -120,12 +120,12 @@
   .aj-pv.split { background: linear-gradient(90deg, #FFFFFF 50%, #171718 50%); }
   .aj-th:hover .aj-pv { border-color: var(--ink-4); }
   .aj-th[aria-pressed="true"] .aj-pv { box-shadow: 0 0 0 2px var(--surface), 0 0 0 4px var(--ink); }
-  .aj-th > span:last-child { font-size: 13px; font-weight: 500; }
+  .aj-th > span:last-child { font-size: var(--fs-md); font-weight: 500; }
 
   /* paneles de importar y de copiar el respaldo */
   .aj-pick { display: flex; flex-wrap: wrap; align-items: center; gap: var(--sp-3); }
   .aj-found { margin-top: var(--sp-4); }
-  .aj-copy { margin-top: var(--sp-3); font: 400 12px/1.5 var(--f-mono); }
+  .aj-copy { margin-top: var(--sp-3); font: 400 var(--fs-sm)/1.5 var(--f-mono); }
 
   @media (max-width: 1240px) {
     .aj-cols { grid-template-columns: minmax(0, 1fr); gap: var(--sp-5); }

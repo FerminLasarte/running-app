@@ -47,7 +47,7 @@ export function Podium({ id, onId, i }: { id: PodId; onId: (v: PodId) => void; i
       id={LO_PARTS.pod}
       title="Podio"
       actions={<Segmented label="Ordenar el podio" value={id} onChange={onId} options={POD_IDS.map((v) => ({ value: v, label: cap(v) }))} />}
-      className="p-c6 p-rise lo-pod-p"
+      className="p-c6 p-rise p-stretch lo-pod-p"
       style={cssVars({ '--i': i })}
       flush
     >

@@ -10,7 +10,7 @@
   h1, h2, h3, p, ul { margin: 0; }
   body {
     margin: 0; background: var(--bg); color: var(--ink);
-    font: 400 16px/1.45 var(--f-ui);
+    font: 400 var(--fs-xl)/1.45 var(--f-ui);
     -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale;
     text-rendering: optimizeLegibility;
     transition: background-color .3s var(--ease), color .3s var(--ease);
@@ -32,12 +32,12 @@
     text-transform: uppercase; letter-spacing: -.008em; line-height: .86;
   }
   .brand-t em { font-style: inherit; color: var(--acc); }
-  .lbl { font: 600 10.5px/1.2 var(--f-ui); letter-spacing: .1em; text-transform: uppercase; color: var(--ink-3); }
+  .lbl { font: 600 var(--fs-lbl)/1.2 var(--f-ui); letter-spacing: .1em; text-transform: uppercase; color: var(--ink-3); }
   .mut { color: var(--ink-3); }
   /* solo para lectores de pantalla */
   .p-sr { position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip-path: inset(50%); white-space: nowrap; border: 0; }
   kbd {
-    font: 500 10.5px/1 var(--f-mono); color: var(--ink-3);
+    font: 500 var(--fs-lbl)/1 var(--f-mono); color: var(--ink-3);
     border: 1px solid var(--line-2); border-bottom-width: 2px; border-radius: 3px;
     padding: 2px var(--sp-1); background: var(--surface);
   }
