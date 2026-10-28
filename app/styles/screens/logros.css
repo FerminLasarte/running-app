@@ -73,7 +73,7 @@
   .lo-tally li { display: flex; align-items: center; gap: var(--sp-2); }
   .lo-tally li.z { opacity: .45; }
   .lo-tally .disp { font-size: 26px; }
-  .lo-tally small { display: block; margin-top: 2px; font: 600 9.5px/1 var(--f-ui); letter-spacing: .1em; text-transform: uppercase; color: var(--ink-3); }
+  .lo-tally small { display: block; margin-top: 2px; font: 600 10.5px/1 var(--f-ui); letter-spacing: .1em; text-transform: uppercase; color: var(--ink-3); }
   .lo-coin { width: 22px; height: 22px; border-radius: 50%; flex: none; background: radial-gradient(circle at 36% 30%, rgb(255 255 255 / .75), transparent 46%), radial-gradient(circle, transparent 58%, rgb(0 0 0 / .22) 60%, transparent 64%), var(--c); box-shadow: inset 0 -2px 3px rgb(0 0 0 / .25); }
 
   /* el mueble: las categorías chicas comparten fila; las de seis o más ocupan todo el ancho */
@@ -115,7 +115,7 @@
   .lo-vs.done .lo-vs-pl { background: linear-gradient(#F6DE8A, #C3962A); }
   .lo-vs-note { position: absolute; z-index: 4; right: 18px; top: calc(var(--hh) + 14px); font: 600 10.5px/1 var(--f-ui); letter-spacing: .08em; text-transform: uppercase; color: rgb(255 255 255 / .6); pointer-events: none; }
   .lo-vs-note b { color: #fff; font-weight: 700; }
-  .lo-vs-wall { position: absolute; z-index: 4; left: 16px; top: 14px; font: 600 10px/1 var(--f-ui); letter-spacing: .1em; text-transform: uppercase; color: var(--ink-3); pointer-events: none; }
+  .lo-vs-wall { position: absolute; z-index: 4; left: 16px; top: 14px; font: 600 10.5px/1 var(--f-ui); letter-spacing: .1em; text-transform: uppercase; color: var(--ink-3); pointer-events: none; }
 
   /* cada pieza: arriba de la repisa, y el nombre y la fecha (o lo que llevás) abajo */
   .lo-vs-row > li { display: flex; flex: 1 0 0; min-width: 92px; max-width: 148px; }

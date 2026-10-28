@@ -12,7 +12,8 @@ export function Vidriera({ i }: { i: number }) {
   const isNew = useSeenTrophies();
   const T = trophies(),
     C = vitCount(T),
-    { last, near } = vitShowcase(T);
+    /* tres por estante: con cuatro, las leyendas de los trofeos quedaban casi pegadas entre sí */
+    { last, near } = vitShowcase(T, 3);
   return (
     <Panel
       id={LO_PARTS.vit}

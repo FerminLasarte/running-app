@@ -48,7 +48,7 @@
 
   /* tus ritmos: una regla de lento a rápido y cada ritmo con su tramo */
   .an-ruler { position: relative; height: 26px; border-bottom: 1px solid var(--line-2); margin-bottom: var(--sp-2); }
-  .an-ruler span { position: absolute; bottom: 6px; transform: translateX(-50%); font: 500 10px/1 var(--f-mono); color: var(--ink-3); }
+  .an-ruler span { position: absolute; bottom: 6px; transform: translateX(-50%); font: 500 11px/1 var(--f-mono); color: var(--ink-3); }
   .an-ruler span::after { content: ""; position: absolute; left: 50%; bottom: -7px; width: 1px; height: 5px; background: var(--line-2); }
   .an-ruler .end { left: auto; right: 0; transform: none; color: var(--ink-2); }
   .an-ruler .end::after { content: none; }

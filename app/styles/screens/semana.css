@@ -40,12 +40,11 @@
   .sem-st-bar .p-sb i.x { background: var(--hero-line); }
   .sem-st-plan { display: inline-flex; align-items: center; color: var(--hero-mut); font: 600 10.5px/1 var(--f-ui); letter-spacing: .1em; text-transform: uppercase; }
 
-  /* la semana: la pista y sus números a la izquierda, los 7 días a la derecha */
-  .sem-board { display: grid; grid-template-columns: 208px minmax(0, 1fr); }
-  .sem-wsum { padding: var(--sp-5); border-right: 1px solid var(--line); display: flex; flex-direction: column; }
-  .sem-wsum .p-oval { margin: var(--sp-2) -4px 0; }
+  /* la semana: la pista y sus números en una franja arriba, los 7 días abajo con todo el ancho */
+  .sem-wsum { display: grid; grid-template-columns: 180px minmax(0, 1fr); gap: var(--sp-4) var(--sp-8); align-items: center; padding: var(--pad); border-bottom: 1px solid var(--line); }
+  .sem-wsum > .lbl { grid-column: 1 / -1; }
   .sem-zero { font-size: 26px; font-style: italic; color: var(--ink-4); }
-  .sem-wstats { margin-top: auto; display: grid; grid-template-columns: 1fr 1fr; gap: var(--sp-3) var(--sp-3); padding-top: var(--sp-4); }
+  .sem-wstats { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: var(--sp-4) var(--sp-6); }
   .sem-wstats .disp { display: block; font-size: 24px; margin-top: var(--sp-1); }
   .sem-goal { display: block; color: var(--ink-3); font-size: 12px; margin-top: 2px; font-variant-numeric: tabular-nums; }
   .sem-note { color: var(--ink-3); font-size: 12.5px; line-height: 1.5; padding-top: var(--sp-3); }
@@ -71,7 +70,6 @@
   .sem-day.today::before { content: ""; position: absolute; top: -1px; left: -1px; right: 0; height: 3px; background: var(--acc); }
   .sem-day.over { background: color-mix(in oklab, var(--acc) 7%, transparent); }
   .sem-day-h { display: flex; align-items: baseline; justify-content: space-between; padding: var(--sp-4) var(--sp-3) var(--sp-3); }
-  .sem-day-h .lbl { font-size: 10px; }
   .sem-day-h .disp { font-size: 24px; color: var(--ink-2); font-style: italic; }
   .sem-day.today .sem-day-h .lbl, .sem-day.today .sem-day-h .disp { color: var(--acc); }
   .sem-day-b { flex: 1; display: flex; flex-direction: column; gap: var(--sp-2); padding: 0 var(--sp-2) var(--sp-2); }
@@ -113,7 +111,7 @@
   /* descanso: días que ya pasaron sin nada */
   .sem-rest {
     flex: 1; display: grid; place-items: center; border-radius: var(--r-md); color: var(--ink-4);
-    font: 600 10px/1 var(--f-ui); letter-spacing: .1em; text-transform: uppercase;
+    font: 600 10.5px/1 var(--f-ui); letter-spacing: .1em; text-transform: uppercase;
     background: repeating-linear-gradient(-45deg, transparent 0 6px, color-mix(in oklab, var(--line) 70%, transparent) 6px 7px);
   }
   .sem-rest span { background: var(--surface); padding: 3px var(--sp-2); }
@@ -168,11 +166,6 @@
   @media (max-width: 1240px) {
     .sem-welcome { --side: 320px !important; }
     .sem-fit { font-size: min(92px, 100cqi / var(--w, 1)); }
-    .sem-board { grid-template-columns: minmax(0, 1fr); }
-    .sem-wsum { display: grid; grid-template-columns: 220px 1fr; gap: var(--sp-6); align-items: center; border-right: 0; border-bottom: 1px solid var(--line); }
-    .sem-wsum > .lbl { grid-column: 1 / -1; }
-    .sem-wsum .p-oval { margin: 0; }
-    .sem-wstats { grid-template-columns: repeat(4, 1fr); margin: 0; padding: 0; }
     .sem-days { grid-template-columns: repeat(7, minmax(132px, 1fr)); overflow-x: auto; scroll-snap-type: x mandatory; }
     .sem-day { scroll-snap-align: start; }
   }

@@ -37,7 +37,7 @@
   .p-how-b b { color: var(--ink); font-weight: 600; }
   /* una tabla adentro se corre de costado en el celu, no la página */
   .p-how-tw { overflow-x: auto; margin: var(--sp-1) 0; }
-  .p-how-b .p-tbl td { height: 36px; }
+  .p-how-b .p-tbl td { height: 36px; padding-block: var(--sp-2); }
 
   /* tablas anchas: se corren de costado adentro del panel, no la página */
   .p-panel.tw { overflow-x: auto; }
@@ -66,7 +66,7 @@
   .p-marks .disp { font-size: 24px; font-style: italic; white-space: nowrap; display: inline-flex; align-items: center; gap: var(--sp-2); }
 
   /* unidad chica al lado de un número grande */
-  .p-u { font-family: var(--f-ui); font-stretch: 100%; font-style: normal; font-weight: 500; font-size: .34em; letter-spacing: .02em; color: var(--ink-3); margin-left: .22em; text-transform: none; }
+  .p-u { font-family: var(--f-ui); font-stretch: 100%; font-style: normal; font-weight: 500; font-size: max(.34em, 11px); letter-spacing: .02em; color: var(--ink-3); margin-left: .22em; text-transform: none; }
 
   /* bloque estadio: oscuro en los dos temas, con los andariveles enormes de fondo */
   .p-stadium {
@@ -95,7 +95,8 @@
   /* tabla de datos: densa, números en mono a la derecha, la fila entera lleva al detalle */
   .p-tbl { width: 100%; border-collapse: collapse; font-size: 13px; }
   .p-tbl th { font: 600 10.5px/1 var(--f-ui); letter-spacing: .1em; text-transform: uppercase; color: var(--ink-3); text-align: left; padding: var(--sp-3) var(--sp-4); border-bottom: 1px solid var(--line); white-space: nowrap; }
-  .p-tbl td { padding: 0 var(--sp-4); height: 46px; border-bottom: 1px solid var(--line); white-space: nowrap; }
+  /* 46 px es el mínimo: una fila de dos renglones (la nota del Registro, el plan de un tramo) crece con aire arriba y abajo */
+  .p-tbl td { padding: var(--sp-3) var(--sp-4); height: 46px; border-bottom: 1px solid var(--line); white-space: nowrap; }
   .p-tbl tbody tr:last-child td { border-bottom: 0; }
   /* encabezado que ordena: el texto es el botón; la columna elegida, en tinta y con su flecha */
   .p-tbl .p-sort { display: inline-flex; align-items: center; gap: var(--sp-1); font: inherit; letter-spacing: inherit; text-transform: inherit; color: inherit; border-radius: 3px; transition: color .12s var(--ease); }

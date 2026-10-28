@@ -129,7 +129,7 @@
   .p-laps-t { margin-top: var(--sp-3); display: grid; gap: var(--sp-1); }
   .p-lap { display: grid; grid-template-columns: 1.2fr 1fr 1fr 1fr 1fr 28px; gap: var(--sp-1); align-items: center; }
   .p-lap .p-in { height: 30px; padding: 0 var(--sp-2); text-align: center; font-family: var(--f-mono); font-size: 13px; }
-  .p-lap.h span { font: 600 9.5px/1 var(--f-ui); letter-spacing: .08em; text-transform: uppercase; color: var(--ink-3); text-align: center; }
+  .p-lap.h span { font: 600 10.5px/1 var(--f-ui); letter-spacing: .08em; text-transform: uppercase; color: var(--ink-3); text-align: center; }
   .p-lap .ib { width: 28px; height: 28px; }
   .p-lrow .p-btn.add { margin-top: var(--sp-3); width: 100%; border-style: dashed; }
 
@@ -148,7 +148,6 @@
   .p-pdays { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: var(--sp-1); }
   .p-pdays button { position: relative; padding: var(--sp-3) 0; border-radius: var(--r-md); border: 1px solid var(--line-2); display: grid; justify-items: center; gap: var(--sp-1); transition: border-color .15s var(--ease); }
   .p-pdays button:hover { border-color: var(--ink-4); }
-  .p-pdays .lbl { font-size: 9.5px; }
   .p-pdays .disp { font-size: 22px; font-style: italic; }
   .p-pdays .busy { position: absolute; bottom: 5px; width: 14px; height: 3px; background: var(--tc); }
   .p-pdays .today .disp { color: var(--acc); }
