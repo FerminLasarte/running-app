@@ -20,13 +20,16 @@ export function PanelHost() {
   const ret = useRef<Element | null>(null);
   const open = !!sheet;
 
-  /* al abrir: guardo el foco y bloqueo el scroll de atrás; al cerrar, lo devuelvo */
+  /* al abrir: guardo el foco y bloqueo el scroll de atrás; al cerrar, lo devuelvo. El bloqueo va en <html>: base.css
+     le pone overflow-x: clip, así que el overflow del body no pasa a la ventana y el body se vuelve su propia caja de
+     scroll; la barra lateral y la de arriba (sticky) se quedan arriba del todo y, con la página bajada, desaparecen */
   useEffect(() => {
     if (!open) return;
     ret.current = sheetOpener() || document.activeElement;
-    document.body.style.overflow = 'hidden';
+    const html = document.documentElement;
+    html.style.overflow = 'hidden';
     return () => {
-      document.body.style.overflow = '';
+      html.style.overflow = '';
       const r = ret.current as HTMLElement | null;
       ret.current = null;
       if (r && r.isConnected && r.focus) r.focus({ preventScroll: true });
