@@ -14,8 +14,6 @@
 
   /* «Ver tabla»: los datos del gráfico en filas, con su propio scroll para no estirar el panel */
   .p-chart-tbl { margin-top: var(--sp-3); }
-  .p-chart-tbl summary { width: fit-content; cursor: pointer; color: var(--ink-2); font-size: 12.5px; font-weight: 600; border-radius: 2px; }
-  .p-chart-tbl summary:hover { color: var(--ink); }
   .p-chart-tbl .tw { max-height: 320px; overflow: auto; margin-top: var(--sp-2); border: 1px solid var(--line); border-radius: var(--r-sm); }
   .p-chart-tbl table { width: 100%; border-collapse: collapse; font-size: 12.5px; }
   .p-chart-tbl th, .p-chart-tbl td { padding: var(--sp-2) var(--sp-3); border-bottom: 1px solid var(--line); text-align: left; white-space: nowrap; font-weight: 400; }

@@ -18,6 +18,8 @@ export interface Score {
   parts: ScorePart[];
   notes: string[];
   summary?: string;
+  /** cómo se arma el puntaje (va plegado debajo del desglose) */
+  how?: string;
 }
 export type Band = { k: 'good' | 'warn' | 'serious' | 'crit'; t: string };
 
@@ -364,10 +366,9 @@ export function scoreStaged(s: Session): Score {
   const loss = worst.max! - worst.pts!,
     summary = loss < 3 ? 'Hiciste lo que planificaste.' : 'Lo que más puntos te sacó: ' + worst.label.toLowerCase() + ' (−' + loss + ').';
   feelNotes(r, easy, notes);
-  notes.push(
-    'La parte principal pesa 70 puntos; calentamiento, recuperaciones y enfriamiento suman el resto y se evalúan con más suavidad. Si cargaste parciales por km, cuentan tanto como el promedio de la etapa. Caerte de ritmo hacia el final de las series o una deriva cardíaca alta en un fondo también restan.',
-  );
-  return { score, parts, notes, summary };
+  const how =
+    'La parte principal pesa 70 puntos; calentamiento, recuperaciones y enfriamiento suman el resto y se evalúan con más suavidad. Si cargaste parciales por km, cuentan tanto como el promedio de la etapa. Caerte de ritmo hacia el final de las series o una deriva cardíaca alta en un fondo también restan.';
+  return { score, parts, notes, summary, how };
 }
 
 /* el puntaje se recalcula muchas veces por render: lo guardo por objeto de sesión (las sesiones son inmutables) */

@@ -8,13 +8,14 @@
 
   /* leyenda en el encabezado del panel */
   .an-keys { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: var(--sp-2) var(--sp-4); }
+  .an-keys-b { justify-content: flex-start; margin-bottom: var(--sp-4); }
 
   /* textos dentro de los paneles: la nota en gris oscuro, la explicación del cálculo más chica al pie */
   .an-note { color: var(--ink-2); font-size: 13px; line-height: 1.5; padding-top: var(--sp-3); }
   .an-note:first-child { padding-top: 0; }
   .an-note b { color: var(--ink); font-weight: 600; }
   .an-warn { color: var(--ink); border-left: 3px solid var(--t-tempo); padding: var(--sp-2) 0 var(--sp-2) var(--sp-3); }
-  .an-foot { color: var(--ink-3); font-size: 12px; line-height: 1.5; padding-top: var(--sp-4); max-width: 110ch; }
+  .an-foot { color: var(--ink-3); font-size: 12px; line-height: 1.5; padding-top: var(--sp-4); max-width: 68ch; }
   .an-tight { padding-top: var(--sp-2); padding-bottom: var(--sp-2); }
   .an-sep { border-top: 1px solid var(--line); }
   .an-rowb { display: flex; align-items: baseline; justify-content: space-between; gap: var(--sp-3); }
@@ -41,7 +42,9 @@
   .an-pred small { display: flex; flex-wrap: wrap; align-items: center; gap: var(--sp-2); margin-top: var(--sp-3); font-size: 12px; color: var(--ink-3); }
   .an-pred .goal::before { content: ""; position: absolute; top: -1px; left: 0; right: 0; height: 3px; background: var(--acc); }
   .an-pred .goal .an-dist { color: var(--acc); }
-  .an-pred + .an-foot { padding: var(--sp-4) var(--sp-5); }
+  /* «¿Cómo se calcula?» al pie: si Tus marcas estira el panel, el aire queda entre los tiempos y la explicación */
+  .an-predp { display: flex; flex-direction: column; }
+  .an-predp > .an-sep:last-child { margin-top: auto; }
 
   /* tus ritmos: una regla de lento a rápido y cada ritmo con su tramo */
   .an-ruler { position: relative; height: 26px; border-bottom: 1px solid var(--line-2); margin-bottom: var(--sp-2); }

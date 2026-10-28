@@ -53,7 +53,7 @@ export interface ChartTable {
 function ChartTableView({ t, label }: { t: ChartTable; label: string }) {
   const [open, setOpen] = useState(false);
   return (
-    <details className="p-chart-tbl" onToggle={(e) => setOpen(e.currentTarget.open)}>
+    <details className="p-more p-chart-tbl" onToggle={(e) => setOpen(e.currentTarget.open)}>
       <summary>Ver tabla</summary>
       {open ? (
         <div className="tw">

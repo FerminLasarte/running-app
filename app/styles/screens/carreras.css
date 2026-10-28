@@ -11,15 +11,11 @@
   .car-note { color: var(--ink-2); font-size: 13px; line-height: 1.5; padding-top: var(--sp-4); }
   .car-note:first-child { padding-top: 0; }
   .car-note b, .car-foot b { color: var(--ink); font-weight: 600; }
-  .car-foot { color: var(--ink-3); font-size: 12px; line-height: 1.5; padding-top: var(--sp-3); max-width: 110ch; }
+  .car-foot { color: var(--ink-3); font-size: 12px; line-height: 1.5; padding-top: var(--sp-3); max-width: 68ch; }
   .car-foot:first-child { padding-top: 0; }
   .car-acts { display: flex; flex-wrap: wrap; gap: var(--sp-2); margin-top: var(--sp-4); }
   .car-sep { border-top: 1px solid var(--line); }
   .car-more { margin-top: var(--sp-3); font-size: 12.5px; }
-  .car-more summary { width: fit-content; cursor: pointer; color: var(--ink-2); font-weight: 600; border-radius: 2px; }
-  .car-more summary:hover { color: var(--ink); }
-  .car-more .p-tbl { margin-top: var(--sp-3); }
-  .car-more .p-tbl td { height: 36px; }
 
   /* el estadio: nombre enorme (se achica si su palabra más larga no entra), datos del lugar, reloj y la fila de tiempos */
   .car-hero { --side: 260px; gap: var(--sp-12); padding: var(--sp-8) var(--sp-10); }

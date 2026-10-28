@@ -4,7 +4,7 @@
 import { prXp } from '@/lib/domain/trophies';
 import { XP_TITLES, nextTitle, titlePos, xpFor, type XpState } from '@/lib/domain/xp';
 import { dateLabel, nf } from '@/lib/domain/util';
-import { Panel } from '@/components/pista/structure';
+import { More, Panel } from '@/components/pista/structure';
 import { cssVars } from '@/components/pista/util';
 import { LO_PARTS } from './util';
 
@@ -74,14 +74,13 @@ export function Road({ X, i }: { X: XpState; i: number }) {
           </text>
         </svg>
       </div>
-      <details className="lo-more">
-        <summary>¿Cómo se gana experiencia?</summary>
+      <More summary="¿Cómo se gana experiencia?" className="lo-more">
         <p>
           Cada salida da <b>10 XP por km</b>. Suman extra: series o tempo (+20), test o carrera (+50), fondo de 15 km o más (+30), sesión de tu plan (+25) y puntaje de 90 o más (+25; de 75 a 89, +10). Además, los trofeos: bronce (desde +50), plata (desde +150), oro (desde +400) y platino (desde +900);
           las <b>marcas</b> dan más cuanto más difíciles son (por ejemplo, bajar de 25:00 en 5K da {prXp(1500, 5, 1)} XP, de 50:00 en 10K {prXp(3000, 10, 1.1)}, de 2:00:00 en media {prXp(7200, 21.0975, 1.35)} y de 4:15:00 en maratón {prXp(15300, 42.195, 1.7)});
           desafío cumplido (+200), semana con tu objetivo de salidas (+40) y carrera terminada (+300). Para subir de nivel cada vez hace falta un poco más.
         </p>
-      </details>
+      </More>
     </Panel>
   );
 }
