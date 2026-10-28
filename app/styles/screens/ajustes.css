@@ -61,7 +61,7 @@
   .aj-zbar.tall { margin-top: var(--sp-10); }
   .aj-zhd.up > span { top: -38px; }
   .aj-zax { position: relative; height: 18px; margin-top: var(--sp-1); }
-  .aj-zax span { position: absolute; top: 6px; transform: translateX(-50%); font: 500 10px/1 var(--f-mono); color: var(--ink-3); }
+  .aj-zax span { position: absolute; top: 6px; transform: translateX(-50%); font: 500 11px/1 var(--f-mono); color: var(--ink-3); }
   .aj-zax span::before { content: ""; position: absolute; left: 50%; top: -6px; width: 1px; height: 4px; background: var(--line-2); }
   .aj-ztab { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: var(--sp-3); margin-top: var(--sp-5); }
   .aj-ztab > div { padding: var(--sp-3); border-top: 3px solid var(--zc); background: var(--bg); min-width: 0; }

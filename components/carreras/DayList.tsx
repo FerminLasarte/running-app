@@ -96,22 +96,25 @@ export function DayList({ race }: { race: Race }) {
   return (
     <Panel id="car-dia" className="p-c4 p-rise car-day" style={cssVars({ '--i': 3 })} title="Para el día" sub={done + ' de ' + L.length + ' listos'}>
       {G.slice(0, cut).map(group)}
-      {rest.length ? (
-        <More className="car-more car-later" summary={'Después: ' + rest.reduce((a, g) => a + g.it.length, 0) + ' más, hasta el día de la carrera'}>
-          {rest.map(group)}
-        </More>
-      ) : null}
-      {race.time ? null : (
-        <>
-          <p className="car-note">Cargá la hora de largada en Ajustes y te armo el horario del día.</p>
-          <div className="car-acts">
-            <Button size="sm" onClick={() => editRace(race.id, 'time')}>
-              Cargar la hora
-            </Button>
-          </div>
-        </>
-      )}
-      <p className="car-foot">Esta guía es general. Para la semana previa y el volumen, seguí lo que te indique tu entrenador.</p>
+      {/* lo que sigue va apoyado abajo: con la carrera lejos la lista es corta y el aire queda entre ella y el pie */}
+      <div className="car-day-foot">
+        {rest.length ? (
+          <More className="car-more car-later" summary={'Después: ' + rest.reduce((a, g) => a + g.it.length, 0) + ' más, hasta el día de la carrera'}>
+            {rest.map(group)}
+          </More>
+        ) : null}
+        {race.time ? null : (
+          <>
+            <p className="car-note">Cargá la hora de largada en Ajustes y te armo el horario del día.</p>
+            <div className="car-acts">
+              <Button size="sm" onClick={() => editRace(race.id, 'time')}>
+                Cargar la hora
+              </Button>
+            </div>
+          </>
+        )}
+        <p className="car-foot">Esta guía es general. Para la semana previa y el volumen, seguí lo que te indique tu entrenador.</p>
+      </div>
     </Panel>
   );
 }
