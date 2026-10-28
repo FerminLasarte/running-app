@@ -8,7 +8,7 @@
   .ses-col > div:empty { display: none; }
   /* sin nada al costado, lo principal ocupa todo el ancho */
   .ses-side:not(:has(.p-panel)) { display: none; }
-  .ses:not(:has(.ses-side .p-panel)) .ses-main { grid-column: span 12; }
+  .ses:not(:has(.ses-side .p-panel)) .ses-main { grid-column: 1 / -1; }
 
   /* encabezado */
   .ses-hd { margin-bottom: var(--sp-2); }
