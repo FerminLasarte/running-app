@@ -63,9 +63,9 @@ export function Panel({
 }
 
 /** un desplegable: lo que se lee recién si interesa (la tabla de un gráfico, lo que viene después, cómo se calcula) */
-export function More({ summary, className, children }: { summary: ReactNode; className?: string; children: ReactNode }) {
+export function More({ summary, className, open, children }: { summary: ReactNode; className?: string; open?: boolean; children: ReactNode }) {
   return (
-    <details className={cx('p-more', className)}>
+    <details className={cx('p-more', className)} open={open}>
       <summary>{summary}</summary>
       {children}
     </details>

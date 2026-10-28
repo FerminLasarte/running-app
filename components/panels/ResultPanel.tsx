@@ -1,7 +1,7 @@
 'use client';
 /* Panel «Registrar» / «Editar resultado»: qué sesión fue → los datos (Strava los completa y cada campo lo dice; el
-   ritmo se calcula; avisa en el momento lo que falta y si quedaste dentro del plan) → cómo te sentiste. Se guarda con
-   ⌘↵. Si la página se recarga, lo cargado vuelve como borrador (lib/data/draft.ts). La lógica está en
+   ritmo se calcula; avisa en el momento lo que falta y si quedaste dentro del plan) → cómo te sentiste. Con Strava
+   conectado, al abrir se busca sola la salida y sus números quedan plegados: alcanza con la sensación. Se guarda con ⌘↵. Si la página se recarga, lo cargado vuelve como borrador (lib/data/draft.ts). La lógica está en
    lib/domain/resultForm.ts. */
 import { useEffect, useMemo, useRef, useState, type FocusEvent } from 'react';
 import { ArrowsClockwise, Check, Cloud, CloudRain, Fire, Snowflake, Sun, Wind, type Icon } from '@phosphor-icons/react';
@@ -48,6 +48,7 @@ import {
 } from '@/lib/domain/resultForm';
 import { Button, Choices, Segmented, useRoving } from '@/components/pista/controls';
 import { Field, HmsInput, Input, MsInput, TextArea, UnitInput } from '@/components/pista/fields';
+import { More } from '@/components/pista/structure';
 import { briefOf, SessionBar } from '@/components/pista/session';
 import { cssVars, typeColor } from '@/components/pista/util';
 import { useStravaStatus } from '@/components/shell/useStravaStatus';
@@ -186,6 +187,10 @@ export default function ResultPanel(props: ResultProps & { svLoad?: boolean }) {
   const [seen, setSeen] = useState<Set<FlatKey>>(() => new Set());
   /* lo que trajo Strava, para marcar los campos que siguen igual */
   const [svFlat, setSvFlat] = useState<FlatV | null>(null);
+  /* los datos plegados se abren solos si al guardar falta algo ahí */
+  const [dataOpen, setDataOpen] = useState(false);
+  /* molestia, zapatillas, clima y notas: abiertos si ya traen algo */
+  const [moreOpen] = useState(() => !!(init.f.pain || init.f.shoe || init.f.weather || init.f.notes.trim()));
   const [aiBusy, setAiBusy] = useState(false);
   const [aiNote, setAiNote] = useState('');
   const cfg = useApp((st) => st.cfg);
@@ -243,14 +248,17 @@ export default function ResultPanel(props: ResultProps & { svLoad?: boolean }) {
       setF((g) => ({ ...g, sv: { ...g.sv, busy: false, pick: null, msg: stravaErrMsg(e) } }));
     }
   }
+  /* desde la paleta, o con Strava conectado al cargar una salida nueva: la búsqueda arranca sola (una vez) */
   const started = useRef(false);
+  const svOn = !!(strava && strava.connected);
   useEffect(() => {
-    if (started.current || !props.svLoad) return;
+    if (started.current) return;
+    if (!props.svLoad && !(svOn && !fRef.current.editing && !fRef.current.stravaId)) return;
     started.current = true;
     svLoad();
-    // solo al abrir
+    // al abrir, o cuando se sabe que Strava está conectado
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [svOn]);
   function svPick(id: string) {
     const a = (f.sv.list || []).find((x) => x.id === id);
     if (!a) return;
@@ -314,12 +322,14 @@ export default function ResultPanel(props: ResultProps & { svLoad?: boolean }) {
   function save() {
     const r = buildResult(f);
     if ('err' in r) {
+      setDataOpen(true);
       /* sin plan por etapas: el campo con el problema avisa ahí mismo y se lleva el foco */
       const fe = f.mode === 'flat' ? flatRead(f).err : {},
         k = FLAT_KEYS.find((q) => fe[q]);
       if (k && r.err === fe[k]) {
         setSeen(new Set(FLAT_KEYS));
-        document.getElementById(FID[k])?.focus();
+        /* después de que se abran los datos plegados */
+        focusId.current = FID[k];
         return;
       }
       setErr({ m: r.err, at: f });
@@ -363,6 +373,83 @@ export default function ResultPanel(props: ResultProps & { svLoad?: boolean }) {
         options={TYPE_KEYS.map((k) => ({ value: k, label: TYPES[k].label, color: typeColor(k) }))}
       />
     ) : null;
+  /* lo que marca el reloj: los totales o las etapas */
+  const fields = f.mode === 'flat' ? (
+    <div className="p-dr-g2">
+      <Field id="rf-date" label="Fecha">
+        <Input id="rf-date" type="date" max={tS} value={f.date} onChange={(e) => setF((g) => ({ ...g, date: e.target.value }))} />
+      </Field>
+      <Field id="rf-dist" label="Distancia" src={src('dist')} error={show('dist')}>
+        <UnitInput
+          id="rf-dist"
+          unit="km"
+          placeholder="10,2"
+          autoFocus={f.editing}
+          invalid={!!show('dist')}
+          value={f.flat.dist}
+          onChange={(e) => setFl({ dist: e.target.value })}
+          onBlur={leave('dist')}
+        />
+      </Field>
+      <div onBlur={leave('t')}>
+        <Field id="rf-t" label="Tiempo" src={src('t')} error={show('t')} group>
+          <HmsInput id="rf-t" invalid={!!show('t')} value={f.flat.t} onChange={(t: Hms) => setFl({ t })} />
+        </Field>
+      </div>
+      <div onBlur={leave('pace')}>
+        {f.paceManual ? (
+          <Field id="rf-pace" label={paceLabel(f.type)} error={show('pace')} help="Vacío, se calcula con distancia y tiempo." group>
+            <MsInput id="rf-pace" invalid={!!show('pace')} value={f.flat.pace} onChange={(pace) => setFl({ pace })} />
+          </Field>
+        ) : (
+          <Field id="rf-pace" label={paceLabel(f.type)} group>
+            <div className="p-calc" aria-labelledby="rf-pace-l" role="group">
+              <span id="rf-pace" aria-live="polite">
+                {paceTxt}
+              </span>
+              <button type="button" className="p-lnk" onClick={() => setF((g) => ({ ...g, paceManual: true }))}>
+                Cambiar
+              </button>
+            </div>
+          </Field>
+        )}
+      </div>
+      <Field id="rf-hr" label="FC media" src={src('hr')} error={show('hr')}>
+        <UnitInput id="rf-hr" unit="lpm" inputMode="numeric" placeholder="140" invalid={!!show('hr')} value={f.flat.hr} onChange={(e) => setFl({ hr: e.target.value })} onBlur={leave('hr')} />
+      </Field>
+      <Field id="rf-hrmax" label="FC máxima" src={src('hrmax')} error={show('hrmax')}>
+        <UnitInput
+          id="rf-hrmax"
+          unit="lpm"
+          inputMode="numeric"
+          placeholder="165"
+          invalid={!!show('hrmax')}
+          value={f.flat.hrmax}
+          onChange={(e) => setFl({ hrmax: e.target.value })}
+          onBlur={leave('hrmax')}
+        />
+      </Field>
+    </div>
+  ) : (
+    <>
+      <div className="p-dr-g2" style={{ marginBottom: 16 }}>
+        <Field id="rf-date" label="Fecha">
+          <Input id="rf-date" type="date" max={tS} value={f.date} onChange={(e) => setF((g) => ({ ...g, date: e.target.value }))} />
+        </Field>
+      </div>
+      <LapsAiBox ai={ai} busy={aiBusy} note={aiNote} onFiles={aiLaps} />
+      <p className="p-dr-hint" style={{ margin: '0 0 12px' }}>
+        Cargá lo que marca tu reloj en cada etapa. Si terminó por distancia, alcanza con el tiempo; si terminó por tiempo, con la distancia.
+      </p>
+      <StageRows
+        f={f}
+        upd={setF}
+        onLapAdded={(id) => {
+          focusId.current = id;
+        }}
+      />
+    </>
+  );
   /* al editar no se elige la sesión: la sección 01 queda solo si hay tipo para elegir */
   const first = !f.editing || !!typePick;
 
@@ -401,81 +488,12 @@ export default function ResultPanel(props: ResultProps & { svLoad?: boolean }) {
             Con Strava conectado, tus salidas se cargan solas. <Link href="/ajustes">Conectalo en Ajustes</Link>.
           </p>
         ) : null}
-        {f.mode === 'flat' ? (
-          <div className="p-dr-g2">
-            <Field id="rf-date" label="Fecha">
-              <Input id="rf-date" type="date" max={tS} value={f.date} onChange={(e) => setF((g) => ({ ...g, date: e.target.value }))} />
-            </Field>
-            <Field id="rf-dist" label="Distancia" src={src('dist')} error={show('dist')}>
-              <UnitInput
-                id="rf-dist"
-                unit="km"
-                placeholder="10,2"
-                autoFocus={f.editing}
-                invalid={!!show('dist')}
-                value={f.flat.dist}
-                onChange={(e) => setFl({ dist: e.target.value })}
-                onBlur={leave('dist')}
-              />
-            </Field>
-            <div onBlur={leave('t')}>
-              <Field id="rf-t" label="Tiempo" src={src('t')} error={show('t')} group>
-                <HmsInput id="rf-t" invalid={!!show('t')} value={f.flat.t} onChange={(t: Hms) => setFl({ t })} />
-              </Field>
-            </div>
-            <div onBlur={leave('pace')}>
-              {f.paceManual ? (
-                <Field id="rf-pace" label={paceLabel(f.type)} error={show('pace')} help="Vacío, se calcula con distancia y tiempo." group>
-                  <MsInput id="rf-pace" invalid={!!show('pace')} value={f.flat.pace} onChange={(pace) => setFl({ pace })} />
-                </Field>
-              ) : (
-                <Field id="rf-pace" label={paceLabel(f.type)} group>
-                  <div className="p-calc" aria-labelledby="rf-pace-l" role="group">
-                    <span id="rf-pace" aria-live="polite">
-                      {paceTxt}
-                    </span>
-                    <button type="button" className="p-lnk" onClick={() => setF((g) => ({ ...g, paceManual: true }))}>
-                      Cambiar
-                    </button>
-                  </div>
-                </Field>
-              )}
-            </div>
-            <Field id="rf-hr" label="FC media" src={src('hr')} error={show('hr')}>
-              <UnitInput id="rf-hr" unit="lpm" inputMode="numeric" placeholder="140" invalid={!!show('hr')} value={f.flat.hr} onChange={(e) => setFl({ hr: e.target.value })} onBlur={leave('hr')} />
-            </Field>
-            <Field id="rf-hrmax" label="FC máxima" src={src('hrmax')} error={show('hrmax')}>
-              <UnitInput
-                id="rf-hrmax"
-                unit="lpm"
-                inputMode="numeric"
-                placeholder="165"
-                invalid={!!show('hrmax')}
-                value={f.flat.hrmax}
-                onChange={(e) => setFl({ hrmax: e.target.value })}
-                onBlur={leave('hrmax')}
-              />
-            </Field>
-          </div>
+        {f.stravaId ? (
+          <More summary="Ver o corregir los datos" className="p-dr-more" open={dataOpen || undefined}>
+            {fields}
+          </More>
         ) : (
-          <>
-            <div className="p-dr-g2" style={{ marginBottom: 16 }}>
-              <Field id="rf-date" label="Fecha">
-                <Input id="rf-date" type="date" max={tS} value={f.date} onChange={(e) => setF((g) => ({ ...g, date: e.target.value }))} />
-              </Field>
-            </div>
-            <LapsAiBox ai={ai} busy={aiBusy} note={aiNote} onFiles={aiLaps} />
-            <p className="p-dr-hint" style={{ margin: '0 0 12px' }}>
-              Cargá lo que marca tu reloj en cada etapa. Si terminó por distancia, alcanza con el tiempo; si terminó por tiempo, con la distancia.
-            </p>
-            <StageRows
-              f={f}
-              upd={setF}
-              onLapAdded={(id) => {
-                focusId.current = id;
-              }}
-            />
-          </>
+          fields
         )}
         {f.mode === 'flat' && (f.type === 'series' || f.type === 'tempo') ? (
           <p className="p-dr-hint">Usá el ritmo de las vueltas de tu reloj si podés: el promedio de toda la sesión incluye la entrada en calor y las pausas.</p>
@@ -508,40 +526,42 @@ export default function ResultPanel(props: ResultProps & { svLoad?: boolean }) {
           </span>
           <span>Excelente</span>
         </div>
-        <div className="p-dr-g2" style={{ gridTemplateColumns: 'auto minmax(0, 1fr)' }}>
-          <div className="p-fld">
-            <span className="p-flab">Molestia</span>
-            <Choices
-              label="¿Alguna molestia o dolor?"
-              value={f.pain ? '1' : '0'}
-              onChange={(v) => setF((g) => ({ ...g, pain: v === '1' ? 1 : 0 }))}
-              options={[
-                { value: '0', label: 'No' },
-                { value: '1', label: 'Sí' },
-              ]}
-            />
-          </div>
-          {shoes.length ? (
+        <More summary="Más detalles: molestia, zapatillas, clima y notas" className="p-dr-more" open={moreOpen || undefined}>
+          <div className="p-dr-g2" style={{ gridTemplateColumns: 'auto minmax(0, 1fr)' }}>
             <div className="p-fld">
-              <span className="p-flab">Zapatillas</span>
+              <span className="p-flab">Molestia</span>
               <Choices
-                label="Zapatillas"
-                value={f.shoe || ''}
-                onChange={(v) => setF((g) => ({ ...g, shoe: v || '' }))}
-                options={[...shoes.map((z) => ({ value: z.id, label: z.name, sub: fmt(shoeKm(z), 0) + ' km' })), { value: '', label: 'Ninguna' }]}
+                label="¿Alguna molestia o dolor?"
+                value={f.pain ? '1' : '0'}
+                onChange={(v) => setF((g) => ({ ...g, pain: v === '1' ? 1 : 0 }))}
+                options={[
+                  { value: '0', label: 'No' },
+                  { value: '1', label: 'Sí' },
+                ]}
               />
             </div>
-          ) : null}
-        </div>
-        <div className="p-fld" style={{ marginTop: 16 }}>
-          <span className="p-flab">Clima</span>
-          <Choices toggle label="Clima" value={f.weather || null} onChange={(v) => setF((g) => ({ ...g, weather: v || '' }))} options={WEATHER.map((w) => ({ value: w, label: w, icon: WEATHER_IC[w] }))} />
-        </div>
-        <div style={{ marginTop: 16 }}>
-          <Field id="rf-notes" label="Notas">
-            <TextArea id="rf-notes" rows={2} placeholder="Cómo estuvo, qué notaste…" value={f.notes} onChange={(e) => setF((g) => ({ ...g, notes: e.target.value }))} />
-          </Field>
-        </div>
+            {shoes.length ? (
+              <div className="p-fld">
+                <span className="p-flab">Zapatillas</span>
+                <Choices
+                  label="Zapatillas"
+                  value={f.shoe || ''}
+                  onChange={(v) => setF((g) => ({ ...g, shoe: v || '' }))}
+                  options={[...shoes.map((z) => ({ value: z.id, label: z.name, sub: fmt(shoeKm(z), 0) + ' km' })), { value: '', label: 'Ninguna' }]}
+                />
+              </div>
+            ) : null}
+          </div>
+          <div className="p-fld" style={{ marginTop: 16 }}>
+            <span className="p-flab">Clima</span>
+            <Choices toggle label="Clima" value={f.weather || null} onChange={(v) => setF((g) => ({ ...g, weather: v || '' }))} options={WEATHER.map((w) => ({ value: w, label: w, icon: WEATHER_IC[w] }))} />
+          </div>
+          <div style={{ marginTop: 16 }}>
+            <Field id="rf-notes" label="Notas">
+              <TextArea id="rf-notes" rows={2} placeholder="Cómo estuvo, qué notaste…" value={f.notes} onChange={(e) => setF((g) => ({ ...g, notes: e.target.value }))} />
+            </Field>
+          </div>
+        </More>
       </PanelSection>
     </PanelFrame>
   );
