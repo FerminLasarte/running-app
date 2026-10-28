@@ -225,13 +225,15 @@ const ROUTE_COLS = 'id,strava_id,date,name,km,tsec,poly';
 const toRoute = (r: RouteRow): Route => ({ id: r.id, sid: r.strava_id, date: String(r.date), name: r.name, km: Number(r.km), tsec: r.tsec, poly: r.poly });
 const byDate = (a: Route, b: Route) => a.date.localeCompare(b.date);
 
+/* por qué columna se ordena cada tabla al leerla de a páginas: `settings` no tiene `id` (es una fila por usuario) */
+const ORDER_BY: Record<string, string> = { settings: 'user_id' };
 async function fetchAll<T>(table: string, cols: string): Promise<T[]> {
   const out: T[] = [];
   for (let from = 0; ; from += 1000) {
     const { data, error } = await sb()
       .from(table)
       .select(cols)
-      .order('id')
+      .order(ORDER_BY[table] || 'id')
       .range(from, from + 999);
     if (error) throw error;
     out.push(...((data || []) as T[]));
