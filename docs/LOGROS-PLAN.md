@@ -189,3 +189,22 @@ ofreciendo «Crear cuenta» en Safari).
   de páginas (`rr-page-v2` → `v3`) para que se borre la vieja.
 - Cuidar: que la app instalada siga abriendo sin señal, y que el login y `/api` sigan sin pasar por la caché.
 - Listo cuando: después de un deploy, la primera apertura con señal ya muestra lo nuevo, y sin señal abre lo guardado.
+
+**Hecho.** Decisiones al pasarlo:
+
+- **Primero la red, con 3 s de espera** (`NET_WAIT` en `public/sw.js`). Si la red responde antes, se muestra lo nuevo.
+  Si no hay señal (el pedido falla enseguida) o tarda más de 3 s, va la copia guardada. Si todavía no hay copia, se
+  espera a la red.
+- **Lo que llega se guarda siempre**, aunque ya se haya mostrado la copia, con los archivos que usa, como antes
+  (`savePage`).
+- **Se pide el pedido original de la navegación**, así el login, si hace falta, redirige como siempre. Las
+  redirecciones no se guardan.
+- **La caché de páginas pasó a `rr-page-v3`.** La v2 se borra sola al activarse el service worker nuevo. `/_next/static`,
+  los íconos, el mapa, el login, `/api` y `/auth` siguen igual.
+- **Probado en modo producción** (`next start`, que es donde se registra el service worker):
+  - con el servidor andando, la página llega de la red aunque haya una copia distinta guardada, y la copia se actualiza;
+  - con el servidor apagado, abre al instante la copia guardada y la app se dibuja.
+- **Sin probar:** la red lenta (los 3 s), porque no se puede simular desde las herramientas.
+- **Ojo con el primer deploy:** la primera apertura después de este deploy todavía la sirve el service worker viejo, que
+  muestra la copia guardada. El nuevo queda activo en esa misma apertura y desde el deploy siguiente ya se ve lo nuevo
+  de entrada.
