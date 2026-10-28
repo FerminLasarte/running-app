@@ -8,6 +8,7 @@ import { CalendarBlank, ChartLineUp } from '@phosphor-icons/react';
 import { useS } from '@/lib/store';
 import { demoOn } from '@/lib/data/actions';
 import { AN_PERIODS } from '@/lib/domain/analysis';
+import { activeShoes } from '@/lib/domain/config';
 import { doneList } from '@/lib/domain/stats';
 import { Button, SelectButton, Tabs } from '@/components/pista/controls';
 import { EmptyPanel, PageHead } from '@/components/pista/structure';
@@ -40,13 +41,15 @@ export default function Frame({ children }: { children: ReactNode }) {
   const qs = useSearchParams().toString();
   const [per, setPer] = useAnPeriod();
   const n = doneList().length;
-  const ok = n >= AN_MIN;
+  const ok = n >= AN_MIN,
+    /* sin zapatillas cargadas, Zapatillas no tiene nada que filtrar por período */
+    per0 = tabOf(pathname) === 'zapas' && !activeShoes().length;
   return (
     <div className="an">
       <PageHead
         eyebrow="Cómo venís"
         title="Análisis"
-        actions={ok ? <SelectButton icon={CalendarBlank} options={AN_PERIODS} value={per} onChange={setPer} label="Período de los gráficos" /> : null}
+        actions={ok && !per0 ? <SelectButton icon={CalendarBlank} options={AN_PERIODS} value={per} onChange={setPer} label="Período de los gráficos" /> : null}
       />
       {ok ? (
         <>

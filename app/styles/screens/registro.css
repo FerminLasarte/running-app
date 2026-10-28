@@ -16,8 +16,10 @@
      herramientas bajan juntas y la búsqueda se estira */
   .reg-bar { display: flex; align-items: center; flex-wrap: wrap; gap: var(--sp-3); margin-bottom: var(--sp-4); }
   .reg-types { max-width: 100%; }
-  .reg-tools { flex: 1 1 520px; display: flex; flex-wrap: wrap; justify-content: flex-end; gap: var(--sp-3); }
-  .reg-tools .p-search { flex: 1 1 220px; max-width: 520px; }
+  /* la búsqueda llena lo que dejan los selectores: si las herramientas bajan a su propia fila, arrancan del borde
+     izquierdo como los tipos de arriba y no queda un hueco antes de la búsqueda */
+  .reg-tools { flex: 1 1 520px; display: flex; flex-wrap: wrap; gap: var(--sp-3); }
+  .reg-tools .p-search { flex: 1 1 220px; }
   .reg-tools .p-search input { width: 100%; }
 
   /* la nota de cada fila, en una línea debajo del tipo: recortada para no ensanchar la columna */

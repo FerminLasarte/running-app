@@ -28,7 +28,7 @@ const dateLabels = (t0: number, t1: number, X: (t: number) => number, n = 6) =>
     return { x: X(t), label: 'S' + isoWeek(new Date(t)) };
   });
 
-/* ---- los cuatro números ---- */
+/* ---- los cuatro números (tres sin deriva: sale solo de las series de Strava y el panel de abajo explica cómo) ---- */
 function Big() {
   const lv = lvPace(),
     vd = lv ? vdotOf(lv.sec, 10) : null,
@@ -88,12 +88,16 @@ function Big() {
               'Con 4 fondos o regenerativos con FC aparece'
             ),
           },
-          {
-            label: 'Deriva en fondos',
-            value: dav == null ? '–' : fmt(dav, 1),
-            unit: dav == null ? undefined : '%',
-            note: dav == null ? 'Calculala con Strava, abajo' : (dc.length === 1 ? 'Último fondo' : 'Promedio de los últimos ' + dc.length + ' fondos') + ': ' + decBand({ p: dav }).t.toLowerCase(),
-          },
+          ...(dav == null
+            ? []
+            : [
+                {
+                  label: 'Deriva en fondos',
+                  value: fmt(dav, 1),
+                  unit: '%',
+                  note: (dc.length === 1 ? 'Último fondo' : 'Promedio de los últimos ' + dc.length + ' fondos') + ': ' + decBand({ p: dav }).t.toLowerCase(),
+                },
+              ]),
         ]}
       />
     </Panel>
