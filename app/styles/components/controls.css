@@ -37,8 +37,9 @@
     color: color-mix(in oklab, var(--tc) 80%, var(--ink)); background: color-mix(in oklab, var(--tc) 14%, var(--surface));
   }
   .p-chip::before { content: ""; width: 6px; height: 6px; background: var(--tc); transform: skewX(-14deg); }
-  .p-chip.solid { background: var(--tc); color: #fff; }
-  .p-chip.solid::before { background: rgb(255 255 255 / .7); }
+  /* el texto sale del color del tipo: negro sobre los claros, blanco sobre los oscuros (el corte es donde los dos contrastan igual) */
+  .p-chip.solid { background: var(--tc); color: #fff; color: oklch(from var(--tc) clamp(0, (.564 - l) * 1000, 1) 0 0); }
+  .p-chip.solid::before { background: color-mix(in oklab, currentColor 70%, transparent); }
   /* tinta sobre tinta: en oscuro el test es claro, y el blanco no se leería */
   .p-chip.solid.ink { color: var(--bg); }
 
@@ -54,7 +55,7 @@
   .p-tag.warn { color: var(--t-tempo); border-color: color-mix(in oklab, var(--t-tempo) 50%, transparent); }
 
   .p-pr {
-    display: inline-flex; align-items: center; height: 18px; padding: 0 var(--sp-2); border-radius: 2px; background: var(--acc); color: #fff;
+    display: inline-flex; align-items: center; height: 18px; padding: 0 var(--sp-2); border-radius: 2px; background: var(--acc); color: var(--acc-ink);
     font: italic 900 11px/1 var(--f-disp); font-stretch: 70%; letter-spacing: .04em; vertical-align: middle;
   }
 

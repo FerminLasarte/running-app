@@ -26,9 +26,13 @@ function WeekCrumb() {
         <button className="ib" type="button" aria-label="Semana anterior" onClick={() => weekGo(-1)}>
           <CaretLeft aria-hidden="true" />
         </button>
+        {/* en el celu se ve «S44»; «Semana 44» queda para los lectores de pantalla */}
         <b>
-          Semana {isoWeek(mon)}{' '}
-          <span>
+          <span className="wk-full">Semana {isoWeek(mon)}</span>
+          <span className="wk-short" aria-hidden="true">
+            S{isoWeek(mon)}
+          </span>{' '}
+          <span className="wk-range">
             · {dShort(mon)} – {dShort(addDays(mon, 6))}
           </span>
         </b>
@@ -165,7 +169,7 @@ export function TopBar({ section, pathname }: { section: SectionDef | null; path
       <ThemeButton />
       <button className="tb-btn pri" type="button" onClick={() => openSheet('result', { id: null })}>
         <Plus weight="bold" aria-hidden="true" />
-        Registrar
+        <span className="tb-btn-t">Registrar</span>
         <kbd>R</kbd>
       </button>
       <Link className="me-s" href="/ajustes" aria-label="Ajustes y cuenta" aria-current={section?.id === 'ajustes' ? 'page' : undefined}>

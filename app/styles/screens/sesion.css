@@ -93,7 +93,7 @@
   .ses-feel .p-panel-b { display: grid; gap: var(--sp-5); }
   .ses-blk { display: grid; gap: var(--sp-3); }
   .ses-scale { display: grid; grid-template-columns: repeat(10, 1fr); gap: 3px; }
-  .ses-scale i { height: 22px; background: var(--sunk); display: grid; place-items: center; font: 500 10.5px/1 var(--f-mono); color: var(--ink-4); font-style: normal; }
+  .ses-scale i { height: 22px; background: var(--sunk); display: grid; place-items: center; font: 500 10.5px/1 var(--f-mono); color: var(--ink-3); font-style: normal; }
   .ses-scale i.on { background: var(--ink); color: var(--bg); }
   .ses-note { color: var(--ink-2); font-size: 13.5px; line-height: 1.55; }
   .ses-note.mut { color: var(--ink-3); font-size: 12.5px; }

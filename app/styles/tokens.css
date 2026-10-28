@@ -16,7 +16,7 @@
     --ink-4: #B0ADA5;
 
     --acc: #DC4520;          /* tartán */
-    --acc-ink: #FFFFFF;
+    --acc-ink: #0A0A0A;      /* texto sobre el tartán: casi negro da 4,6:1 en claro y 5,6:1 en oscuro; el blanco no llegaba a 4,5:1 */
     --acc-soft: #F8E2DA;
     --track: #EBD3C8;
 

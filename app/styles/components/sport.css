@@ -31,7 +31,7 @@
   .p-bib .pin { position: absolute; width: 9px; height: 9px; border-radius: 50%; background: var(--notch, var(--hero)); box-shadow: inset 0 1px 1.5px rgb(0 0 0 / .4); }
   .p-bib .pin.a { top: 11px; left: 11px; } .p-bib .pin.b { top: 11px; right: 11px; }
   .p-bib .pin.c { bottom: 78px; left: 11px; } .p-bib .pin.d { bottom: 78px; right: 11px; }
-  .p-bib-band { margin: var(--sp-8) var(--sp-6) 0; display: flex; justify-content: space-between; align-items: center; gap: var(--sp-2); height: 26px; padding: 0 var(--sp-3); background: var(--acc); color: #fff; font: italic 900 13px/1 var(--f-disp); font-stretch: 70%; letter-spacing: .06em; text-transform: uppercase; white-space: nowrap; }
+  .p-bib-band { margin: var(--sp-8) var(--sp-6) 0; display: flex; justify-content: space-between; align-items: center; gap: var(--sp-2); height: 26px; padding: 0 var(--sp-3); background: var(--acc); color: var(--acc-ink); font: italic 900 13px/1 var(--f-disp); font-stretch: 70%; letter-spacing: .06em; text-transform: uppercase; white-space: nowrap; }
   .p-bib-main { flex: 1; display: flex; flex-direction: column; justify-content: center; align-items: center; padding: var(--sp-2) var(--sp-5) var(--sp-3); }
   .p-bib-num { font-family: var(--f-disp); font-stretch: 62%; font-weight: 900; font-style: italic; font-size: 150px; line-height: .78; letter-spacing: -.035em; font-variant-numeric: tabular-nums; padding-right: .04em; }
   .p-bib-num-l { font: 700 11px/1 var(--f-ui); letter-spacing: .4em; text-transform: uppercase; margin-top: var(--sp-3); color: var(--paper-mut); padding-left: .4em; }
@@ -52,7 +52,7 @@
     box-shadow: 0 1px 0 rgb(0 0 0 / .1), 0 26px 40px -24px rgb(0 0 0 / .8); transform: rotate(2.2deg); transition: transform .5s var(--ease);
   }
   .p-band:hover { transform: none; }
-  .p-band-h { background: var(--acc); color: #fff; padding: var(--sp-4) var(--sp-5) var(--sp-3); text-align: center; }
+  .p-band-h { background: var(--acc); color: var(--acc-ink); padding: var(--sp-4) var(--sp-5) var(--sp-3); text-align: center; }
   .p-band-h b { display: block; font: italic 900 22px/1 var(--f-disp); font-stretch: 64%; text-transform: uppercase; letter-spacing: .02em; }
   .p-band-h small { display: block; font: 600 10px/1 var(--f-ui); letter-spacing: .14em; text-transform: uppercase; margin-top: var(--sp-1); opacity: .85; }
   .p-band table { width: 100%; border-collapse: collapse; font: 500 13px/1 var(--f-mono); font-variant-numeric: tabular-nums; }
